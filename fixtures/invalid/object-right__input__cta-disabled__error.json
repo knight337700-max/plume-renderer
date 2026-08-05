@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.2.0",
+  "channel": "KAKAO_MOMENT",
+  "placement": "BIZBOARD",
+  "template": "OBJECT_RIGHT",
+  "advertiser": {
+    "text": "자코모",
+    "renderMode": "REQUIRE_IN_COPY"
+  },
+  "copy": {
+    "headline": "자코모 프리미엄 소파",
+    "subcopy": "거실을 바꾸는 선택"
+  },
+  "cta": {
+    "mode": "APP_DOWNLOAD",
+    "landingType": "APP_STORE",
+    "label": "앱 다운로드",
+    "iconPath": "icons/app.png"
+  },
+  "assets": {
+    "product": {
+      "path": "fixtures/valid/object-right__product__basic__pass.png"
+    }
+  },
+  "output": {
+    "directory": "out",
+    "baseName": "cta-disabled",
+    "overwrite": false
+  }
+}

@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.renderer/contracts/render-manifest-1.0.0.schema.json",
+  "title": "Kakao Bizboard Persisted Render Manifest 1.0.0",
+  "description": "Persisted as render-manifest.json only after ERROR 0. It intentionally has no digest of itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "canonicalInputDigest",
+    "normalizedInputDigest",
+    "outputPngDigest",
+    "templateContractVersion",
+    "inputSchemaVersion",
+    "outputSchemaVersion",
+    "validatorResult",
+    "assetDigests",
+    "manualAcceptanceStatus"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "canonicalInputDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "normalizedInputDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "outputPngDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "templateContractVersion": {
+      "const": "1.1.0"
+    },
+    "inputSchemaVersion": {
+      "const": "1.2.0"
+    },
+    "outputSchemaVersion": {
+      "const": "2.0.0"
+    },
+    "validatorResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "errorCount",
+        "warningCount",
+        "infoCount",
+        "issues"
+      ],
+      "properties": {
+        "errorCount": {
+          "const": 0
+        },
+        "warningCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "infoCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationIssue"
+          }
+        }
+      }
+    },
+    "assetDigests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product",
+        "fonts",
+        "approvedIcons",
+        "referenceFixture"
+      ],
+      "properties": {
+        "product": {
+          "$ref": "#/$defs/assetDigest"
+        },
+        "fonts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assetDigest"
+          }
+        },
+        "approvedIcons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assetDigest"
+          }
+        },
+        "referenceFixture": {
+          "$ref": "#/$defs/assetDigest"
+        }
+      }
+    },
+    "manualAcceptanceStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "items"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "NOT_REVIEWED",
+            "APPROVED",
+            "REJECTED",
+            "BLOCKED"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "NOT_REVIEWED",
+                  "APPROVED",
+                  "REJECTED",
+                  "BLOCKED"
+                ]
+              },
+              "reviewer": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "reviewedAt": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "assetDigest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "validationIssue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "path",
+        "messageKey"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "ERROR",
+            "WARNING",
+            "INFO"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "messageKey": {
+          "type": "string"
+        },
+        "expected": true,
+        "actual": true,
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y",
+            "width",
+            "height"
+          ],
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            },
+            "height": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
+}

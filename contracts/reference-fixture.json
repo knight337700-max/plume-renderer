@@ -1,0 +1,60 @@
+{
+  "registryVersion": "1.0.0",
+  "templateContractVersion": "1.1.0",
+  "fixture": {
+    "id": "KAKAO_TOOL_OBJECT_RIGHT_1029X258",
+    "path": "reference/kakao-tool/OBJECT_RIGHT.png",
+    "sha256": "33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b",
+    "immutable": true,
+    "sourceClassification": "TOOL_OUTPUT",
+    "png": {
+      "width": 1029,
+      "height": 258,
+      "colorType": "RGBA",
+      "bitDepth": 8
+    },
+    "objectSlot": {
+      "x": 666,
+      "y": 0,
+      "width": 315,
+      "height": 258
+    },
+    "rightOuterMargin": {
+      "x": 981,
+      "y": 0,
+      "width": 48,
+      "height": 258,
+      "requiredAlpha": 0
+    },
+    "sampleVisibleInk": {
+      "headline": {
+        "x": 49,
+        "y": 77,
+        "width": 523,
+        "height": 45,
+        "color": "#4C4C4C"
+      },
+      "subcopy": {
+        "x": 50,
+        "y": 144,
+        "width": 533,
+        "height": 36,
+        "color": "#777777"
+      }
+    }
+  },
+  "nonNormativeReferences": [
+    {
+      "path": "reference/kakao-tool/THUMBNAIL_MULTI_RIGHT.png",
+      "usage": "PRESERVE_ONLY"
+    },
+    {
+      "path": "reference/kakao-tool/MASK_SEMICIRCLE_RIGHT.png",
+      "usage": "PRESERVE_ONLY"
+    },
+    {
+      "path": "reference/kakao-tool/THUMBNAIL_BOX_RIGHT.png",
+      "usage": "PRESERVE_ONLY"
+    }
+  ]
+}

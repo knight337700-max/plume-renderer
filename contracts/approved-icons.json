@@ -1,0 +1,10 @@
+{
+  "registryVersion": "1.0.0",
+  "status": "UNRESOLVED_ASSET",
+  "assets": [],
+  "enabledCtaModes": [
+    "NONE"
+  ],
+  "downloadAllowed": false,
+  "note": "No approved CTA icon asset or digest is present. Codex and the renderer must not create or download replacements."
+}

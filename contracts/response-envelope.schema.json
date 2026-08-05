@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.renderer/contracts/render-response-envelope-1.0.0.schema.json",
+  "title": "Kakao Bizboard Runtime Response Envelope 1.0.0",
+  "description": "Returned by Core and IPC. It is not persisted as a third artifact.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "manifestDigest",
+    "pngDigest",
+    "manifestPath",
+    "pngPath",
+    "downloadAllowed",
+    "status",
+    "errors",
+    "warnings"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "manifestDigest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pngDigest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "manifestPath": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pngPath": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "downloadAllowed": {
+      "type": "boolean"
+    },
+    "status": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/issue"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "severity": {
+                "const": "ERROR"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/issue"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "severity": {
+                "const": "WARNING"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "downloadAllowed": {
+            "const": true
+          }
+        },
+        "required": [
+          "downloadAllowed"
+        ]
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "const": "PASS"
+          },
+          "manifestDigest": {
+            "$ref": "#/$defs/sha256"
+          },
+          "pngDigest": {
+            "$ref": "#/$defs/sha256"
+          },
+          "manifestPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pngPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "errors": {
+            "type": "array",
+            "maxItems": 0
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "status": {
+            "const": "FAIL"
+          },
+          "manifestDigest": {
+            "type": "null"
+          },
+          "pngDigest": {
+            "type": "null"
+          },
+          "manifestPath": {
+            "type": "null"
+          },
+          "pngPath": {
+            "type": "null"
+          },
+          "errors": {
+            "type": "array",
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "path",
+        "messageKey"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "ERROR",
+            "WARNING",
+            "INFO"
+          ]
+        },
+        "path": {
+          "type": "string"
+        },
+        "messageKey": {
+          "type": "string"
+        },
+        "expected": true,
+        "actual": true,
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y",
+            "width",
+            "height"
+          ],
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "width": { "type": "number" },
+            "height": { "type": "number" }
+          }
+        }
+      }
+    }
+  }
+}

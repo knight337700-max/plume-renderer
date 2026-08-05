@@ -1,0 +1,46 @@
+{
+  "name": "kakao-bizboard-local-renderer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent local Kakao Bizboard OBJECT_RIGHT renderer core and CLI",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "bin": {
+    "kakao-bizboard-renderer": "./dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    }
+  },
+  "scripts": {
+    "verify:contract": "node scripts/verify-contract.mjs",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src tests",
+    "test": "pnpm build && vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "pnpm build && vitest run tests/integration",
+    "test:golden": "vitest run tests/golden",
+    "check": "pnpm verify:contract && pnpm typecheck && pnpm lint && pnpm build && vitest run",
+    "render": "node dist/cli/index.js"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "1.0.3",
+    "ajv": "8.20.0",
+    "canonicalize": "3.0.0",
+    "sharp": "0.35.3"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "eslint": "10.8.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.66.0",
+    "vitest": "4.1.10"
+  }
+}

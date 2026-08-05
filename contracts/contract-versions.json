@@ -1,0 +1,46 @@
+{
+  "contractFreezePhase": "C0",
+  "freezeStatus": "FROZEN_WITH_ASSET_BLOCKERS",
+  "documentVersion": {
+    "previous": "1.1.0",
+    "current": "1.2.0",
+    "bump": "minor",
+    "reason": "Approved contract clarifications without coordinate changes"
+  },
+  "templateContractVersion": "1.1.0",
+  "coordinatesChanged": false,
+  "inputSchemaVersion": {
+    "previous": "1.1.0",
+    "current": "1.2.0",
+    "bump": "minor",
+    "reason": "Explicit default materialization and canonicalization remain compatible with v1.1 input fields"
+  },
+  "outputSchemaVersion": {
+    "previous": "1.1.0",
+    "current": "2.0.0",
+    "bump": "major",
+    "reason": "Persisted render manifest and runtime response envelope are separated"
+  },
+  "renderManifestSchemaVersion": "1.0.0",
+  "responseEnvelopeSchemaVersion": "1.0.0",
+  "pngContract": {
+    "format": "PNG",
+    "colorType": "RGBA",
+    "bitDepth": 8,
+    "hasAlpha": true,
+    "width": 1029,
+    "height": 258
+  },
+  "artifactCounts": {
+    "pngCount": 1,
+    "manifestCount": 1,
+    "responseEnvelopeCount": 1
+  },
+  "fileSizePolicy": {
+    "unit": "decimal-byte",
+    "warningThresholdBytes": 270000,
+    "hardLimitBytes": 300000
+  },
+  "runtimeNetworkAccess": "PROHIBITED",
+  "officialPlatform": "Windows 10/11 x64"
+}
