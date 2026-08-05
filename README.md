@@ -1,6 +1,6 @@
 # Kakao Bizboard OBJECT_RIGHT local renderer
 
-Canonical 계약 `1.2.0`과 Template 좌표 계약 `1.1.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI다. 기존 plume 코드나 서버, DB, Queue, Electron UI를 사용하지 않으며 실행 중 네트워크 접근을 하지 않는다.
+Canonical 계약 `1.2.0`과 Template 좌표 계약 `1.1.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않으며 실행 중 네트워크 접근을 하지 않는다.
 
 ## 요구 환경
 
@@ -17,7 +17,44 @@ pnpm install --frozen-lockfile
 pnpm check
 ```
 
-`pnpm check`는 계약 무결성, TypeScript, lint, build, 단위·통합·Golden 테스트를 순서대로 실행한다.
+`pnpm check`는 계약 무결성, TypeScript, lint, Core·Desktop build, 단위·통합·보안·Golden·Electron E2E 테스트를 순서대로 실행한다.
+
+## Desktop 실행
+
+개발 환경에서도 localhost dev server를 사용하지 않고 로컬 정적 UI build를 Electron에서 연다.
+
+```powershell
+pnpm desktop:start
+```
+
+사용 순서:
+
+1. `PNG 선택`에서 제품 투명 PNG 한 개를 선택한다.
+2. 광고주체, Headline, Subcopy를 입력한다.
+3. 광고주체 문자열을 Headline 또는 Subcopy에 실제로 포함한다.
+4. 결과 폴더명을 입력하고 `Preview 검증`을 실행한다.
+5. ERROR가 0개인 `VALID_PASS` 또는 `VALID_WARNING` 상태에서 출력 폴더를 선택한다.
+6. `PNG 및 Manifest 저장`을 실행한다.
+
+입력이 변경되면 이전 PASS와 Export 권한은 즉시 무효화된다. ERROR는 Export를 차단하고 WARNING은 표시하되 Export를 허용한다. Preview Guide는 Object slot, text hard edge, 최소 gap, 우측 투명 margin을 보여주는 별도 DOM layer이며 Preview·Export PNG에는 합성되지 않는다.
+
+Renderer Process에는 제품·출력 절대 경로가 전달되지 않는다. OS dialog와 session workspace, output token, Core 재검증과 download gate는 Electron Main에서 처리한다.
+
+## Windows package
+
+```powershell
+pnpm package:windows
+pnpm smoke:package
+```
+
+생성 파일:
+
+```text
+release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
+release/Kakao-Bizboard-Local-Renderer-0.2.0-x64.exe
+```
+
+Portable 앱은 설치와 관리자 권한을 요구하지 않는다. 코드 서명과 자동 업데이트가 없으므로 Windows SmartScreen 경고가 표시될 수 있다. 앱은 비공식 로컬 Renderer이며 카카오 공식 서비스가 아니고 실제 광고 심사 승인을 보장하지 않는다.
 
 ## CLI
 
@@ -41,5 +78,9 @@ node dist/cli/index.js render `
 - Alpha Trim, 8-neighbor 노이즈 분리, 1.5× 최대 업스케일
 - RGBA PNG-32, 300000 decimal-byte hard limit
 - 동일 output root의 staging을 통한 manifest-first / PNG-last publish
+- Electron Main + sandboxed Preload + React 단일 화면 UI
+- 제품·Preview·output·export opaque token과 session cleanup
+- 동일 Core 기반 Preview/export byte equality
+- Runtime HTTP/HTTPS/WebSocket/telemetry/auto-update 0
 
-Electron/React UI, 원격 API, 업로드, 다른 CTA mode와 다른 템플릿은 C1 범위 밖이다.
+원격 API, 카카오 업로드, 다른 CTA mode, 다른 템플릿, AI, 프로젝트 저장 기능은 지원하지 않는다. CTA는 `NONE`만 활성이다. 외부 업로드 UAT는 사용자가 직접 수행하며 `tests/manual/manual-acceptance-checklist.md`에 기록한다.

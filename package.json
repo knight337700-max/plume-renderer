@@ -1,14 +1,15 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Independent local Kakao Bizboard OBJECT_RIGHT renderer core and CLI",
+  "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
   "license": "UNLICENSED",
   "packageManager": "pnpm@11.9.0",
   "engines": {
     "node": ">=24.0.0"
   },
+  "main": "dist-desktop/electron-main/main.cjs",
   "bin": {
     "kakao-bizboard-renderer": "./dist/cli/index.js"
   },
@@ -22,25 +23,80 @@
     "verify:contract": "node scripts/verify-contract.mjs",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint src tests",
+    "lint": "eslint src apps tests",
     "test": "pnpm build && vitest run",
     "test:unit": "vitest run tests/unit",
     "test:integration": "pnpm build && vitest run tests/integration",
     "test:golden": "vitest run tests/golden",
-    "check": "pnpm verify:contract && pnpm typecheck && pnpm lint && pnpm build && vitest run",
+    "test:security": "vitest run tests/desktop/security",
+    "test:desktop": "vitest run tests/desktop",
+    "test:e2e": "pnpm build:desktop && playwright test",
+    "build:desktop": "pnpm build && node scripts/build-desktop.mjs",
+    "desktop:start": "pnpm build:desktop && electron .",
+    "package:windows": "pnpm build:desktop && node scripts/package-windows.mjs",
+    "smoke:package": "node scripts/smoke-packaged.mjs",
+    "evidence:package": "node scripts/capture-packaged-evidence.mjs",
+    "check": "pnpm verify:contract && pnpm typecheck && pnpm lint && pnpm build && vitest run && pnpm build:desktop && playwright test",
     "render": "node dist/cli/index.js"
   },
   "dependencies": {
     "@napi-rs/canvas": "1.0.3",
     "ajv": "8.20.0",
     "canonicalize": "3.0.0",
-    "sharp": "0.35.3"
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sharp": "0.35.3",
+    "zod": "4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.1",
     "@types/node": "26.1.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@vitejs/plugin-react": "6.0.5",
+    "electron": "43.3.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "0.28.1",
     "eslint": "10.8.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.66.0",
+    "vite": "8.2.0",
     "vitest": "4.1.10"
+  },
+  "build": {
+    "appId": "local.kbr.desktop.renderer",
+    "productName": "Kakao Bizboard Local Renderer - Unofficial",
+    "executableName": "Kakao-Bizboard-Local-Renderer",
+    "artifactName": "Kakao-Bizboard-Local-Renderer-${version}-${arch}.${ext}",
+    "asar": false,
+    "compression": "normal",
+    "npmRebuild": false,
+    "removePackageScripts": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-desktop/**/*",
+      "contracts/**/*",
+      "assets/fonts/**/*",
+      "reference/kakao-tool/OBJECT_RIGHT.png",
+      "fixtures/valid/object-right__product__basic__pass.png",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    }
+  },
+  "optionalDependencies": {
+    "@img/sharp-libvips-win32-x64": "1.3.2",
+    "@img/sharp-win32-x64": "0.35.3",
+    "@napi-rs/canvas-win32-x64-msvc": "1.0.3"
   }
 }

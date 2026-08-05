@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { verifyRuntimeAssets } from "./assets.js";
+import { verifyRuntimeAssets, type RuntimeAssets } from "./assets.js";
 import { canonicalDigest, canonicalJson } from "./canonical.js";
 import type { ContractBundle } from "./contracts.js";
 import { loadContracts } from "./contracts.js";
@@ -28,6 +28,9 @@ import { renderRgbaPng, validateRenderedPng } from "./raster.js";
 import { SchemaValidators, parseJsonInput } from "./schema-validation.js";
 import { validateCanonicalSemantics, validateRawText } from "./semantic-validation.js";
 import type {
+  CanonicalInput,
+  InternalPreviewResult,
+  LayoutMeasurements,
   RenderManifest,
   RendererConfig,
   RenderResponse,
@@ -65,9 +68,66 @@ function manualAcceptanceStatus(): RenderManifest["manualAcceptanceStatus"] {
   };
 }
 
+type PreparedFailure = {
+  ok: false;
+  response: RenderResponse;
+  canonicalInputDigest: string | null;
+  productAssetDigest: string | null;
+  measurements: LayoutMeasurements | null;
+};
+
+type PreparedSuccess = {
+  ok: true;
+  canonicalInput: CanonicalInput;
+  canonicalInputDigest: string;
+  productAssetDigest: string;
+  measurements: LayoutMeasurements;
+  png: Buffer;
+  pngDigest: string;
+  issues: ValidationIssue[];
+  jobDirectory: string;
+  assets: RuntimeAssets;
+};
+
+type PreparedRender = PreparedFailure | PreparedSuccess;
+
+function preparedFailure(
+  issues: readonly ValidationIssue[],
+  detail: {
+    canonicalInputDigest?: string | null;
+    productAssetDigest?: string | null;
+    measurements?: LayoutMeasurements | null;
+  } = {},
+): PreparedFailure {
+  return {
+    ok: false,
+    response: failureResponse(issues),
+    canonicalInputDigest: detail.canonicalInputDigest ?? null,
+    productAssetDigest: detail.productAssetDigest ?? null,
+    measurements: detail.measurements ?? null,
+  };
+}
+
+function previewFailure(failure: PreparedFailure): InternalPreviewResult {
+  return {
+    canonicalInputDigest: failure.canonicalInputDigest,
+    normalizedInputDigest: failure.canonicalInputDigest,
+    productAssetDigest: failure.productAssetDigest,
+    previewPngDigest: null,
+    png: null,
+    pngMetadata: null,
+    measurements: failure.measurements,
+    validationStatus: "ERROR",
+    errors: failure.response.errors,
+    warnings: failure.response.warnings,
+  };
+}
+
 export type KakaoBizboardRenderer = {
   render(request: unknown): Promise<RenderResponse>;
   renderJson(json: string): Promise<RenderResponse>;
+  /** @internal Used only by the local Desktop Main Process. Never publishes files. */
+  previewInternal(request: unknown): Promise<InternalPreviewResult>;
 };
 
 export async function createKakaoBizboardRenderer(config: RendererConfig): Promise<KakaoBizboardRenderer> {
@@ -80,23 +140,28 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
   const schemas: SchemaValidators = new SchemaValidators(contracts);
   const assetVerification = await verifyRuntimeAssets(projectRoot, contracts);
 
-  async function render(request: unknown): Promise<RenderResponse> {
+  async function prepare(request: unknown): Promise<PreparedRender> {
     const schemaResult = schemas.validateInput(request);
-    if (!schemaResult.valid) return failureResponse(schemaResult.issues);
-    const rawTextIssues = validateRawText(schemaResult.value, contracts);
-    if (rawTextIssues.some(({ severity }) => severity === "ERROR")) return failureResponse(rawTextIssues);
+    if (!schemaResult.valid) return preparedFailure(schemaResult.issues);
 
+    const rawTextIssues = validateRawText(schemaResult.value, contracts);
     const defaulted = applyDefaults(schemaResult.value);
     const canonicalInput = normalizeInput(defaulted);
     const canonicalInputDigest = canonicalDigest(canonicalInput);
     const semanticIssues = validateCanonicalSemantics(canonicalInput, contracts);
-    const startupIssues = assetVerification.issues;
-    const preAssetIssues = sortAndDedupeIssues([...rawTextIssues, ...semanticIssues, ...startupIssues]);
-    if (preAssetIssues.some(({ severity }) => severity === "ERROR")) return failureResponse(preAssetIssues);
+    const preAssetIssues = sortAndDedupeIssues([
+      ...rawTextIssues,
+      ...semanticIssues,
+      ...assetVerification.issues,
+    ]);
+    if (preAssetIssues.some(({ severity }) => severity === "ERROR")) {
+      return preparedFailure(preAssetIssues, { canonicalInputDigest });
+    }
     if (!assetVerification.assets) {
-      return failureResponse([
-        createIssue(contracts.errorRegistry, "KBR-SYSTEM-001", "/assets/fonts"),
-      ]);
+      return preparedFailure(
+        [createIssue(contracts.errorRegistry, "KBR-SYSTEM-001", "/assets/fonts")],
+        { canonicalInputDigest },
+      );
     }
 
     let productPath: string;
@@ -104,12 +169,15 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
       productPath = await resolveTrustedInputFile(inputRoot, canonicalInput.assets.product.path);
     } catch (error) {
       if (error instanceof PathSecurityError) {
-        return failureResponse([
-          ...preAssetIssues,
-          createIssue(contracts.errorRegistry, "KBR-INPUT-009", "/assets/product/path", {
-            actual: error.inputPath,
-          }),
-        ]);
+        return preparedFailure(
+          [
+            ...preAssetIssues,
+            createIssue(contracts.errorRegistry, "KBR-INPUT-009", "/assets/product/path", {
+              actual: error.inputPath,
+            }),
+          ],
+          { canonicalInputDigest },
+        );
       }
       throw error;
     }
@@ -123,12 +191,15 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
       );
     } catch (error) {
       if (error instanceof PathSecurityError) {
-        return failureResponse([
-          ...preAssetIssues,
-          createIssue(contracts.errorRegistry, "KBR-INPUT-009", "/output/directory", {
-            actual: error.inputPath,
-          }),
-        ]);
+        return preparedFailure(
+          [
+            ...preAssetIssues,
+            createIssue(contracts.errorRegistry, "KBR-INPUT-009", "/output/directory", {
+              actual: error.inputPath,
+            }),
+          ],
+          { canonicalInputDigest },
+        );
       }
       throw error;
     }
@@ -139,40 +210,68 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
       contracts,
     );
     const productIssues = sortAndDedupeIssues([...preAssetIssues, ...productResult.issues]);
-    if (productIssues.some(({ severity }) => severity === "ERROR")) return failureResponse(productIssues);
+    if (productIssues.some(({ severity }) => severity === "ERROR")) {
+      return preparedFailure(productIssues, {
+        canonicalInputDigest,
+        productAssetDigest: productResult.productDigest ?? null,
+      });
+    }
     if (!productResult.analysis || !productResult.productDigest) {
-      return failureResponse([
-        ...productIssues,
-        createIssue(contracts.errorRegistry, "KBR-SYSTEM-005", "/assets/product/path"),
-      ]);
+      return preparedFailure(
+        [...productIssues, createIssue(contracts.errorRegistry, "KBR-SYSTEM-005", "/assets/product/path")],
+        { canonicalInputDigest, productAssetDigest: productResult.productDigest ?? null },
+      );
     }
 
     const layout = calculateLayout(canonicalInput, productResult.analysis, contracts);
     const layoutIssues = sortAndDedupeIssues([...productIssues, ...layout.issues]);
-    if (layoutIssues.some(({ severity }) => severity === "ERROR")) return failureResponse(layoutIssues);
+    if (layoutIssues.some(({ severity }) => severity === "ERROR")) {
+      return preparedFailure(layoutIssues, {
+        canonicalInputDigest,
+        productAssetDigest: productResult.productDigest,
+        measurements: layout.measurements,
+      });
+    }
 
     const png = renderRgbaPng(canonicalInput, productResult.analysis);
     const outputIssues = await validateRenderedPng(png, contracts);
-    const allIssuesBeforePublish = sortAndDedupeIssues([...layoutIssues, ...outputIssues]);
-    if (allIssuesBeforePublish.some(({ severity }) => severity === "ERROR")) {
-      return failureResponse(allIssuesBeforePublish);
+    const issues = sortAndDedupeIssues([...layoutIssues, ...outputIssues]);
+    if (issues.some(({ severity }) => severity === "ERROR")) {
+      return preparedFailure(issues, {
+        canonicalInputDigest,
+        productAssetDigest: productResult.productDigest,
+        measurements: layout.measurements,
+      });
     }
 
-    const pngDigest = sha256Bytes(png);
-    // Phase C0 exposes both legacy names. In v1.2, the Canonical Input is the
-    // default-materialized, NFC/trim-normalized value, so both names identify
-    // the same RFC 8785 JCS UTF-8 byte sequence.
-    const normalizedInputDigest = canonicalInputDigest;
+    return {
+      ok: true,
+      canonicalInput,
+      canonicalInputDigest,
+      productAssetDigest: productResult.productDigest,
+      measurements: layout.measurements,
+      png,
+      pngDigest: sha256Bytes(png),
+      issues,
+      jobDirectory,
+      assets: assetVerification.assets,
+    };
+  }
+
+  async function render(request: unknown): Promise<RenderResponse> {
+    const prepared = await prepare(request);
+    if (!prepared.ok) return prepared.response;
+
     const completeIssues = sortAndDedupeIssues([
-      ...allIssuesBeforePublish,
+      ...prepared.issues,
       createIssue(contracts.errorRegistry, "KBR-OUTPUT-010", "/output"),
     ]);
     const issueGroups = splitIssues(completeIssues);
     const manifest: RenderManifest = {
       schemaVersion: MANIFEST_SCHEMA_VERSION,
-      canonicalInputDigest,
-      normalizedInputDigest,
-      outputPngDigest: pngDigest,
+      canonicalInputDigest: prepared.canonicalInputDigest,
+      normalizedInputDigest: prepared.canonicalInputDigest,
+      outputPngDigest: prepared.pngDigest,
       templateContractVersion: TEMPLATE_CONTRACT_VERSION,
       inputSchemaVersion: INPUT_SCHEMA_VERSION,
       outputSchemaVersion: OUTPUT_SCHEMA_VERSION,
@@ -183,22 +282,22 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
         issues: completeIssues,
       },
       assetDigests: {
-        product: { id: "PRODUCT", sha256: productResult.productDigest },
-        fonts: assetVerification.assets.fontDigests,
+        product: { id: "PRODUCT", sha256: prepared.productAssetDigest },
+        fonts: prepared.assets.fontDigests,
         approvedIcons: [],
-        referenceFixture: assetVerification.assets.referenceDigest,
+        referenceFixture: prepared.assets.referenceDigest,
       },
       manualAcceptanceStatus: manualAcceptanceStatus(),
     };
     schemas.assertManifest(manifest);
     const manifestText = canonicalJson(manifest);
     const manifestDigest = sha256Bytes(Buffer.from(manifestText, "utf8"));
-    const expectedManifestPath = path.join(jobDirectory, "render-manifest.json");
-    const expectedPngPath = path.join(jobDirectory, "output.png");
+    const expectedManifestPath = path.join(prepared.jobDirectory, "render-manifest.json");
+    const expectedPngPath = path.join(prepared.jobDirectory, "output.png");
     const responseDraft: RenderResponse = {
       schemaVersion: RESPONSE_SCHEMA_VERSION,
       manifestDigest,
-      pngDigest,
+      pngDigest: prepared.pngDigest,
       manifestPath: expectedManifestPath,
       pngPath: expectedPngPath,
       downloadAllowed: true,
@@ -211,25 +310,59 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
     try {
       const published = await publishArtifacts({
         outputRoot,
-        jobDirectory,
-        png,
+        jobDirectory: prepared.jobDirectory,
+        png: prepared.png,
         manifest: manifestText,
-        overwrite: canonicalInput.output.overwrite,
+        overwrite: prepared.canonicalInput.output.overwrite,
       });
-      const response: RenderResponse = {
+      return {
         ...responseDraft,
         manifestPath: published.manifestPath,
         pngPath: published.pngPath,
       };
-      return response;
     } catch (error) {
       if (error instanceof PublishError) {
         return failureResponse([
-          ...allIssuesBeforePublish,
+          ...prepared.issues,
           createIssue(contracts.errorRegistry, error.code, "/output"),
         ]);
       }
       throw error;
+    }
+  }
+
+  async function previewInternal(request: unknown): Promise<InternalPreviewResult> {
+    try {
+      const prepared = await prepare(request);
+      if (!prepared.ok) return previewFailure(prepared);
+      const { warnings } = splitIssues(prepared.issues);
+      return {
+        canonicalInputDigest: prepared.canonicalInputDigest,
+        normalizedInputDigest: prepared.canonicalInputDigest,
+        productAssetDigest: prepared.productAssetDigest,
+        previewPngDigest: prepared.pngDigest,
+        png: prepared.png,
+        pngMetadata: {
+          format: "PNG",
+          colorType: "RGBA",
+          bitDepth: 8,
+          hasAlpha: true,
+          width: 1029,
+          height: 258,
+          bytes: prepared.png.byteLength,
+        },
+        measurements: prepared.measurements,
+        validationStatus: warnings.length > 0 ? "WARNING" : "PASS",
+        errors: [],
+        warnings,
+      };
+    } catch (error) {
+      if (process.env.KBR_DEBUG === "1") {
+        process.stderr.write(`${error instanceof Error ? error.stack : String(error)}\n`);
+      }
+      return previewFailure(
+        preparedFailure([createIssue(contracts.errorRegistry, "KBR-SYSTEM-005", "/")]),
+      );
     }
   }
 
@@ -240,9 +373,7 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
       if (process.env.KBR_DEBUG === "1") {
         process.stderr.write(`${error instanceof Error ? error.stack : String(error)}\n`);
       }
-      return failureResponse([
-        createIssue(contracts.errorRegistry, "KBR-SYSTEM-005", "/"),
-      ]);
+      return failureResponse([createIssue(contracts.errorRegistry, "KBR-SYSTEM-005", "/")]);
     }
   }
 
@@ -252,6 +383,7 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
       const parsed = parseJsonInput(json, contracts);
       return parsed.valid ? renderSafe(parsed.value) : failureResponse(parsed.issues);
     },
+    previewInternal,
   };
 }
 

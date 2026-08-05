@@ -194,6 +194,28 @@ export type RenderResponse = {
   warnings: ValidationIssue[];
 };
 
+/** @internal Desktop preview result. This is not part of the public JSON Input contract. */
+export type InternalPreviewResult = {
+  canonicalInputDigest: string | null;
+  normalizedInputDigest: string | null;
+  productAssetDigest: string | null;
+  previewPngDigest: string | null;
+  png: Buffer | null;
+  pngMetadata: {
+    format: "PNG";
+    colorType: "RGBA";
+    bitDepth: 8;
+    hasAlpha: true;
+    width: 1029;
+    height: 258;
+    bytes: number;
+  } | null;
+  measurements: LayoutMeasurements | null;
+  validationStatus: "PASS" | "WARNING" | "ERROR";
+  errors: ValidationIssue[];
+  warnings: ValidationIssue[];
+};
+
 export type RendererConfig = {
   projectRoot: string;
   inputRoot: string;

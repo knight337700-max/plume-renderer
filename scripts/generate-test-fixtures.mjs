@@ -40,6 +40,14 @@ await writeFile(
 );
 
 await writeFile(
+  path.join(validDirectory, "object-right__product__inset-alpha__pass.png"),
+  await rawImage(260, 160, (data, width) => {
+    rectangle(data, width, 10, 10, 250, 150, [33, 121, 214, 1]);
+    rectangle(data, width, 20, 20, 240, 140, [33, 121, 214, 255]);
+  }),
+);
+
+await writeFile(
   path.join(validDirectory, "object-right__alpha__hole-shadow__pass.png"),
   await rawImage(280, 180, (data, width) => {
     rectangle(data, width, 15, 25, 265, 145, [224, 93, 56, 255]);

@@ -1,6 +1,11 @@
 node_modules/
 dist/
+dist-desktop/
+release/
 out/
 .out-staging/
 coverage/
 *.log
+playwright-report/
+test-results/
+.cache/

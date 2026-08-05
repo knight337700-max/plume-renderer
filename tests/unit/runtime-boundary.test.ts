@@ -23,7 +23,7 @@ describe("standalone offline runtime boundary", () => {
       devDependencies?: Record<string, string>;
     };
     const names = [...Object.keys(packageJson.dependencies ?? {}), ...Object.keys(packageJson.devDependencies ?? {})];
-    const prohibited = /plume|railway|electron|react|postgres|^pg$|telemetry|analytics/iu;
+    const prohibited = /plume|railway|postgres|^pg$|telemetry|analytics/iu;
     expect(names.filter((name) => prohibited.test(name))).toEqual([]);
   });
 

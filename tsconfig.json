@@ -4,7 +4,9 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": [
-      "ES2024"
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
     ],
     "strict": true,
     "exactOptionalPropertyTypes": true,
@@ -27,10 +29,13 @@
     "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "jsx": "react-jsx"
   },
   "include": [
     "src/**/*.ts",
+    "apps/**/*.ts",
+    "apps/**/*.tsx",
     "tests/**/*.ts",
     "vitest.config.ts"
   ],
