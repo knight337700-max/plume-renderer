@@ -202,6 +202,46 @@ check(
     thumbnailFixture?.imageSlot?.height === 186,
   JSON.stringify(thumbnailFixture?.imageSlot),
 );
+const thumbnailMultiFixture = fixtureRegistry?.templates?.thumbnailMultiRight;
+const thumbnailMultiFixturePath = path.join(root, ...(thumbnailMultiFixture?.path?.split("/") ?? []));
+let actualThumbnailMultiHash = null;
+try {
+  actualThumbnailMultiHash = await sha256(thumbnailMultiFixturePath);
+} catch {
+  actualThumbnailMultiHash = null;
+}
+check(
+  "thumbnail_multi_reference_hash",
+  actualThumbnailMultiHash === thumbnailMultiFixture?.sha256,
+  `expected=${thumbnailMultiFixture?.sha256}; actual=${actualThumbnailMultiHash}`,
+);
+const multiSlots = thumbnailMultiFixture?.imageSlots ?? [];
+check(
+  "thumbnail_multi_coordinates",
+  thumbnailMultiFixture?.png?.width === 1029 &&
+    thumbnailMultiFixture?.png?.height === 258 &&
+    thumbnailMultiFixture?.text?.hardRightEdgeExclusive === 588 &&
+    thumbnailMultiFixture?.slotGapPx === 16 &&
+    thumbnailMultiFixture?.rightTransparentMarginPx === 48 &&
+    thumbnailMultiFixture?.topMarginPx === 43 &&
+    thumbnailMultiFixture?.bottomMarginPx === 43 &&
+    multiSlots.length === 2 &&
+    multiSlots[0]?.id === "IMAGE_PRIMARY" &&
+    multiSlots[0]?.order === 0 &&
+    multiSlots[0]?.x === 621 &&
+    multiSlots[0]?.y === 43 &&
+    multiSlots[0]?.width === 172 &&
+    multiSlots[0]?.height === 172 &&
+    multiSlots[0]?.cornerRadiusPx === 12 &&
+    multiSlots[1]?.id === "IMAGE_SECONDARY" &&
+    multiSlots[1]?.order === 1 &&
+    multiSlots[1]?.x === 809 &&
+    multiSlots[1]?.y === 43 &&
+    multiSlots[1]?.width === 172 &&
+    multiSlots[1]?.height === 172 &&
+    multiSlots[1]?.cornerRadiusPx === 12,
+  JSON.stringify({ text: thumbnailMultiFixture?.text, slots: multiSlots }),
+);
 
 check(
   "manifest_no_self_digest",
@@ -298,9 +338,10 @@ const capabilityRegistry = contracts.get("template-capabilities.json");
 const implementedCapabilities = capabilityRegistry?.capabilities?.filter(({ implementationStatus }) => implementationStatus === "IMPLEMENTED") ?? [];
 check(
   "integration_capability_gate",
-  implementedCapabilities.length === 2 &&
+  implementedCapabilities.length === 3 &&
     implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_OBJECT_RIGHT") &&
-    implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT"),
+    implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT") &&
+    implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT"),
   `implemented=${implementedCapabilities.map(({ formatProfileId }) => formatProfileId).join(",")}`,
 );
 check(
@@ -310,7 +351,7 @@ check(
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.current === "1.5.1" && versions?.templateContractVersion === "1.3.0",
+  versions?.documentVersion?.current === "1.6.0" && versions?.templateContractVersion === "1.3.0",
   `document=${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

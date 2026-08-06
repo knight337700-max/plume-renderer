@@ -5,7 +5,9 @@ import type { DesktopApi, ExportRequest, UiRenderInput } from "../../shared/src/
 
 const desktopApi: DesktopApi = Object.freeze({
   selectProductPng: () => ipcRenderer.invoke(DESKTOP_CHANNELS.selectProductPng),
+  selectSecondaryProductPng: () => ipcRenderer.invoke(DESKTOP_CHANNELS.selectSecondaryProductPng),
   clearProduct: () => ipcRenderer.invoke(DESKTOP_CHANNELS.clearProduct),
+  clearSecondaryProduct: () => ipcRenderer.invoke(DESKTOP_CHANNELS.clearSecondaryProduct),
   requestPreview: (input: UiRenderInput) => ipcRenderer.invoke(DESKTOP_CHANNELS.requestPreview, input),
   selectOutputDirectory: () => ipcRenderer.invoke(DESKTOP_CHANNELS.selectOutputDirectory),
   exportRender: (request: ExportRequest) => ipcRenderer.invoke(DESKTOP_CHANNELS.exportRender, request),

@@ -23,6 +23,11 @@ export {
   THUMBNAIL_BOX_RIGHT_RADIUS,
   THUMBNAIL_BOX_RIGHT_SLOT,
 } from "./thumbnail-box-right.js";
+export {
+  renderThumbnailMultiRight,
+  THUMBNAIL_MULTI_RIGHT_RADIUS,
+  THUMBNAIL_MULTI_RIGHT_SLOTS,
+} from "./thumbnail-multi-right.js";
 export { loadContracts } from "./contracts.js";
 export { SchemaValidators, parseJsonInput } from "./schema-validation.js";
 export { validateCanonicalSemantics, validateRawText } from "./semantic-validation.js";

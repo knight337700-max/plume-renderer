@@ -4,13 +4,19 @@ import {
   THUMBNAIL_BOX_RIGHT_FORMAT_PROFILE_ID,
   THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
   THUMBNAIL_BOX_RIGHT_TEMPLATE_ID,
+  THUMBNAIL_MULTI_RIGHT_FORMAT_PROFILE_ID,
+  THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID,
+  THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID,
+  THUMBNAIL_MULTI_RIGHT_TEMPLATE_ID,
   renderWithIntegrationAdapter,
   type RendererIntegrationInputV1,
+  type ImagePlacementPlan,
 } from "@kbr/renderer-contract";
 import {
   assertDownloadAllowed,
   createKakaoBizboardRenderer,
   loadContracts,
+  renderThumbnailMultiRight,
   renderThumbnailBoxRight,
 } from "../../../../src/core/index.js";
 import { verifyRuntimeAssets } from "../../../../src/core/assets.js";
@@ -101,9 +107,9 @@ export class DesktopController {
     this.#blockedNetworkRequestCount = config.blockedNetworkRequestCount;
   }
 
-  async selectProductFromPath(sourcePath: string): Promise<ProductSelectionResult> {
+  async selectProductFromPath(sourcePath: string, slot: "PRIMARY" | "SECONDARY" = "PRIMARY"): Promise<ProductSelectionResult> {
     try {
-      const asset = await this.#session.selectProduct(sourcePath);
+      const asset = await this.#session.selectProduct(sourcePath, slot);
       return {
         status: "SELECTED",
         assetToken: asset.token,
@@ -124,8 +130,16 @@ export class DesktopController {
     }
   }
 
+  async selectSecondaryProductFromPath(sourcePath: string): Promise<ProductSelectionResult> {
+    return this.selectProductFromPath(sourcePath, "SECONDARY");
+  }
+
   async clearProduct(): Promise<void> {
     await this.#session.clearProduct();
+  }
+
+  async clearSecondaryProduct(): Promise<void> {
+    await this.#session.clearProductForSlot("SECONDARY");
   }
 
   #buildInput(input: Omit<UiRenderInput, "requestSequence">, asset: SessionAsset): KakaoBizboardInputV1 {
@@ -184,6 +198,58 @@ export class DesktopController {
     return base;
   }
 
+  #buildThumbnailMultiIntegrationInput(
+    input: Omit<UiRenderInput, "requestSequence">,
+    slotAssets: ReadonlyMap<string, SessionAsset>,
+  ): RendererIntegrationInputV1 {
+    const defaultPlan = (imageSlotId: string, assetId: string): ImagePlacementPlan => ({
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      imageSlotId,
+      assetId,
+      policy: "SEMANTIC_CROP_COVER",
+      source: "AGENT",
+      fitMode: "COVER",
+      cropRect: { x: 0, y: 0, width: 1, height: 1 },
+      anchor: "CENTER",
+      subjectProtection: "NONE",
+    });
+    const plans = input.placementPlans?.length === 2
+      ? [...input.placementPlans]
+      : [
+          input.placementPlan ?? defaultPlan(THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, "selected-primary"),
+          defaultPlan(THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID, "selected-secondary"),
+        ];
+    const assetIds = new Set(plans.map((plan) => plan.assetId));
+    const assets = [...assetIds].flatMap((assetId) => {
+      const plan = plans.find((candidate) => candidate.assetId === assetId);
+      const slotAsset = plan ? slotAssets.get(plan.imageSlotId) : undefined;
+      if (!slotAsset) return [];
+      return [{
+        assetId,
+        mimeType: slotAsset.detectedMimeType,
+        declaredWidth: slotAsset.width,
+        declaredHeight: slotAsset.height,
+        checksumSha256: slotAsset.sha256,
+        assetRef: { type: "DESKTOP_ASSET_TOKEN" as const, value: slotAsset.token },
+      }];
+    });
+    return {
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      formatProfileId: THUMBNAIL_MULTI_RIGHT_FORMAT_PROFILE_ID,
+      templateId: THUMBNAIL_MULTI_RIGHT_TEMPLATE_ID,
+      copy: {
+        advertiser: input.advertiser,
+        headline: input.headline,
+        subcopy: input.subcopy,
+        cta: "NONE",
+      },
+      assets,
+      imagePlacementPlans: plans,
+      ...(input.cropCandidates && input.cropCandidates.length > 0 ? { cropCandidates: input.cropCandidates } : {}),
+      output: { mimeType: "image/png" },
+    };
+  }
+
   async #renderThumbnailIntegration(input: Omit<UiRenderInput, "requestSequence">, asset: SessionAsset): Promise<{
     integrationInput: RendererIntegrationInputV1;
     result: Awaited<ReturnType<typeof renderWithIntegrationAdapter>>;
@@ -224,6 +290,43 @@ export class DesktopController {
         return rendered;
       },
       assetDigests: { [integrationAsset.assetId]: asset.sha256 },
+    });
+    return { integrationInput, result, bytes: renderedBytes };
+  }
+
+  async #renderThumbnailMultiIntegration(input: Omit<UiRenderInput, "requestSequence">, slotAssets: ReadonlyMap<string, SessionAsset>): Promise<{
+    integrationInput: RendererIntegrationInputV1;
+    result: Awaited<ReturnType<typeof renderWithIntegrationAdapter>>;
+    bytes: Buffer | null;
+  }> {
+    const integrationInput = this.#buildThumbnailMultiIntegrationInput(input, slotAssets);
+    let renderedBytes: Buffer | null = null;
+    const runtimeContracts = await loadContracts(this.#projectRoot);
+    const runtimeAssets = await verifyRuntimeAssets(this.#projectRoot, runtimeContracts);
+    if (runtimeAssets.issues.some((entry) => entry.severity === "ERROR") || !runtimeAssets.assets) throw new Error("Pinned runtime fonts or reference fixture are unavailable");
+    const resolvedByToken = new Map<string, Buffer>();
+    const result = await renderWithIntegrationAdapter(integrationInput, {
+      resolver: {
+        resolve: async (assetRef) => {
+          if (assetRef.type !== "DESKTOP_ASSET_TOKEN") throw new Error("Desktop asset reference type is invalid");
+          const asset = [...slotAssets.values()].find((entry) => entry.token === assetRef.value);
+          if (!asset) throw new Error("Desktop asset token is stale or invalid");
+          const existing = resolvedByToken.get(asset.token);
+          const bytes = existing ?? await readFile(asset.absolutePath);
+          resolvedByToken.set(asset.token, bytes);
+          return {
+            bytes,
+            resolvedMimeType: asset.detectedMimeType,
+            metadata: { detectedMimeType: asset.detectedMimeType, width: asset.width, height: asset.height, hasAlpha: asset.hasAlpha, exifOrientation: asset.exifOrientation },
+          };
+        },
+      },
+      renderThumbnailMulti: async (request) => {
+        const rendered = await renderThumbnailMultiRight(request);
+        renderedBytes = rendered.bytes;
+        return rendered;
+      },
+      assetDigests: Object.fromEntries([...slotAssets.values()].map((asset) => [asset.token, asset.sha256])),
     });
     return { integrationInput, result, bytes: renderedBytes };
   }
@@ -300,12 +403,88 @@ export class DesktopController {
     }
   }
 
+  async #thumbnailMultiPreview(input: UiRenderInput, primaryAsset: SessionAsset): Promise<PreviewResult> {
+    const generatedAt = new Date().toISOString();
+    try {
+      const slotAssets = new Map<string, SessionAsset>([[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, primaryAsset]]);
+      if (input.secondaryAssetToken) {
+        slotAssets.set(THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID, this.#session.getAsset(input.secondaryAssetToken));
+      }
+      const { result, bytes } = await this.#renderThumbnailMultiIntegration(input, slotAssets);
+      const errors = mapIntegrationIssues(result.validation.errors);
+      const warnings = mapIntegrationIssues(result.validation.warnings);
+      const artifact = result.artifact;
+      const digestBySlot = Object.fromEntries([...slotAssets.entries()].map(([slot, asset]) => [slot, asset.sha256]));
+      if (result.status !== "PASS" || !artifact || !bytes) {
+        await this.#session.invalidatePreview();
+        return {
+          requestSequence: input.requestSequence,
+          previewToken: null,
+          previewUrl: null,
+          canonicalInputDigest: result.requestFingerprint,
+          productAssetDigest: primaryAsset.sha256,
+          productAssetDigests: digestBySlot,
+          previewPngDigest: null,
+          pngMetadata: null,
+          measurements: null,
+          validationStatus: "ERROR",
+          errors,
+          warnings,
+          generatedAt,
+          template: "THUMBNAIL_MULTI_RIGHT",
+          appliedImagePlacement: null,
+          appliedImagePlacements: [],
+        };
+      }
+      const stored = await this.#session.storePreview(bytes, result.requestFingerprint, primaryAsset.sha256, artifact.checksumSha256, digestBySlot);
+      return {
+        requestSequence: input.requestSequence,
+        previewToken: stored.token,
+        previewUrl: `kbr-preview://preview/${stored.token}`,
+        canonicalInputDigest: result.requestFingerprint,
+        productAssetDigest: primaryAsset.sha256,
+        productAssetDigests: digestBySlot,
+        previewPngDigest: artifact.checksumSha256,
+        pngMetadata: { format: "PNG", colorType: "RGBA", bitDepth: 8, hasAlpha: true, width: 1029, height: 258, bytes: artifact.bytes },
+        measurements: null,
+        validationStatus: warnings.length > 0 ? "WARNING" : "PASS",
+        errors,
+        warnings,
+        generatedAt,
+        template: "THUMBNAIL_MULTI_RIGHT",
+        appliedImagePlacement: result.appliedImagePlacements[0] ?? null,
+        appliedImagePlacements: result.appliedImagePlacements,
+      };
+    } catch {
+      await this.#session.invalidatePreview();
+      return {
+        requestSequence: input.requestSequence,
+        previewToken: null,
+        previewUrl: null,
+        canonicalInputDigest: null,
+        productAssetDigest: null,
+        productAssetDigests: {},
+        previewPngDigest: null,
+        pngMetadata: null,
+        measurements: null,
+        validationStatus: "ERROR",
+        errors: [],
+        warnings: [],
+        generatedAt,
+        template: "THUMBNAIL_MULTI_RIGHT",
+        appliedImagePlacement: null,
+        appliedImagePlacements: [],
+      };
+    }
+  }
+
 
   async requestPreview(input: UiRenderInput): Promise<PreviewResult> {
     const generatedAt = new Date().toISOString();
     try {
       const asset = this.#session.getAsset(input.assetToken);
       if (input.template === "THUMBNAIL_BOX_RIGHT") return this.#thumbnailPreview(input, asset);
+      if (input.template === "THUMBNAIL_MULTI_RIGHT") return this.#thumbnailMultiPreview(input, asset);
       const coreInput = this.#buildInput(input, asset);
       const renderer = await createKakaoBizboardRenderer({
         projectRoot: this.#projectRoot,
@@ -471,6 +650,74 @@ export class DesktopController {
     }
   }
 
+  async #exportThumbnailMulti(
+    request: ExportRequest,
+    primaryAsset: SessionAsset,
+    previewRecord: Awaited<ReturnType<DesktopSessionManager["getPreview"]>>,
+    output: Awaited<ReturnType<DesktopSessionManager["getOutputDirectory"]>>,
+  ): Promise<ExportResult> {
+    let publishedPng: string | null = null;
+    let publishedManifest: string | null = null;
+    try {
+      const slotAssets = new Map<string, SessionAsset>([[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, primaryAsset]]);
+      if (request.secondaryAssetToken) slotAssets.set(THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID, this.#session.getAsset(request.secondaryAssetToken));
+      const currentDigests = new Map<string, string>();
+      for (const asset of new Set(slotAssets.values())) currentDigests.set(asset.token, await sha256File(asset.absolutePath));
+      const expectedDigests = previewRecord.assetDigests ?? { [THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID]: previewRecord.assetDigest };
+      for (const [slot, asset] of slotAssets) {
+        const current = currentDigests.get(asset.token);
+        if (!current || current !== asset.sha256 || (expectedDigests[slot] && expectedDigests[slot] !== current)) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", `${slot} Asset이 Preview 이후 변경되었습니다.`);
+      }
+      const { result, bytes } = await this.#renderThumbnailMultiIntegration(request, slotAssets);
+      const errors = mapIntegrationIssues(result.validation.errors);
+      const warnings = mapIntegrationIssues(result.validation.warnings);
+      if (result.status !== "PASS" || !result.artifact || !bytes || errors.length > 0) return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "최종 재검증에 실패하여 Export가 차단되었습니다.", errors, warnings);
+      if (result.requestFingerprint !== previewRecord.inputDigest || result.artifact.checksumSha256 !== previewRecord.pngDigest) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-003", "Preview가 현재 입력과 일치하지 않습니다.", errors, warnings);
+
+      const contracts = await loadContracts(this.#projectRoot);
+      const fontDigests = contracts.fontRegistry.requiredAssets.flatMap((entry) => entry.sha256 ? [{ id: entry.id, sha256: entry.sha256 }] : []);
+      const imageDigests = [...new Map([...slotAssets.values()].map((asset) => [asset.sha256, { id: asset.token, sha256: asset.sha256 }])).values()];
+      const manifest = {
+        schemaVersion: "1.0.0",
+        canonicalInputDigest: result.requestFingerprint,
+        normalizedInputDigest: result.requestFingerprint,
+        outputPngDigest: result.artifact.checksumSha256,
+        templateContractVersion: "1.3.0",
+        inputSchemaVersion: "1.2.0",
+        outputSchemaVersion: "2.0.0",
+        templateId: THUMBNAIL_MULTI_RIGHT_TEMPLATE_ID,
+        pixelFingerprint: result.pixelFingerprint,
+        requestFingerprint: result.requestFingerprint,
+        appliedImagePlacements: result.appliedImagePlacements,
+        validatorResult: { errorCount: 0, warningCount: warnings.length, infoCount: result.validation.info.length, issues: [...warnings, ...mapIntegrationIssues(result.validation.info)] },
+        assetDigests: {
+          product: { id: result.appliedImagePlacements[0]?.assetId ?? THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, sha256: primaryAsset.sha256 },
+          images: imageDigests,
+          fonts: fontDigests,
+          approvedIcons: [],
+          referenceFixture: { id: contracts.referenceRegistry.fixture.id, sha256: contracts.referenceRegistry.fixture.sha256 },
+        },
+        manualAcceptanceStatus: thumbnailManualAcceptanceStatus(),
+      };
+      const manifestText = canonicalJson(manifest);
+      const manifestDigest = sha256Bytes(Buffer.from(manifestText, "utf8"));
+      const jobDirectory = await resolveTrustedJobDirectory(output.root, ".", request.jobName);
+      const published = await publishArtifacts({ outputRoot: output.root, jobDirectory, png: bytes, manifest: manifestText, overwrite: false });
+      publishedPng = published.pngPath;
+      publishedManifest = published.manifestPath;
+      const [actualPngDigest, actualManifestDigest, pngStat] = await Promise.all([sha256File(published.pngPath), sha256File(published.manifestPath), stat(published.pngPath)]);
+      if (actualPngDigest !== result.artifact.checksumSha256 || actualManifestDigest !== manifestDigest) {
+        await Promise.allSettled([rm(published.pngPath, { force: true }), rm(published.manifestPath, { force: true })]);
+        return desktopFailure("ERROR", "DESKTOP-EXPORT-004", "저장된 산출물 digest 검증에 실패했습니다.");
+      }
+      const exportToken = this.#session.registerExport(published.pngPath, published.manifestPath);
+      return { status: "EXPORTED", exportToken, jobName: request.jobName, pngFileName: "output.png", manifestFileName: "render-manifest.json", pngDigest: actualPngDigest, manifestDigest: actualManifestDigest, bytes: pngStat.size, warnings };
+    } catch (error) {
+      if (publishedPng || publishedManifest) await Promise.allSettled([publishedPng ? rm(publishedPng, { force: true }) : Promise.resolve(), publishedManifest ? rm(publishedManifest, { force: true }) : Promise.resolve()]);
+      return desktopFailure("ERROR", error instanceof DesktopSecurityError ? error.code : "DESKTOP-EXPORT-999", error instanceof Error ? error.message : "Export 중 내부 오류가 발생했습니다.");
+    }
+  }
+
   async registerOutputDirectory(rootPath: string): Promise<{ token: string; displayName: string }> {
     return this.#session.registerOutputDirectory(rootPath);
   }
@@ -483,6 +730,7 @@ export class DesktopController {
       const previewRecord = this.#session.getPreview(request.previewToken);
       const output = this.#session.getOutputDirectory(request.outputDirectoryToken);
       if (request.template === "THUMBNAIL_BOX_RIGHT") return this.#exportThumbnail(request, asset, previewRecord, output);
+      if (request.template === "THUMBNAIL_MULTI_RIGHT") return this.#exportThumbnailMulti(request, asset, previewRecord, output);
       const currentAssetDigest = await sha256File(asset.absolutePath);
       if (currentAssetDigest !== asset.sha256 || currentAssetDigest !== previewRecord.assetDigest) {
         return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", "제품 자산이 Preview 이후 변경되었습니다.");

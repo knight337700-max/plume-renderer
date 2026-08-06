@@ -33,14 +33,18 @@
       "schemaVersion": "1.1.0",
       "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
-      "implementationStatus": "NOT_IMPLEMENTED",
+      "implementationStatus": "IMPLEMENTED",
       "defaultPolicy": "SEMANTIC_CROP_COVER",
       "semanticPlacement": "REQUIRED",
       "allowedPolicies": ["SEMANTIC_CROP_COVER", "MANUAL_CROP"],
-      "supportsManualCrop": false,
-      "supportsAgentPlacement": false,
-      "allowedInputMimeTypes": [],
-      "alphaChannelRequired": false
+      "supportsManualCrop": true,
+      "supportsAgentPlacement": true,
+      "imageSlotIds": ["IMAGE_PRIMARY", "IMAGE_SECONDARY"],
+      "allowedInputMimeTypes": ["image/png", "image/jpeg"],
+      "alphaChannelRequired": false,
+      "minimumAssets": 1,
+      "maximumAssets": 2,
+      "requiredPlacementPlans": 2
     },
     {
       "schemaVersion": "1.1.0",

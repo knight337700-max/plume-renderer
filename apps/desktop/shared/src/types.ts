@@ -1,10 +1,11 @@
 import type { LayoutMeasurements, ValidationIssue } from "../../../../src/core/types.js";
 import type { AppliedImagePlacement, CropCandidate, ImagePlacementPlan, SupportedInputMimeType } from "@kbr/renderer-contract";
 
-export type UiTemplate = "OBJECT_RIGHT" | "THUMBNAIL_BOX_RIGHT";
+export type UiTemplate = "OBJECT_RIGHT" | "THUMBNAIL_BOX_RIGHT" | "THUMBNAIL_MULTI_RIGHT";
 
 export type UiRenderInput = {
   assetToken: string;
+  secondaryAssetToken?: string;
   advertiser: string;
   headline: string;
   subcopy: string;
@@ -12,6 +13,7 @@ export type UiRenderInput = {
   requestSequence: number;
   template?: UiTemplate;
   placementPlan?: ImagePlacementPlan;
+  placementPlans?: readonly ImagePlacementPlan[];
   cropCandidates?: readonly CropCandidate[];
 };
 
@@ -53,6 +55,8 @@ export type PreviewResult = {
   generatedAt: string;
   template?: UiTemplate;
   appliedImagePlacement?: AppliedImagePlacement | null;
+  appliedImagePlacements?: readonly AppliedImagePlacement[];
+  productAssetDigests?: Readonly<Record<string, string>>;
 };
 
 export type OutputDirectoryResult =
@@ -104,7 +108,9 @@ export type AppInfo = {
 
 export type DesktopApi = {
   selectProductPng(): Promise<ProductSelectionResult>;
+  selectSecondaryProductPng(): Promise<ProductSelectionResult>;
   clearProduct(): Promise<void>;
+  clearSecondaryProduct(): Promise<void>;
   requestPreview(input: UiRenderInput): Promise<PreviewResult>;
   selectOutputDirectory(): Promise<OutputDirectoryResult>;
   exportRender(request: ExportRequest): Promise<ExportResult>;

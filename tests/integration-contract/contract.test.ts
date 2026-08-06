@@ -153,10 +153,11 @@ describe("fingerprints", () => {
 });
 
 describe("capability and adapter boundary", () => {
-  it("advertises OBJECT_RIGHT and THUMBNAIL_BOX_RIGHT as production implemented", () => {
+  it("advertises OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, and THUMBNAIL_MULTI_RIGHT as production implemented", () => {
     expect(CAPABILITIES.KAKAO_BIZBOARD_OBJECT_RIGHT?.implementationStatus).toBe("IMPLEMENTED");
     expect(CAPABILITIES.KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT?.implementationStatus).toBe("IMPLEMENTED");
-    expect(Object.values(CAPABILITIES).filter((entry) => entry.implementationStatus === "IMPLEMENTED")).toHaveLength(2);
+    expect(CAPABILITIES.KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT?.implementationStatus).toBe("IMPLEMENTED");
+    expect(Object.values(CAPABILITIES).filter((entry) => entry.implementationStatus === "IMPLEMENTED")).toHaveLength(3);
   });
 
   it("resolves a fixture asset and bridges an Integration Input to a legacy renderer callback", async () => {

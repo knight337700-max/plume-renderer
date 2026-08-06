@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1.0",
-  "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
-  "templateId": "KAKAO_MOMENT_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
+  "formatProfileId": "KAKAO_NATIVE_1200",
+  "templateId": "KAKAO_NATIVE_1200_V1",
   "copy": {},
   "assets": [],
   "imagePlacementPlans": [],

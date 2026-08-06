@@ -57,6 +57,7 @@ export type SessionPreview = {
   inputDigest: string;
   assetDigest: string;
   pngDigest: string;
+  assetDigests?: Readonly<Record<string, string>>;
 };
 
 type OutputDirectoryRecord = { root: string; displayName: string };
@@ -110,6 +111,7 @@ export class DesktopSessionManager {
   readonly inputRoot: string;
   readonly previewRoot: string;
   #asset: SessionAsset | null = null;
+  #secondaryAsset: SessionAsset | null = null;
   #preview: SessionPreview | null = null;
   readonly #outputDirectories = new Map<string, OutputDirectoryRecord>();
   readonly #exports = new Map<string, ExportRecord>();
@@ -155,7 +157,7 @@ export class DesktopSessionManager {
     await writeFile(path.join(this.sessionRoot, SESSION_MARKER), this.sessionId, { encoding: "utf8", flag: "wx" });
   }
 
-  async selectProduct(sourcePath: string): Promise<SessionAsset> {
+  async selectProduct(sourcePath: string, slot: "PRIMARY" | "SECONDARY" = "PRIMARY"): Promise<SessionAsset> {
     assertLocalAbsoluteFilePath(sourcePath);
     const sourceLstat = await lstat(sourcePath);
     if (!sourceLstat.isFile() || sourceLstat.isSymbolicLink()) {
@@ -177,17 +179,16 @@ export class DesktopSessionManager {
     await this.invalidatePreview();
     const temporaryPath = path.join(this.inputRoot, `.product-${randomUUID()}.tmp`);
     const extension = inspected.metadata.detectedMimeType === "image/png" ? ".png" : path.extname(sourcePath).toLowerCase();
-    const productPath = path.join(this.inputRoot, `product${extension}`);
+    const fileStem = slot === "SECONDARY" ? "secondary-product" : "product";
+    const productPath = path.join(this.inputRoot, `${fileStem}${extension}`);
     try {
       await copyOpenFile(sourcePath, temporaryPath);
       await Promise.all([
-        rm(path.join(this.inputRoot, "product.png"), { force: true }),
-        rm(path.join(this.inputRoot, "product.jpg"), { force: true }),
-        rm(path.join(this.inputRoot, "product.jpeg"), { force: true }),
+        ...[".png", ".jpg", ".jpeg"].map((suffix) => rm(path.join(this.inputRoot, `${fileStem}${suffix}`), { force: true })),
       ]);
       await rename(temporaryPath, productPath);
       const productStat = await stat(productPath);
-      this.#asset = {
+      const nextAsset: SessionAsset = {
         token: randomUUID(),
         relativePath: path.basename(productPath),
         absolutePath: productPath,
@@ -200,7 +201,9 @@ export class DesktopSessionManager {
         hasAlpha: inspected.metadata.hasAlpha,
         sha256: await sha256File(productPath),
       };
-      return { ...this.#asset };
+      if (slot === "SECONDARY") this.#secondaryAsset = nextAsset;
+      else this.#asset = nextAsset;
+      return { ...nextAsset };
     } catch (error) {
       await rm(temporaryPath, { force: true }).catch(() => undefined);
       if (error instanceof DesktopSecurityError) throw error;
@@ -209,25 +212,30 @@ export class DesktopSessionManager {
   }
 
   getAsset(token: string): SessionAsset {
-    if (!this.#asset || token !== this.#asset.token) {
+    const asset = [this.#asset, this.#secondaryAsset].find((entry) => entry?.token === token) ?? null;
+    if (!asset) {
       throw new DesktopSecurityError("DESKTOP-ASSET-005", "Asset token is stale or invalid");
     }
-    return { ...this.#asset };
+    return { ...asset };
   }
 
   async clearProduct(): Promise<void> {
+    await this.clearProductForSlot("PRIMARY");
+  }
+
+  async clearProductForSlot(slot: "PRIMARY" | "SECONDARY"): Promise<void> {
     await this.invalidatePreview();
-    const selectedPath = this.#asset ? path.join(this.inputRoot, this.#asset.relativePath) : null;
-    this.#asset = null;
+    const selected = slot === "SECONDARY" ? this.#secondaryAsset : this.#asset;
+    const fileStem = slot === "SECONDARY" ? "secondary-product" : "product";
+    if (slot === "SECONDARY") this.#secondaryAsset = null;
+    else this.#asset = null;
     await Promise.all([
-      selectedPath ? rm(selectedPath, { force: true }) : Promise.resolve(),
-      rm(path.join(this.inputRoot, "product.png"), { force: true }),
-      rm(path.join(this.inputRoot, "product.jpg"), { force: true }),
-      rm(path.join(this.inputRoot, "product.jpeg"), { force: true }),
+      selected ? rm(path.join(this.inputRoot, selected.relativePath), { force: true }) : Promise.resolve(),
+      ...[".png", ".jpg", ".jpeg"].map((suffix) => rm(path.join(this.inputRoot, `${fileStem}${suffix}`), { force: true })),
     ]);
   }
 
-  async storePreview(bytes: Buffer, inputDigest: string, assetDigest: string, pngDigest: string): Promise<SessionPreview> {
+  async storePreview(bytes: Buffer, inputDigest: string, assetDigest: string, pngDigest: string, assetDigests?: Readonly<Record<string, string>>): Promise<SessionPreview> {
     await this.invalidatePreview();
     const token = randomUUID();
     const target = path.join(this.previewRoot, `${token}.png`);
@@ -238,7 +246,7 @@ export class DesktopSessionManager {
     } finally {
       await handle.close();
     }
-    this.#preview = { token, absolutePath: target, inputDigest, assetDigest, pngDigest };
+    this.#preview = { token, absolutePath: target, inputDigest, assetDigest, pngDigest, ...(assetDigests ? { assetDigests } : {}) };
     return { ...this.#preview };
   }
 
@@ -287,6 +295,7 @@ export class DesktopSessionManager {
 
   async cleanup(): Promise<void> {
     this.#asset = null;
+    this.#secondaryAsset = null;
     this.#preview = null;
     this.#outputDirectories.clear();
     this.#exports.clear();

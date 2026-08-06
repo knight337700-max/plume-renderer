@@ -61,7 +61,7 @@ if (new Set(registryCodes).size === registryCodes.length) pass("error_code_uniqu
 else fail("error_code_uniqueness", "duplicate integration error code found");
 
 const requiredCodes = [
-  "KBR-PLACEMENT-PLAN-MISSING", "KBR-PLACEMENT-POLICY-NOT-ALLOWED", "KBR-PLACEMENT-PLAN-DUPLICATE", "KBR-ASSET-NOT-FOUND", "KBR-ASSET-UNUSED", "KBR-ASSET-CHECKSUM-MISMATCH", "KBR-ASSET-DIMENSION-MISMATCH", "KBR-ASSET-MIME-NOT-ALLOWED", "KBR-ASSET-MIME-EXTENSION-MISMATCH", "KBR-IMAGE-SLOT-NOT-FOUND", "KBR-CROP-RECT-REQUIRED", "KBR-CROP-RECT-FORBIDDEN", "KBR-CROP-RECT-OUT-OF-BOUNDS", "KBR-CROP-CANDIDATE-NOT-FOUND", "KBR-CROP-CANDIDATE-MISMATCH", "KBR-FOCAL-POINT-OUT-OF-BOUNDS", "KBR-PROTECTED-SUBJECT-CLIPPED", "KBR-PROTECTED-SUBJECT-DATA-MISSING", "KBR-ALPHA-CHANNEL-REQUIRED", "KBR-ALPHA-TRIM-FAILED", "KBR-IMAGE-DECODE-FAILED", "KBR-IMAGE-DIMENSION-INVALID", "KBR-EXIF-ORIENTATION-INVALID", "KBR-IMAGE-SLOT-OVERFLOW", "KBR-TEMPLATE-CONSTRAINT-VIOLATION", "KBR-SEMANTIC-PLACEMENT-REQUIRED", "KBR-OUTPUT-INVALID", "KBR-ASSET-REF-UNRESOLVED",
+  "KBR-PLACEMENT-PLAN-MISSING", "KBR-PLACEMENT-POLICY-NOT-ALLOWED", "KBR-PLACEMENT-PLAN-DUPLICATE", "KBR-ASSET-NOT-FOUND", "KBR-ASSET-UNUSED", "KBR-ASSET-CHECKSUM-MISMATCH", "KBR-ASSET-DIMENSION-MISMATCH", "KBR-ASSET-MIME-NOT-ALLOWED", "KBR-ASSET-MIME-EXTENSION-MISMATCH", "KBR-IMAGE-SLOT-NOT-FOUND", "KBR-IMAGE-SLOT-ASSET-COUNT", "KBR-CROP-RECT-REQUIRED", "KBR-CROP-RECT-FORBIDDEN", "KBR-CROP-RECT-OUT-OF-BOUNDS", "KBR-CROP-CANDIDATE-NOT-FOUND", "KBR-CROP-CANDIDATE-MISMATCH", "KBR-FOCAL-POINT-OUT-OF-BOUNDS", "KBR-PROTECTED-SUBJECT-CLIPPED", "KBR-PROTECTED-SUBJECT-DATA-MISSING", "KBR-ALPHA-CHANNEL-REQUIRED", "KBR-ALPHA-TRIM-FAILED", "KBR-IMAGE-DECODE-FAILED", "KBR-IMAGE-DIMENSION-INVALID", "KBR-EXIF-ORIENTATION-INVALID", "KBR-IMAGE-SLOT-OVERFLOW", "KBR-TEMPLATE-CONSTRAINT-VIOLATION", "KBR-TEXT-COUNT-HEADLINE-001", "KBR-TEXT-COUNT-SUBCOPY-001", "KBR-TEXT-004", "KBR-TEXT-005", "KBR-TEXT-WIDTH-HEADLINE-W001", "KBR-TEXT-WIDTH-SUBCOPY-W001", "KBR-SEMANTIC-PLACEMENT-REQUIRED", "KBR-OUTPUT-INVALID", "KBR-ASSET-REF-UNRESOLVED",
 ];
 if (requiredCodes.every((code) => registryCodes.includes(code))) pass("required_error_codes", `${requiredCodes.length}/${requiredCodes.length} required integration codes registered`);
 else fail("required_error_codes", "one or more required integration codes missing");
@@ -72,20 +72,56 @@ else fail("template_contract", `expected 1.3.0, got ${contract.templateContractV
 
 const capabilities = await readJson(path.join(root, "contracts", "template-capabilities.json"));
 const enabled = capabilities.capabilities.filter((entry) => entry.implementationStatus === "IMPLEMENTED").map((entry) => entry.formatProfileId);
-if (enabled.length === 2 && enabled.includes("KAKAO_BIZBOARD_OBJECT_RIGHT") && enabled.includes("KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT")) pass("capability_gate", "OBJECT_RIGHT and THUMBNAIL_BOX_RIGHT are IMPLEMENTED");
+if (enabled.length === 3 && enabled.includes("KAKAO_BIZBOARD_OBJECT_RIGHT") && enabled.includes("KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT") && enabled.includes("KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT")) pass("capability_gate", "OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, and THUMBNAIL_MULTI_RIGHT are IMPLEMENTED");
 else fail("capability_gate", `implemented=${enabled.join(",")}`);
 const objectCapability = capabilities.capabilities.find((entry) => entry.formatProfileId === "KAKAO_BIZBOARD_OBJECT_RIGHT");
 const thumbnailCapability = capabilities.capabilities.find((entry) => entry.formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT");
 if (JSON.stringify(objectCapability?.allowedInputMimeTypes) === JSON.stringify(["image/png"]) && objectCapability?.alphaChannelRequired === true && JSON.stringify(thumbnailCapability?.allowedInputMimeTypes) === JSON.stringify(["image/png", "image/jpeg"]) && thumbnailCapability?.alphaChannelRequired === false) pass("capability_mime_gate", "OBJECT_RIGHT=alpha PNG only; THUMBNAIL_BOX_RIGHT=PNG/JPEG without alpha requirement");
 else fail("capability_mime_gate", "template input MIME or alpha requirement mismatch");
+const multiCapability = capabilities.capabilities.find((entry) => entry.formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT");
+if (multiCapability?.implementationStatus === "IMPLEMENTED" && JSON.stringify(multiCapability.imageSlotIds) === JSON.stringify(["IMAGE_PRIMARY", "IMAGE_SECONDARY"]) && JSON.stringify(multiCapability.allowedInputMimeTypes) === JSON.stringify(["image/png", "image/jpeg"]) && multiCapability.minimumAssets === 1 && multiCapability.maximumAssets === 2 && multiCapability.requiredPlacementPlans === 2) pass("multi_slot_capability", "THUMBNAIL_MULTI_RIGHT has two required slots and PNG/JPEG 1..2 asset range");
+else fail("multi_slot_capability", "THUMBNAIL_MULTI_RIGHT capability metadata mismatch");
 
-const fixtureDirectories = ["alpha-trim-contain", "center-contain", "manual-crop", "agent-semantic-crop", "invalid", "equivalence", "thumbnail-box-right"];
+const fixtureDirectories = [
+  "alpha-trim-contain",
+  "center-contain",
+  "manual-crop",
+  "agent-semantic-crop",
+  "invalid",
+  "equivalence",
+  "thumbnail-box-right",
+  "thumbnail-multi-right",
+];
+const multiFixtureDirectories = [
+  "two-assets-manual-pass",
+  "two-assets-agent-pass",
+  "mixed-policies-pass",
+  "same-asset-two-crops-pass",
+  "jpeg-png-mixed-pass",
+  "primary-missing-error",
+  "secondary-missing-error",
+  "duplicate-primary-plan-error",
+  "unknown-slot-error",
+  "primary-candidate-pass",
+  "secondary-candidate-pass",
+  "cross-slot-candidate-error",
+  "required-subject-clipped-primary-error",
+  "preferred-subject-clipped-secondary-warning",
+  "plan-order-equivalence",
+  "manual-agent-equivalence",
+];
 const missingFixtures = [];
 for (const directory of fixtureDirectories) {
   try { await access(path.join(root, "fixtures", "integration", directory)); } catch { missingFixtures.push(directory); }
 }
 if (missingFixtures.length === 0) pass("fixture_layout", `${fixtureDirectories.length}/${fixtureDirectories.length} integration fixture directories present`);
 else fail("fixture_layout", missingFixtures.join(", "));
+const missingMultiFixtures = [];
+for (const directory of multiFixtureDirectories) {
+  try { await access(path.join(root, "fixtures", "integration", "thumbnail-multi-right", directory)); } catch { missingMultiFixtures.push(directory); }
+}
+if (missingMultiFixtures.length === 0) pass("thumbnail_multi_fixture_layout", `${multiFixtureDirectories.length}/${multiFixtureDirectories.length} THUMBNAIL_MULTI_RIGHT fixture directories present`);
+else fail("thumbnail_multi_fixture_layout", missingMultiFixtures.join(", "));
 
 const serializedSchemaText = schemas.map((schema) => JSON.stringify(schema)).join("\n");
 if (!/Blob|Uint8Array|absolutePath|absolute path/iu.test(serializedSchemaText)) pass("json_serializable", "JSON Schemas do not expose Blob, Uint8Array, or absolute paths");

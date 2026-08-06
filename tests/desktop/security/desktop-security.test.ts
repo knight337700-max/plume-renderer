@@ -27,10 +27,12 @@ describe("Electron and IPC security boundary", () => {
     });
   });
 
-  it("exposes only the seven typed IPC operations", () => {
+  it("exposes only the typed IPC operations", () => {
     expect(DESKTOP_CHANNEL_ALLOWLIST).toEqual([
       DESKTOP_CHANNELS.selectProductPng,
+      DESKTOP_CHANNELS.selectSecondaryProductPng,
       DESKTOP_CHANNELS.clearProduct,
+      DESKTOP_CHANNELS.clearSecondaryProduct,
       DESKTOP_CHANNELS.requestPreview,
       DESKTOP_CHANNELS.selectOutputDirectory,
       DESKTOP_CHANNELS.exportRender,

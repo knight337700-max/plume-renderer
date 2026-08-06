@@ -117,6 +117,59 @@ describe("Desktop session, Preview, and Export integration", () => {
     expect(objectPreview.errors.map(({ code }) => code)).toContain("KBR-ASSET-MIME-NOT-ALLOWED");
   });
 
+  it("renders THUMBNAIL_MULTI_RIGHT with two independent plans and one reused Asset", async () => {
+    const context = await setup("multi-reuse");
+    const selected = await selectFixture(context, "fixtures/valid/thumbnail-box-right__asset__basic__pass.png");
+    const secondary = await context.controller.selectSecondaryProductFromPath(path.join(projectRoot, "fixtures/valid/thumbnail-box-right__asset__basic__pass.png"));
+    expect(secondary.status).toBe("SELECTED");
+    const input: UiRenderInput = {
+      ...uiInput(selected.assetToken, "multi-reuse"),
+      template: "THUMBNAIL_MULTI_RIGHT",
+      ...(secondary.status === "SELECTED" ? { secondaryAssetToken: secondary.assetToken } : {}),
+      placementPlans: [
+        {
+          schemaVersion: "1.1.0",
+          imageSlotId: "IMAGE_SECONDARY",
+          assetId: "reused-image",
+          policy: "MANUAL_CROP",
+          source: "MANUAL",
+          fitMode: "COVER",
+          cropRect: { x: 0.2, y: 0, width: 0.8, height: 1 },
+          anchor: "CENTER",
+          subjectProtection: "NONE",
+        },
+        {
+          schemaVersion: "1.1.0",
+          imageSlotId: "IMAGE_PRIMARY",
+          assetId: "reused-image",
+          policy: "MANUAL_CROP",
+          source: "MANUAL",
+          fitMode: "COVER",
+          cropRect: { x: 0, y: 0, width: 0.8, height: 1 },
+          anchor: "CENTER",
+          subjectProtection: "NONE",
+        },
+      ],
+    };
+    const preview = await context.controller.requestPreview(input);
+    expect(preview.validationStatus).toBe("PASS");
+    expect(preview.appliedImagePlacements?.map((placement) => placement.imageSlotId)).toEqual(["IMAGE_PRIMARY", "IMAGE_SECONDARY"]);
+    expect(preview.appliedImagePlacements?.map((placement) => placement.destinationRect)).toEqual([
+      { x: 621, y: 43, width: 172, height: 172 },
+      { x: 809, y: 43, width: 172, height: 172 },
+    ]);
+    if (!preview.previewToken || secondary.status !== "SELECTED") throw new Error("Multi Preview missing");
+    const previewBytes = await context.controller.previewBytes(preview.previewToken);
+    const output = await context.controller.registerOutputDirectory(context.outputRoot);
+    const exported = await context.controller.exportRender({ ...input, previewToken: preview.previewToken, outputDirectoryToken: output.token });
+    expect(exported.status).toBe("EXPORTED");
+    if (exported.status !== "EXPORTED") return;
+    const paths = context.controller.getExportPaths(exported.exportToken);
+    expect((await readFile(paths.pngPath)).equals(previewBytes)).toBe(true);
+    const manifest = JSON.parse(await readFile(paths.manifestPath, "utf8")) as { appliedImagePlacements?: unknown[] };
+    expect(manifest.appliedImagePlacements).toHaveLength(2);
+  });
+
   it("returns Preview PASS for an inset-alpha product", async () => {
     const context = await setup("preview-pass");
     const selected = await selectFixture(context, "fixtures/valid/object-right__product__inset-alpha__pass.png");

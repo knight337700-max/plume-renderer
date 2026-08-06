@@ -93,6 +93,11 @@ button.full { width: 100%; margin-top: 8px; padding: 12px; }
 .export-result code { overflow: hidden; color: #38604b; text-overflow: ellipsis; }
 .legal-note { grid-column: 1 / -1; margin: 0; color: #7b828a; font-size: 10px; }
 
+.multi-slot-assets, .multi-placement-panels { display: grid; gap: 10px; }
+.slot-asset-panel, .slot-placement-panel { display: grid; gap: 6px; border: 1px solid #d9dde5; border-radius: 8px; background: #fafbfc; padding: 9px; }
+.slot-asset-panel span { color: #667085; font-size: 11px; }
+.slot-placement-panel legend { padding: 0 4px; color: #344054; font-size: 12px; font-weight: 700; }
+
 @media (max-height: 800px) {
   .workspace { padding-top: 12px; padding-bottom: 12px; }
   .field-group { margin-top: 11px; }

@@ -16,6 +16,9 @@
     "supportsAgentPlacement": { "type": "boolean" },
     "imageSlotIds": { "type": "array", "items": { "type": "string", "minLength": 1 } },
     "allowedInputMimeTypes": { "type": "array", "items": { "enum": ["image/png", "image/jpeg"] } },
-    "alphaChannelRequired": { "type": "boolean" }
+    "alphaChannelRequired": { "type": "boolean" },
+    "minimumAssets": { "type": "integer", "minimum": 0 },
+    "maximumAssets": { "type": "integer", "minimum": 0 },
+    "requiredPlacementPlans": { "type": "integer", "minimum": 0 }
   }
 }

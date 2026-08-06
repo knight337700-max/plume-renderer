@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { access, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -237,6 +237,40 @@ test("THUMBNAIL_BOX_RIGHT accepts JPEG input and keeps the final artifact as RGB
     expect(metadata.width).toBe(1029);
     expect(metadata.height).toBe(258);
     expect(metadata.hasAlpha).toBe(true);
+  } finally {
+    await close(launched);
+  }
+});
+
+test("THUMBNAIL_MULTI_RIGHT renders two independent Lab slots with explicit Asset reuse", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "valid", "thumbnail-box-right__asset__basic__pass.png"),
+  );
+  try {
+    await launched.page.getByTestId("template-select").selectOption("THUMBNAIL_MULTI_RIGHT");
+    await launched.page.getByTestId("select-product").click();
+    await expect(launched.page.getByTestId("product-metadata")).toContainText("image/png");
+    await launched.page.getByTestId("reuse-primary-product").click();
+    await fillValidForm(launched.page, "thumbnail-multi-e2e");
+    await expect(launched.page.getByTestId("slot-panel-IMAGE_PRIMARY")).toBeVisible();
+    await expect(launched.page.getByTestId("slot-panel-IMAGE_SECONDARY")).toContainText("image/png");
+    await launched.page.getByTestId("request-preview").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText(/VALID_(?:PASS|WARNING)/u);
+    await expect(launched.page.getByTestId("preview-image")).toBeVisible();
+    await expect(launched.page.getByTestId("applied-destination-PRIMARY")).toContainText('"x":621');
+    await expect(launched.page.getByTestId("applied-destination-SECONDARY")).toContainText('"x":809');
+    await launched.page.getByTestId("select-output").click();
+    await expect(launched.page.getByTestId("export-render")).toBeEnabled();
+    await launched.page.getByTestId("export-render").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText("EXPORTED");
+
+    const manifestPath = path.join(launched.outputRoot, "thumbnail-multi-e2e", "render-manifest.json");
+    const pngPath = path.join(launched.outputRoot, "thumbnail-multi-e2e", "output.png");
+    await expect.poll(async () => access(manifestPath).then(() => true).catch(() => false)).toBe(true);
+    await expect.poll(async () => access(pngPath).then(() => true).catch(() => false)).toBe(true);
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as { templateId?: string; appliedImagePlacements?: unknown[] };
+    expect(manifest.templateId).toBe("KAKAO_MOMENT_BIZBOARD_THUMBNAIL_MULTI_RIGHT");
+    expect(manifest.appliedImagePlacements).toHaveLength(2);
   } finally {
     await close(launched);
   }

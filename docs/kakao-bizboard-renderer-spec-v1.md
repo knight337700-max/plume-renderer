@@ -1,11 +1,11 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.5.1
-- **Status:** Frozen Implementation Contract — Phase C4 JPEG input amendment
+- **Document version:** 1.6.0
+- **Status:** Frozen Implementation Contract — Phase C5 THUMBNAIL_MULTI_RIGHT amendment
 - **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
-- **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT and THUMBNAIL_BOX_RIGHT / 1029×258`
+- **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, and THUMBNAIL_MULTI_RIGHT / 1029×258`
 
 ---
 
@@ -2273,3 +2273,100 @@ Orientation 1, 3, 6, 8 fixture는 보정 후 dimensions, crop 좌표, metadata �
 3회 byte determinism을 검증한다. JPG/JPEG의 direct crop, candidate, manual crop,
 Preview/Export byte equality를 검증하고, OBJECT_RIGHT Golden SHA-256
 `20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`은 그대로 유지한다.
+
+## 20. Phase C5 — THUMBNAIL_MULTI_RIGHT two-slot execution [PROJECT]
+
+이 절은 Canonical 문서 `1.5.1` 이후의 additive template 계약이다. 기존
+`OBJECT_RIGHT`와 `THUMBNAIL_BOX_RIGHT`의 좌표·픽셀 Golden은 변경하지 않는다. 새
+기준 PNG `reference/kakao-tool/THUMBNAIL_MULTI_RIGHT.png`는 1029×258 RGBA PNG이며
+검증 SHA-256은 `ea6a6ca53faba1215e45e7aa54ddcae33c5d75bbe6244e3aa6a3b2465656a57b`다.
+기준 이미지의 회색 `#D9D9D9`와 `Image` 문자열은 최종 출력에 포함하지 않는다.
+
+### 20.1 Canvas, copy, and slots [TOOL_OUTPUT][DERIVED][PROJECT]
+
+Canvas는 `1029×258`이다. Headline은 `(48, baseline 120)`, Subcopy는
+`(48, baseline 178)`에서 기존 Spoqa Han Sans 계약을 재사용한다. 두 텍스트의
+`hardRightEdgeExclusive`는 `588`, 최대 점유 폭은 `540px`, 첫 Slot과의 최소
+간격은 `33px`이다. Headline은 한글 환산 12 units, Subcopy는 15 units를 넘지
+않으며 자동 축소·줄바꿈·자간 축소·좌표 이동은 하지 않는다. 폭 `486..540px`는
+WARNING, `541px` 이상 또는 실제 ink rightExclusive `589` 이상은 ERROR다.
+
+`KAKAO_MOMENT_BIZBOARD_THUMBNAIL_MULTI_RIGHT`는 다음 두 Slot을 고정 순서로
+사용한다. `cornerRadiusPx: 12`는 antialiased footprint에서 도출한 프로젝트
+`[DERIVED]` 값이며 카카오 공식 수치로 주장하지 않는다.
+
+| Slot ID | order | x | y | width | height | rightExclusive | bottomExclusive | radius |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `IMAGE_PRIMARY` | 0 | 621 | 43 | 172 | 172 | 793 | 215 | 12 |
+| `IMAGE_SECONDARY` | 1 | 809 | 43 | 172 | 172 | 981 | 215 | 12 |
+
+Slot gap은 `16px`, 우측 투명 margin은 `48px`, top/bottom margin은 각각 `43px`다.
+Slot은 겹치지 않으며 각 Slot의 12px rounded mask와 crop은 서로 독립적이다.
+
+### 20.2 Asset, Plan, and Crop Candidate 연결 [PROJECT]
+
+Production Capability는 `image/png`, `image/jpeg`와 `SEMANTIC_CROP_COVER`,
+`MANUAL_CROP`을 허용한다. Alpha channel은 필수가 아니다. Asset은 최소 1개,
+최대 2개이며 한 Asset을 두 Slot이 서로 다른 Crop으로 재사용할 수 있다. 반드시
+`IMAGE_PRIMARY` Plan 정확히 1개와 `IMAGE_SECONDARY` Plan 정확히 1개가 있어야
+한다. Plan 배열 순서는 연결 기준이 아니며 `imageSlotId`가 유일한 연결 키다.
+
+`SEMANTIC_CROP_COVER`는 `fitMode:COVER`와 direct `cropRect` 또는
+`cropCandidateId` 중 정확히 하나를 요구한다. `MANUAL_CROP`는 `fitMode:COVER`,
+direct `cropRect`, `source:MANUAL`을 요구하고 Candidate를 금지한다. Renderer는
+Crop을 생성·보정·clamp·중앙 대체하지 않는다. Candidate는 전체 Input에서 unique하고
+해당 Plan의 `assetId`와 `imageSlotId`가 일치해야 한다. 다른 Slot Candidate,
+누락 Crop, 누락 Plan, 알 수 없는 Slot은 ERROR이며 final artifact를 제공하지 않는다.
+
+PNG/JPG/JPEG는 bytes signature와 decoder 성공을 확인하고 JPEG EXIF Orientation
+1..8을 Crop 전에 적용한다. 내부에는 RGBA로 변환하지만 최종 출력은 계속 RGBA
+PNG-32다. 두 Slot은 서로 다른 MIME을 사용할 수 있다.
+
+### 20.3 Subject Protection and raster boundaries [PROJECT]
+
+`REQUIRED` protected subject가 해당 Slot의 resolved Crop 밖이면
+`KBR-PROTECTED-SUBJECT-CLIPPED` ERROR, `PREFERRED`면 WARNING, `NONE`이면 이슈를
+생성하지 않는다. 다른 Slot의 subject 데이터로 대체하지 않는다. 두 Slot의 composite
+순서는 `IMAGE_PRIMARY` 후 `IMAGE_SECONDARY`로 고정한다. 각 Slot 밖, Slot 사이
+16px, 우측 48px, top/bottom 43px는 완전 투명이어야 하며 Guide overlay와
+placeholder는 최종 PNG에 없다.
+
+### 20.4 Determinism, output, and manifest [PROJECT]
+
+입력 Plan 배열이 `[PRIMARY, SECONDARY]` 또는 `[SECONDARY, PRIMARY]`여도 Template
+Slot 순서로 실행·composite·AppliedImagePlacements를 정렬한다. 같은 Asset bytes,
+copy, placement 값이면 Manual/Agent source만 다른 요청은 동일 artifact bytes와
+`pixelFingerprint`를 만들고 `requestFingerprint`만 provenance 차이를 반영한다.
+`appliedImagePlacements`는 항상 두 항목이며 destinationRect는 위 표와 같다.
+
+다중 Slot manifest에는 `templateId`, unique image `assetDigests`,
+`appliedImagePlacements`, `pixelFingerprint`, `requestFingerprint`,
+`outputPngDigest`를 기록한다. 기존 manifest의 self digest는 계속 금지한다. ERROR가
+하나라도 있으면 manifest/output publish와 download를 모두 차단한다.
+
+### 20.5 Desktop Renderer Lab [PROJECT]
+
+Lab은 `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`를 선택할 수
+있다. Multi 선택 시 `IMAGE_PRIMARY`, `IMAGE_SECONDARY` 패널에서 Asset, policy,
+source, Crop Rect, Candidate, anchor, Subject Protection, applied crop과
+destinationRect를 독립적으로 표시·편집한다. 하나의 Asset을 두 Slot에 명시적으로
+재사용할 수 있으며 자동 복사는 하지 않는다. Plan JSON은 두 Plan을 한 번에
+Import/Export하고 Import 배열 순서는 자유지만 Slot ID로 매핑한다. unknown field,
+누락·중복·미지원 Slot, invalid JSON은 기존 PASS를 무효화한다. 어느 Slot이든 ERROR면
+전체 Export를 차단한다.
+
+### 20.6 Version and compatibility [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.5.1 | 1.6.0 | THUMBNAIL_MULTI_RIGHT additive two-slot contract |
+| Template Contract | 1.3.0 | 1.3.0 | 기존 Template 좌표 불변; 새 Slot registry entry는 additive |
+| Integration Contract | 1.1.0 | 1.1.0 | 기존 arrays가 다중 placement를 표현하며 capability metadata만 additive |
+| Desktop | 0.4.1 | 0.5.0 | Multi-slot Lab, 독립 Asset, Plan Import/Export |
+
+### 20.7 Acceptance [PROJECT]
+
+Windows 10/11 x64 고정 환경에서 동일 입력·Asset bytes·dependency·runtime으로
+세 번 실행한 Multi Golden PNG는 byte-equal이어야 한다. C5는 기존 OBJECT_RIGHT
+`20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`과 C4
+THUMBNAIL_BOX_RIGHT Golden을 byte-equal로 유지하는 것을 필수로 한다.

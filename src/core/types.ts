@@ -189,7 +189,12 @@ export type RenderManifest = {
     fonts: AssetDigest[];
     approvedIcons: AssetDigest[];
     referenceFixture: AssetDigest;
+    images?: AssetDigest[];
   };
+  templateId?: string;
+  appliedImagePlacements?: unknown[];
+  pixelFingerprint?: string;
+  requestFingerprint?: string;
   manualAcceptanceStatus: {
     status: "NOT_REVIEWED";
     items: Array<{

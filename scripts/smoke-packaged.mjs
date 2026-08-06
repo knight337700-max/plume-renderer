@@ -10,6 +10,7 @@ const root = process.cwd();
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const expectedPngDigest = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
 const expectedThumbnailPngDigest = "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996";
+const expectedMultiPngDigest = "ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55";
 const executables = [
   path.join(root, "release", "win-unpacked", "Kakao-Bizboard-Local-Renderer.exe"),
   path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`),
@@ -68,6 +69,9 @@ for (const executable of executables) {
   if (result.thumbnailPreviewPngDigest !== expectedThumbnailPngDigest || result.thumbnailPngDigest !== expectedThumbnailPngDigest) {
     throw new Error(`Packaged Thumbnail Golden mismatch: ${JSON.stringify(result)}`);
   }
+  if (result.multiPreviewPngDigest !== expectedMultiPngDigest || result.multiPngDigest !== expectedMultiPngDigest || !result.multiManifestDigest) {
+    throw new Error(`Packaged Thumbnail Multi Golden mismatch: ${JSON.stringify(result)}`);
+  }
   if (!result.jpegThumbnailPreviewPngDigest || result.jpegThumbnailPreviewPngDigest !== result.jpegThumbnailPngDigest || !result.jpegThumbnailManifestDigest) {
     throw new Error(`Packaged JPEG Thumbnail mismatch: ${JSON.stringify(result)}`);
   }
@@ -82,10 +86,13 @@ for (const executable of executables) {
     access(result.manifestPath),
     access(result.thumbnailPngPath),
     access(result.thumbnailManifestPath),
+    access(result.multiPngPath),
+    access(result.multiManifestPath),
     access(result.jpegThumbnailPngPath),
     access(result.jpegThumbnailManifestPath),
     verifyRightMargin(result.pngPath),
     verifyRightMargin(result.thumbnailPngPath),
+    verifyRightMargin(result.multiPngPath),
     verifyRightMargin(result.jpegThumbnailPngPath),
   ]);
   const report = {

@@ -10,26 +10,30 @@ const jobName = z
 
 export const previewRequestSchema = z.strictObject({
   assetToken: token,
+  secondaryAssetToken: token.optional(),
   advertiser: boundedText,
   headline: boundedText,
   subcopy: boundedText,
   jobName,
   requestSequence: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
-  template: z.enum(["OBJECT_RIGHT", "THUMBNAIL_BOX_RIGHT"]).optional(),
+  template: z.enum(["OBJECT_RIGHT", "THUMBNAIL_BOX_RIGHT", "THUMBNAIL_MULTI_RIGHT"]).optional(),
   placementPlan: z.unknown().optional(),
+  placementPlans: z.array(z.unknown()).optional(),
   cropCandidates: z.array(z.unknown()).optional(),
 });
 
 export const exportRequestSchema = z.strictObject({
   assetToken: token,
+  secondaryAssetToken: token.optional(),
   advertiser: boundedText,
   headline: boundedText,
   subcopy: boundedText,
   jobName,
   previewToken: token,
   outputDirectoryToken: token,
-  template: z.enum(["OBJECT_RIGHT", "THUMBNAIL_BOX_RIGHT"]).optional(),
+  template: z.enum(["OBJECT_RIGHT", "THUMBNAIL_BOX_RIGHT", "THUMBNAIL_MULTI_RIGHT"]).optional(),
   placementPlan: z.unknown().optional(),
+  placementPlans: z.array(z.unknown()).optional(),
   cropCandidates: z.array(z.unknown()).optional(),
 });
 

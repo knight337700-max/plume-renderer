@@ -239,6 +239,27 @@ async function runPackagedSmoke(
     });
     if (thumbnailExport.status !== "EXPORTED") throw new Error(`Thumbnail export failed: ${thumbnailExport.code}`);
     const thumbnailPaths = controller.getExportPaths(thumbnailExport.exportToken);
+    const multiSecondary = await controller.selectSecondaryProductFromPath(jpegProductPath);
+    if (multiSecondary.status !== "SELECTED") throw new Error("Thumbnail multi secondary selection failed");
+    const multiInput: UiRenderInput = {
+      assetToken: product.assetToken,
+      secondaryAssetToken: multiSecondary.assetToken,
+      advertiser: "자코모",
+      headline: "자코모 프리미엄 소파",
+      subcopy: "거실을 바꾸는 선택",
+      jobName: "package-smoke-thumbnail-multi",
+      requestSequence: 3,
+      template: "THUMBNAIL_MULTI_RIGHT",
+      placementPlans: [
+        { schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: "IMAGE_PRIMARY", assetId: "selected-primary", policy: "SEMANTIC_CROP_COVER", source: "AGENT", fitMode: "COVER", cropRect: { x: 0, y: 0, width: 1, height: 1 }, anchor: "CENTER", subjectProtection: "NONE" },
+        { schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: "IMAGE_SECONDARY", assetId: "selected-secondary", policy: "MANUAL_CROP", source: "MANUAL", fitMode: "COVER", cropRect: { x: 0, y: 0, width: 1, height: 1 }, anchor: "CENTER", subjectProtection: "NONE" },
+      ],
+    };
+    const multiPreview = await controller.requestPreview(multiInput);
+    if (!multiPreview.previewToken || multiPreview.validationStatus === "ERROR") throw new Error("Thumbnail multi preview failed");
+    const multiExport = await controller.exportRender({ ...multiInput, previewToken: multiPreview.previewToken, outputDirectoryToken: selectedOutput.token });
+    if (multiExport.status !== "EXPORTED") throw new Error(`Thumbnail multi export failed: ${multiExport.code}`);
+    const multiPaths = controller.getExportPaths(multiExport.exportToken);
     const jpegProduct = await controller.selectProductFromPath(jpegProductPath);
     if (jpegProduct.status !== "SELECTED" || jpegProduct.detectedMimeType !== "image/jpeg") throw new Error("JPEG product selection failed");
     const jpegThumbnailInput: UiRenderInput = {
@@ -247,7 +268,7 @@ async function runPackagedSmoke(
       headline: "자코모 프리미엄 소파",
       subcopy: "거실을 바꾸는 선택",
       jobName: "package-smoke-thumbnail-jpeg",
-      requestSequence: 3,
+      requestSequence: 4,
       template: "THUMBNAIL_BOX_RIGHT",
       placementPlan: {
         schemaVersion: INTEGRATION_SCHEMA_VERSION,
@@ -284,6 +305,11 @@ async function runPackagedSmoke(
         thumbnailManifestDigest: thumbnailExport.manifestDigest,
         thumbnailPngPath: thumbnailPaths.pngPath,
         thumbnailManifestPath: thumbnailPaths.manifestPath,
+        multiPreviewPngDigest: multiPreview.previewPngDigest,
+        multiPngDigest: multiExport.pngDigest,
+        multiManifestDigest: multiExport.manifestDigest,
+        multiPngPath: multiPaths.pngPath,
+        multiManifestPath: multiPaths.manifestPath,
         jpegThumbnailPreviewPngDigest: jpegThumbnailPreview.previewPngDigest,
         jpegThumbnailPngDigest: jpegThumbnailExport.pngDigest,
         jpegThumbnailManifestDigest: jpegThumbnailExport.manifestDigest,

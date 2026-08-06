@@ -26,7 +26,7 @@ Protected subjects are checked against the applied crop: REQUIRED clipping block
 
 ## Current capability
 
-`KAKAO_BIZBOARD_OBJECT_RIGHT` is the only `IMPLEMENTED` production capability. It exposes slot `OBJECT_RIGHT_PRODUCT`, default/only policy `ALPHA_TRIM_CONTAIN`, and `semanticPlacement=NOT_REQUIRED`. Manual and Agent placement controls are currently disabled because the existing Core path is alpha-trim-only. Thumbnail, mask, native, and Naver profiles are explicitly `NOT_IMPLEMENTED`; their generic policy vocabulary is not an implementation claim.
+The current `IMPLEMENTED` production capabilities are `KAKAO_BIZBOARD_OBJECT_RIGHT`, `KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT`, and `KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT`. The first remains alpha-trim-only on slot `OBJECT_RIGHT_PRODUCT`; the thumbnail profiles use their registered image slots and PNG/JPEG capability metadata. `THUMBNAIL_MULTI_RIGHT` requires exactly one plan for each of `IMAGE_PRIMARY` and `IMAGE_SECONDARY`, while one Asset may be reused by both plans. `MASK_SEMICIRCLE_RIGHT`, native, and Naver profiles remain explicitly `NOT_IMPLEMENTED`; their generic policy vocabulary is not an implementation claim.
 
 The integration adapter keeps the legacy C2a Renderer Input and its output untouched. It supplies normalized placement metadata and the actual output checksum in the integration response. Existing Core/CLI Input Schema versions remain unchanged.
 

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "1.1.0", "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT", "templateId": "KAKAO_MOMENT_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
+  "copy": { "advertiser": "자코모", "headline": "자코모 프리미엄 소파", "subcopy": "거실을 바꾸는 선택" },
+  "assets": [{ "assetId": "a", "mimeType": "image/png", "assetRef": { "type": "FIXTURE_ASSET_ID", "value": "thumbnail-box-right__asset__basic__pass.png" } }],
+  "imagePlacementPlans": [{ "schemaVersion": "1.1.0", "imageSlotId": "IMAGE_PRIMARY", "assetId": "a", "policy": "MANUAL_CROP", "source": "MANUAL", "fitMode": "COVER", "cropRect": { "x": 0, "y": 0, "width": 1, "height": 1 }, "anchor": "CENTER", "subjectProtection": "NONE" }],
+  "output": { "mimeType": "image/png" }
+}

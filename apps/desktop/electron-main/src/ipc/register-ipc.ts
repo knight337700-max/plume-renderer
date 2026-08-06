@@ -69,8 +69,29 @@ export function registerDesktopIpc(options: RegisterDesktopIpcOptions): void {
     return options.controller.selectProductFromPath(selectedPath);
   });
 
+  handle(DESKTOP_CHANNELS.selectSecondaryProductPng, async (): Promise<ProductSelectionResult> => {
+    let selectedPath: string | undefined;
+    if (options.e2eProductPath) {
+      selectedPath = options.e2eProductPath;
+    } else {
+      const result = await options.dialog.showOpenDialog(options.window, {
+        title: "두 번째 이미지 선택",
+        properties: ["openFile", "dontAddToRecent"],
+        filters: [{ name: "이미지 파일", extensions: ["png", "jpg", "jpeg"] }],
+      });
+      if (result.canceled || result.filePaths.length === 0) return { status: "CANCELLED" };
+      selectedPath = result.filePaths[0];
+    }
+    if (!selectedPath) return { status: "CANCELLED" };
+    return options.controller.selectSecondaryProductFromPath(selectedPath);
+  });
+
   handle(DESKTOP_CHANNELS.clearProduct, async (): Promise<void> => {
     await options.controller.clearProduct();
+  });
+
+  handle(DESKTOP_CHANNELS.clearSecondaryProduct, async (): Promise<void> => {
+    await options.controller.clearSecondaryProduct();
   });
 
   handle(DESKTOP_CHANNELS.requestPreview, async (_event, raw: unknown) => {
