@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.0.0",
+  "registryVersion": "1.1.0",
   "namespace": "renderer-integration",
   "codes": [
     { "code": "KBR-PLACEMENT-PLAN-MISSING", "severity": "ERROR", "messageKey": "placement.plan_missing", "condition": "A required image slot has no placement plan" },
@@ -9,6 +9,8 @@
     { "code": "KBR-ASSET-UNUSED", "severity": "WARNING", "messageKey": "asset.unused", "condition": "An input asset is not referenced by any placement plan; v1 policy reports a warning" },
     { "code": "KBR-ASSET-CHECKSUM-MISMATCH", "severity": "ERROR", "messageKey": "asset.checksum_mismatch", "condition": "Resolved asset bytes do not match the declared SHA-256" },
     { "code": "KBR-ASSET-DIMENSION-MISMATCH", "severity": "ERROR", "messageKey": "asset.dimension_mismatch", "condition": "Resolved asset dimensions do not match declared dimensions" },
+    { "code": "KBR-ASSET-MIME-NOT-ALLOWED", "severity": "ERROR", "messageKey": "asset.mime_not_allowed", "condition": "The selected template does not allow the declared input MIME type" },
+    { "code": "KBR-ASSET-MIME-EXTENSION-MISMATCH", "severity": "ERROR", "messageKey": "asset.mime_extension_mismatch", "condition": "The declared extension or MIME does not match the detected image bytes" },
     { "code": "KBR-IMAGE-SLOT-NOT-FOUND", "severity": "ERROR", "messageKey": "placement.image_slot_not_found", "condition": "Image slot is not defined by the selected template capability" },
     { "code": "KBR-CROP-RECT-REQUIRED", "severity": "ERROR", "messageKey": "placement.crop_rect_required", "condition": "A crop policy lacks its required direct crop or candidate" },
     { "code": "KBR-CROP-RECT-FORBIDDEN", "severity": "ERROR", "messageKey": "placement.crop_rect_forbidden", "condition": "A crop was supplied for a contain policy or with a candidate" },
@@ -22,6 +24,7 @@
     { "code": "KBR-ALPHA-TRIM-FAILED", "severity": "ERROR", "messageKey": "asset.alpha_trim_failed", "condition": "Alpha trim cannot produce a valid visible bounds" },
     { "code": "KBR-IMAGE-DECODE-FAILED", "severity": "ERROR", "messageKey": "asset.image_decode_failed", "condition": "Resolved bytes cannot be decoded as the declared image type" },
     { "code": "KBR-IMAGE-DIMENSION-INVALID", "severity": "ERROR", "messageKey": "asset.image_dimension_invalid", "condition": "Decoded image dimensions are invalid" },
+    { "code": "KBR-EXIF-ORIENTATION-INVALID", "severity": "ERROR", "messageKey": "asset.exif_orientation_invalid", "condition": "JPEG EXIF Orientation is malformed or outside 1..8" },
     { "code": "KBR-IMAGE-SLOT-OVERFLOW", "severity": "ERROR", "messageKey": "placement.image_slot_overflow", "condition": "Applied visible image pixels leave the target slot" },
     { "code": "KBR-TEMPLATE-CONSTRAINT-VIOLATION", "severity": "ERROR", "messageKey": "template.constraint_violation", "condition": "Input asks for a template or capability that is not implemented" },
     { "code": "KBR-SEMANTIC-PLACEMENT-REQUIRED", "severity": "ERROR", "messageKey": "placement.semantic_required", "condition": "A capability requiring semantic placement receives no valid plan" },

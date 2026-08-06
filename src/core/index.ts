@@ -8,6 +8,15 @@ export { applyDefaults, normalizeInput } from "./normalize.js";
 export { canonicalDigest, canonicalJson } from "./canonical.js";
 export { calculateLayout } from "./layout.js";
 export { analyzeAndResizeProduct } from "./product-image.js";
+export {
+  detectImageMimeFromBytes,
+  ImageInputError,
+  inspectImageBytes,
+  inspectImageFile,
+  mimeForImageExtension,
+  SUPPORTED_INPUT_MIME_TYPES,
+} from "./image-input.js";
+export type { ImageInputErrorCode, ImageInputMetadata, InspectedImage, SupportedInputMimeType } from "./image-input.js";
 export { inspectPngIhdr, renderRgbaPng, validateRenderedPng } from "./raster.js";
 export {
   renderThumbnailBoxRight,

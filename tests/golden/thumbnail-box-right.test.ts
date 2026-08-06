@@ -16,7 +16,7 @@ describe("THUMBNAIL_BOX_RIGHT Golden", () => {
   it("is deterministic and excludes the gray guide placeholder", async () => {
     const assetBytes = await readFile(path.join(root, "fixtures", "valid", "thumbnail-box-right__asset__basic__pass.png"));
     const plan = {
-      schemaVersion: "1.0.0" as const,
+      schemaVersion: "1.1.0" as const,
       imageSlotId: "IMAGE_PRIMARY",
       assetId: "thumbnail-basic",
       policy: "SEMANTIC_CROP_COVER" as const,

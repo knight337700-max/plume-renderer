@@ -182,6 +182,12 @@ async function runPackagedSmoke(
     "valid",
     "object-right__product__basic__pass.png",
   );
+  const jpegProductPath = path.join(
+    projectRoot(),
+    "fixtures",
+    "valid",
+    "thumbnail-box-right__asset__jpeg__pass.jpg",
+  );
   await mkdir(outputRoot, { recursive: true });
   try {
     const product = await controller.selectProductFromPath(productPath);
@@ -233,6 +239,37 @@ async function runPackagedSmoke(
     });
     if (thumbnailExport.status !== "EXPORTED") throw new Error(`Thumbnail export failed: ${thumbnailExport.code}`);
     const thumbnailPaths = controller.getExportPaths(thumbnailExport.exportToken);
+    const jpegProduct = await controller.selectProductFromPath(jpegProductPath);
+    if (jpegProduct.status !== "SELECTED" || jpegProduct.detectedMimeType !== "image/jpeg") throw new Error("JPEG product selection failed");
+    const jpegThumbnailInput: UiRenderInput = {
+      assetToken: jpegProduct.assetToken,
+      advertiser: "자코모",
+      headline: "자코모 프리미엄 소파",
+      subcopy: "거실을 바꾸는 선택",
+      jobName: "package-smoke-thumbnail-jpeg",
+      requestSequence: 3,
+      template: "THUMBNAIL_BOX_RIGHT",
+      placementPlan: {
+        schemaVersion: INTEGRATION_SCHEMA_VERSION,
+        imageSlotId: "IMAGE_PRIMARY",
+        assetId: "selected-product",
+        policy: "SEMANTIC_CROP_COVER",
+        source: "DETERMINISTIC",
+        fitMode: "COVER",
+        cropRect: { x: 0.1, y: 0, width: 0.8, height: 1 },
+        anchor: "CENTER",
+        subjectProtection: "NONE",
+      },
+    };
+    const jpegThumbnailPreview = await controller.requestPreview(jpegThumbnailInput);
+    if (!jpegThumbnailPreview.previewToken || jpegThumbnailPreview.validationStatus === "ERROR") throw new Error("JPEG thumbnail preview failed");
+    const jpegThumbnailExport = await controller.exportRender({
+      ...jpegThumbnailInput,
+      previewToken: jpegThumbnailPreview.previewToken,
+      outputDirectoryToken: selectedOutput.token,
+    });
+    if (jpegThumbnailExport.status !== "EXPORTED") throw new Error(`JPEG thumbnail export failed: ${jpegThumbnailExport.code}`);
+    const jpegThumbnailPaths = controller.getExportPaths(jpegThumbnailExport.exportToken);
     await writeFile(
       resultPath,
       JSON.stringify({
@@ -247,6 +284,14 @@ async function runPackagedSmoke(
         thumbnailManifestDigest: thumbnailExport.manifestDigest,
         thumbnailPngPath: thumbnailPaths.pngPath,
         thumbnailManifestPath: thumbnailPaths.manifestPath,
+        jpegThumbnailPreviewPngDigest: jpegThumbnailPreview.previewPngDigest,
+        jpegThumbnailPngDigest: jpegThumbnailExport.pngDigest,
+        jpegThumbnailManifestDigest: jpegThumbnailExport.manifestDigest,
+        jpegThumbnailPngPath: jpegThumbnailPaths.pngPath,
+        jpegThumbnailManifestPath: jpegThumbnailPaths.manifestPath,
+        jpegDetectedMimeType: jpegProduct.detectedMimeType,
+        jpegWidth: jpegProduct.width,
+        jpegHeight: jpegProduct.height,
         blockedNetworkRequestCount,
       }),
       "utf8",

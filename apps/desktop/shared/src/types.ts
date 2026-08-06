@@ -1,5 +1,5 @@
 import type { LayoutMeasurements, ValidationIssue } from "../../../../src/core/types.js";
-import type { AppliedImagePlacement, CropCandidate, ImagePlacementPlan } from "@kbr/renderer-contract";
+import type { AppliedImagePlacement, CropCandidate, ImagePlacementPlan, SupportedInputMimeType } from "@kbr/renderer-contract";
 
 export type UiTemplate = "OBJECT_RIGHT" | "THUMBNAIL_BOX_RIGHT";
 
@@ -20,12 +20,13 @@ export type ProductSelectionResult =
   | {
       status: "SELECTED";
       assetToken: string;
-      fileName: string;
+      displayName: string;
+      detectedMimeType: SupportedInputMimeType;
       bytes: number;
       width: number;
       height: number;
       hasAlpha: boolean;
-      sha256: string;
+      checksumSha256: string;
     }
   | { status: "ERROR"; code: string; message: string };
 

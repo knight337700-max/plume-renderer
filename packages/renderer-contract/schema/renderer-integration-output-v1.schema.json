@@ -10,7 +10,7 @@
     { "if": { "properties": { "status": { "const": "BLOCKED" } } }, "then": { "not": { "required": ["artifact"] } } }
   ],
   "properties": {
-    "schemaVersion": { "const": "1.0.0" },
+    "schemaVersion": { "const": "1.1.0" },
     "status": { "enum": ["PASS", "BLOCKED"] },
     "artifact": {
       "type": "object", "additionalProperties": false,

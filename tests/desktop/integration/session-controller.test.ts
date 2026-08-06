@@ -67,11 +67,54 @@ describe("Desktop session, Preview, and Export integration", () => {
     const context = await setup("select");
     const selected = await selectFixture(context, "fixtures/valid/object-right__product__basic__pass.png");
 
-    expect(selected.fileName).toBe("object-right__product__basic__pass.png");
+    expect(selected.displayName).toBe("object-right__product__basic__pass.png");
     expect(selected).not.toHaveProperty("absolutePath");
     expect(selected).not.toHaveProperty("path");
     await expect(access(path.join(context.session.inputRoot, "product.png"))).resolves.toBeUndefined();
     expect(context.session.getAsset(selected.assetToken).relativePath).toBe("product.png");
+    expect(selected.detectedMimeType).toBe("image/png");
+    expect(selected.checksumSha256).toMatch(/^[a-f0-9]{64}$/u);
+  });
+
+  it("accepts JPEG, preserves the session extension, and returns only safe metadata", async () => {
+    const context = await setup("jpeg-select");
+    const selected = await selectFixture(context, "fixtures/valid/thumbnail-box-right__asset__jpeg__pass.jpg");
+
+    expect(selected.detectedMimeType).toBe("image/jpeg");
+    expect(selected.displayName).toContain(".jpg");
+    expect(selected.hasAlpha).toBe(false);
+    expect(selected.checksumSha256).toMatch(/^[a-f0-9]{64}$/u);
+    expect(selected).not.toHaveProperty("absolutePath");
+    expect(selected).not.toHaveProperty("path");
+    await expect(access(path.join(context.session.inputRoot, "product.jpg"))).resolves.toBeUndefined();
+    expect(context.session.getAsset(selected.assetToken).relativePath).toBe("product.jpg");
+  });
+
+  it("renders JPEG with THUMBNAIL_BOX_RIGHT and blocks JPEG in OBJECT_RIGHT", async () => {
+    const context = await setup("jpeg-thumbnail");
+    const selected = await selectFixture(context, "fixtures/valid/thumbnail-box-right__asset__jpeg__pass.jpg");
+    const thumbnailInput: UiRenderInput = {
+      ...uiInput(selected.assetToken, "jpeg-thumbnail"),
+      template: "THUMBNAIL_BOX_RIGHT",
+      placementPlan: {
+        schemaVersion: "1.1.0",
+        imageSlotId: "IMAGE_PRIMARY",
+        assetId: "selected-product",
+        policy: "SEMANTIC_CROP_COVER",
+        source: "DETERMINISTIC",
+        fitMode: "COVER",
+        cropRect: { x: 0, y: 0, width: 1, height: 1 },
+        anchor: "CENTER",
+        subjectProtection: "NONE",
+      },
+    };
+    const thumbnailPreview = await context.controller.requestPreview(thumbnailInput);
+    expect(thumbnailPreview.validationStatus).toBe("PASS");
+    expect(thumbnailPreview.previewToken).not.toBeNull();
+
+    const objectPreview = await context.controller.requestPreview(uiInput(selected.assetToken, "jpeg-object"));
+    expect(objectPreview.validationStatus).toBe("ERROR");
+    expect(objectPreview.errors.map(({ code }) => code)).toContain("KBR-ASSET-MIME-NOT-ALLOWED");
   });
 
   it("returns Preview PASS for an inset-alpha product", async () => {

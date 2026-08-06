@@ -1,6 +1,6 @@
 # Kakao Bizboard OBJECT_RIGHT local renderer
 
-Canonical 계약 `1.5.0`과 Template Contract `1.3.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`와 `THUMBNAIL_BOX_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.0.0`은 Agent-independent JSON boundary와 Runtime Asset Resolver를 제공하지만 Agent/OpenAI/Plume client를 포함하지 않는다.
+Canonical 계약 `1.5.1`과 Template Contract `1.3.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`와 `THUMBNAIL_BOX_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.1.0`은 bytes 기반 PNG/JPEG MIME 검증, EXIF Orientation metadata, Agent-independent JSON boundary와 Runtime Asset Resolver를 제공하지만 Agent/OpenAI/Plume client를 포함하지 않는다.
 
 ## 요구 환경
 
@@ -29,7 +29,7 @@ pnpm desktop:start
 
 사용 순서:
 
-1. `PNG 선택`에서 제품 투명 PNG 한 개를 선택한다.
+1. `이미지 선택`에서 제품 이미지(PNG/JPG/JPEG) 한 개를 선택한다. OBJECT_RIGHT는 투명 PNG만, THUMBNAIL_BOX_RIGHT는 PNG/JPG/JPEG를 허용한다.
 2. 광고주체, Headline, Subcopy를 입력한다.
 3. 광고주체 문자열을 Headline 또는 Subcopy에 실제로 포함한다.
 4. 결과 폴더명을 입력하고 `Preview 검증`을 실행한다.
@@ -51,7 +51,7 @@ pnpm smoke:package
 
 ```text
 release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
-release/Kakao-Bizboard-Local-Renderer-0.4.0-x64.exe
+release/Kakao-Bizboard-Local-Renderer-0.4.1-x64.exe
 ```
 
 Portable 앱은 설치와 관리자 권한을 요구하지 않는다. 코드 서명과 자동 업데이트가 없으므로 Windows SmartScreen 경고가 표시될 수 있다. 앱은 비공식 로컬 Renderer이며 카카오 공식 서비스가 아니고 실제 광고 심사 승인을 보장하지 않는다.
@@ -81,7 +81,7 @@ node dist/cli/index.js render `
 
 ## Integration Contract
 
-`packages/renderer-contract/`와 `docs/integration/plume-renderer-contract-v1.md`가 별도 `schemaVersion: 1.0.0` 계약이다. JSON에는 절대 경로 또는 바이너리 객체를 넣지 않고 `assetRef`를 Runtime Asset Resolver로 해석한다. 현재 production Capability는 `KAKAO_BIZBOARD_OBJECT_RIGHT`와 `KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT`다. OBJECT_RIGHT는 `ALPHA_TRIM_CONTAIN + CONTAIN`, Thumbnail Box Right는 `SEMANTIC_CROP_COVER` 또는 `MANUAL_CROP + COVER`를 실제 구현한다. Candidate와 Subject Protection은 입력 Plan을 검증하고 자동 Crop 생성이나 자동 중심 대체를 하지 않는다.
+`packages/renderer-contract/`와 `docs/integration/plume-renderer-contract-v1.md`가 별도 `schemaVersion: 1.1.0` 계약이다. JSON에는 절대 경로 또는 바이너리 객체를 넣지 않고 `assetRef`를 Runtime Asset Resolver로 해석한다. 입력 Asset은 PNG/JPEG만 허용하며 WebP/GIF/AVIF/BMP/TIFF/SVG는 Production Capability에서 차단한다. 현재 production Capability는 `KAKAO_BIZBOARD_OBJECT_RIGHT`와 `KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT`다. OBJECT_RIGHT는 `ALPHA_TRIM_CONTAIN + CONTAIN`과 alpha PNG만, Thumbnail Box Right는 PNG/JPEG의 `SEMANTIC_CROP_COVER` 또는 `MANUAL_CROP + COVER`를 실제 구현한다. JPEG EXIF Orientation은 crop 전에 보정한다. Candidate와 Subject Protection은 입력 Plan을 검증하고 자동 Crop 생성이나 자동 중심 대체를 하지 않는다.
 
 동일한 Placement 값의 Manual/Agent Plan은 같은 `pixelFingerprint`와 artifact bytes를 만들고 `requestFingerprint`로 provenance만 구분한다. 오류가 하나라도 있으면 Integration Output은 `BLOCKED`이며 artifact/download를 제공하지 않는다. Runtime network access는 계속 금지된다.
 - Electron Main + sandboxed Preload + React 단일 화면 UI

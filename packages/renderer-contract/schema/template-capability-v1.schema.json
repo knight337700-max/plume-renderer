@@ -4,9 +4,9 @@
   "title": "Renderer Template Capability v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "formatProfileId", "implementationStatus", "defaultPolicy", "semanticPlacement", "allowedPolicies", "supportsManualCrop", "supportsAgentPlacement"],
+  "required": ["schemaVersion", "formatProfileId", "implementationStatus", "defaultPolicy", "semanticPlacement", "allowedPolicies", "supportsManualCrop", "supportsAgentPlacement", "allowedInputMimeTypes", "alphaChannelRequired"],
   "properties": {
-    "schemaVersion": { "const": "1.0.0" },
+    "schemaVersion": { "const": "1.1.0" },
     "formatProfileId": { "type": "string", "minLength": 1 },
     "implementationStatus": { "enum": ["NOT_IMPLEMENTED", "PARTIAL", "IMPLEMENTED"] },
     "defaultPolicy": { "enum": ["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"] },
@@ -14,6 +14,8 @@
     "allowedPolicies": { "type": "array", "items": { "enum": ["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"] } },
     "supportsManualCrop": { "type": "boolean" },
     "supportsAgentPlacement": { "type": "boolean" },
-    "imageSlotIds": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+    "imageSlotIds": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "allowedInputMimeTypes": { "type": "array", "items": { "enum": ["image/png", "image/jpeg"] } },
+    "alphaChannelRequired": { "type": "boolean" }
   }
 }

@@ -82,6 +82,7 @@ export function App() {
     () => [...(state.preview?.errors ?? []), ...(state.preview?.warnings ?? [])],
     [state.preview],
   );
+  const assetTemplateMismatch = state.product !== null && template === "OBJECT_RIGHT" && state.product.detectedMimeType !== "image/png";
 
   function setTemplateMode(next: UiTemplate) {
     setTemplate(next);
@@ -316,10 +317,10 @@ export function App() {
           </div>
 
           <div className="field-group">
-            <span className="field-label">제품 PNG</span>
+            <span className="field-label">제품 이미지</span>
             <div className="button-row">
               <button type="button" onClick={() => void selectProduct()} data-testid="select-product">
-                PNG 선택
+                이미지 선택
               </button>
               {state.product ? (
                 <button type="button" className="secondary" onClick={() => void clearProduct()}>
@@ -329,13 +330,15 @@ export function App() {
             </div>
             {state.product ? (
               <div className="asset-card" data-testid="product-metadata">
-                <strong>{state.product.fileName}</strong>
+                <strong>{state.product.displayName}</strong>
                 <span>{formatProductMetadata(state.product)}</span>
-                <code>SHA-256 {state.product.sha256.slice(0, 16)}…</code>
+                <code>SHA-256 {state.product.checksumSha256.slice(0, 16)}…</code>
               </div>
             ) : (
-              <p className="hint">원본 절대 경로는 UI에 전달하거나 표시하지 않습니다.</p>
+              <p className="hint">지원 파일: PNG, JPG, JPEG · 원본 절대 경로는 UI에 전달하거나 표시하지 않습니다.</p>
             )}
+            {template === "THUMBNAIL_BOX_RIGHT" ? <p className="hint">지원 파일: PNG, JPG, JPEG · 배경이 포함된 이미지도 사용할 수 있습니다.</p> : <p className="hint">지원 파일: 투명 배경 PNG · 누끼 이미지 전용 유형입니다.</p>}
+            {assetTemplateMismatch ? <p className="placement-plan-status status-error" data-testid="asset-template-mismatch">BLOCKED · OBJECT_RIGHT는 투명 배경 PNG만 허용합니다. 새 파일을 선택하세요.</p> : null}
           </div>
 
           {fieldConfig.map(({ id, label, pointer }) => {

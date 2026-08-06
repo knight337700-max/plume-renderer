@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.5.0
-- **Status:** Frozen Implementation Contract — Phase C4 thumbnail implementation
+- **Document version:** 1.5.1
+- **Status:** Frozen Implementation Contract — Phase C4 JPEG input amendment
 - **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT and THUMBNAIL_BOX_RIGHT / 1029×258`
@@ -140,7 +140,7 @@ Phase C2a 이후 계약 우선순위는 이 문서의 **14. Phase C2a Text Basel
 
 ## 2.1 제품 정의
 
-**Kakao Bizboard Local Renderer**는 구조화된 카피와 투명 제품 PNG 한 개를 입력받아 카카오 비즈보드 우측 오브젝트형 배너 한 개를 로컬에서 생성하고, 자동 Validator 결과의 `ERROR`가 0개일 때만 최종 PNG 다운로드를 허용하는 독립 실행형 도구다.
+**Kakao Bizboard Local Renderer**는 구조화된 카피와 Template Capability가 허용하는 제품 이미지 한 개를 입력받아 카카오 비즈보드 우측형 배너 한 개를 로컬에서 생성하고, 자동 Validator 결과의 `ERROR`가 0개일 때만 최종 PNG 다운로드를 허용하는 독립 실행형 도구다. `OBJECT_RIGHT`는 투명 PNG만, `THUMBNAIL_BOX_RIGHT`는 PNG/JPG/JPEG를 허용한다. **[PROJECT]**
 
 ## 2.2 목표
 
@@ -940,7 +940,7 @@ response envelope는 저장 파일이 아니며 세 번째 최종 artifact로 �
 
 # 6. 이미지 Alpha Trim 규칙
 
-## 6.1 입력 조건
+## 6.1 OBJECT_RIGHT 입력 조건
 
 1. 제품 이미지는 PNG만 허용한다.
 2. alpha channel이 반드시 존재해야 한다.
@@ -1144,6 +1144,12 @@ type ValidationIssue = {
 | KBR-ASSET-012 | WARNING | 외딴 alpha noise 감지 |
 | KBR-ASSET-013 | WARNING | alpha fringe 감지 |
 | KBR-ASSET-014 | WARNING | 입력 제품 PNG가 150KB 초과 |
+| KBR-ASSET-MIME-NOT-ALLOWED | ERROR | Template Capability가 허용하지 않는 실제 입력 MIME |
+| KBR-ASSET-MIME-EXTENSION-MISMATCH | ERROR | 파일 확장자/선언 MIME과 bytes에서 감지한 MIME 불일치 |
+| KBR-IMAGE-DECODE-FAILED | ERROR | PNG/JPEG decoder 실패 또는 손상 bytes |
+| KBR-IMAGE-DIMENSION-INVALID | ERROR | decode 후 width/height가 유효하지 않음 |
+| KBR-ALPHA-CHANNEL-REQUIRED | ERROR | OBJECT_RIGHT에 alpha channel이 없는 입력 |
+| KBR-EXIF-ORIENTATION-INVALID | ERROR | JPEG EXIF Orientation이 malformed 또는 1..8 밖 |
 
 ## 8.5 텍스트
 
@@ -1232,7 +1238,8 @@ JSON Schema validator의 `required`, `type`, `enum`, `const`, `additionalPropert
 
 - [ ] 유효 Input JSON이 Schema를 통과
 - [ ] channel, placement, template, canvas의 모든 비지원 값 차단
-- [ ] 제품 PNG 이외 포맷 차단
+- [ ] OBJECT_RIGHT는 PNG 이외 포맷과 alpha 없는 PNG를 차단
+- [ ] THUMBNAIL_BOX_RIGHT는 유효 PNG/JPG/JPEG를 허용하고 WebP/GIF/AVIF/BMP/TIFF/SVG를 차단
 - [ ] 경로 traversal 차단
 
 ### C. Alpha Trim
@@ -1547,7 +1554,7 @@ Golden test는 최소 다음을 고정한다.
 
 ## 10.8 UI 최소 요구사항
 
-1. 제품 PNG 선택
+1. Template Capability에 맞는 제품 이미지(PNG/JPG/JPEG) 선택
 2. 광고주체 입력
 3. Headline 입력
 4. Subcopy 입력
@@ -2084,7 +2091,7 @@ Core 검증 전에는 확정 수치를 표시하지 않고 `Core 검증 후 실�
 
 # 15. Phase C3 Agent-ready Renderer Integration Contract
 
-이 절은 Canonical 문서 `1.4.0`의 `[PROJECT]` 통합 경계 결정이다. Renderer는 Agent, Plume, OpenAI 또는 원격 서비스의 존재를 알지 못한다. Agent가 만든 Plan과 Lab에서 만든 Plan은 동일한 `Integration Contract v1.0.0` JSON Schema와 동일한 Core Adapter를 통과해야 한다. 이번 절은 특정 Agent의 내부 ID, Prompt, Queue, DB 또는 업로드 승인 규칙을 정의하지 않는다.
+이 절은 Canonical 문서 `1.4.0`의 `[PROJECT]` 통합 경계 결정이다. Renderer는 Agent, Plume, OpenAI 또는 원격 서비스의 존재를 알지 못한다. Agent가 만든 Plan과 Lab에서 만든 Plan은 동일한 `Integration Contract v1.1.0` JSON Schema와 동일한 Core Adapter를 통과해야 한다. 이번 절은 특정 Agent의 내부 ID, Prompt, Queue, DB 또는 업로드 승인 규칙을 정의하지 않는다.
 
 ## 15.1 버전과 공존
 
@@ -2095,13 +2102,13 @@ Core 검증 전에는 확정 수치를 표시하지 않고 `Core 검증 후 실�
 | Input Schema | `1.2.0` | `1.2.0` | 기존 공개 Renderer Input 유지 |
 | Output Schema | `2.0.0` | `2.0.0` | 기존 Core response/manifest 유지 |
 | Desktop application | `0.2.1` | `0.3.0` | Renderer Lab Placement Plan 기능 |
-| Integration Contract | 없음 | `1.0.0` | 별도 JSON namespace/package 추가 |
+| Integration Contract | `1.0.0` | `1.1.0` | Capability MIME allowlist, alpha requirement, resolver metadata |
 
 기존 Desktop/CLI Input을 제거하거나 대체하지 않는다. `packages/renderer-contract`는 직렬화 가능한 타입·Schema·검증·fingerprint·Resolver 인터페이스를 제공하고, Adapter는 이를 기존 OBJECT_RIGHT Core Input 모델로 변환한다. Core는 Integration Input에 없는 값(카피, asset, slot, crop)을 추측하거나 자동 보정하지 않는다.
 
 ## 15.2 Serializable Asset Descriptor와 Runtime Resolver
 
-Integration JSON의 Asset Descriptor는 `assetId`, PNG/JPEG/WebP `mimeType`, 선택적 declared dimensions/checksum, 그리고 `assetRef`(`DESKTOP_ASSET_TOKEN`, `INTEGRATION_ASSET_TOKEN`, `FIXTURE_ASSET_ID`)만 포함한다. Blob, Uint8Array, OS 절대 경로는 JSON 계약에 포함하지 않는다. Runtime에서는 `RendererAssetResolver.resolve(assetRef)`가 실제 bytes와 resolved MIME을 반환하고, Core가 bytes의 SHA-256·decode·dimensions·alpha를 직접 검증한다. 선언값과 실제값이 다르면 ERROR이며 `analysis`는 검증 가능한 힌트일 뿐 신뢰 원본이 아니다. Canonical JSON, request/pixel fingerprint에는 절대 경로를 포함하지 않는다.
+Integration JSON의 Asset Descriptor는 `assetId`, PNG/JPEG `mimeType`, 선택적 declared dimensions/checksum, 그리고 `assetRef`(`DESKTOP_ASSET_TOKEN`, `INTEGRATION_ASSET_TOKEN`, `FIXTURE_ASSET_ID`)만 포함한다. Blob, Uint8Array, OS 절대 경로는 JSON 계약에 포함하지 않는다. Runtime에서는 `RendererAssetResolver.resolve(assetRef)`가 실제 bytes, detected MIME, orientation 보정 후 dimensions, alpha metadata를 반환하고, Core가 bytes의 SHA-256·decode·dimensions·alpha를 직접 검증한다. WebP/GIF/AVIF/BMP/TIFF/SVG는 현재 Production Capability에서 허용하지 않는다. 선언값과 실제값이 다르면 ERROR이며 `analysis`는 검증 가능한 힌트일 뿐 신뢰 원본이 아니다. Canonical JSON, request/pixel fingerprint에는 절대 경로를 포함하지 않는다.
 
 ## 15.3 Placement Policy와 정규화 좌표
 
@@ -2120,7 +2127,7 @@ Integration JSON의 Asset Descriptor는 `assetId`, PNG/JPEG/WebP `mimeType`, 선
 
 ## 15.4 Integration Input/Output과 Capability
 
-`RendererIntegrationInputV1`의 `schemaVersion`은 `1.0.0`이다. 현재 실제 구현은 `output.mimeType=image/png`만 지원한다. JPEG를 Schema 또는 Capability에 IMPLEMENTED로 표시하지 않는다. `RendererIntegrationOutputV1`은 `PASS` 또는 `BLOCKED`이며 ERROR가 하나라도 있으면 artifact metadata와 다운로드를 제공하지 않는다. `AppliedImagePlacement`에는 requested/resolved crop, source pixel crop, destinationRect, scale, anchor, alphaTrimApplied, candidate ID를 기록하고 `changedFromRequestedPlan`은 v1에서 항상 `false`다.
+`RendererIntegrationInputV1`의 `schemaVersion`은 `1.1.0`이다. 입력 Asset은 PNG/JPEG만 허용하며 최종 `output.mimeType=image/png`만 지원한다. OBJECT_RIGHT는 PNG와 alpha를 요구하고, THUMBNAIL_BOX_RIGHT는 PNG/JPEG를 허용하며 alpha를 요구하지 않는다. `RendererIntegrationOutputV1`은 `PASS` 또는 `BLOCKED`이며 ERROR가 하나라도 있으면 artifact metadata와 다운로드를 제공하지 않는다. `AppliedImagePlacement`에는 requested/resolved crop, source pixel crop, destinationRect, scale, anchor, alphaTrimApplied, candidate ID를 기록하고 `changedFromRequestedPlan`은 v1에서 항상 `false`다.
 
 Capability Registry에서 `KAKAO_BIZBOARD_OBJECT_RIGHT`와 `KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT`가 `IMPLEMENTED`다. OBJECT_RIGHT는 기본 정책 `ALPHA_TRIM_CONTAIN`, semantic placement `NOT_REQUIRED`, manual/agent placement `false`다. THUMBNAIL_BOX_RIGHT는 기본 정책 `SEMANTIC_CROP_COVER`, semantic placement `REQUIRED`, `SEMANTIC_CROP_COVER`와 `MANUAL_CROP`만 허용하고 manual/agent placement를 `true`로 둔다. Thumbnail Multi, mask, native, Naver 지면은 `NOT_IMPLEMENTED`이며 정책 표현 가능성과 실제 Renderer 지원을 혼동하지 않는다.
 
@@ -2212,3 +2219,57 @@ point, overwrite 및 atomic publish를 최종 판정한다.
 `OBJECT_RIGHT`의 기존 공개 Input과 `ALPHA_TRIM_CONTAIN` 경로는 호환성을 위해
 그대로 유지한다. 이 문서는 구현 가능한 로컬 Renderer 계약이며, 카카오 공식 업로드
 승인이나 광고 심사 결과를 보장하지 않는다.
+
+## 19. Phase C4 Amendment — JPG/JPEG 입력 지원 [PROJECT]
+
+이 절은 Canonical 문서 `1.5.0` 이후의 입력 Asset 확장 patch다. Template Contract와
+좌표는 변경하지 않으며, 최종 산출물은 계속 RGBA PNG-32다. Integration Contract는
+`1.0.0`에서 `1.1.0`으로 증가하고 Desktop은 `0.4.0`에서 `0.4.1`로 증가한다.
+
+### 19.1 MIME 및 Template Capability
+
+- `OBJECT_RIGHT`: `image/png`만 허용하고 alpha channel을 요구한다. JPG/JPEG와
+  alpha 없는 PNG는 `KBR-ASSET-MIME-NOT-ALLOWED` 또는
+  `KBR-ALPHA-CHANNEL-REQUIRED`로 BLOCKED다.
+- `THUMBNAIL_BOX_RIGHT`: `image/png`, `image/jpeg`를 허용하고 alpha를 요구하지
+  않는다. 투명 PNG, opaque PNG, JPG, JPEG 모두 `SEMANTIC_CROP_COVER` 또는
+  `MANUAL_CROP`으로 처리할 수 있다.
+- WebP, GIF, AVIF, BMP, TIFF, SVG는 현재 Production Capability에 포함하지 않는다.
+  JPG와 JPEG는 byte MIME `image/jpeg`로 정규화한다.
+
+파일 확장자와 사용자 입력 문자열은 신뢰하지 않는다. Main/Core 또는 Asset Resolver가
+bytes의 signature와 decoder 성공 여부를 확인하고, `.png/.jpg/.jpeg` 확장자와 실제
+MIME이 다르면 `KBR-ASSET-MIME-EXTENSION-MISMATCH` ERROR를 반환한다. 손상 파일은
+`KBR-IMAGE-DECODE-FAILED`, 유효하지 않은 dimensions는 `KBR-IMAGE-DIMENSION-INVALID`다.
+
+### 19.2 JPEG Orientation 및 Crop [PROJECT]
+
+JPEG EXIF Orientation은 1..8만 허용한다. Decoder에서 orientation을 명시적으로
+적용한 표시 방향으로 변환한 뒤 normalized cropRect를 보정 후 dimensions에 매핑한다.
+Orientation 5..8은 width/height가 교환된다. malformed 또는 범위 밖 Orientation은
+`KBR-EXIF-ORIENTATION-INVALID`로 BLOCKED다. 출력 Canvas에는 원본 EXIF metadata를
+복사하지 않는다.
+
+THUMBNAIL_BOX_RIGHT는 JPEG RGB를 내부 RGBA로 decode하고, Crop 전에 임의 리사이즈하지
+않으며, 기존 `IMAGE_PRIMARY` rounded rectangle mask를 적용한다. 최종 파일은 항상
+`image/png`, 1029×258, 8-bit RGBA다. OBJECT_RIGHT의 기존 PNG Golden과 alpha-trim
+계약은 변경하지 않는다.
+
+### 19.3 Desktop Session Asset 경계 [PROJECT]
+
+파일 선택창은 PNG, JPG, JPEG를 표시하지만 filter는 보안 판정이 아니다. Session Main은
+원본 bytes를 검증하고 실제 format을 유지한 `product.png`, `product.jpg`, 또는
+`product.jpeg`로 private session workspace에 복사한다. Renderer Process에는 asset token,
+displayName, detectedMimeType, normalized width/height, bytes, checksum, hasAlpha만
+전달하며 원본 절대 경로는 전달하지 않는다.
+
+Template 전환으로 현재 Asset이 Capability와 맞지 않으면 기존 Asset은 삭제하지 않고
+Preview를 무효화하고 Export를 비활성화한다. 새 파일 선택이 필요하다는 안정적인
+Validation 메시지를 표시한다.
+
+### 19.4 Acceptance
+
+Orientation 1, 3, 6, 8 fixture는 보정 후 dimensions, crop 좌표, metadata 제거,
+3회 byte determinism을 검증한다. JPG/JPEG의 direct crop, candidate, manual crop,
+Preview/Export byte equality를 검증하고, OBJECT_RIGHT Golden SHA-256
+`20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`은 그대로 유지한다.

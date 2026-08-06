@@ -58,9 +58,9 @@ export function registerDesktopIpc(options: RegisterDesktopIpcOptions): void {
       selectedPath = options.e2eProductPath;
     } else {
       const result = await options.dialog.showOpenDialog(options.window, {
-        title: "제품 PNG 선택",
-        properties: ["openFile", "dontAddToRecent"],
-        filters: [{ name: "PNG 이미지", extensions: ["png"] }],
+      title: "제품 이미지 선택",
+      properties: ["openFile", "dontAddToRecent"],
+      filters: [{ name: "이미지 파일", extensions: ["png", "jpg", "jpeg"] }],
       });
       if (result.canceled || result.filePaths.length === 0) return { status: "CANCELLED" };
       selectedPath = result.filePaths[0];

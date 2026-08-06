@@ -16,12 +16,14 @@ import {
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 
-import sharp from "sharp";
-
 import { sha256File } from "../../../../../src/core/hash.js";
+import {
+  ImageInputError,
+  inspectImageFile,
+  type ImageInputMetadata,
+} from "../../../../../src/core/image-input.js";
 import { resolveTrustedRoot } from "../../../../../src/core/path-security.js";
 
-const PNG_SIGNATURE = "89504e470d0a1a0a";
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const SESSION_MARKER = ".kbr-session";
 
@@ -37,9 +39,11 @@ export class DesktopSecurityError extends Error {
 
 export type SessionAsset = {
   token: string;
-  relativePath: "product.png";
+  relativePath: string;
   absolutePath: string;
   fileName: string;
+  detectedMimeType: ImageInputMetadata["detectedMimeType"];
+  exifOrientation: ImageInputMetadata["exifOrientation"];
   bytes: number;
   width: number;
   height: number;
@@ -162,45 +166,45 @@ export class DesktopSessionManager {
       throw new DesktopSecurityError("DESKTOP-ASSET-002", "Resolved product path differs from selected path");
     }
 
-    const sourceHandle = await open(sourcePath, "r");
+    let inspected: Awaited<ReturnType<typeof inspectImageFile>>;
     try {
-      const signature = Buffer.alloc(8);
-      const { bytesRead } = await sourceHandle.read(signature, 0, signature.length, 0);
-      if (bytesRead !== 8 || signature.toString("hex") !== PNG_SIGNATURE) {
-        throw new DesktopSecurityError("DESKTOP-ASSET-003", "Selected file does not have a PNG signature");
-      }
-    } finally {
-      await sourceHandle.close();
+      inspected = await inspectImageFile(sourcePath);
+    } catch (error) {
+      if (error instanceof ImageInputError) throw new DesktopSecurityError(error.code, error.message);
+      throw new DesktopSecurityError("KBR-IMAGE-DECODE-FAILED", "Selected image cannot be decoded");
     }
 
     await this.invalidatePreview();
     const temporaryPath = path.join(this.inputRoot, `.product-${randomUUID()}.tmp`);
-    const productPath = path.join(this.inputRoot, "product.png");
+    const extension = inspected.metadata.detectedMimeType === "image/png" ? ".png" : path.extname(sourcePath).toLowerCase();
+    const productPath = path.join(this.inputRoot, `product${extension}`);
     try {
       await copyOpenFile(sourcePath, temporaryPath);
-      const metadata = await sharp(temporaryPath, { failOn: "error" }).metadata();
-      if (metadata.format !== "png" || !metadata.width || !metadata.height) {
-        throw new DesktopSecurityError("DESKTOP-ASSET-004", "Selected PNG cannot be decoded");
-      }
-      await rm(productPath, { force: true });
+      await Promise.all([
+        rm(path.join(this.inputRoot, "product.png"), { force: true }),
+        rm(path.join(this.inputRoot, "product.jpg"), { force: true }),
+        rm(path.join(this.inputRoot, "product.jpeg"), { force: true }),
+      ]);
       await rename(temporaryPath, productPath);
       const productStat = await stat(productPath);
       this.#asset = {
         token: randomUUID(),
-        relativePath: "product.png",
+        relativePath: path.basename(productPath),
         absolutePath: productPath,
         fileName: path.basename(sourcePath),
+        detectedMimeType: inspected.metadata.detectedMimeType,
+        exifOrientation: inspected.metadata.exifOrientation,
         bytes: productStat.size,
-        width: metadata.width,
-        height: metadata.height,
-        hasAlpha: metadata.hasAlpha ?? false,
+        width: inspected.metadata.width,
+        height: inspected.metadata.height,
+        hasAlpha: inspected.metadata.hasAlpha,
         sha256: await sha256File(productPath),
       };
       return { ...this.#asset };
     } catch (error) {
       await rm(temporaryPath, { force: true }).catch(() => undefined);
       if (error instanceof DesktopSecurityError) throw error;
-      throw new DesktopSecurityError("DESKTOP-ASSET-004", "Selected PNG cannot be decoded");
+      throw new DesktopSecurityError("KBR-IMAGE-DECODE-FAILED", "Selected image cannot be decoded");
     }
   }
 
@@ -213,8 +217,14 @@ export class DesktopSessionManager {
 
   async clearProduct(): Promise<void> {
     await this.invalidatePreview();
+    const selectedPath = this.#asset ? path.join(this.inputRoot, this.#asset.relativePath) : null;
     this.#asset = null;
-    await rm(path.join(this.inputRoot, "product.png"), { force: true });
+    await Promise.all([
+      selectedPath ? rm(selectedPath, { force: true }) : Promise.resolve(),
+      rm(path.join(this.inputRoot, "product.png"), { force: true }),
+      rm(path.join(this.inputRoot, "product.jpg"), { force: true }),
+      rm(path.join(this.inputRoot, "product.jpeg"), { force: true }),
+    ]);
   }
 
   async storePreview(bytes: Buffer, inputDigest: string, assetDigest: string, pngDigest: string): Promise<SessionPreview> {

@@ -10,12 +10,13 @@ import {
 const product: Extract<ProductSelectionResult, { status: "SELECTED" }> = {
   status: "SELECTED",
   assetToken: "0b3b1ad0-ef9e-4fb9-9e08-e9d3e8bcb792",
-  fileName: "product.png",
+  displayName: "product.png",
+  detectedMimeType: "image/png",
   bytes: 100,
   width: 260,
   height: 160,
   hasAlpha: true,
-  sha256: "a".repeat(64),
+  checksumSha256: "a".repeat(64),
 };
 
 function preview(requestSequence: number, validationStatus: PreviewResult["validationStatus"] = "PASS"): PreviewResult {
@@ -24,7 +25,7 @@ function preview(requestSequence: number, validationStatus: PreviewResult["valid
     previewToken: "c758ce81-f6a0-4471-bb41-adf7706f9218",
     previewUrl: "kbr-preview://preview/c758ce81-f6a0-4471-bb41-adf7706f9218",
     canonicalInputDigest: "b".repeat(64),
-    productAssetDigest: product.sha256,
+    productAssetDigest: product.checksumSha256,
     previewPngDigest: "c".repeat(64),
     pngMetadata: { format: "PNG", colorType: "RGBA", bitDepth: 8, hasAlpha: true, width: 1029, height: 258, bytes: 10_000 },
     measurements: null,

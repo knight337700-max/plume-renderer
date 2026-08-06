@@ -4,7 +4,7 @@
 
 | Channel | Preload API | Renderer → Main payload | Main → Renderer 결과 |
 |---|---|---|---|
-| `kbr:product:select` | `selectProductPng()` | 없음 | asset token, 안전한 파일명, size/dimension/alpha/digest 또는 cancel/error |
+| `kbr:product:select` | `selectProductPng()` | PNG/JPG/JPEG 파일 선택 | asset token, displayName, detected MIME, normalized size/dimension/alpha/checksumSha256 또는 cancel/error |
 | `kbr:product:clear` | `clearProduct()` | 없음 | void |
 | `kbr:preview:request` | `requestPreview()` | asset token, 네 개 문자열, request sequence | Preview token/URL, digests, PNG metadata, Core issues |
 | `kbr:output:select-directory` | `selectOutputDirectory()` | 없음 | output token과 표시명 또는 cancel/error |

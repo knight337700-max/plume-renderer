@@ -1,4 +1,5 @@
-import { stat } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
+import path from "node:path";
 
 import sharp from "sharp";
 
@@ -14,6 +15,7 @@ import {
 } from "./constants.js";
 import { createIssue, sortAndDedupeIssues } from "./errors.js";
 import { sha256File } from "./hash.js";
+import { detectImageMimeFromBytes, mimeForImageExtension } from "./image-input.js";
 import type { BBox, ProductAnalysis, ValidationIssue } from "./types.js";
 
 type Component = BBox & {
@@ -162,6 +164,27 @@ export async function analyzeAndResizeProduct(
     );
   }
 
+  let detectedMimeType: ReturnType<typeof detectImageMimeFromBytes>;
+  try {
+    const bytes = await readFile(productPath);
+    detectedMimeType = detectImageMimeFromBytes(bytes);
+    const expectedMimeType = mimeForImageExtension(path.extname(productPath));
+    if (expectedMimeType === null || expectedMimeType !== detectedMimeType) {
+      return {
+        productDigest,
+        issues: [...issues, createIssue(contracts.errorRegistry, "KBR-ASSET-MIME-EXTENSION-MISMATCH", "/assets/product/path", { actual: detectedMimeType ?? "unknown", expected: expectedMimeType ?? "png" })],
+      };
+    }
+  } catch {
+    return { productDigest, issues: [...issues, createIssue(contracts.errorRegistry, "KBR-IMAGE-DECODE-FAILED", "/assets/product/path")] };
+  }
+  if (detectedMimeType !== "image/png") {
+    return {
+      productDigest,
+      issues: [...issues, createIssue(contracts.errorRegistry, "KBR-ASSET-MIME-NOT-ALLOWED", "/assets/product/path", { actual: detectedMimeType ?? "unknown", expected: "image/png" })],
+    };
+  }
+
   let image = sharp(productPath, { failOn: "error" });
   let metadata: Awaited<ReturnType<typeof image.metadata>>;
   try {
@@ -173,7 +196,7 @@ export async function analyzeAndResizeProduct(
     return { productDigest, issues: [...issues, createIssue(contracts.errorRegistry, "KBR-ASSET-002", "/assets/product/path")] };
   }
   if (!metadata.hasAlpha) {
-    return { productDigest, issues: [...issues, createIssue(contracts.errorRegistry, "KBR-ASSET-004", "/assets/product/path")] };
+    return { productDigest, issues: [...issues, createIssue(contracts.errorRegistry, "KBR-ALPHA-CHANNEL-REQUIRED", "/assets/product/path")] };
   }
 
   let decoded: Buffer;

@@ -107,18 +107,19 @@ export class DesktopController {
       return {
         status: "SELECTED",
         assetToken: asset.token,
-        fileName: asset.fileName,
+        displayName: asset.fileName,
+        detectedMimeType: asset.detectedMimeType,
         bytes: asset.bytes,
         width: asset.width,
         height: asset.height,
         hasAlpha: asset.hasAlpha,
-        sha256: asset.sha256,
+        checksumSha256: asset.sha256,
       };
     } catch (error) {
       return {
         status: "ERROR",
         code: error instanceof DesktopSecurityError ? error.code : "DESKTOP-ASSET-999",
-        message: error instanceof Error ? error.message : "제품 PNG를 처리할 수 없습니다.",
+        message: error instanceof Error ? error.message : "제품 이미지를 처리할 수 없습니다.",
       };
     }
   }
@@ -172,7 +173,7 @@ export class DesktopController {
       },
       assets: [{
         assetId,
-        mimeType: "image/png",
+        mimeType: asset?.detectedMimeType ?? "image/png",
         ...(asset ? { declaredWidth: asset.width, declaredHeight: asset.height, checksumSha256: asset.sha256 } : {}),
         assetRef: { type: "DESKTOP_ASSET_TOKEN", value: input.assetToken },
       }],
@@ -204,7 +205,17 @@ export class DesktopController {
           if (assetRef.type !== "DESKTOP_ASSET_TOKEN" || assetRef.value !== asset.token) {
             throw new Error("Desktop asset token is stale or invalid");
           }
-          return { bytes: resolvedBytes, resolvedMimeType: "image/png" };
+          return {
+            bytes: resolvedBytes,
+            resolvedMimeType: asset.detectedMimeType,
+            metadata: {
+              detectedMimeType: asset.detectedMimeType,
+              width: asset.width,
+              height: asset.height,
+              hasAlpha: asset.hasAlpha,
+              exifOrientation: asset.exifOrientation,
+            },
+          };
         },
       },
       renderThumbnail: async (request) => {

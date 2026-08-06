@@ -1,8 +1,8 @@
 {
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "1.1.0",
   "capabilities": [
     {
-      "schemaVersion": "1.0.0",
+      "schemaVersion": "1.1.0",
       "formatProfileId": "KAKAO_BIZBOARD_OBJECT_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_OBJECT_RIGHT_1029X258_V1",
       "implementationStatus": "IMPLEMENTED",
@@ -11,10 +11,12 @@
       "allowedPolicies": ["ALPHA_TRIM_CONTAIN"],
       "supportsManualCrop": false,
       "supportsAgentPlacement": false,
-      "imageSlotIds": ["OBJECT_RIGHT_PRODUCT"]
+      "imageSlotIds": ["OBJECT_RIGHT_PRODUCT"],
+      "allowedInputMimeTypes": ["image/png"],
+      "alphaChannelRequired": true
     },
     {
-      "schemaVersion": "1.0.0",
+      "schemaVersion": "1.1.0",
       "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_THUMBNAIL_BOX_RIGHT",
       "implementationStatus": "IMPLEMENTED",
@@ -23,10 +25,12 @@
       "allowedPolicies": ["SEMANTIC_CROP_COVER", "MANUAL_CROP"],
       "supportsManualCrop": true,
       "supportsAgentPlacement": true,
-      "imageSlotIds": ["IMAGE_PRIMARY"]
+      "imageSlotIds": ["IMAGE_PRIMARY"],
+      "allowedInputMimeTypes": ["image/png", "image/jpeg"],
+      "alphaChannelRequired": false
     },
     {
-      "schemaVersion": "1.0.0",
+      "schemaVersion": "1.1.0",
       "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
       "implementationStatus": "NOT_IMPLEMENTED",
@@ -34,10 +38,12 @@
       "semanticPlacement": "REQUIRED",
       "allowedPolicies": ["SEMANTIC_CROP_COVER", "MANUAL_CROP"],
       "supportsManualCrop": false,
-      "supportsAgentPlacement": false
+      "supportsAgentPlacement": false,
+      "allowedInputMimeTypes": [],
+      "alphaChannelRequired": false
     },
     {
-      "schemaVersion": "1.0.0",
+      "schemaVersion": "1.1.0",
       "formatProfileId": "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_MASK_SEMICIRCLE_RIGHT",
       "implementationStatus": "NOT_IMPLEMENTED",
@@ -45,10 +51,12 @@
       "semanticPlacement": "REQUIRED",
       "allowedPolicies": ["SEMANTIC_CROP_COVER", "MANUAL_CROP"],
       "supportsManualCrop": false,
-      "supportsAgentPlacement": false
+      "supportsAgentPlacement": false,
+      "allowedInputMimeTypes": [],
+      "alphaChannelRequired": false
     },
     {
-      "schemaVersion": "1.0.0",
+      "schemaVersion": "1.1.0",
       "formatProfileId": "KAKAO_NATIVE_1200",
       "templateId": "KAKAO_NATIVE_1200",
       "implementationStatus": "NOT_IMPLEMENTED",
@@ -56,10 +64,12 @@
       "semanticPlacement": "REQUIRED",
       "allowedPolicies": ["SEMANTIC_CROP_COVER", "MANUAL_CROP"],
       "supportsManualCrop": false,
-      "supportsAgentPlacement": false
+      "supportsAgentPlacement": false,
+      "allowedInputMimeTypes": [],
+      "alphaChannelRequired": false
     },
     {
-      "schemaVersion": "1.0.0",
+      "schemaVersion": "1.1.0",
       "formatProfileId": "NAVER_GFA_IMAGE_BANNER",
       "templateId": "NAVER_GFA_IMAGE_BANNER",
       "implementationStatus": "NOT_IMPLEMENTED",
@@ -67,7 +77,9 @@
       "semanticPlacement": "REQUIRED",
       "allowedPolicies": ["SEMANTIC_CROP_COVER", "MANUAL_CROP"],
       "supportsManualCrop": false,
-      "supportsAgentPlacement": false
+      "supportsAgentPlacement": false,
+      "allowedInputMimeTypes": [],
+      "alphaChannelRequired": false
     }
   ]
 }

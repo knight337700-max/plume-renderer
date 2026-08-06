@@ -1,6 +1,6 @@
 # Desktop UI usage
 
-1. `PNG 선택`에서 투명 제품 PNG 한 개를 선택한다.
+1. `제품 이미지 선택`에서 PNG/JPG/JPEG 한 개를 선택한다. OBJECT_RIGHT는 투명 PNG만 허용하고, THUMBNAIL_BOX_RIGHT는 배경 포함 PNG/JPG/JPEG를 허용한다.
 2. 광고주체, Headline, Subcopy, 결과 폴더명을 입력한다.
 3. 광고주체 문자열을 Headline 또는 Subcopy에 그대로 포함한다.
 4. `Preview 검증`을 실행한다.

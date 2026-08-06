@@ -68,6 +68,12 @@ for (const executable of executables) {
   if (result.thumbnailPreviewPngDigest !== expectedThumbnailPngDigest || result.thumbnailPngDigest !== expectedThumbnailPngDigest) {
     throw new Error(`Packaged Thumbnail Golden mismatch: ${JSON.stringify(result)}`);
   }
+  if (!result.jpegThumbnailPreviewPngDigest || result.jpegThumbnailPreviewPngDigest !== result.jpegThumbnailPngDigest || !result.jpegThumbnailManifestDigest) {
+    throw new Error(`Packaged JPEG Thumbnail mismatch: ${JSON.stringify(result)}`);
+  }
+  if (result.jpegDetectedMimeType !== "image/jpeg" || result.jpegWidth < 1 || result.jpegHeight < 1) {
+    throw new Error(`Packaged JPEG input support failed: ${JSON.stringify(result)}`);
+  }
   if (result.blockedNetworkRequestCount !== 0) {
     throw new Error(`Packaged runtime attempted ${result.blockedNetworkRequestCount} network requests`);
   }
@@ -76,8 +82,11 @@ for (const executable of executables) {
     access(result.manifestPath),
     access(result.thumbnailPngPath),
     access(result.thumbnailManifestPath),
+    access(result.jpegThumbnailPngPath),
+    access(result.jpegThumbnailManifestPath),
     verifyRightMargin(result.pngPath),
     verifyRightMargin(result.thumbnailPngPath),
+    verifyRightMargin(result.jpegThumbnailPngPath),
   ]);
   const report = {
     executable,

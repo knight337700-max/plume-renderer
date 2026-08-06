@@ -52,8 +52,8 @@ for (const schema of schemas) {
 if (missingAdditional.length === 0) pass("additional_properties", "all object schemas explicitly reject unknown fields");
 else fail("additional_properties", missingAdditional.join(", "));
 
-if (schemas.every((schema) => JSON.stringify(schema).includes("1.0.0"))) pass("schema_versioning", "all Integration Contract schemas declare v1.0.0");
-else fail("schema_versioning", "one or more schemas do not declare v1.0.0");
+if (schemas.every((schema) => JSON.stringify(schema).includes("1.1.0"))) pass("schema_versioning", "all Integration Contract schemas declare v1.1.0");
+else fail("schema_versioning", "one or more schemas do not declare v1.1.0");
 
 const registry = await readJson(path.join(root, "contracts", "integration-error-registry.json"));
 const registryCodes = registry.codes.map((entry) => entry.code);
@@ -61,7 +61,7 @@ if (new Set(registryCodes).size === registryCodes.length) pass("error_code_uniqu
 else fail("error_code_uniqueness", "duplicate integration error code found");
 
 const requiredCodes = [
-  "KBR-PLACEMENT-PLAN-MISSING", "KBR-PLACEMENT-POLICY-NOT-ALLOWED", "KBR-PLACEMENT-PLAN-DUPLICATE", "KBR-ASSET-NOT-FOUND", "KBR-ASSET-UNUSED", "KBR-ASSET-CHECKSUM-MISMATCH", "KBR-ASSET-DIMENSION-MISMATCH", "KBR-IMAGE-SLOT-NOT-FOUND", "KBR-CROP-RECT-REQUIRED", "KBR-CROP-RECT-FORBIDDEN", "KBR-CROP-RECT-OUT-OF-BOUNDS", "KBR-CROP-CANDIDATE-NOT-FOUND", "KBR-CROP-CANDIDATE-MISMATCH", "KBR-FOCAL-POINT-OUT-OF-BOUNDS", "KBR-PROTECTED-SUBJECT-CLIPPED", "KBR-PROTECTED-SUBJECT-DATA-MISSING", "KBR-ALPHA-CHANNEL-REQUIRED", "KBR-ALPHA-TRIM-FAILED", "KBR-IMAGE-DECODE-FAILED", "KBR-IMAGE-DIMENSION-INVALID", "KBR-IMAGE-SLOT-OVERFLOW", "KBR-TEMPLATE-CONSTRAINT-VIOLATION", "KBR-SEMANTIC-PLACEMENT-REQUIRED", "KBR-OUTPUT-INVALID", "KBR-ASSET-REF-UNRESOLVED",
+  "KBR-PLACEMENT-PLAN-MISSING", "KBR-PLACEMENT-POLICY-NOT-ALLOWED", "KBR-PLACEMENT-PLAN-DUPLICATE", "KBR-ASSET-NOT-FOUND", "KBR-ASSET-UNUSED", "KBR-ASSET-CHECKSUM-MISMATCH", "KBR-ASSET-DIMENSION-MISMATCH", "KBR-ASSET-MIME-NOT-ALLOWED", "KBR-ASSET-MIME-EXTENSION-MISMATCH", "KBR-IMAGE-SLOT-NOT-FOUND", "KBR-CROP-RECT-REQUIRED", "KBR-CROP-RECT-FORBIDDEN", "KBR-CROP-RECT-OUT-OF-BOUNDS", "KBR-CROP-CANDIDATE-NOT-FOUND", "KBR-CROP-CANDIDATE-MISMATCH", "KBR-FOCAL-POINT-OUT-OF-BOUNDS", "KBR-PROTECTED-SUBJECT-CLIPPED", "KBR-PROTECTED-SUBJECT-DATA-MISSING", "KBR-ALPHA-CHANNEL-REQUIRED", "KBR-ALPHA-TRIM-FAILED", "KBR-IMAGE-DECODE-FAILED", "KBR-IMAGE-DIMENSION-INVALID", "KBR-EXIF-ORIENTATION-INVALID", "KBR-IMAGE-SLOT-OVERFLOW", "KBR-TEMPLATE-CONSTRAINT-VIOLATION", "KBR-SEMANTIC-PLACEMENT-REQUIRED", "KBR-OUTPUT-INVALID", "KBR-ASSET-REF-UNRESOLVED",
 ];
 if (requiredCodes.every((code) => registryCodes.includes(code))) pass("required_error_codes", `${requiredCodes.length}/${requiredCodes.length} required integration codes registered`);
 else fail("required_error_codes", "one or more required integration codes missing");
@@ -74,6 +74,10 @@ const capabilities = await readJson(path.join(root, "contracts", "template-capab
 const enabled = capabilities.capabilities.filter((entry) => entry.implementationStatus === "IMPLEMENTED").map((entry) => entry.formatProfileId);
 if (enabled.length === 2 && enabled.includes("KAKAO_BIZBOARD_OBJECT_RIGHT") && enabled.includes("KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT")) pass("capability_gate", "OBJECT_RIGHT and THUMBNAIL_BOX_RIGHT are IMPLEMENTED");
 else fail("capability_gate", `implemented=${enabled.join(",")}`);
+const objectCapability = capabilities.capabilities.find((entry) => entry.formatProfileId === "KAKAO_BIZBOARD_OBJECT_RIGHT");
+const thumbnailCapability = capabilities.capabilities.find((entry) => entry.formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT");
+if (JSON.stringify(objectCapability?.allowedInputMimeTypes) === JSON.stringify(["image/png"]) && objectCapability?.alphaChannelRequired === true && JSON.stringify(thumbnailCapability?.allowedInputMimeTypes) === JSON.stringify(["image/png", "image/jpeg"]) && thumbnailCapability?.alphaChannelRequired === false) pass("capability_mime_gate", "OBJECT_RIGHT=alpha PNG only; THUMBNAIL_BOX_RIGHT=PNG/JPEG without alpha requirement");
+else fail("capability_mime_gate", "template input MIME or alpha requirement mismatch");
 
 const fixtureDirectories = ["alpha-trim-contain", "center-contain", "manual-crop", "agent-semantic-crop", "invalid", "equivalence", "thumbnail-box-right"];
 const missingFixtures = [];

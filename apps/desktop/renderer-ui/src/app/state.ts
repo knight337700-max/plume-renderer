@@ -138,7 +138,7 @@ export function canExport(state: UiState): boolean {
     state.product &&
       state.preview?.previewToken &&
       state.preview.canonicalInputDigest &&
-      state.preview.productAssetDigest === state.product.sha256 &&
+      state.preview.productAssetDigest === state.product.checksumSha256 &&
       state.preview.errors.length === 0 &&
       state.output?.outputDirectoryToken &&
       (state.phase === "VALID_PASS" || state.phase === "VALID_WARNING"),

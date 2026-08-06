@@ -156,7 +156,7 @@ test("Renderer Lab imports and exports the same strict PlacementPlan JSON path",
   try {
     await expect(launched.page.getByTestId("placement-plan-status")).toHaveText(/PASS/u);
     await launched.page.getByTestId("placement-plan-json").fill(JSON.stringify({
-      schemaVersion: "1.0.0",
+      schemaVersion: "1.1.0",
       imageSlotId: "OBJECT_RIGHT_PRODUCT",
       assetId: "selected-product",
       policy: "ALPHA_TRIM_CONTAIN",
@@ -170,7 +170,7 @@ test("Renderer Lab imports and exports the same strict PlacementPlan JSON path",
     await expect(launched.page.getByTestId("placement-plan-status")).toHaveText(/BLOCKED/u);
 
     await launched.page.getByTestId("placement-plan-json").fill(JSON.stringify({
-      schemaVersion: "1.0.0",
+      schemaVersion: "1.1.0",
       imageSlotId: "OBJECT_RIGHT_PRODUCT",
       assetId: "selected-product",
       policy: "ALPHA_TRIM_CONTAIN",
@@ -211,6 +211,32 @@ test("THUMBNAIL_BOX_RIGHT Lab executes direct semantic crop and exports the same
     await expect(launched.page.getByTestId("workflow-status")).toHaveText("EXPORTED");
     await expect(launched.page.getByTestId("export-result")).toContainText(THUMBNAIL_GOLDEN_SHA256);
     await expect.poll(async () => sha256File(path.join(launched.outputRoot, "thumbnail-box-e2e", "output.png"))).toBe(THUMBNAIL_GOLDEN_SHA256);
+  } finally {
+    await close(launched);
+  }
+});
+
+test("THUMBNAIL_BOX_RIGHT accepts JPEG input and keeps the final artifact as RGBA PNG", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "valid", "thumbnail-box-right__asset__jpeg__pass.jpg"),
+  );
+  try {
+    await launched.page.getByTestId("select-product").click();
+    await expect(launched.page.getByTestId("product-metadata")).toContainText("image/jpeg");
+    await fillValidForm(launched.page, "thumbnail-jpeg-e2e");
+    await launched.page.getByTestId("template-select").selectOption("THUMBNAIL_BOX_RIGHT");
+    await launched.page.getByTestId("request-preview").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText(/VALID_(?:PASS|WARNING)/u);
+    await launched.page.getByTestId("select-output").click();
+    await launched.page.getByTestId("export-render").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText("EXPORTED");
+    const outputPath = path.join(launched.outputRoot, "thumbnail-jpeg-e2e", "output.png");
+    await expect.poll(async () => access(outputPath).then(() => true).catch(() => false)).toBe(true);
+    const metadata = await import("sharp").then(({ default: sharp }) => sharp(outputPath).metadata());
+    expect(metadata.format).toBe("png");
+    expect(metadata.width).toBe(1029);
+    expect(metadata.height).toBe(258);
+    expect(metadata.hasAlpha).toBe(true);
   } finally {
     await close(launched);
   }

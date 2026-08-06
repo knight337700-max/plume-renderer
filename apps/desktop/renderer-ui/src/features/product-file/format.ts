@@ -3,10 +3,12 @@ export function formatBytes(bytes: number): string {
 }
 
 export function formatProductMetadata(product: {
+  detectedMimeType?: "image/png" | "image/jpeg";
   width: number;
   height: number;
   bytes: number;
   hasAlpha: boolean;
 }): string {
-  return `${product.width}×${product.height} · ${formatBytes(product.bytes)} · alpha ${product.hasAlpha ? "있음" : "없음"}`;
+  const mime = product.detectedMimeType ? ` · ${product.detectedMimeType}` : "";
+  return `${product.width}×${product.height} · ${formatBytes(product.bytes)}${mime} · alpha ${product.hasAlpha ? "있음" : "없음"}`;
 }

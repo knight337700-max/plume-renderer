@@ -162,9 +162,10 @@ describe("capability and adapter boundary", () => {
   it("resolves a fixture asset and bridges an Integration Input to a legacy renderer callback", async () => {
     const input = await readJson("fixtures/integration/alpha-trim-contain/input.json") as RendererIntegrationInputV1;
     const png = new Uint8Array(await readFile(path.join(projectRoot, "fixtures/valid/object-right__product__basic__pass.png")));
+    const outputPng = new Uint8Array(await readFile(path.join(projectRoot, "fixtures/golden/object-right__stable__golden.png")));
     const result = await renderWithIntegrationAdapter(input, {
       resolver: { resolve: async () => ({ bytes: png, resolvedMimeType: "image/png" }) },
-      renderLegacy: async (_legacyInput, resolved) => ({ bytes: resolved.bytes, width: 1029, height: 258, mimeType: "image/png", appliedImagePlacement: { imageSlotId: OBJECT_RIGHT_IMAGE_SLOT_ID, assetId: "product-basic", policy: "ALPHA_TRIM_CONTAIN", source: "DETERMINISTIC", destinationRect: { x: 666, y: 0, width: 315, height: 258 }, appliedScale: 1, appliedAnchor: "CENTER", alphaTrimApplied: true, changedFromRequestedPlan: false } }),
+      renderLegacy: async () => ({ bytes: outputPng, width: 1029, height: 258, mimeType: "image/png", appliedImagePlacement: { imageSlotId: OBJECT_RIGHT_IMAGE_SLOT_ID, assetId: "product-basic", policy: "ALPHA_TRIM_CONTAIN", source: "DETERMINISTIC", destinationRect: { x: 666, y: 0, width: 315, height: 258 }, appliedScale: 1, appliedAnchor: "CENTER", alphaTrimApplied: true, changedFromRequestedPlan: false } }),
     });
     expect(result.status).toBe("PASS");
     expect(result.artifact?.checksumSha256).toHaveLength(64);
@@ -179,7 +180,7 @@ describe("capability and adapter boundary", () => {
     const outputRoot = path.join(projectRoot, ".tmp-integration-output");
     await mkdir(path.join(inputRoot, "integration"), { recursive: true });
     await mkdir(outputRoot, { recursive: true });
-    await writeFile(path.join(inputRoot, "integration", "product-basic"), sourceBytes);
+    await writeFile(path.join(inputRoot, "integration", "product-basic.png"), sourceBytes);
     try {
       const core = await createKakaoBizboardRenderer({ projectRoot, inputRoot, outputRoot });
       const result = await renderWithIntegrationAdapter(input, {
