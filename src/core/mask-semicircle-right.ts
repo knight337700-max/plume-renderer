@@ -33,7 +33,7 @@ export const MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX = Object.freeze({ x: 847, y: 24
 export const MASK_SEMICIRCLE_RIGHT_TEXT_HARD_RIGHT_EDGE = 588;
 export const MASK_SEMICIRCLE_RIGHT_TEXT_MAX_WIDTH = 540;
 export const MASK_SEMICIRCLE_RIGHT_TEXT_WARNING_WIDTH = Math.floor(MASK_SEMICIRCLE_RIGHT_TEXT_MAX_WIDTH * 0.9);
-export const MASK_SEMICIRCLE_RIGHT_LOGO_WHITE_THRESHOLD = 240;
+export const MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD = 32;
 export const MASK_SEMICIRCLE_RIGHT_LOGO_VISIBLE_THRESHOLD = 8;
 export const MASK_SEMICIRCLE_RIGHT_LOGO_TRIM_THRESHOLD = 1;
 export const MASK_SEMICIRCLE_RIGHT_MAX_UPSCALE = 1.5;
@@ -226,36 +226,56 @@ function alphaBoundsNormalized(bbox: BBox, width: number, height: number): Norma
 }
 
 function buildLogoPlacement(asset: RendererAssetDescriptor, plan: ImagePlacementPlan, bbox: BBox, sourceWidth: number, sourceHeight: number, scale: number, destination: { x: number; y: number; width: number; height: number }): AppliedImagePlacement {
-  return { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: asset.assetId, policy: plan.policy, source: plan.source, destinationRect: destination, appliedScale: scale, appliedAnchor: "CENTER", alphaTrimApplied: true, alphaBounds: alphaBoundsNormalized(bbox, sourceWidth, sourceHeight), whiteValidation: "PASS", changedFromRequestedPlan: false };
+  return { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: asset.assetId, policy: plan.policy, source: plan.source, destinationRect: destination, appliedScale: scale, appliedAnchor: "CENTER", alphaTrimApplied: true, alphaBounds: alphaBoundsNormalized(bbox, sourceWidth, sourceHeight), blackValidation: "PASS", changedFromRequestedPlan: false };
 }
 
 export async function renderMaskSemicircleRight(request: MaskSemicircleRenderRequest): Promise<LegacyRenderResult> {
   const issues = validateText(request.input.copy);
   let image: Rgba;
-  let logo: Rgba;
+  let logo: Rgba | undefined;
   let mask: Rgba;
   try {
     image = await readRgba(request.image.resolvedAsset.bytes, "MASK IMAGE_PRIMARY");
-    logo = await readRgba(request.logo.resolvedAsset.bytes, "MASK LOGO_PRIMARY");
+    if (request.logo) logo = await readRgba(request.logo.resolvedAsset.bytes, "MASK LOGO_PRIMARY");
     mask = await readRgba(request.mask.bytes, "MASK_SEMICIRCLE_RIGHT mask");
   } catch (error) {
     issues.push(issue("KBR-IMAGE-DECODE-FAILED", "asset.image_decode_failed", "/assets", { actual: error instanceof Error ? error.message : String(error) }));
     return { bytes: Buffer.alloc(CANVAS_WIDTH * CANVAS_HEIGHT * 4), width: CANVAS_WIDTH, height: CANVAS_HEIGHT, mimeType: "image/png", appliedImagePlacements: [], validation: issues };
   }
   if (mask.width !== CANVAS_WIDTH || mask.height !== CANVAS_HEIGHT) issues.push(issue("KBR-MASK-ASSET-DIGEST-MISMATCH", "mask.asset_dimensions_invalid", "/maskAsset", { actual: { width: mask.width, height: mask.height }, expected: { width: CANVAS_WIDTH, height: CANVAS_HEIGHT } }));
-  const logoVisible = meaningfulVisibleBBox(logo.data, logo.width, logo.height);
-  if (!logoVisible) issues.push(issue("KBR-LOGO-EMPTY", "asset.logo_empty", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId }));
-  if (opaqueBackgroundSuspected(logo.data, logo.width, logo.height)) issues.push(issue("KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "asset.logo_transparent_background_required", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId }));
-  let nonWhite = false;
-  for (let index = 0; index < logo.width * logo.height; index += 1) {
-    if (alphaAt(logo.data, index) < MASK_SEMICIRCLE_RIGHT_LOGO_VISIBLE_THRESHOLD) continue;
-    const offset = index * 4;
-    if (channelAt(logo.data, offset) < MASK_SEMICIRCLE_RIGHT_LOGO_WHITE_THRESHOLD || channelAt(logo.data, offset + 1) < MASK_SEMICIRCLE_RIGHT_LOGO_WHITE_THRESHOLD || channelAt(logo.data, offset + 2) < MASK_SEMICIRCLE_RIGHT_LOGO_WHITE_THRESHOLD) { nonWhite = true; break; }
+
+  let logoTrim: BBox | null = null;
+  let logoScale = 1;
+  let resizedLogo: Buffer | undefined;
+  let resizedLogoWidth = 0;
+  let resizedLogoHeight = 0;
+  let logoX = 0;
+  let logoY = 0;
+  if (request.logo && logo) {
+    const logoVisible = meaningfulVisibleBBox(logo.data, logo.width, logo.height);
+    if (!logoVisible) issues.push(issue("KBR-LOGO-EMPTY", "asset.logo_empty", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId }));
+    if (opaqueBackgroundSuspected(logo.data, logo.width, logo.height)) issues.push(issue("KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "asset.logo_transparent_background_required", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId }));
+    let nonBlack = false;
+    for (let index = 0; index < logo.width * logo.height; index += 1) {
+      if (alphaAt(logo.data, index) < MASK_SEMICIRCLE_RIGHT_LOGO_VISIBLE_THRESHOLD) continue;
+      const offset = index * 4;
+      if (channelAt(logo.data, offset) > MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD || channelAt(logo.data, offset + 1) > MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD || channelAt(logo.data, offset + 2) > MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD) { nonBlack = true; break; }
+    }
+    if (nonBlack) issues.push(issue("KBR-LOGO-COLOR-NOT-BLACK", "asset.logo_color_not_black", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId, actual: { blackRgbThreshold: MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD }, expected: "black" }));
+    logoTrim = logoVisible ? alphaBBoxWithin(logo.data, logo.width, logo.height, MASK_SEMICIRCLE_RIGHT_LOGO_TRIM_THRESHOLD, logoVisible) : null;
+    if (!logoTrim) issues.push(issue("KBR-LOGO-EMPTY", "asset.logo_empty", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId }));
+    if (logoTrim) {
+      logoScale = Math.min(MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.width / logoTrim.width, MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.height / logoTrim.height);
+      if (logoScale > MASK_SEMICIRCLE_RIGHT_MAX_UPSCALE) issues.push(issue("KBR-LOGO-UPSCALE-LIMIT", "asset.logo_upscale_limit", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId, actual: { scale: logoScale }, expected: { maximumScale: MASK_SEMICIRCLE_RIGHT_MAX_UPSCALE } }));
+      else if (logoScale > 1) issues.push({ ...issue("KBR-LOGO-UPSCALE-LIMIT", "asset.logo_upscale_warning", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId, actual: { scale: logoScale }, expected: { recommendedMaximumScale: 1 } }), severity: "WARNING" });
+      resizedLogoWidth = Math.max(1, Math.round(logoTrim.width * logoScale));
+      resizedLogoHeight = Math.max(1, Math.round(logoTrim.height * logoScale));
+      resizedLogo = await sharp(logo.data, { raw: { width: logo.width, height: logo.height, channels: 4 } }).extract({ left: logoTrim.x, top: logoTrim.y, width: logoTrim.width, height: logoTrim.height }).resize(resizedLogoWidth, resizedLogoHeight, { fit: "fill", kernel: sharp.kernel.lanczos3 }).raw().toBuffer();
+      logoX = MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.x + Math.floor((MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.width - resizedLogoWidth) / 2);
+      logoY = MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.y + Math.floor((MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.height - resizedLogoHeight) / 2);
+    }
   }
-  if (nonWhite) issues.push(issue("KBR-LOGO-COLOR-NOT-WHITE", "asset.logo_color_not_white", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId, actual: { whiteRgbThreshold: MASK_SEMICIRCLE_RIGHT_LOGO_WHITE_THRESHOLD }, expected: "white" }));
-  const logoTrim = logoVisible ? alphaBBoxWithin(logo.data, logo.width, logo.height, MASK_SEMICIRCLE_RIGHT_LOGO_TRIM_THRESHOLD, logoVisible) : null;
-  if (!logoTrim) issues.push(issue("KBR-LOGO-EMPTY", "asset.logo_empty", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId }));
-  if (issues.some((entry) => entry.severity === "ERROR") || !logoTrim) return { bytes: Buffer.alloc(CANVAS_WIDTH * CANVAS_HEIGHT * 4), width: CANVAS_WIDTH, height: CANVAS_HEIGHT, mimeType: "image/png", appliedImagePlacements: [], validation: issues };
+  if (issues.some((entry) => entry.severity === "ERROR") || (request.logo && !logoTrim)) return { bytes: Buffer.alloc(CANVAS_WIDTH * CANVAS_HEIGHT * 4), width: CANVAS_WIDTH, height: CANVAS_HEIGHT, mimeType: "image/png", appliedImagePlacements: [], validation: issues };
 
   const resolvedCropRect = request.image.resolvedSourceCropRect;
   if (!resolvedCropRect) {
@@ -263,16 +283,8 @@ export async function renderMaskSemicircleRight(request: MaskSemicircleRenderReq
     return { bytes: Buffer.alloc(CANVAS_WIDTH * CANVAS_HEIGHT * 4), width: CANVAS_WIDTH, height: CANVAS_HEIGHT, mimeType: "image/png", appliedImagePlacements: [], validation: issues };
   }
   const imageRender = await resizeCover(image, resolvedCropRect, MASK_SEMICIRCLE_RIGHT_IMAGE_DESTINATION, request.image.resolvedPlan.anchor);
-  const logoScale = Math.min(MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.width / logoTrim.width, MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.height / logoTrim.height);
-  if (logoScale > MASK_SEMICIRCLE_RIGHT_MAX_UPSCALE) issues.push(issue("KBR-LOGO-UPSCALE-LIMIT", "asset.logo_upscale_limit", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId, actual: { scale: logoScale }, expected: { maximumScale: MASK_SEMICIRCLE_RIGHT_MAX_UPSCALE } }));
-  else if (logoScale > 1) issues.push({ ...issue("KBR-LOGO-UPSCALE-LIMIT", "asset.logo_upscale_warning", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId, actual: { scale: logoScale }, expected: { recommendedMaximumScale: 1 } }), severity: "WARNING" });
   if (issues.some((entry) => entry.severity === "ERROR")) return { bytes: Buffer.alloc(CANVAS_WIDTH * CANVAS_HEIGHT * 4), width: CANVAS_WIDTH, height: CANVAS_HEIGHT, mimeType: "image/png", appliedImagePlacements: [], validation: issues };
 
-  const resizedLogoWidth = Math.max(1, Math.round(logoTrim.width * logoScale));
-  const resizedLogoHeight = Math.max(1, Math.round(logoTrim.height * logoScale));
-  const resizedLogo = await sharp(logo.data, { raw: { width: logo.width, height: logo.height, channels: 4 } }).extract({ left: logoTrim.x, top: logoTrim.y, width: logoTrim.width, height: logoTrim.height }).resize(resizedLogoWidth, resizedLogoHeight, { fit: "fill", kernel: sharp.kernel.lanczos3 }).raw().toBuffer();
-  const logoX = MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.x + Math.floor((MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.width - resizedLogoWidth) / 2);
-  const logoY = MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.y + Math.floor((MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX.height - resizedLogoHeight) / 2);
   const maskLayer = applyMask(imageRender.rgba, mask.data, MASK_SEMICIRCLE_RIGHT_IMAGE_DESTINATION);
   const canvas = createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   const context = canvas.getContext("2d");
@@ -284,9 +296,11 @@ export async function renderMaskSemicircleRight(request: MaskSemicircleRenderReq
   context.font = `39px "${FONT_ALIAS_REGULAR}"`;
   context.fillStyle = "#777777";
   context.fillText(request.input.copy.subcopy ?? "", TEXT_DRAW_X, SUBCOPY_BASELINE_Y);
-  const logoCanvas = createCanvas(resizedLogoWidth, resizedLogoHeight);
-  logoCanvas.getContext("2d").putImageData(new ImageData(new Uint8ClampedArray(resizedLogo.buffer, resizedLogo.byteOffset, resizedLogo.byteLength), resizedLogoWidth, resizedLogoHeight), 0, 0);
-  context.drawImage(logoCanvas, logoX, logoY);
+  if (request.logo && logoTrim && resizedLogo) {
+    const logoCanvas = createCanvas(resizedLogoWidth, resizedLogoHeight);
+    logoCanvas.getContext("2d").putImageData(new ImageData(new Uint8ClampedArray(resizedLogo.buffer, resizedLogo.byteOffset, resizedLogo.byteLength), resizedLogoWidth, resizedLogoHeight), 0, 0);
+    context.drawImage(logoCanvas, logoX, logoY);
+  }
 
   const imagePlacement: AppliedImagePlacement = {
     imageSlotId: MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID,
@@ -305,6 +319,7 @@ export async function renderMaskSemicircleRight(request: MaskSemicircleRenderReq
     maskDigest: request.mask.sha256,
     changedFromRequestedPlan: false,
   };
-  const logoPlacement = buildLogoPlacement(request.logo.asset, request.logo.resolvedPlan, logoTrim, logo.width, logo.height, logoScale, { x: logoX, y: logoY, width: resizedLogoWidth, height: resizedLogoHeight });
-  return { bytes: canvas.toBuffer("image/png"), width: CANVAS_WIDTH, height: CANVAS_HEIGHT, mimeType: "image/png", appliedImagePlacements: [imagePlacement, logoPlacement], validation: issues };
+  const appliedImagePlacements: AppliedImagePlacement[] = [imagePlacement];
+  if (request.logo && logo && logoTrim) appliedImagePlacements.push(buildLogoPlacement(request.logo.asset, request.logo.resolvedPlan, logoTrim, logo.width, logo.height, logoScale, { x: logoX, y: logoY, width: resizedLogoWidth, height: resizedLogoHeight }));
+  return { bytes: canvas.toBuffer("image/png"), width: CANVAS_WIDTH, height: CANVAS_HEIGHT, mimeType: "image/png", appliedImagePlacements, validation: issues };
 }

@@ -1,1 +1,1 @@
-{ "extends": "../valid-white-logo-pass/input.json", "expectedError": "KBR-MASK-ASSET-DIGEST-MISMATCH" }
+{ "extends": "../valid-black-logo-pass/input.json", "expectedError": "KBR-MASK-ASSET-DIGEST-MISMATCH" }

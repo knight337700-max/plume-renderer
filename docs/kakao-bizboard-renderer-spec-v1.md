@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.7.0
-- **Status:** Frozen Implementation Contract — Phase C6 MASK_SEMICIRCLE_RIGHT analytic mask and white logo slot
+- **Document version:** 1.8.0
+- **Status:** Frozen Implementation Contract — Phase C6 v2 MASK_SEMICIRCLE_RIGHT analytic mask and optional black logo slot
 - **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, THUMBNAIL_MULTI_RIGHT, and MASK_SEMICIRCLE_RIGHT / 1029×258`
@@ -121,7 +121,7 @@ Phase C2a 이후 계약 우선순위는 이 문서의 **14. Phase C2a Text Basel
 - `#D9D9D9`는 제작툴 샘플에서 **이미지가 최대로 들어갈 수 있는 영역을 표시한 가이드 색상**이다.
 - `#D9D9D9` 사각형과 내부의 `Image` placeholder 문자는 최종 소재에 렌더링하지 않는다.
 - 다른 참고 템플릿의 `#FFFFFF` 영역은 로고 가이드 영역을 뜻하지만, `OBJECT_RIGHT`에는 별도 로고 영역이 없다.
-- C6 이전 문서의 `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`, `THUMBNAIL_BOX_RIGHT` 비범위 문장은 historical snapshot이다. 현재 v1.7.0에서는 세 유형과 C6 MASK 계약을 구현·Acceptance 대상으로 한다. **[PROJECT]**
+- C6 이전 문서의 `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`, `THUMBNAIL_BOX_RIGHT` 비범위 문장은 historical snapshot이다. 현재 v1.8.0에서는 네 유형과 C6 v2 MASK 계약을 구현·Acceptance 대상으로 한다. **[PROJECT]**
 
 ## 1.5 v1 설계 원칙
 
@@ -140,7 +140,7 @@ Phase C2a 이후 계약 우선순위는 이 문서의 **14. Phase C2a Text Basel
 
 ## 2.1 제품 정의
 
-**Kakao Bizboard Local Renderer**는 구조화된 카피와 Template Capability가 허용하는 제품 image slot을 입력받아 카카오 비즈보드 우측형 배너 한 개를 로컬에서 생성하고, 자동 Validator 결과의 `ERROR`가 0개일 때만 최종 PNG 다운로드를 허용하는 독립 실행형 도구다. `OBJECT_RIGHT`는 투명 PNG만, `THUMBNAIL_BOX_RIGHT`·`THUMBNAIL_MULTI_RIGHT`·MASK의 IMAGE_PRIMARY는 PNG/JPG/JPEG를 허용하고 MASK는 required white PNG LOGO_PRIMARY를 추가로 요구한다. **[PROJECT]**
+**Kakao Bizboard Local Renderer**는 구조화된 카피와 Template Capability가 허용하는 제품 image slot을 입력받아 카카오 비즈보드 우측형 배너 한 개를 로컬에서 생성하고, 자동 Validator 결과의 `ERROR`가 0개일 때만 최종 PNG 다운로드를 허용하는 독립 실행형 도구다. `OBJECT_RIGHT`는 투명 PNG만, `THUMBNAIL_BOX_RIGHT`·`THUMBNAIL_MULTI_RIGHT`·MASK의 IMAGE_PRIMARY는 PNG/JPG/JPEG를 허용한다. MASK의 LOGO_PRIMARY는 선택형 검정 투명 PNG 슬롯이다. **[PROJECT]**
 
 ## 2.2 목표
 
@@ -2494,7 +2494,9 @@ THUMBNAIL_MULTI_RIGHT `ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea098
 유지한다. E2E와 packaged smoke는 버튼 부재, keyboard decimal 조절, wheel 보호,
 Preview/Export 및 Slot 독립성을 검증한다.
 
-## 23. Phase C6 — MASK_SEMICIRCLE_RIGHT [PROJECT]
+## 23. Phase C6 — MASK_SEMICIRCLE_RIGHT (historical v1 snapshot) [PROJECT]
+
+> 이 절의 required white logo 조항은 C6 v1 historical snapshot이다. 현재 계약은 아래 24절의 C6 v2 optional black logo 조항이다.
 
 Phase C6는 기존 세 Template의 좌표·Golden을 변경하지 않고,
 `KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT`를 additive capability로 동결한다. 새 결정은
@@ -2564,3 +2566,50 @@ preview에서만 black backdrop 토글을 제공하며 export PNG에는 포함�
 byte-equal이어야 하며, C6 Golden은
 `b9daf8cb11c386c06864e50494b14cc331a284919380fbc548c6a05420f486ac`다. macOS/Linux
 pixel tolerance는 v1 범위가 아니다.
+
+## 24. Phase C6 v2 — Optional Black LOGO_PRIMARY [PROJECT]
+
+C6 v2는 동일한 analytic mask와 좌표를 유지하면서 `LOGO_PRIMARY`를 선택형으로
+변경한다. `IMAGE_PRIMARY`만 있으면 로고 없는 결과물을 정상적으로 Preview·Export할 수
+있다. 로고가 있으면 별도 Asset과 Plan이 모두 존재해야 하며, 하나만 존재하는 상태는
+결정적 ERROR다. 로고가 없는 경우 cutout은 계속 투명하고 검정 backing rectangle은
+생성하지 않는다.
+
+### 24.1 Black logo contract [PROJECT]
+
+`LOGO_PRIMARY`는 `required: false`, `image/png`, alpha channel, transparent background,
+`ALPHA_TRIM_CONTAIN`, `CONTAIN`, `CENTER`, `DETERMINISTIC`만 허용한다. Crop Rect,
+Crop Candidate, Focal Point, 수동 위치·회전·자동 recolor는 금지한다. visible
+`alpha >= 8` 픽셀의 모든 RGB channel은 `<= 32`여야 하며 위반 시
+`KBR-LOGO-COLOR-NOT-BLACK` ERROR다. 최대 upscale은 1.5×이고 1× 초과는 WARNING,
+1.5× 초과는 ERROR다.
+
+### 24.2 Optional slot and plan rules [PROJECT]
+
+- 로고 없음: IMAGE_PRIMARY Asset·Plan 정확히 1개, 최종 applied placement 1개
+- 로고 있음: IMAGE_PRIMARY와 LOGO_PRIMARY Asset·Plan 각 1개, Template 순서로 2개
+- Asset만 있고 Logo Plan이 없으면 `KBR-LOGO-PLAN-MISSING`
+- Logo Plan만 있고 Asset이 없으면 `KBR-LOGO-ASSET-MISSING`
+- 로고 없는 결과물의 IMAGE cutout 영역은 alpha 0으로 유지
+
+### 24.3 Desktop Lab and Preview [PROJECT]
+
+Lab은 `로고 사용` 토글을 제공한다. 검정 투명 PNG를 선택하면 Black Logo 검증,
+Alpha Trim bbox, contain destination, upscale 경고를 표시하고, 토글을 끄거나 로고를
+선택하지 않으면 로고 없이 Preview·Export한다. Preview backdrop은 흰색 또는
+체커보드로 표시할 수 있으며 backdrop과 guide는 Export PNG에 포함하지 않는다.
+
+### 24.4 Version and compatibility [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.7.0 | 1.8.0 | Optional black LOGO_PRIMARY and no-logo mode |
+| Template Contract | 1.4.0 | 1.5.0 | Logo required/color policy clarification without coordinate changes |
+| Integration Contract | 1.2.0 | 1.3.0 | Optional slot capability and `blackValidation` metadata |
+| Desktop | 0.6.0 | 0.7.0 | Optional logo toggle and black-logo Lab flow |
+
+기존 Integration Input `1.1.0`과 C6 v1 `1.2.0` plan은 읽기 호환으로 허용하고,
+현재 공개 capability와 output은 `1.3.0`이다. 기존 세 Template Golden은 변경하지 않는다.
+검정 로고를 포함한 현재 MASK Golden은
+`dca6aa2db0c6593fcedb23dfee5a4d625356c3e8d75083e604c9866f45f530d2`이며 동일한 Windows
+10/11 x64 환경의 3회 실행에서 byte-equal이어야 한다.

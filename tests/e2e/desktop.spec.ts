@@ -10,7 +10,7 @@ import { projectRoot } from "../helpers.js";
 
 const GOLDEN_SHA256 = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
 const THUMBNAIL_GOLDEN_SHA256 = "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996";
-const MASK_GOLDEN_SHA256 = "b9daf8cb11c386c06864e50494b14cc331a284919380fbc548c6a05420f486ac";
+const MASK_GOLDEN_SHA256 = "dca6aa2db0c6593fcedb23dfee5a4d625356c3e8d75083e604c9866f45f530d2";
 
 type Launched = {
   app: ElectronApplication;
@@ -333,10 +333,35 @@ test("THUMBNAIL_MULTI_RIGHT renders two independent Lab slots with explicit Asse
   }
 });
 
-test("MASK_SEMICIRCLE_RIGHT renders the analytic mask and required white logo slot", async () => {
+test("MASK_SEMICIRCLE_RIGHT exports without an optional logo", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "valid", "thumbnail-box-right__asset__jpeg__pass.jpg"),
+  );
+  try {
+    await launched.page.getByTestId("template-select").selectOption("MASK_SEMICIRCLE_RIGHT");
+    await launched.page.getByTestId("select-product").click();
+    await expect(launched.page.getByTestId("mask-logo-validation")).toContainText("로고 없이 렌더링");
+    await fillValidForm(launched.page, "mask-semicircle-no-logo-e2e");
+    await launched.page.getByTestId("request-preview").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText("VALID_PASS");
+    await expect(launched.page.getByTestId("preview-image")).toBeVisible();
+    await launched.page.getByTestId("select-output").click();
+    await expect(launched.page.getByTestId("export-render")).toBeEnabled();
+    await launched.page.getByTestId("export-render").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText("EXPORTED");
+    const manifestPath = path.join(launched.outputRoot, "mask-semicircle-no-logo-e2e", "render-manifest.json");
+    await expect.poll(async () => access(manifestPath).then(() => true).catch(() => false)).toBe(true);
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as { appliedImagePlacements?: unknown[] };
+    expect(manifest.appliedImagePlacements).toHaveLength(1);
+  } finally {
+    await close(launched);
+  }
+});
+
+test("MASK_SEMICIRCLE_RIGHT renders the analytic mask with an optional black logo slot", async () => {
   const launched = await launch(
     path.join(projectRoot, "fixtures", "valid", "mask-semicircle-right__image__basic__pass.png"),
-    path.join(projectRoot, "fixtures", "valid", "mask-semicircle-right__logo__white__pass.png"),
+    path.join(projectRoot, "fixtures", "valid", "mask-semicircle-right__logo__black__pass.png"),
   );
   try {
     await launched.page.getByTestId("template-select").selectOption("MASK_SEMICIRCLE_RIGHT");
@@ -347,7 +372,7 @@ test("MASK_SEMICIRCLE_RIGHT renders the analytic mask and required white logo sl
     await launched.page.getByTestId("request-preview").click();
     await expect(launched.page.getByTestId("workflow-status")).toHaveText("VALID_WARNING");
     await expect(launched.page.getByTestId("preview-image")).toBeVisible();
-    await expect(launched.page.getByTestId("mask-logo-validation")).toContainText("whiteValidation=PASS");
+    await expect(launched.page.getByTestId("mask-logo-validation")).toContainText("blackValidation=PASS");
     await launched.page.getByTestId("select-output").click();
     await expect(launched.page.getByTestId("export-render")).toBeEnabled();
     await launched.page.getByTestId("export-render").click();

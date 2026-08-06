@@ -35,7 +35,7 @@ describe("input contract and canonicalization", () => {
     });
     expect(canonical.assets.product).toMatchObject({ expectedSha256: null, alphaTrim: true });
     expect(canonical.render).toEqual({
-      templateContractVersion: "1.4.0",
+      templateContractVersion: "1.5.0",
       includeDebugOverlay: false,
       pixelRatio: 1,
     });

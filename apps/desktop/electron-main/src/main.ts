@@ -189,7 +189,7 @@ async function runPackagedSmoke(
     "valid",
     "thumbnail-box-right__asset__jpeg__pass.jpg",
   );
-  const maskLogoPath = path.join(projectRoot(), "fixtures", "valid", "mask-semicircle-right__logo__white__pass.png");
+  const maskLogoPath = path.join(projectRoot(), "fixtures", "valid", "mask-semicircle-right__logo__black__pass.png");
   const maskImagePath = path.join(projectRoot(), "fixtures", "valid", "mask-semicircle-right__image__basic__pass.png");
   await mkdir(outputRoot, { recursive: true });
   try {

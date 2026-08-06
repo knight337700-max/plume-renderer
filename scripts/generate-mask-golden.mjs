@@ -8,11 +8,11 @@ import { renderMaskSemicircleRight } from "../dist/core/mask-semicircle-right.js
 const root = process.cwd();
 GlobalFonts.registerFromPath(path.join(root, "assets/fonts/SpoqaHanSansBold.ttf"), "KBR Spoqa Han Sans Bold");
 GlobalFonts.registerFromPath(path.join(root, "assets/fonts/SpoqaHanSansRegular.ttf"), "KBR Spoqa Han Sans Regular");
-const input = JSON.parse(await readFile(path.join(root, "fixtures/integration/mask-semicircle-right/valid-white-logo-pass/input.json"), "utf8"));
+const input = JSON.parse(await readFile(path.join(root, "fixtures/integration/mask-semicircle-right/valid-black-logo-pass/input.json"), "utf8"));
 const fixtureRoot = path.join(root, "fixtures", "valid");
 const resolver = {
   resolve: async (ref) => {
-    const fileName = ref.value.includes("logo") ? "mask-semicircle-right__logo__white__pass.png" : "mask-semicircle-right__image__basic__pass.png";
+    const fileName = ref.value.includes("logo") ? "mask-semicircle-right__logo__black__pass.png" : "mask-semicircle-right__image__basic__pass.png";
     const filePath = path.join(fixtureRoot, fileName);
     const bytes = await readFile(filePath);
     const inspected = await inspectImageFile(filePath);

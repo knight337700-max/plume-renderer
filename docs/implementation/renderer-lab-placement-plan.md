@@ -49,11 +49,13 @@ not rendered.
 
 ## C6 MASK_SEMICIRCLE_RIGHT
 
-MASK displays ordered `IMAGE_PRIMARY` and required `LOGO_PRIMARY` panels. The image uses
-`MANUAL_CROP`/`COVER` by default and the frozen destination `(621,45,360,213)`. The logo
-picker accepts PNG only and displays alpha/white validation, safe box `(847,24,126,44)`,
-CENTER/CONTAIN policy, and max-upscale rule; no crop, candidate, focal-point, recolor, or
-fallback controls are exposed. Preview may toggle a black backdrop in the DOM only. Core
-returns `whiteValidation` and applied slot metadata; any logo or mask error blocks Preview
-and Export. Plan envelopes emit the image plan before the logo plan and import maps by slot
-ID rather than array position.
+MASK displays the required `IMAGE_PRIMARY` panel and an optional `LOGO_PRIMARY` panel. The
+image uses `MANUAL_CROP`/`COVER` by default and the frozen destination `(621,45,360,213)`.
+The logo picker accepts black transparent PNG only and displays alpha/black validation, safe
+box `(847,24,126,44)`, CENTER/CONTAIN policy, and max-upscale rule; no crop, candidate,
+focal-point, recolor, or fallback controls are exposed. The user may render and export
+without a logo. Preview may toggle a white backdrop in the DOM only. Core returns
+`blackValidation` when a logo is present; logo or mask errors block Preview and Export.
+Plan envelopes emit the image plan before the optional logo plan and import maps by slot ID
+rather than array position. An asset without its logo plan, or a logo plan without its asset,
+is a deterministic error.

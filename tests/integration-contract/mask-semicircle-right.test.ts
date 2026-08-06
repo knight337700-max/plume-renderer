@@ -19,11 +19,11 @@ GlobalFonts.registerFromPath(path.join(root, "assets", "fonts", "SpoqaHanSansBol
 GlobalFonts.registerFromPath(path.join(root, "assets", "fonts", "SpoqaHanSansRegular.ttf"), "KBR Spoqa Han Sans Regular");
 
 const validImage = path.join(root, "fixtures", "valid", "mask-semicircle-right__image__basic__pass.png");
-const validLogo = path.join(root, "fixtures", "valid", "mask-semicircle-right__logo__white__pass.png");
+const validLogo = path.join(root, "fixtures", "valid", "mask-semicircle-right__logo__black__pass.png");
 const maskPath = path.join(root, "assets", "masks", "kakao-bizboard-mask-semicircle-right-v1.png");
 
 async function loadInput(): Promise<RendererIntegrationInputV1> {
-  return JSON.parse(await readFile(path.join(root, "fixtures", "integration", "mask-semicircle-right", "valid-white-logo-pass", "input.json"), "utf8")) as RendererIntegrationInputV1;
+  return JSON.parse(await readFile(path.join(root, "fixtures", "integration", "mask-semicircle-right", "valid-black-logo-pass", "input.json"), "utf8")) as RendererIntegrationInputV1;
 }
 
 async function readAsset(filePath: string) {
@@ -35,7 +35,7 @@ async function readAsset(filePath: string) {
 async function execute(input: RendererIntegrationInputV1, logoPath = validLogo) {
   const byValue = new Map<string, string>([
     ["mask-semicircle-right__image__basic__pass.png", validImage],
-    ["mask-semicircle-right__logo__white__pass.png", logoPath],
+    ["mask-semicircle-right__logo__black__pass.png", logoPath],
   ]);
   const maskBytes = await readFile(maskPath);
   return renderWithIntegrationAdapter(input, {
@@ -53,7 +53,7 @@ async function execute(input: RendererIntegrationInputV1, logoPath = validLogo) 
 }
 
 describe("MASK_SEMICIRCLE_RIGHT integration execution", () => {
-  it("renders the analytic mask with ordered image and white logo placements", async () => {
+  it("renders the analytic mask with ordered image and black logo placements", async () => {
     const result = await execute(await loadInput());
     expect(result.status).toBe("PASS");
     expect(result.appliedImagePlacements.map((placement) => placement.imageSlotId)).toEqual(["IMAGE_PRIMARY", "LOGO_PRIMARY"]);
@@ -65,7 +65,7 @@ describe("MASK_SEMICIRCLE_RIGHT integration execution", () => {
     expect(logoPlacement.destinationRect.y).toBeGreaterThanOrEqual(24);
     expect(logoPlacement.destinationRect.x + logoPlacement.destinationRect.width).toBeLessThanOrEqual(973);
     expect(logoPlacement.destinationRect.y + logoPlacement.destinationRect.height).toBeLessThanOrEqual(68);
-    expect(logoPlacement.whiteValidation).toBe("PASS");
+    expect(logoPlacement.blackValidation).toBe("PASS");
     expect(result.appliedImagePlacements[0]?.maskAssetId).toBe(MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID);
     expect(result.artifact?.mimeType).toBe("image/png");
     expect(result.artifact?.width).toBe(1029);
@@ -84,7 +84,8 @@ describe("MASK_SEMICIRCLE_RIGHT integration execution", () => {
   });
 
   it.each([
-    ["colored", "fixtures/invalid/mask-semicircle-right__logo__colored__error.png", "KBR-LOGO-COLOR-NOT-WHITE"],
+    ["colored", "fixtures/invalid/mask-semicircle-right__logo__colored__error.png", "KBR-LOGO-COLOR-NOT-BLACK"],
+    ["white", "fixtures/invalid/mask-semicircle-right__logo__white__error.png", "KBR-LOGO-COLOR-NOT-BLACK"],
     ["opaque", "fixtures/invalid/mask-semicircle-right__logo__opaque-background__error.png", "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED"],
     ["empty", "fixtures/invalid/mask-semicircle-right__logo__empty__error.png", "KBR-LOGO-EMPTY"],
   ] as const)("blocks %s logos deterministically", async (_name, relativePath, code) => {
@@ -94,11 +95,26 @@ describe("MASK_SEMICIRCLE_RIGHT integration execution", () => {
     expect(result.validation.errors.map((entry) => entry.code)).toContain(code);
   });
 
-  it("blocks a missing logo plan before rendering", async () => {
+  it("allows a missing optional logo plan when no second asset is supplied", async () => {
+    const input = await loadInput();
+    const noLogo = { ...input, assets: input.assets.filter((asset) => asset.assetId !== "mask-logo"), imagePlacementPlans: input.imagePlacementPlans.filter((plan) => plan.imageSlotId !== "LOGO_PRIMARY") };
+    const result = await execute(noLogo);
+    expect(result.status).toBe("PASS");
+    expect(result.appliedImagePlacements.map((placement) => placement.imageSlotId)).toEqual(["IMAGE_PRIMARY"]);
+  });
+
+  it("blocks a second asset without an optional logo plan", async () => {
     const input = await loadInput();
     const result = await execute({ ...input, imagePlacementPlans: input.imagePlacementPlans.filter((plan) => plan.imageSlotId !== "LOGO_PRIMARY") });
     expect(result.status).toBe("BLOCKED");
     expect(result.validation.errors.map((entry) => entry.code)).toContain("KBR-LOGO-PLAN-MISSING");
+  });
+
+  it("blocks a logo plan whose asset is absent", async () => {
+    const input = await loadInput();
+    const result = await execute({ ...input, assets: input.assets.filter((asset) => asset.assetId !== "mask-logo") });
+    expect(result.status).toBe("BLOCKED");
+    expect(result.validation.errors.map((entry) => entry.code)).toContain("KBR-LOGO-ASSET-MISSING");
   });
 
   it("blocks a tampered mask asset digest", async () => {

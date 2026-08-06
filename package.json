@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -44,7 +44,7 @@
     "render": "node dist/cli/index.js"
   },
   "dependencies": {
-    "@kbr/renderer-contract": "workspace:1.2.0",
+    "@kbr/renderer-contract": "workspace:1.3.0",
     "@napi-rs/canvas": "1.0.3",
     "ajv": "8.20.0",
     "canonicalize": "3.0.0",
@@ -99,7 +99,8 @@
       "fixtures/valid/jpeg-orientation-6.jpg",
       "fixtures/valid/jpeg-orientation-8.jpg",
       "fixtures/valid/mask-semicircle-right__image__basic__pass.png",
-      "fixtures/valid/mask-semicircle-right__logo__white__pass.png",
+      "fixtures/valid/mask-semicircle-right__logo__black__pass.png",
+      "fixtures/invalid/mask-semicircle-right__logo__white__error.png",
       "fixtures/golden/thumbnail-box-right__valid__golden.png",
       "fixtures/golden/thumbnail-multi-right__valid__golden.png",
       "fixtures/golden/mask-semicircle-right__valid__golden.png",

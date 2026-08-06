@@ -12,14 +12,14 @@ import { renderMaskSemicircleRight } from "../../src/core/mask-semicircle-right.
 const root = path.resolve(import.meta.dirname, "../..");
 GlobalFonts.registerFromPath(path.join(root, "assets/fonts/SpoqaHanSansBold.ttf"), "KBR Spoqa Han Sans Bold");
 GlobalFonts.registerFromPath(path.join(root, "assets/fonts/SpoqaHanSansRegular.ttf"), "KBR Spoqa Han Sans Regular");
-const inputPath = path.join(root, "fixtures/integration/mask-semicircle-right/valid-white-logo-pass/input.json");
+const inputPath = path.join(root, "fixtures/integration/mask-semicircle-right/valid-black-logo-pass/input.json");
 const goldenPath = path.join(root, "fixtures/golden/mask-semicircle-right__valid__golden.png");
-const expectedHash = "b9daf8cb11c386c06864e50494b14cc331a284919380fbc548c6a05420f486ac";
+const expectedHash = "dca6aa2db0c6593fcedb23dfee5a4d625356c3e8d75083e604c9866f45f530d2";
 
 async function renderOnce(input: RendererIntegrationInputV1): Promise<Buffer> {
   const files = new Map<string, string>([
     ["mask-semicircle-right__image__basic__pass.png", path.join(root, "fixtures/valid/mask-semicircle-right__image__basic__pass.png")],
-    ["mask-semicircle-right__logo__white__pass.png", path.join(root, "fixtures/valid/mask-semicircle-right__logo__white__pass.png")],
+    ["mask-semicircle-right__logo__black__pass.png", path.join(root, "fixtures/valid/mask-semicircle-right__logo__black__pass.png")],
   ]);
   const maskBytes = await readFile(path.join(root, "assets/masks/kakao-bizboard-mask-semicircle-right-v1.png"));
   let bytes: Buffer | undefined;

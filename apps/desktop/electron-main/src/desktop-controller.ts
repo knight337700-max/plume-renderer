@@ -295,7 +295,8 @@ export class DesktopController {
         anchor: "CENTER",
         subjectProtection: "NONE",
       };
-    const logoPlan: ImagePlacementPlan = input.placementPlans?.find((plan) => plan.imageSlotId === MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID) ?? {
+    const explicitLogoPlan = input.placementPlans?.find((plan) => plan.imageSlotId === MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID);
+    const logoPlan: ImagePlacementPlan | undefined = explicitLogoPlan ?? (logoAsset ? {
       schemaVersion: INTEGRATION_SCHEMA_VERSION,
       imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID,
       assetId: "selected-logo",
@@ -304,7 +305,7 @@ export class DesktopController {
       fitMode: "CONTAIN",
       anchor: "CENTER",
       subjectProtection: "NONE",
-    };
+    } : undefined);
     const assets: Array<RendererIntegrationInputV1["assets"][number]> = [{
       assetId: imagePlan.assetId,
       mimeType: imageAsset.detectedMimeType,
@@ -313,7 +314,7 @@ export class DesktopController {
       checksumSha256: imageAsset.sha256,
       assetRef: { type: "DESKTOP_ASSET_TOKEN", value: imageAsset.token },
     }];
-    if (logoAsset) assets.push({
+    if (logoAsset && logoPlan) assets.push({
       assetId: logoPlan.assetId,
       mimeType: logoAsset.detectedMimeType,
       declaredWidth: logoAsset.width,
@@ -327,7 +328,7 @@ export class DesktopController {
       templateId: MASK_SEMICIRCLE_RIGHT_TEMPLATE_ID,
       copy: { advertiser: input.advertiser, headline: input.headline, subcopy: input.subcopy, cta: "NONE" },
       assets,
-      imagePlacementPlans: [imagePlan, logoPlan],
+      imagePlacementPlans: [imagePlan, ...(logoPlan ? [logoPlan] : [])],
       output: { mimeType: "image/png" },
     };
   }
@@ -739,7 +740,7 @@ export class DesktopController {
         canonicalInputDigest: result.requestFingerprint,
         normalizedInputDigest: result.requestFingerprint,
         outputPngDigest: result.artifact.checksumSha256,
-        templateContractVersion: "1.4.0",
+        templateContractVersion: "1.5.0",
         inputSchemaVersion: "1.2.0",
         outputSchemaVersion: "2.0.0",
         validatorResult: {
@@ -836,7 +837,7 @@ export class DesktopController {
         canonicalInputDigest: result.requestFingerprint,
         normalizedInputDigest: result.requestFingerprint,
         outputPngDigest: result.artifact.checksumSha256,
-        templateContractVersion: "1.4.0",
+        templateContractVersion: "1.5.0",
         inputSchemaVersion: "1.2.0",
         outputSchemaVersion: "2.0.0",
         templateId: THUMBNAIL_MULTI_RIGHT_TEMPLATE_ID,
@@ -882,11 +883,10 @@ export class DesktopController {
     let publishedPng: string | null = null;
     let publishedManifest: string | null = null;
     try {
-      if (!logoAsset) return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "LOGO_PRIMARY가 없어 Export가 차단되었습니다.");
       const imageDigest = await sha256File(imageAsset.absolutePath);
-      const logoDigest = await sha256File(logoAsset.absolutePath);
+      const logoDigest = logoAsset ? await sha256File(logoAsset.absolutePath) : null;
       const expectedDigests = previewRecord.assetDigests ?? {};
-      if (imageDigest !== imageAsset.sha256 || logoDigest !== logoAsset.sha256 || expectedDigests.IMAGE_PRIMARY !== imageDigest || expectedDigests.LOGO_PRIMARY !== logoDigest) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", "MASK 이미지 또는 로고가 Preview 이후 변경되었습니다.");
+      if (imageDigest !== imageAsset.sha256 || (logoAsset && logoDigest !== logoAsset.sha256) || expectedDigests.IMAGE_PRIMARY !== imageDigest || (logoAsset && expectedDigests.LOGO_PRIMARY !== logoDigest)) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", "MASK 이미지 또는 로고가 Preview 이후 변경되었습니다.");
       const { result, bytes } = await this.#renderMaskIntegration(request, imageAsset, logoAsset);
       const errors = mapIntegrationIssues(result.validation.errors);
       const warnings = mapIntegrationIssues(result.validation.warnings);
@@ -901,7 +901,7 @@ export class DesktopController {
         canonicalInputDigest: result.requestFingerprint,
         normalizedInputDigest: result.requestFingerprint,
         outputPngDigest: result.artifact.checksumSha256,
-        templateContractVersion: "1.4.0",
+        templateContractVersion: "1.5.0",
         inputSchemaVersion: "1.2.0",
         outputSchemaVersion: "2.0.0",
         templateId: MASK_SEMICIRCLE_RIGHT_TEMPLATE_ID,
@@ -911,7 +911,7 @@ export class DesktopController {
         validatorResult: { errorCount: 0, warningCount: warnings.length, infoCount: result.validation.info.length, issues: [...warnings, ...mapIntegrationIssues(result.validation.info)] },
         assetDigests: {
           product: { id: result.appliedImagePlacements.find((placement) => placement.slotRole === "IMAGE")?.assetId ?? MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, sha256: imageAsset.sha256 },
-          images: [{ id: result.appliedImagePlacements.find((placement) => placement.slotRole === "LOGO")?.assetId ?? MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, sha256: logoAsset.sha256 }],
+          images: logoAsset && logoDigest ? [{ id: result.appliedImagePlacements.find((placement) => placement.slotRole === "LOGO")?.assetId ?? MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, sha256: logoDigest }] : [],
           mask: { id: MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID, sha256: maskDigest },
           fonts: fontDigests,
           approvedIcons: [],

@@ -75,7 +75,8 @@ export function App() {
   const [template, setTemplate] = useState<UiTemplate>("OBJECT_RIGHT");
   const [secondaryProduct, setSecondaryProduct] = useState<SelectedProduct | null>(null);
   const [logoProduct, setLogoProduct] = useState<SelectedProduct | null>(null);
-  const [maskBlackBackdrop, setMaskBlackBackdrop] = useState(false);
+  const [maskLogoEnabled, setMaskLogoEnabled] = useState(false);
+  const [maskWhiteBackdrop, setMaskWhiteBackdrop] = useState(false);
   const [policy, setPolicy] = useState<ImagePlacementPlan["policy"]>("ALPHA_TRIM_CONTAIN");
   const [anchor, setAnchor] = useState<ImagePlacementPlan["anchor"]>("CENTER");
   const [subjectProtection, setSubjectProtection] = useState<ImagePlacementPlan["subjectProtection"]>("NONE");
@@ -147,10 +148,11 @@ export function App() {
     [state.preview],
   );
   const assetTemplateMismatch = state.product !== null && template === "OBJECT_RIGHT" && state.product.detectedMimeType !== "image/png";
+  const maskLogoPlacement = state.preview?.appliedImagePlacements?.find((placement) => placement.imageSlotId === MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID);
   const cropInputReady = template === "OBJECT_RIGHT"
     ? true
     : template === "MASK_SEMICIRCLE_RIGHT"
-      ? Boolean(logoProduct && placementPlan?.imageSlotId === MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID)
+      ? placementPlan?.imageSlotId === MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID
     : template === "THUMBNAIL_BOX_RIGHT"
       ? Boolean(candidateId || validateCropRectDraft(boxCropDraft).rect)
       : [THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID].every((slotId) => {
@@ -270,6 +272,7 @@ export function App() {
       return;
     }
     if (next === "MASK_SEMICIRCLE_RIGHT") {
+      setMaskLogoEnabled(false);
       setPolicy("MANUAL_CROP");
       setAnchor("CENTER");
       setSubjectProtection("NONE");
@@ -288,7 +291,7 @@ export function App() {
       setPlacementPlanText(JSON.stringify(plan, null, 2));
       setBoxCropDraft(cropRectToDraft(plan.cropRect));
       setCropRectText("0,0,1,1");
-      setPlacementPlanMessage("PASS · MASK_SEMICIRCLE_RIGHT 이미지 Plan을 사용합니다. LOGO_PRIMARY는 흰색 PNG만 허용됩니다.");
+      setPlacementPlanMessage("PASS · MASK_SEMICIRCLE_RIGHT 이미지 Plan을 사용합니다. LOGO_PRIMARY는 선택형 검정 PNG입니다.");
       return;
     }
     setPolicy("SEMANTIC_CROP_COVER");
@@ -395,6 +398,7 @@ export function App() {
     const result = await window.kbrDesktop.selectLogoPng();
     if (result.status === "SELECTED") {
       setLogoProduct(result);
+      setMaskLogoEnabled(true);
       dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
     } else if (result.status === "ERROR") dispatch({ type: "INTERNAL_ERROR", message: result.message });
   }
@@ -402,6 +406,7 @@ export function App() {
   async function clearLogo() {
     await window.kbrDesktop.clearLogo();
     setLogoProduct(null);
+    setMaskLogoEnabled(false);
     dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
   }
 
@@ -418,16 +423,21 @@ export function App() {
 
   async function requestPreview() {
     if (!state.product || !canRequestPreview(state) || !cropInputReady) return;
+    const activeMaskLogo = template === "MASK_SEMICIRCLE_RIGHT" && maskLogoEnabled && logoProduct ? logoProduct : null;
+    const maskPlans = [
+      placementPlan ?? defaultMultiPlan(MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, "selected-image"),
+      ...(activeMaskLogo ? [{ schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, assetId: "selected-logo", policy: "ALPHA_TRIM_CONTAIN" as const, source: "DETERMINISTIC" as const, fitMode: "CONTAIN" as const, anchor: "CENTER" as const, subjectProtection: "NONE" as const }] : []),
+    ];
     const requestSequence = state.requestSequence + 1;
     const input: UiRenderInput = {
       assetToken: state.product.assetToken,
       ...(template === "THUMBNAIL_MULTI_RIGHT" && secondaryProduct ? { secondaryAssetToken: secondaryProduct.assetToken } : {}),
-      ...(template === "MASK_SEMICIRCLE_RIGHT" && logoProduct ? { logoAssetToken: logoProduct.assetToken } : {}),
+      ...(activeMaskLogo ? { logoAssetToken: activeMaskLogo.assetToken } : {}),
       ...state.fields,
       requestSequence,
       ...(template === "THUMBNAIL_BOX_RIGHT" ? { template, ...(placementPlan ? { placementPlan } : {}), ...(candidateId ? { cropCandidates: [thumbnailCandidate] } : {}) } : {}),
       ...(template === "THUMBNAIL_MULTI_RIGHT" ? { template, placementPlans: multiPlanList, cropCandidates: multiCropCandidates } : {}),
-      ...(template === "MASK_SEMICIRCLE_RIGHT" ? { template, placementPlans: [placementPlan ?? defaultMultiPlan(MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, "selected-image"), { schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, assetId: "selected-logo", policy: "ALPHA_TRIM_CONTAIN", source: "DETERMINISTIC", fitMode: "CONTAIN", anchor: "CENTER", subjectProtection: "NONE" }] } : {}),
+      ...(template === "MASK_SEMICIRCLE_RIGHT" ? { template, placementPlans: maskPlans } : {}),
     };
     dispatch({ type: "PREVIEW_STARTED", requestSequence });
     try {
@@ -446,16 +456,21 @@ export function App() {
 
   async function exportRender() {
     if (!canExport(state) || !cropInputReady || !state.product || !state.preview?.previewToken || !state.output) return;
+    const activeMaskLogo = template === "MASK_SEMICIRCLE_RIGHT" && maskLogoEnabled && logoProduct ? logoProduct : null;
+    const maskPlans = [
+      placementPlan ?? defaultMultiPlan(MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, "selected-image"),
+      ...(activeMaskLogo ? [{ schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, assetId: "selected-logo", policy: "ALPHA_TRIM_CONTAIN" as const, source: "DETERMINISTIC" as const, fitMode: "CONTAIN" as const, anchor: "CENTER" as const, subjectProtection: "NONE" as const }] : []),
+    ];
     const request: ExportRequest = {
       assetToken: state.product.assetToken,
       ...(template === "THUMBNAIL_MULTI_RIGHT" && secondaryProduct ? { secondaryAssetToken: secondaryProduct.assetToken } : {}),
-      ...(template === "MASK_SEMICIRCLE_RIGHT" && logoProduct ? { logoAssetToken: logoProduct.assetToken } : {}),
+      ...(activeMaskLogo ? { logoAssetToken: activeMaskLogo.assetToken } : {}),
       ...state.fields,
       previewToken: state.preview.previewToken,
       outputDirectoryToken: state.output.outputDirectoryToken,
       ...(template === "THUMBNAIL_BOX_RIGHT" ? { template, ...(placementPlan ? { placementPlan } : {}), ...(candidateId ? { cropCandidates: [thumbnailCandidate] } : {}) } : {}),
       ...(template === "THUMBNAIL_MULTI_RIGHT" ? { template, placementPlans: multiPlanList, cropCandidates: multiCropCandidates } : {}),
-      ...(template === "MASK_SEMICIRCLE_RIGHT" ? { template, placementPlans: [placementPlan ?? defaultMultiPlan(MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, "selected-image"), { schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, assetId: "selected-logo", policy: "ALPHA_TRIM_CONTAIN", source: "DETERMINISTIC", fitMode: "CONTAIN", anchor: "CENTER", subjectProtection: "NONE" }] } : {}),
+      ...(template === "MASK_SEMICIRCLE_RIGHT" ? { template, placementPlans: maskPlans } : {}),
     };
     dispatch({ type: "EXPORT_STARTED" });
     try {
@@ -669,13 +684,19 @@ export function App() {
                   <span>{state.product ? formatProductMetadata(state.product) : "Asset 없음"}</span>
                 </div>
                 <div className="slot-asset-panel" data-testid="slot-panel-LOGO_PRIMARY">
-                  <strong>LOGO_PRIMARY · 흰색 PNG</strong>
-                  <span>{logoProduct ? formatProductMetadata(logoProduct) : "필수 · Asset 없음"}</span>
+                  <strong>LOGO_PRIMARY · 검정 PNG (선택)</strong>
+                  <span>{logoProduct ? formatProductMetadata(logoProduct) : "선택하지 않음 · 로고 없이 저장 가능"}</span>
                   <div className="button-row">
-                    <button type="button" onClick={() => void selectLogo()} data-testid="select-logo">흰색 로고 PNG 선택</button>
+                    <button type="button" onClick={() => void selectLogo()} data-testid="select-logo">검정 로고 PNG 선택</button>
                     {logoProduct ? <button type="button" className="secondary" onClick={() => void clearLogo()} data-testid="clear-logo">지우기</button> : null}
                   </div>
-                  <small className="hint">투명 배경 · visible RGB ≥ 240 · ALPHA_TRIM_CONTAIN · CENTER · 자동 색상 변환 없음</small>
+                  <label className="guide-toggle"><input type="checkbox" data-testid="mask-logo-toggle" checked={maskLogoEnabled} disabled={!logoProduct} onChange={(event) => setMaskLogoEnabled(event.target.checked)} /> 로고 사용</label>
+                  <small className="hint">선택 시 투명 배경 · visible RGB ≤ 32 · ALPHA_TRIM_CONTAIN · CENTER · 자동 색상 변환 없음</small>
+                  <small className="hint" data-testid="mask-logo-details">
+                    Alpha {logoProduct ? (logoProduct.hasAlpha ? "있음" : "없음") : "—"} · Black validation {maskLogoPlacement?.blackValidation ?? "대기"}<br />
+                    Alpha Trim bbox {maskLogoPlacement?.alphaBounds ? `${maskLogoPlacement.alphaBounds.x.toFixed(3)},${maskLogoPlacement.alphaBounds.y.toFixed(3)},${maskLogoPlacement.alphaBounds.width.toFixed(3)},${maskLogoPlacement.alphaBounds.height.toFixed(3)}` : "—"}<br />
+                    Applied destinationRect {maskLogoPlacement ? `${maskLogoPlacement.destinationRect.x},${maskLogoPlacement.destinationRect.y},${maskLogoPlacement.destinationRect.width},${maskLogoPlacement.destinationRect.height}` : "—"} · upscale {maskLogoPlacement ? `${maskLogoPlacement.appliedScale.toFixed(3)}×` : "—"}
+                  </small>
                 </div>
               </div>
             ) : null}
@@ -769,8 +790,8 @@ export function App() {
               <div className="placement-disabled-field" data-testid="mask-placement-contract">
                 <p className="hint">IMAGE_PRIMARY · MANUAL_CROP/COVER · CENTER · crop 0,0,1,1</p>
                 <p className="hint">Mask circle center (801,225), r180 · image destination x621 y45 w360 h213 · cutout x839 y16 w142 h60</p>
-                <p className="hint">LOGO_PRIMARY safe box x847 y24 w126 h44 · max upscale 1.5× · candidate/focal/crop 금지</p>
-                <small className="placement-plan-status status-pass" data-testid="mask-logo-validation">{state.preview?.appliedImagePlacements?.find((placement) => placement.imageSlotId === MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID)?.whiteValidation === "PASS" ? "PASS · whiteValidation=PASS" : "대기 · 로고 선택 후 Core Validator 실행"}</small>
+                <p className="hint">LOGO_PRIMARY optional · safe box x847 y24 w126 h44 · max upscale 1.5× · candidate/focal/crop 금지</p>
+                <small className="placement-plan-status status-pass" data-testid="mask-logo-validation">{maskLogoPlacement?.blackValidation === "PASS" ? "PASS · blackValidation=PASS" : !maskLogoEnabled ? "PASS · 로고 없이 렌더링" : "대기 · 검정 로고 선택 후 Core Validator 실행"}</small>
               </div>
             ) : null}
             {template === "THUMBNAIL_MULTI_RIGHT" ? (
@@ -846,7 +867,7 @@ export function App() {
             <button
               type="button"
               className="primary full"
-            disabled={!canRequestPreview(state) || !cropInputReady || (template === "MASK_SEMICIRCLE_RIGHT" && !logoProduct)}
+            disabled={!canRequestPreview(state) || !cropInputReady}
             onClick={() => void requestPreview()}
             data-testid="request-preview"
           >
@@ -870,13 +891,13 @@ export function App() {
             </label>
             {template === "MASK_SEMICIRCLE_RIGHT" ? (
               <label className="guide-toggle">
-                <input type="checkbox" checked={maskBlackBackdrop} onChange={() => setMaskBlackBackdrop((value) => !value)} />
-                검정 배경 보기
+                <input type="checkbox" checked={maskWhiteBackdrop} onChange={() => setMaskWhiteBackdrop((value) => !value)} />
+                흰색 배경 보기
               </label>
             ) : null}
           </div>
 
-          <div className={`preview-frame${template === "MASK_SEMICIRCLE_RIGHT" && maskBlackBackdrop ? " preview-frame-black" : ""}`} data-testid="preview-frame">
+          <div className={`preview-frame${template === "MASK_SEMICIRCLE_RIGHT" && maskWhiteBackdrop ? " preview-frame-white" : ""}`} data-testid="preview-frame">
             {state.preview?.previewUrl ? (
               <img src={state.preview.previewUrl} alt="Core Renderer Preview" data-testid="preview-image" />
             ) : (
@@ -925,7 +946,7 @@ export function App() {
         <button type="button" className="secondary" onClick={() => void selectOutputDirectory()} data-testid="select-output">
           출력 폴더 선택
         </button>
-        <button type="button" className="primary" disabled={!canExport(state) || !cropInputReady || (template === "MASK_SEMICIRCLE_RIGHT" && !logoProduct)} onClick={() => void exportRender()} data-testid="export-render">
+        <button type="button" className="primary" disabled={!canExport(state) || !cropInputReady} onClick={() => void exportRender()} data-testid="export-render">
           PNG 및 Manifest 저장
         </button>
         {state.exported ? (

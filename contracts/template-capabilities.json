@@ -1,8 +1,8 @@
 {
-  "schemaVersion": "1.2.0",
+  "schemaVersion": "1.3.0",
   "capabilities": [
     {
-      "schemaVersion": "1.2.0",
+      "schemaVersion": "1.3.0",
       "formatProfileId": "KAKAO_BIZBOARD_OBJECT_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_OBJECT_RIGHT_1029X258_V1",
       "implementationStatus": "IMPLEMENTED",
@@ -16,7 +16,7 @@
       "alphaChannelRequired": true
     },
     {
-      "schemaVersion": "1.2.0",
+      "schemaVersion": "1.3.0",
       "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_THUMBNAIL_BOX_RIGHT",
       "implementationStatus": "IMPLEMENTED",
@@ -30,7 +30,7 @@
       "alphaChannelRequired": false
     },
     {
-      "schemaVersion": "1.2.0",
+      "schemaVersion": "1.3.0",
       "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
       "implementationStatus": "IMPLEMENTED",
@@ -47,7 +47,7 @@
       "requiredPlacementPlans": 2
     },
     {
-      "schemaVersion": "1.2.0",
+      "schemaVersion": "1.3.0",
       "formatProfileId": "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_MASK_SEMICIRCLE_RIGHT",
       "implementationStatus": "IMPLEMENTED",
@@ -59,9 +59,9 @@
       "imageSlotIds": ["IMAGE_PRIMARY", "LOGO_PRIMARY"],
       "allowedInputMimeTypes": ["image/png", "image/jpeg"],
       "alphaChannelRequired": false,
-      "minimumAssets": 2,
+      "minimumAssets": 1,
       "maximumAssets": 2,
-      "requiredPlacementPlans": 2,
+      "requiredPlacementPlans": 1,
       "slotCapabilities": [
         {
           "slotId": "IMAGE_PRIMARY",
@@ -76,18 +76,18 @@
         {
           "slotId": "LOGO_PRIMARY",
           "slotRole": "LOGO",
-          "required": true,
+          "required": false,
           "allowedInputMimeTypes": ["image/png"],
           "allowedPolicies": ["ALPHA_TRIM_CONTAIN"],
           "alphaChannelRequired": true,
-          "whiteMonochromeRequired": true,
+          "blackMonochromeRequired": true,
           "supportsManualCrop": false,
           "supportsAgentPlacement": false
         }
       ]
     },
     {
-      "schemaVersion": "1.2.0",
+      "schemaVersion": "1.3.0",
       "formatProfileId": "KAKAO_NATIVE_1200",
       "templateId": "KAKAO_NATIVE_1200",
       "implementationStatus": "NOT_IMPLEMENTED",
@@ -100,7 +100,7 @@
       "alphaChannelRequired": false
     },
     {
-      "schemaVersion": "1.2.0",
+      "schemaVersion": "1.3.0",
       "formatProfileId": "NAVER_GFA_IMAGE_BANNER",
       "templateId": "NAVER_GFA_IMAGE_BANNER",
       "implementationStatus": "NOT_IMPLEMENTED",

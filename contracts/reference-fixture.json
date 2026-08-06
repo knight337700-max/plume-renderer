@@ -1,6 +1,6 @@
 {
   "registryVersion": "1.0.0",
-  "templateContractVersion": "1.4.0",
+  "templateContractVersion": "1.5.0",
   "fixture": {
     "id": "KAKAO_TOOL_OBJECT_RIGHT_1029X258",
     "path": "reference/kakao-tool/OBJECT_RIGHT.png",
@@ -129,9 +129,9 @@
         "id": "LOGO_PRIMARY",
         "container": { "x": 839, "y": 16, "width": 142, "height": 60 },
         "safeBox": { "x": 847, "y": 24, "width": 126, "height": 44 },
-        "required": true,
+        "required": false,
         "format": "PNG",
-        "whiteRgbThreshold": 240
+        "blackRgbThreshold": 32
       }
     }
   }

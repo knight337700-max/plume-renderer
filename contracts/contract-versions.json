@@ -1,13 +1,14 @@
 {
-  "contractFreezePhase": "C6",
+  "contractFreezePhase": "C6-v2",
   "freezeStatus": "FROZEN",
   "documentVersion": {
-    "previous": "1.6.2",
-    "current": "1.7.0",
+    "previous": "1.7.0",
+    "current": "1.8.0",
     "bump": "minor",
-    "reason": "C6 adds the MASK_SEMICIRCLE_RIGHT template, analytic mask asset, and required white logo slot without changing existing template coordinates"
+    "reason": "C6 v2 changes MASK_SEMICIRCLE_RIGHT to an optional black LOGO_PRIMARY slot without changing existing template coordinates"
   },
-  "templateContractVersion": "1.4.0",
+  "templateContractVersion": "1.5.0",
+  "desktopAppVersion": "0.7.0",
   "coordinatesChanged": false,
   "xCoordinatesChanged": false,
   "baselineChanged": true,
@@ -59,11 +60,11 @@
     "textStartX": 48
   },
   "integrationContract": {
-    "schemaVersion": "1.2.0",
-    "previous": "1.1.0",
-    "current": "1.2.0",
+    "schemaVersion": "1.3.0",
+    "previous": "1.2.0",
+    "current": "1.3.0",
     "bump": "minor",
-    "reason": "MASK_SEMICIRCLE_RIGHT adds ordered image/logo slot capabilities, pinned mask digest, and white-logo validation metadata"
+    "reason": "C6 v2 makes LOGO_PRIMARY optional and adds black-logo validation metadata while preserving the serializable slot boundary"
   },
   "canonicalPhaseC3": {
     "documentPrevious": "1.3.0",
@@ -171,5 +172,22 @@
     "integrationContractCurrent": "1.2.0",
     "integrationContractBump": "minor",
     "integrationContractReason": "Two-slot mask capability and logo-specific validation fields"
+  },
+  "canonicalPhaseC6V2": {
+    "documentPrevious": "1.7.0",
+    "documentCurrent": "1.8.0",
+    "documentBump": "minor",
+    "documentReason": "Optional black LOGO_PRIMARY slot and no-logo render mode",
+    "templateContractVersionPrevious": "1.4.0",
+    "templateContractVersion": "1.5.0",
+    "templateCoordinatesChangedInC6V2": false,
+    "desktopPrevious": "0.6.0",
+    "desktopCurrent": "0.7.0",
+    "desktopBump": "minor",
+    "desktopReason": "Optional logo toggle and black-logo Preview/Export flow",
+    "integrationContractPrevious": "1.2.0",
+    "integrationContractCurrent": "1.3.0",
+    "integrationContractBump": "minor",
+    "integrationContractReason": "Optional LOGO_PRIMARY capability and blackValidation output metadata"
   }
 }

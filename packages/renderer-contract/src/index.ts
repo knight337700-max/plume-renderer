@@ -1,8 +1,9 @@
 import canonicalize from "canonicalize";
 
-export const INTEGRATION_SCHEMA_VERSION = "1.2.0" as const;
-export const LEGACY_INTEGRATION_SCHEMA_VERSION = "1.1.0" as const;
-export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof LEGACY_INTEGRATION_SCHEMA_VERSION;
+export const INTEGRATION_SCHEMA_VERSION = "1.3.0" as const;
+export const LEGACY_INTEGRATION_SCHEMA_VERSION = "1.2.0" as const;
+export const EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION = "1.1.0" as const;
+export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
 export const NORMALIZED_EPSILON = 1e-9;
 export const OBJECT_RIGHT_FORMAT_PROFILE_ID = "KAKAO_BIZBOARD_OBJECT_RIGHT" as const;
 export const OBJECT_RIGHT_TEMPLATE_ID = "KAKAO_MOMENT_BIZBOARD_OBJECT_RIGHT_1029X258_V1" as const;
@@ -159,7 +160,7 @@ export type AppliedImagePlacement = Readonly<{
   alphaBounds?: NormalizedRect;
   maskAssetId?: string;
   maskDigest?: string;
-  whiteValidation?: "PASS";
+  blackValidation?: "PASS";
   cropCandidateId?: string;
   changedFromRequestedPlan: false;
 }>;
@@ -211,7 +212,7 @@ export type SlotCapability = Readonly<{
   allowedInputMimeTypes: readonly SupportedInputMimeType[];
   allowedPolicies: readonly ImagePlacementPolicy[];
   alphaChannelRequired: boolean;
-  whiteMonochromeRequired?: boolean;
+  blackMonochromeRequired?: boolean;
   supportsManualCrop: boolean;
   supportsAgentPlacement: boolean;
 }>;
@@ -278,7 +279,7 @@ function isFiniteNumber(value: unknown): value is number {
 }
 
 function isSupportedIntegrationSchemaVersion(value: unknown): value is IntegrationSchemaVersion {
-  return value === INTEGRATION_SCHEMA_VERSION || value === LEGACY_INTEGRATION_SCHEMA_VERSION;
+  return value === INTEGRATION_SCHEMA_VERSION || value === LEGACY_INTEGRATION_SCHEMA_VERSION || value === EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
 }
 
 export function validateNormalizedPoint(value: unknown, path = ""): RendererValidationIssue[] {
@@ -514,12 +515,12 @@ export const CAPABILITIES: Readonly<Record<string, ImagePlacementCapability>> = 
     imageSlotIds: MASK_SEMICIRCLE_RIGHT_SLOT_IDS,
     allowedInputMimeTypes: ["image/png", "image/jpeg"] as const,
     alphaChannelRequired: false,
-    minimumAssets: 2,
+    minimumAssets: 1,
     maximumAssets: 2,
-    requiredPlacementPlans: 2,
+    requiredPlacementPlans: 1,
     slotCapabilities: [
       { slotId: MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, slotRole: "IMAGE" as const, required: true, allowedInputMimeTypes: ["image/png", "image/jpeg"] as const, allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, alphaChannelRequired: false, supportsManualCrop: true, supportsAgentPlacement: true },
-      { slotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO" as const, required: true, allowedInputMimeTypes: ["image/png"] as const, allowedPolicies: ["ALPHA_TRIM_CONTAIN"] as const, alphaChannelRequired: true, whiteMonochromeRequired: true, supportsManualCrop: false, supportsAgentPlacement: false },
+      { slotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO" as const, required: false, allowedInputMimeTypes: ["image/png"] as const, allowedPolicies: ["ALPHA_TRIM_CONTAIN"] as const, alphaChannelRequired: true, blackMonochromeRequired: true, supportsManualCrop: false, supportsAgentPlacement: false },
     ],
   }),
   KAKAO_NATIVE_1200: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "NOT_IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: false, supportsAgentPlacement: false, allowedInputMimeTypes: [] as const, alphaChannelRequired: false }),
@@ -552,7 +553,7 @@ export async function computeFingerprints(input: RendererIntegrationInputV1, ass
     assets: input.assets.map((asset) => ({ assetId: asset.assetId, mimeType: asset.mimeType, digest: assetDigests[asset.assetId] ?? "" })),
     imagePlacementPlans: pixelPlans.map((plan) => ({ imageSlotId: plan.imageSlotId, assetId: plan.assetId, policy: plan.policy, fitMode: plan.fitMode, cropRect: plan.cropRect, anchor: plan.anchor, subjectProtection: plan.subjectProtection })),
     output: input.output,
-    templateContractVersion: "1.4.0",
+    templateContractVersion: "1.5.0",
   };
   const pixelFingerprint = await sha256Hex(canonicalJson(pixelInput));
   return { requestFingerprint, pixelFingerprint };
@@ -605,7 +606,7 @@ export type MaskAsset = Readonly<{
 export type MaskSemicircleRenderRequest = Readonly<{
   input: Pick<RendererIntegrationInputV1, "copy">;
   image: MaskSemicircleRenderSlot;
-  logo: MaskSemicircleRenderSlot;
+  logo?: MaskSemicircleRenderSlot;
   mask: MaskAsset;
 }>;
 
@@ -721,10 +722,17 @@ export async function renderWithIntegrationAdapter(
   const context: ContractValidationContext = capability
     ? {
         allowedPolicies: capability.allowedPolicies,
-      allowedInputMimeTypes: capability.allowedInputMimeTypes,
-      alphaChannelRequired: capability.alphaChannelRequired,
-      ...(capability.imageSlotIds ? { requiredImageSlotIds: capability.imageSlotIds, allowedImageSlotIds: capability.imageSlotIds } : {}),
-      ...(capability.slotCapabilities ? { slotCapabilities: capability.slotCapabilities } : {}),
+        allowedInputMimeTypes: capability.allowedInputMimeTypes,
+        alphaChannelRequired: capability.alphaChannelRequired,
+        ...(capability.imageSlotIds
+          ? {
+              requiredImageSlotIds: capability.slotCapabilities
+                ? capability.slotCapabilities.filter((entry) => entry.required).map((entry) => entry.slotId)
+                : capability.imageSlotIds,
+              allowedImageSlotIds: capability.imageSlotIds,
+            }
+          : {}),
+        ...(capability.slotCapabilities ? { slotCapabilities: capability.slotCapabilities } : {}),
       }
     : {};
   const initialIssues = capability && capability.implementationStatus === "IMPLEMENTED"
@@ -740,6 +748,13 @@ export async function renderWithIntegrationAdapter(
     return candidate && !plan.cropRect ? { ...plan, cropRect: candidate.cropRect } : plan;
   });
   const issues = [...initialIssues];
+  if (input.formatProfileId === MASK_SEMICIRCLE_RIGHT_FORMAT_PROFILE_ID) {
+    const logoSlot = capability?.slotCapabilities?.find((entry) => entry.slotRole === "LOGO");
+    const logoPlan = resolvedPlans.find((plan) => plan.imageSlotId === MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID);
+    if (logoSlot && !logoSlot.required && !logoPlan && input.assets.length > 1) {
+      issues.push(issue("KBR-LOGO-PLAN-MISSING", "ERROR", "placement.logo_plan_missing", { path: "/imagePlacementPlans", imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", expected: "LOGO_PRIMARY plan when a second MASK asset is supplied" }));
+    }
+  }
   let renderResult: LegacyRenderResult | undefined;
   if (issues.every((entry) => entry.severity !== "ERROR")) {
     const assetById = new Map(input.assets.map((asset) => [asset.assetId, asset]));
@@ -826,13 +841,14 @@ export async function renderWithIntegrationAdapter(
         else if (dependencies.maskAsset.assetId !== MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID || dependencies.maskAsset.sha256.toLowerCase() !== MASK_SEMICIRCLE_RIGHT_MASK_ASSET_SHA256 || (await sha256Hex(dependencies.maskAsset.bytes)).toLowerCase() !== MASK_SEMICIRCLE_RIGHT_MASK_ASSET_SHA256) issues.push(issue("KBR-MASK-ASSET-DIGEST-MISMATCH", "ERROR", "mask.asset_digest_mismatch", { path: "/maskAsset", actual: { assetId: dependencies.maskAsset.assetId, declared: dependencies.maskAsset.sha256, actual: await sha256Hex(dependencies.maskAsset.bytes) }, expected: { assetId: MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID, sha256: MASK_SEMICIRCLE_RIGHT_MASK_ASSET_SHA256 } }));
         else if (!imagePlan?.cropRect) issues.push(issue("KBR-CROP-RECT-REQUIRED", "ERROR", "placement.image_crop_required", { path: "/imagePlacementPlans/IMAGE_PRIMARY/cropRect", imageSlotId: MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, slotRole: "IMAGE" }));
         else if (!imageAsset) issues.push(issue("KBR-ASSET-NOT-FOUND", "ERROR", "asset.image_missing", { path: "/imagePlacementPlans/IMAGE_PRIMARY/assetId", imageSlotId: MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, slotRole: "IMAGE" }));
-        else if (!logoAsset) issues.push(issue("KBR-LOGO-ASSET-MISSING", "ERROR", "asset.logo_missing", { path: "/imagePlacementPlans/LOGO_PRIMARY/assetId", imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO" }));
         else {
           try {
             renderResult = await dependencies.renderMaskSemicircle({
               input: { copy: input.copy },
               image: { imageSlotId: MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, asset: imageAsset.asset, resolvedAsset: imageAsset.resolved, resolvedPlan: imagePlan, resolvedSourceCropRect: imagePlan.cropRect },
-              logo: { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, asset: logoAsset.asset, resolvedAsset: logoAsset.resolved, resolvedPlan: logoPlan! },
+              ...(logoPlan && logoAsset
+                ? { logo: { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, asset: logoAsset.asset, resolvedAsset: logoAsset.resolved, resolvedPlan: logoPlan } }
+                : {}),
               mask: dependencies.maskAsset,
             });
           } catch (error) {
@@ -868,7 +884,11 @@ export async function renderWithIntegrationAdapter(
   if (validatedErrors.length > 0) {
     return { schemaVersion: INTEGRATION_SCHEMA_VERSION, status: "BLOCKED", appliedImagePlacements: [], validation: { errors: validatedErrors, warnings: validatedWarnings, info: validatedInfo }, ...fingerprints, renderFingerprint: fingerprints.pixelFingerprint };
   }
-  const expectedSlots = capability?.imageSlotIds ?? [];
+  const expectedSlots = capability?.slotCapabilities
+    ? capability.slotCapabilities
+      .filter((slot) => slot.required || resolvedPlans.some((plan) => plan.imageSlotId === slot.slotId))
+      .map((slot) => slot.slotId)
+    : capability?.imageSlotIds ?? [];
   if (placements.length !== expectedSlots.length) {
     const placementError = issue("KBR-OUTPUT-INVALID", "ERROR", "output.applied_placement_missing", { path: "/appliedImagePlacements", expected: expectedSlots.length, actual: placements.length });
     return { schemaVersion: INTEGRATION_SCHEMA_VERSION, status: "BLOCKED", appliedImagePlacements: [], validation: { errors: [placementError], warnings: validatedWarnings, info: validatedInfo }, ...fingerprints, renderFingerprint: fingerprints.pixelFingerprint };

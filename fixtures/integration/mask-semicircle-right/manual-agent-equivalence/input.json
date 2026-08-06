@@ -1,1 +1,1 @@
-{ "extends": "../valid-white-logo-pass/input.json", "expected": "manual-and-agent-image-plans-use-identical-resolved-crop" }
+{ "extends": "../valid-black-logo-pass/input.json", "expected": "manual-and-agent-image-plans-use-identical-resolved-crop" }

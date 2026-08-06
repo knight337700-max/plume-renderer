@@ -1,1 +1,1 @@
-{ "extends": "../valid-white-logo-pass/input.json", "expectedError": "KBR-LOGO-EMPTY" }
+{ "extends": "../valid-black-logo-pass/input.json", "expectedError": "KBR-LOGO-EMPTY" }

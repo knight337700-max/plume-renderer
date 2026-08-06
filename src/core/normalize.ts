@@ -60,7 +60,7 @@ export function applyDefaults(input: KakaoBizboardInputV1): CanonicalInput {
       },
     },
     render: {
-      templateContractVersion: "1.4.0",
+      templateContractVersion: "1.5.0",
       includeDebugOverlay: false,
       pixelRatio: 1,
     },

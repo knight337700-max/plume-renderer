@@ -1,1 +1,1 @@
-{ "extends": "../valid-white-logo-pass/input.json", "expected": "same-pixel-output-regardless-of-plan-array-order" }
+{ "extends": "../valid-black-logo-pass/input.json", "expected": "same-pixel-output-regardless-of-plan-array-order" }
