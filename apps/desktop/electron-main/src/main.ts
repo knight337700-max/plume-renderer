@@ -156,6 +156,7 @@ function createWindow(controller: DesktopController): BrowserWindow {
     dialog,
     shell,
     ...(e2eMode && process.env.KBR_E2E_PRODUCT ? { e2eProductPath: process.env.KBR_E2E_PRODUCT } : {}),
+    ...(e2eMode && process.env.KBR_E2E_LOGO ? { e2eLogoPath: process.env.KBR_E2E_LOGO } : {}),
     ...(e2eMode && process.env.KBR_E2E_OUTPUT ? { e2eOutputPath: process.env.KBR_E2E_OUTPUT } : {}),
   });
   void window.loadURL(RENDERER_URL);
@@ -188,6 +189,8 @@ async function runPackagedSmoke(
     "valid",
     "thumbnail-box-right__asset__jpeg__pass.jpg",
   );
+  const maskLogoPath = path.join(projectRoot(), "fixtures", "valid", "mask-semicircle-right__logo__white__pass.png");
+  const maskImagePath = path.join(projectRoot(), "fixtures", "valid", "mask-semicircle-right__image__basic__pass.png");
   await mkdir(outputRoot, { recursive: true });
   try {
     const product = await controller.selectProductFromPath(productPath);
@@ -323,6 +326,29 @@ async function runPackagedSmoke(
     const multiExport = await controller.exportRender({ ...multiInput, previewToken: multiPreview.previewToken, outputDirectoryToken: selectedOutput.token });
     if (multiExport.status !== "EXPORTED") throw new Error(`Thumbnail multi export failed: ${multiExport.code}`);
     const multiPaths = controller.getExportPaths(multiExport.exportToken);
+    const maskImage = await controller.selectProductFromPath(maskImagePath);
+    if (maskImage.status !== "SELECTED") throw new Error("MASK image selection failed");
+    const logo = await controller.selectLogoFromPath(maskLogoPath);
+    if (logo.status !== "SELECTED") throw new Error("MASK logo selection failed");
+    const maskInput: UiRenderInput = {
+      assetToken: maskImage.assetToken,
+      logoAssetToken: logo.assetToken,
+      advertiser: "자코모",
+      headline: "자코모 프리미엄 소파",
+      subcopy: "거실을 바꾸는 선택",
+      jobName: "package-smoke-mask-semicircle",
+      requestSequence: 8,
+      template: "MASK_SEMICIRCLE_RIGHT",
+      placementPlans: [
+        { schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: "IMAGE_PRIMARY", assetId: "selected-image", policy: "MANUAL_CROP", source: "MANUAL", fitMode: "COVER", cropRect: { x: 0, y: 0, width: 1, height: 1 }, anchor: "CENTER", subjectProtection: "NONE" },
+        { schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: "LOGO_PRIMARY", assetId: "selected-logo", policy: "ALPHA_TRIM_CONTAIN", source: "DETERMINISTIC", fitMode: "CONTAIN", anchor: "CENTER", subjectProtection: "NONE" },
+      ],
+    };
+    const maskPreview = await controller.requestPreview(maskInput);
+    if (!maskPreview.previewToken || maskPreview.validationStatus === "ERROR") throw new Error(`MASK preview failed: ${JSON.stringify(maskPreview.errors)}`);
+    const maskExport = await controller.exportRender({ ...maskInput, previewToken: maskPreview.previewToken, outputDirectoryToken: selectedOutput.token });
+    if (maskExport.status !== "EXPORTED") throw new Error(`MASK export failed: ${maskExport.code}`);
+    const maskPaths = controller.getExportPaths(maskExport.exportToken);
     const jpegProduct = await controller.selectProductFromPath(jpegProductPath);
     if (jpegProduct.status !== "SELECTED" || jpegProduct.detectedMimeType !== "image/jpeg") throw new Error("JPEG product selection failed");
     const jpegThumbnailInput: UiRenderInput = {
@@ -384,6 +410,12 @@ async function runPackagedSmoke(
         multiManifestDigest: multiExport.manifestDigest,
         multiPngPath: multiPaths.pngPath,
         multiManifestPath: multiPaths.manifestPath,
+        maskPreviewPngDigest: maskPreview.previewPngDigest,
+        maskPngDigest: maskExport.pngDigest,
+        maskManifestDigest: maskExport.manifestDigest,
+        maskPngPath: maskPaths.pngPath,
+        maskManifestPath: maskPaths.manifestPath,
+        maskAppliedImagePlacements: maskPreview.appliedImagePlacements,
         jpegThumbnailPreviewPngDigest: jpegThumbnailPreview.previewPngDigest,
         jpegThumbnailPngDigest: jpegThumbnailExport.pngDigest,
         jpegThumbnailManifestDigest: jpegThumbnailExport.manifestDigest,

@@ -8,6 +8,8 @@ import {
   THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
   THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID,
   THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID,
+  MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID,
+  MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID,
   parsePlacementPlan,
   serializePlacementPlan,
   type CropCandidate,
@@ -72,6 +74,8 @@ export function App() {
   const [appInfo, setAppInfo] = useState<AppInfo | null>(null);
   const [template, setTemplate] = useState<UiTemplate>("OBJECT_RIGHT");
   const [secondaryProduct, setSecondaryProduct] = useState<SelectedProduct | null>(null);
+  const [logoProduct, setLogoProduct] = useState<SelectedProduct | null>(null);
+  const [maskBlackBackdrop, setMaskBlackBackdrop] = useState(false);
   const [policy, setPolicy] = useState<ImagePlacementPlan["policy"]>("ALPHA_TRIM_CONTAIN");
   const [anchor, setAnchor] = useState<ImagePlacementPlan["anchor"]>("CENTER");
   const [subjectProtection, setSubjectProtection] = useState<ImagePlacementPlan["subjectProtection"]>("NONE");
@@ -145,6 +149,8 @@ export function App() {
   const assetTemplateMismatch = state.product !== null && template === "OBJECT_RIGHT" && state.product.detectedMimeType !== "image/png";
   const cropInputReady = template === "OBJECT_RIGHT"
     ? true
+    : template === "MASK_SEMICIRCLE_RIGHT"
+      ? Boolean(logoProduct && placementPlan?.imageSlotId === MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID)
     : template === "THUMBNAIL_BOX_RIGHT"
       ? Boolean(candidateId || validateCropRectDraft(boxCropDraft).rect)
       : [THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID].every((slotId) => {
@@ -263,6 +269,28 @@ export function App() {
       setPlacementPlanMessage("PASS · THUMBNAIL_MULTI_RIGHT에는 IMAGE_PRIMARY와 IMAGE_SECONDARY Plan이 필요합니다.");
       return;
     }
+    if (next === "MASK_SEMICIRCLE_RIGHT") {
+      setPolicy("MANUAL_CROP");
+      setAnchor("CENTER");
+      setSubjectProtection("NONE");
+      const plan: ImagePlacementPlan = {
+        schemaVersion: INTEGRATION_SCHEMA_VERSION,
+        imageSlotId: MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID,
+        assetId: "selected-image",
+        policy: "MANUAL_CROP",
+        source: "MANUAL",
+        fitMode: "COVER",
+        cropRect: { x: 0, y: 0, width: 1, height: 1 },
+        anchor: "CENTER",
+        subjectProtection: "NONE",
+      };
+      setPlacementPlan(plan);
+      setPlacementPlanText(JSON.stringify(plan, null, 2));
+      setBoxCropDraft(cropRectToDraft(plan.cropRect));
+      setCropRectText("0,0,1,1");
+      setPlacementPlanMessage("PASS · MASK_SEMICIRCLE_RIGHT 이미지 Plan을 사용합니다. LOGO_PRIMARY는 흰색 PNG만 허용됩니다.");
+      return;
+    }
     setPolicy("SEMANTIC_CROP_COVER");
     const plan: ImagePlacementPlan = {
       schemaVersion: INTEGRATION_SCHEMA_VERSION,
@@ -363,6 +391,20 @@ export function App() {
     } else if (result.status === "ERROR") dispatch({ type: "INTERNAL_ERROR", message: result.message });
   }
 
+  async function selectLogo() {
+    const result = await window.kbrDesktop.selectLogoPng();
+    if (result.status === "SELECTED") {
+      setLogoProduct(result);
+      dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
+    } else if (result.status === "ERROR") dispatch({ type: "INTERNAL_ERROR", message: result.message });
+  }
+
+  async function clearLogo() {
+    await window.kbrDesktop.clearLogo();
+    setLogoProduct(null);
+    dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
+  }
+
   async function clearProduct() {
     await window.kbrDesktop.clearProduct();
     dispatch({ type: "PRODUCT_CLEARED" });
@@ -380,10 +422,12 @@ export function App() {
     const input: UiRenderInput = {
       assetToken: state.product.assetToken,
       ...(template === "THUMBNAIL_MULTI_RIGHT" && secondaryProduct ? { secondaryAssetToken: secondaryProduct.assetToken } : {}),
+      ...(template === "MASK_SEMICIRCLE_RIGHT" && logoProduct ? { logoAssetToken: logoProduct.assetToken } : {}),
       ...state.fields,
       requestSequence,
       ...(template === "THUMBNAIL_BOX_RIGHT" ? { template, ...(placementPlan ? { placementPlan } : {}), ...(candidateId ? { cropCandidates: [thumbnailCandidate] } : {}) } : {}),
       ...(template === "THUMBNAIL_MULTI_RIGHT" ? { template, placementPlans: multiPlanList, cropCandidates: multiCropCandidates } : {}),
+      ...(template === "MASK_SEMICIRCLE_RIGHT" ? { template, placementPlans: [placementPlan ?? defaultMultiPlan(MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, "selected-image"), { schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, assetId: "selected-logo", policy: "ALPHA_TRIM_CONTAIN", source: "DETERMINISTIC", fitMode: "CONTAIN", anchor: "CENTER", subjectProtection: "NONE" }] } : {}),
     };
     dispatch({ type: "PREVIEW_STARTED", requestSequence });
     try {
@@ -405,11 +449,13 @@ export function App() {
     const request: ExportRequest = {
       assetToken: state.product.assetToken,
       ...(template === "THUMBNAIL_MULTI_RIGHT" && secondaryProduct ? { secondaryAssetToken: secondaryProduct.assetToken } : {}),
+      ...(template === "MASK_SEMICIRCLE_RIGHT" && logoProduct ? { logoAssetToken: logoProduct.assetToken } : {}),
       ...state.fields,
       previewToken: state.preview.previewToken,
       outputDirectoryToken: state.output.outputDirectoryToken,
       ...(template === "THUMBNAIL_BOX_RIGHT" ? { template, ...(placementPlan ? { placementPlan } : {}), ...(candidateId ? { cropCandidates: [thumbnailCandidate] } : {}) } : {}),
       ...(template === "THUMBNAIL_MULTI_RIGHT" ? { template, placementPlans: multiPlanList, cropCandidates: multiCropCandidates } : {}),
+      ...(template === "MASK_SEMICIRCLE_RIGHT" ? { template, placementPlans: [placementPlan ?? defaultMultiPlan(MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, "selected-image"), { schemaVersion: INTEGRATION_SCHEMA_VERSION, imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, assetId: "selected-logo", policy: "ALPHA_TRIM_CONTAIN", source: "DETERMINISTIC", fitMode: "CONTAIN", anchor: "CENTER", subjectProtection: "NONE" }] } : {}),
     };
     dispatch({ type: "EXPORT_STARTED" });
     try {
@@ -616,6 +662,23 @@ export function App() {
                 </div>
               </div>
             ) : null}
+            {template === "MASK_SEMICIRCLE_RIGHT" ? (
+              <div className="multi-slot-assets" data-testid="mask-slot-assets">
+                <div className="slot-asset-panel" data-testid="slot-panel-IMAGE_PRIMARY">
+                  <strong>IMAGE_PRIMARY</strong>
+                  <span>{state.product ? formatProductMetadata(state.product) : "Asset 없음"}</span>
+                </div>
+                <div className="slot-asset-panel" data-testid="slot-panel-LOGO_PRIMARY">
+                  <strong>LOGO_PRIMARY · 흰색 PNG</strong>
+                  <span>{logoProduct ? formatProductMetadata(logoProduct) : "필수 · Asset 없음"}</span>
+                  <div className="button-row">
+                    <button type="button" onClick={() => void selectLogo()} data-testid="select-logo">흰색 로고 PNG 선택</button>
+                    {logoProduct ? <button type="button" className="secondary" onClick={() => void clearLogo()} data-testid="clear-logo">지우기</button> : null}
+                  </div>
+                  <small className="hint">투명 배경 · visible RGB ≥ 240 · ALPHA_TRIM_CONTAIN · CENTER · 자동 색상 변환 없음</small>
+                </div>
+              </div>
+            ) : null}
           </div>
 
           {fieldConfig.map(({ id, label, pointer }) => {
@@ -655,9 +718,9 @@ export function App() {
               <h2>Placement Plan</h2>
               <span className="capability-pill">IMPLEMENTED</span>
             </div>
-            <label className="field-group"><span className="field-label">Template</span><select data-testid="template-select" value={template} onChange={(event) => setTemplateMode(event.target.value as UiTemplate)}><option value="OBJECT_RIGHT">OBJECT_RIGHT</option><option value="THUMBNAIL_BOX_RIGHT">THUMBNAIL_BOX_RIGHT</option><option value="THUMBNAIL_MULTI_RIGHT">THUMBNAIL_MULTI_RIGHT</option></select></label>
-            <p className="hint">Capability · {template === "OBJECT_RIGHT" ? "KAKAO_BIZBOARD_OBJECT_RIGHT" : template === "THUMBNAIL_BOX_RIGHT" ? "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT" : "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT"} · Agent-independent Contract v{INTEGRATION_SCHEMA_VERSION}</p>
-            {template !== "THUMBNAIL_MULTI_RIGHT" ? <>
+            <label className="field-group"><span className="field-label">Template</span><select data-testid="template-select" value={template} onChange={(event) => setTemplateMode(event.target.value as UiTemplate)}><option value="OBJECT_RIGHT">OBJECT_RIGHT</option><option value="THUMBNAIL_BOX_RIGHT">THUMBNAIL_BOX_RIGHT</option><option value="THUMBNAIL_MULTI_RIGHT">THUMBNAIL_MULTI_RIGHT</option><option value="MASK_SEMICIRCLE_RIGHT">MASK_SEMICIRCLE_RIGHT</option></select></label>
+            <p className="hint">Capability · {template === "OBJECT_RIGHT" ? "KAKAO_BIZBOARD_OBJECT_RIGHT" : template === "THUMBNAIL_BOX_RIGHT" ? "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT" : template === "THUMBNAIL_MULTI_RIGHT" ? "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT" : "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT"} · Agent-independent Contract v{INTEGRATION_SCHEMA_VERSION}</p>
+            {template !== "THUMBNAIL_MULTI_RIGHT" && template !== "MASK_SEMICIRCLE_RIGHT" ? <>
             <div className="placement-grid">
               <label><span className="field-label">Policy</span><select data-testid="policy-select" value={policy} disabled={template === "OBJECT_RIGHT"} onChange={(event) => { const next = event.target.value as ImagePlacementPlan["policy"]; setPolicy(next); setCandidateId(""); updateThumbnailPlan({ policy: next, source: next === "MANUAL_CROP" ? "MANUAL" : "DETERMINISTIC", fitMode: "COVER", cropRect: placementPlan?.cropRect ?? { x: 0, y: 0, width: 1, height: 1 } }); }}><option value="ALPHA_TRIM_CONTAIN">ALPHA_TRIM_CONTAIN</option><option value="SEMANTIC_CROP_COVER">SEMANTIC_CROP_COVER</option><option value="MANUAL_CROP">MANUAL_CROP</option></select></label>
               <label><span className="field-label">Fit Mode</span><select value={template === "OBJECT_RIGHT" ? "CONTAIN" : "COVER"} disabled><option>{template === "OBJECT_RIGHT" ? "CONTAIN" : "COVER"}</option></select></label>
@@ -702,6 +765,14 @@ export function App() {
               </>
             )}
             </> : null}
+            {template === "MASK_SEMICIRCLE_RIGHT" ? (
+              <div className="placement-disabled-field" data-testid="mask-placement-contract">
+                <p className="hint">IMAGE_PRIMARY · MANUAL_CROP/COVER · CENTER · crop 0,0,1,1</p>
+                <p className="hint">Mask circle center (801,225), r180 · image destination x621 y45 w360 h213 · cutout x839 y16 w142 h60</p>
+                <p className="hint">LOGO_PRIMARY safe box x847 y24 w126 h44 · max upscale 1.5× · candidate/focal/crop 금지</p>
+                <small className="placement-plan-status status-pass" data-testid="mask-logo-validation">{state.preview?.appliedImagePlacements?.find((placement) => placement.imageSlotId === MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID)?.whiteValidation === "PASS" ? "PASS · whiteValidation=PASS" : "대기 · 로고 선택 후 Core Validator 실행"}</small>
+              </div>
+            ) : null}
             {template === "THUMBNAIL_MULTI_RIGHT" ? (
               <div className="multi-placement-panels" data-testid="multi-placement-panels">
                 {[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID].map((slotId) => {
@@ -775,7 +846,7 @@ export function App() {
             <button
               type="button"
               className="primary full"
-            disabled={!canRequestPreview(state) || !cropInputReady}
+            disabled={!canRequestPreview(state) || !cropInputReady || (template === "MASK_SEMICIRCLE_RIGHT" && !logoProduct)}
             onClick={() => void requestPreview()}
             data-testid="request-preview"
           >
@@ -797,9 +868,15 @@ export function App() {
               />
               가이드 보기
             </label>
+            {template === "MASK_SEMICIRCLE_RIGHT" ? (
+              <label className="guide-toggle">
+                <input type="checkbox" checked={maskBlackBackdrop} onChange={() => setMaskBlackBackdrop((value) => !value)} />
+                검정 배경 보기
+              </label>
+            ) : null}
           </div>
 
-          <div className="preview-frame" data-testid="preview-frame">
+          <div className={`preview-frame${template === "MASK_SEMICIRCLE_RIGHT" && maskBlackBackdrop ? " preview-frame-black" : ""}`} data-testid="preview-frame">
             {state.preview?.previewUrl ? (
               <img src={state.preview.previewUrl} alt="Core Renderer Preview" data-testid="preview-image" />
             ) : (
@@ -807,7 +884,7 @@ export function App() {
             )}
             {state.guideVisible ? (
               <div className="guide-overlay" aria-hidden="true" data-testid="guide-overlay">
-                <div className="guide-object"><span>{template === "OBJECT_RIGHT" ? "Object slot 666,0,315,258" : template === "THUMBNAIL_BOX_RIGHT" ? "Image slot 666,36,315,186 · r12" : "IMAGE_PRIMARY 621,43,172,172 · IMAGE_SECONDARY 809,43,172,172 · gap 16 · r12"}</span></div>
+                <div className="guide-object"><span>{template === "OBJECT_RIGHT" ? "Object slot 666,0,315,258" : template === "THUMBNAIL_BOX_RIGHT" ? "Image slot 666,36,315,186 · r12" : template === "THUMBNAIL_MULTI_RIGHT" ? "IMAGE_PRIMARY 621,43,172,172 · IMAGE_SECONDARY 809,43,172,172 · gap 16 · r12" : "Mask circle (801,225) r180 · Logo safe box 847,24,126,44"}</span></div>
                 <div className="guide-hard-edge" />
                 <div className="guide-gap" />
                 <div className="guide-right-margin" />
@@ -848,7 +925,7 @@ export function App() {
         <button type="button" className="secondary" onClick={() => void selectOutputDirectory()} data-testid="select-output">
           출력 폴더 선택
         </button>
-        <button type="button" className="primary" disabled={!canExport(state) || !cropInputReady} onClick={() => void exportRender()} data-testid="export-render">
+        <button type="button" className="primary" disabled={!canExport(state) || !cropInputReady || (template === "MASK_SEMICIRCLE_RIGHT" && !logoProduct)} onClick={() => void exportRender()} data-testid="export-render">
           PNG 및 Manifest 저장
         </button>
         {state.exported ? (

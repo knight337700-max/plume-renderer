@@ -1,14 +1,14 @@
 {
-  "contractFreezePhase": "C5B",
+  "contractFreezePhase": "C6",
   "freezeStatus": "FROZEN",
   "documentVersion": {
-    "previous": "1.6.1",
-    "current": "1.6.2",
-    "bump": "patch",
-    "reason": "C5b simplified Crop keyboard adjustment controls without changing decimal input or rendering contracts"
+    "previous": "1.6.2",
+    "current": "1.7.0",
+    "bump": "minor",
+    "reason": "C6 adds the MASK_SEMICIRCLE_RIGHT template, analytic mask asset, and required white logo slot without changing existing template coordinates"
   },
-  "templateContractVersion": "1.3.0",
-  "coordinatesChanged": true,
+  "templateContractVersion": "1.4.0",
+  "coordinatesChanged": false,
   "xCoordinatesChanged": false,
   "baselineChanged": true,
   "baselineDeltaPx": 4,
@@ -59,11 +59,11 @@
     "textStartX": 48
   },
   "integrationContract": {
-    "schemaVersion": "1.1.0",
-    "previous": "1.0.0",
-    "current": "1.1.0",
+    "schemaVersion": "1.2.0",
+    "previous": "1.1.0",
+    "current": "1.2.0",
     "bump": "minor",
-    "reason": "Capability input MIME allowlists, alpha requirements, resolver metadata, and JPEG/EXIF validation"
+    "reason": "MASK_SEMICIRCLE_RIGHT adds ordered image/logo slot capabilities, pinned mask digest, and white-logo validation metadata"
   },
   "canonicalPhaseC3": {
     "documentPrevious": "1.3.0",
@@ -154,5 +154,22 @@
     "integrationContractCurrent": "1.1.0",
     "integrationContractBump": "none",
     "integrationContractReason": "UI-only change; decimal schema and Runtime/Core contracts unchanged"
+  },
+  "canonicalPhaseC6": {
+    "documentPrevious": "1.6.2",
+    "documentCurrent": "1.7.0",
+    "documentBump": "minor",
+    "documentReason": "MASK_SEMICIRCLE_RIGHT analytic mask composition and required white LOGO_PRIMARY slot",
+    "templateContractVersionPrevious": "1.3.0",
+    "templateContractVersion": "1.4.0",
+    "templateCoordinatesChangedInC6": false,
+    "desktopPrevious": "0.5.2",
+    "desktopCurrent": "0.6.0",
+    "desktopBump": "minor",
+    "desktopReason": "MASK_SEMICIRCLE_RIGHT Renderer Lab image/logo selection, preview, export, and mask diagnostics",
+    "integrationContractPrevious": "1.1.0",
+    "integrationContractCurrent": "1.2.0",
+    "integrationContractBump": "minor",
+    "integrationContractReason": "Two-slot mask capability and logo-specific validation fields"
   }
 }

@@ -1,6 +1,6 @@
 # Renderer Lab Placement Plan
 
-The Desktop Lab uses the same `parsePlacementPlan` and `serializePlacementPlan` functions as the Integration Contract. The Template selector exposes `OBJECT_RIGHT` and `THUMBNAIL_BOX_RIGHT`; the selected capability controls which policy and crop controls are enabled.
+The Desktop Lab uses the same `parsePlacementPlan` and `serializePlacementPlan` functions as the Integration Contract. The Template selector exposes `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, and `MASK_SEMICIRCLE_RIGHT`; the selected capability controls which policy and crop controls are enabled.
 
 `OBJECT_RIGHT` remains fixed to `ALPHA_TRIM_CONTAIN + CONTAIN`, with crop controls visibly disabled and the reason shown. `THUMBNAIL_BOX_RIGHT` enables `SEMANTIC_CROP_COVER` and `MANUAL_CROP`, `COVER`, anchor, subject protection, normalized direct Crop Rect editing, and a deterministic Candidate selector. A missing Crop is sent to Core and produces `KBR-CROP-RECT-REQUIRED`; the Lab never invents a center Crop.
 
@@ -46,3 +46,14 @@ current valid draft. Focused Crop number inputs prevent wheel-based value change
 while ordinary page scrolling remains available. One group-level hint documents the
 three keyboard steps; field-level button rows and repeated fine/normal/coarse text are
 not rendered.
+
+## C6 MASK_SEMICIRCLE_RIGHT
+
+MASK displays ordered `IMAGE_PRIMARY` and required `LOGO_PRIMARY` panels. The image uses
+`MANUAL_CROP`/`COVER` by default and the frozen destination `(621,45,360,213)`. The logo
+picker accepts PNG only and displays alpha/white validation, safe box `(847,24,126,44)`,
+CENTER/CONTAIN policy, and max-upscale rule; no crop, candidate, focal-point, recolor, or
+fallback controls are exposed. Preview may toggle a black backdrop in the DOM only. Core
+returns `whiteValidation` and applied slot metadata; any logo or mask error blocks Preview
+and Export. Plan envelopes emit the image plan before the logo plan and import maps by slot
+ID rather than array position.

@@ -10,6 +10,7 @@ import { projectRoot } from "../helpers.js";
 
 const GOLDEN_SHA256 = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
 const THUMBNAIL_GOLDEN_SHA256 = "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996";
+const MASK_GOLDEN_SHA256 = "b9daf8cb11c386c06864e50494b14cc331a284919380fbc548c6a05420f486ac";
 
 type Launched = {
   app: ElectronApplication;
@@ -19,7 +20,7 @@ type Launched = {
   sessionRoot: string;
 };
 
-async function launch(productPath: string): Promise<Launched> {
+async function launch(productPath: string, logoPath?: string): Promise<Launched> {
   const root = path.join(os.tmpdir(), `kbr-e2e-${randomUUID()}`);
   const outputRoot = path.join(root, "output");
   const sessionRoot = path.join(root, "sessions");
@@ -31,6 +32,7 @@ async function launch(productPath: string): Promise<Launched> {
       ...process.env,
       KBR_E2E_MODE: "1",
       KBR_E2E_PRODUCT: productPath,
+      ...(logoPath ? { KBR_E2E_LOGO: logoPath } : {}),
       KBR_E2E_OUTPUT: outputRoot,
       KBR_E2E_SESSION_BASE: sessionRoot,
     },
@@ -326,6 +328,32 @@ test("THUMBNAIL_MULTI_RIGHT renders two independent Lab slots with explicit Asse
     const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as { templateId?: string; appliedImagePlacements?: unknown[] };
     expect(manifest.templateId).toBe("KAKAO_MOMENT_BIZBOARD_THUMBNAIL_MULTI_RIGHT");
     expect(manifest.appliedImagePlacements).toHaveLength(2);
+  } finally {
+    await close(launched);
+  }
+});
+
+test("MASK_SEMICIRCLE_RIGHT renders the analytic mask and required white logo slot", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "valid", "mask-semicircle-right__image__basic__pass.png"),
+    path.join(projectRoot, "fixtures", "valid", "mask-semicircle-right__logo__white__pass.png"),
+  );
+  try {
+    await launched.page.getByTestId("template-select").selectOption("MASK_SEMICIRCLE_RIGHT");
+    await launched.page.getByTestId("select-product").click();
+    await launched.page.getByTestId("select-logo").click();
+    await expect(launched.page.getByTestId("slot-panel-LOGO_PRIMARY")).toContainText("image/png");
+    await fillValidForm(launched.page, "mask-semicircle-e2e");
+    await launched.page.getByTestId("request-preview").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText("VALID_WARNING");
+    await expect(launched.page.getByTestId("preview-image")).toBeVisible();
+    await expect(launched.page.getByTestId("mask-logo-validation")).toContainText("whiteValidation=PASS");
+    await launched.page.getByTestId("select-output").click();
+    await expect(launched.page.getByTestId("export-render")).toBeEnabled();
+    await launched.page.getByTestId("export-render").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText("EXPORTED");
+    await expect(launched.page.getByTestId("export-result")).toContainText(MASK_GOLDEN_SHA256);
+    await expect.poll(async () => sha256File(path.join(launched.outputRoot, "mask-semicircle-e2e", "output.png"))).toBe(MASK_GOLDEN_SHA256);
   } finally {
     await close(launched);
   }

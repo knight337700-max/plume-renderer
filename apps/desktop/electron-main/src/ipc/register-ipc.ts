@@ -25,6 +25,7 @@ export type RegisterDesktopIpcOptions = {
   dialog: DialogPort;
   shell: Pick<Shell, "showItemInFolder">;
   e2eProductPath?: string;
+  e2eLogoPath?: string;
   e2eOutputPath?: string;
 };
 
@@ -86,12 +87,31 @@ export function registerDesktopIpc(options: RegisterDesktopIpcOptions): void {
     return options.controller.selectSecondaryProductFromPath(selectedPath);
   });
 
+  handle(DESKTOP_CHANNELS.selectLogoPng, async (): Promise<ProductSelectionResult> => {
+    let selectedPath: string | undefined;
+    if (options.e2eLogoPath) selectedPath = options.e2eLogoPath;
+    else {
+      const result = await options.dialog.showOpenDialog(options.window, {
+        title: "흰색 로고 PNG 선택",
+        properties: ["openFile", "dontAddToRecent"],
+        filters: [{ name: "PNG 로고", extensions: ["png"] }],
+      });
+      if (result.canceled || result.filePaths.length === 0) return { status: "CANCELLED" };
+      selectedPath = result.filePaths[0];
+    }
+    if (!selectedPath) return { status: "CANCELLED" };
+    return options.controller.selectLogoFromPath(selectedPath);
+  });
+
   handle(DESKTOP_CHANNELS.clearProduct, async (): Promise<void> => {
     await options.controller.clearProduct();
   });
 
   handle(DESKTOP_CHANNELS.clearSecondaryProduct, async (): Promise<void> => {
     await options.controller.clearSecondaryProduct();
+  });
+  handle(DESKTOP_CHANNELS.clearLogo, async (): Promise<void> => {
+    await options.controller.clearLogo();
   });
 
   handle(DESKTOP_CHANNELS.requestPreview, async (_event, raw: unknown) => {

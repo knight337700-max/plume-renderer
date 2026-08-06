@@ -28,6 +28,17 @@ export {
   THUMBNAIL_MULTI_RIGHT_RADIUS,
   THUMBNAIL_MULTI_RIGHT_SLOTS,
 } from "./thumbnail-multi-right.js";
+export {
+  renderMaskSemicircleRight,
+  MASK_SEMICIRCLE_RIGHT_IMAGE_DESTINATION,
+  MASK_SEMICIRCLE_RIGHT_LOGO_CONTAINER,
+  MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX,
+  MASK_SEMICIRCLE_RIGHT_TEXT_HARD_RIGHT_EDGE,
+  MASK_SEMICIRCLE_RIGHT_TEXT_MAX_WIDTH,
+  MASK_SEMICIRCLE_RIGHT_TEXT_WARNING_WIDTH,
+  MASK_SEMICIRCLE_RIGHT_LOGO_WHITE_THRESHOLD,
+  MASK_SEMICIRCLE_RIGHT_MAX_UPSCALE,
+} from "./mask-semicircle-right.js";
 export { loadContracts } from "./contracts.js";
 export { SchemaValidators, parseJsonInput } from "./schema-validation.js";
 export { validateCanonicalSemantics, validateRawText } from "./semantic-validation.js";

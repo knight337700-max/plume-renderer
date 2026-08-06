@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "formatProfileId", "implementationStatus", "defaultPolicy", "semanticPlacement", "allowedPolicies", "supportsManualCrop", "supportsAgentPlacement", "allowedInputMimeTypes", "alphaChannelRequired"],
   "properties": {
-    "schemaVersion": { "const": "1.1.0" },
+    "schemaVersion": { "const": "1.2.0" },
     "formatProfileId": { "type": "string", "minLength": 1 },
     "implementationStatus": { "enum": ["NOT_IMPLEMENTED", "PARTIAL", "IMPLEMENTED"] },
     "defaultPolicy": { "enum": ["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"] },
@@ -19,6 +19,25 @@
     "alphaChannelRequired": { "type": "boolean" },
     "minimumAssets": { "type": "integer", "minimum": 0 },
     "maximumAssets": { "type": "integer", "minimum": 0 },
-    "requiredPlacementPlans": { "type": "integer", "minimum": 0 }
+    "requiredPlacementPlans": { "type": "integer", "minimum": 0 },
+    "slotCapabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["slotId", "slotRole", "required", "allowedInputMimeTypes", "allowedPolicies", "alphaChannelRequired", "supportsManualCrop", "supportsAgentPlacement"],
+        "properties": {
+          "slotId": { "type": "string", "minLength": 1 },
+          "slotRole": { "enum": ["IMAGE", "LOGO"] },
+          "required": { "type": "boolean" },
+          "allowedInputMimeTypes": { "type": "array", "items": { "enum": ["image/png", "image/jpeg"] } },
+          "allowedPolicies": { "type": "array", "items": { "enum": ["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"] } },
+          "alphaChannelRequired": { "type": "boolean" },
+          "whiteMonochromeRequired": { "type": "boolean" },
+          "supportsManualCrop": { "type": "boolean" },
+          "supportsAgentPlacement": { "type": "boolean" }
+        }
+      }
+    }
   }
 }

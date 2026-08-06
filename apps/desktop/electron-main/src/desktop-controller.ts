@@ -1,6 +1,13 @@
 import { readFile, rm, stat } from "node:fs/promises";
+import path from "node:path";
 import {
   INTEGRATION_SCHEMA_VERSION,
+  MASK_SEMICIRCLE_RIGHT_FORMAT_PROFILE_ID,
+  MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID,
+  MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID,
+  MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID,
+  MASK_SEMICIRCLE_RIGHT_MASK_ASSET_PATH,
+  MASK_SEMICIRCLE_RIGHT_TEMPLATE_ID,
   THUMBNAIL_BOX_RIGHT_FORMAT_PROFILE_ID,
   THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
   THUMBNAIL_BOX_RIGHT_TEMPLATE_ID,
@@ -18,6 +25,7 @@ import {
   loadContracts,
   renderThumbnailMultiRight,
   renderThumbnailBoxRight,
+  renderMaskSemicircleRight,
 } from "../../../../src/core/index.js";
 import { verifyRuntimeAssets } from "../../../../src/core/assets.js";
 import { canonicalJson } from "../../../../src/core/canonical.js";
@@ -59,8 +67,16 @@ function extractMaximum(schema: Record<string, unknown>, pathParts: string[]): n
   return typeof current === "number" ? current : 0;
 }
 
+function resolveProjectRelativeMaskPath(projectRoot: string): string {
+  const root = path.resolve(projectRoot);
+  const target = path.resolve(root, MASK_SEMICIRCLE_RIGHT_MASK_ASSET_PATH);
+  const relative = path.relative(root, target);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) throw new Error("MASK asset escaped the project root");
+  return target;
+}
+
 function mapIntegrationIssues(
-  issues: readonly { code: string; severity: "ERROR" | "WARNING" | "INFO"; messageKey: string; path?: string; expected?: unknown; actual?: unknown }[],
+  issues: readonly { code: string; severity: "ERROR" | "WARNING" | "INFO"; messageKey: string; path?: string; imageSlotId?: string; slotRole?: "IMAGE" | "LOGO"; assetId?: string; expected?: unknown; actual?: unknown }[],
 ): ValidationIssue[] {
   return issues.map((entry) => ({
     code: entry.code,
@@ -69,6 +85,9 @@ function mapIntegrationIssues(
     path: entry.path ?? "/",
     ...(entry.expected !== undefined ? { expected: entry.expected } : {}),
     ...(entry.actual !== undefined ? { actual: entry.actual } : {}),
+    ...(entry.imageSlotId !== undefined ? { imageSlotId: entry.imageSlotId } : {}),
+    ...(entry.slotRole !== undefined ? { slotRole: entry.slotRole } : {}),
+    ...(entry.assetId !== undefined ? { assetId: entry.assetId } : {}),
   }));
 }
 
@@ -107,7 +126,7 @@ export class DesktopController {
     this.#blockedNetworkRequestCount = config.blockedNetworkRequestCount;
   }
 
-  async selectProductFromPath(sourcePath: string, slot: "PRIMARY" | "SECONDARY" = "PRIMARY"): Promise<ProductSelectionResult> {
+  async selectProductFromPath(sourcePath: string, slot: "PRIMARY" | "SECONDARY" | "LOGO" = "PRIMARY"): Promise<ProductSelectionResult> {
     try {
       const asset = await this.#session.selectProduct(sourcePath, slot);
       return {
@@ -134,12 +153,20 @@ export class DesktopController {
     return this.selectProductFromPath(sourcePath, "SECONDARY");
   }
 
+  async selectLogoFromPath(sourcePath: string): Promise<ProductSelectionResult> {
+    return this.selectProductFromPath(sourcePath, "LOGO");
+  }
+
   async clearProduct(): Promise<void> {
     await this.#session.clearProduct();
   }
 
   async clearSecondaryProduct(): Promise<void> {
     await this.#session.clearProductForSlot("SECONDARY");
+  }
+
+  async clearLogo(): Promise<void> {
+    await this.#session.clearProductForSlot("LOGO");
   }
 
   #buildInput(input: Omit<UiRenderInput, "requestSequence">, asset: SessionAsset): KakaoBizboardInputV1 {
@@ -250,6 +277,61 @@ export class DesktopController {
     };
   }
 
+  #buildMaskIntegrationInput(
+    input: Omit<UiRenderInput, "requestSequence">,
+    imageAsset: SessionAsset,
+    logoAsset?: SessionAsset,
+  ): RendererIntegrationInputV1 {
+    const imagePlan: ImagePlacementPlan = input.placementPlans?.find((plan) => plan.imageSlotId === MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID)
+      ?? input.placementPlan
+      ?? {
+        schemaVersion: INTEGRATION_SCHEMA_VERSION,
+        imageSlotId: MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID,
+        assetId: "selected-image",
+        policy: "MANUAL_CROP",
+        source: "MANUAL",
+        fitMode: "COVER",
+        cropRect: { x: 0, y: 0, width: 1, height: 1 },
+        anchor: "CENTER",
+        subjectProtection: "NONE",
+      };
+    const logoPlan: ImagePlacementPlan = input.placementPlans?.find((plan) => plan.imageSlotId === MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID) ?? {
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID,
+      assetId: "selected-logo",
+      policy: "ALPHA_TRIM_CONTAIN",
+      source: "DETERMINISTIC",
+      fitMode: "CONTAIN",
+      anchor: "CENTER",
+      subjectProtection: "NONE",
+    };
+    const assets: Array<RendererIntegrationInputV1["assets"][number]> = [{
+      assetId: imagePlan.assetId,
+      mimeType: imageAsset.detectedMimeType,
+      declaredWidth: imageAsset.width,
+      declaredHeight: imageAsset.height,
+      checksumSha256: imageAsset.sha256,
+      assetRef: { type: "DESKTOP_ASSET_TOKEN", value: imageAsset.token },
+    }];
+    if (logoAsset) assets.push({
+      assetId: logoPlan.assetId,
+      mimeType: logoAsset.detectedMimeType,
+      declaredWidth: logoAsset.width,
+      declaredHeight: logoAsset.height,
+      checksumSha256: logoAsset.sha256,
+      assetRef: { type: "DESKTOP_ASSET_TOKEN", value: logoAsset.token },
+    });
+    return {
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      formatProfileId: MASK_SEMICIRCLE_RIGHT_FORMAT_PROFILE_ID,
+      templateId: MASK_SEMICIRCLE_RIGHT_TEMPLATE_ID,
+      copy: { advertiser: input.advertiser, headline: input.headline, subcopy: input.subcopy, cta: "NONE" },
+      assets,
+      imagePlacementPlans: [imagePlan, logoPlan],
+      output: { mimeType: "image/png" },
+    };
+  }
+
   async #renderThumbnailIntegration(input: Omit<UiRenderInput, "requestSequence">, asset: SessionAsset): Promise<{
     integrationInput: RendererIntegrationInputV1;
     result: Awaited<ReturnType<typeof renderWithIntegrationAdapter>>;
@@ -286,7 +368,7 @@ export class DesktopController {
       },
       renderThumbnail: async (request) => {
         const rendered = await renderThumbnailBoxRight(request);
-        renderedBytes = rendered.bytes;
+        renderedBytes = Buffer.from(rendered.bytes);
         return rendered;
       },
       assetDigests: { [integrationAsset.assetId]: asset.sha256 },
@@ -323,10 +405,58 @@ export class DesktopController {
       },
       renderThumbnailMulti: async (request) => {
         const rendered = await renderThumbnailMultiRight(request);
-        renderedBytes = rendered.bytes;
+        renderedBytes = Buffer.from(rendered.bytes);
         return rendered;
       },
       assetDigests: Object.fromEntries([...slotAssets.values()].map((asset) => [asset.token, asset.sha256])),
+    });
+    return { integrationInput, result, bytes: renderedBytes };
+  }
+
+  async #renderMaskIntegration(input: Omit<UiRenderInput, "requestSequence">, imageAsset: SessionAsset, logoAsset?: SessionAsset): Promise<{
+    integrationInput: RendererIntegrationInputV1;
+    result: Awaited<ReturnType<typeof renderWithIntegrationAdapter>>;
+    bytes: Buffer | null;
+  }> {
+    const integrationInput = this.#buildMaskIntegrationInput(input, imageAsset, logoAsset);
+    const runtimeContracts = await loadContracts(this.#projectRoot);
+    const runtimeAssets = await verifyRuntimeAssets(this.#projectRoot, runtimeContracts);
+    if (runtimeAssets.issues.some((entry) => entry.severity === "ERROR") || !runtimeAssets.assets) {
+      throw new Error("Pinned runtime fonts or reference fixture are unavailable");
+    }
+    const maskPath = resolveProjectRelativeMaskPath(this.#projectRoot);
+    let maskAsset: { assetId: typeof MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID; bytes: Buffer; sha256: string } | undefined;
+    try {
+      const maskBytes = await readFile(maskPath);
+      maskAsset = { assetId: MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID, bytes: maskBytes, sha256: sha256Bytes(maskBytes) };
+    } catch {
+      // Let the integration adapter emit the deterministic KBR-MASK-ASSET-MISSING issue.
+      maskAsset = undefined;
+    }
+    let renderedBytes: Buffer | null = null;
+    const tokenAssets = new Map<string, SessionAsset>([[imageAsset.token, imageAsset]]);
+    if (logoAsset) tokenAssets.set(logoAsset.token, logoAsset);
+    const result = await renderWithIntegrationAdapter(integrationInput, {
+      resolver: {
+        resolve: async (assetRef) => {
+          if (assetRef.type !== "DESKTOP_ASSET_TOKEN") throw new Error("Desktop asset reference type is invalid");
+          const asset = tokenAssets.get(assetRef.value);
+          if (!asset) throw new Error("Desktop asset token is stale or invalid");
+          const bytes = await readFile(asset.absolutePath);
+          return {
+            bytes,
+            resolvedMimeType: asset.detectedMimeType,
+            metadata: { detectedMimeType: asset.detectedMimeType, width: asset.width, height: asset.height, hasAlpha: asset.hasAlpha, exifOrientation: asset.exifOrientation },
+          };
+        },
+      },
+      ...(maskAsset ? { maskAsset } : {}),
+      renderMaskSemicircle: async (request) => {
+        const rendered = await renderMaskSemicircleRight(request);
+        renderedBytes = Buffer.from(rendered.bytes);
+        return rendered;
+      },
+      assetDigests: Object.fromEntries([...tokenAssets.values()].map((asset) => [asset.token, asset.sha256])),
     });
     return { integrationInput, result, bytes: renderedBytes };
   }
@@ -478,6 +608,26 @@ export class DesktopController {
     }
   }
 
+  async #maskPreview(input: UiRenderInput, imageAsset: SessionAsset, logoAsset?: SessionAsset): Promise<PreviewResult> {
+    const generatedAt = new Date().toISOString();
+    try {
+      const { result, bytes } = await this.#renderMaskIntegration(input, imageAsset, logoAsset);
+      const errors = mapIntegrationIssues(result.validation.errors);
+      const warnings = mapIntegrationIssues(result.validation.warnings);
+      const artifact = result.artifact;
+      const assetDigests = { IMAGE_PRIMARY: imageAsset.sha256, ...(logoAsset ? { LOGO_PRIMARY: logoAsset.sha256 } : {}) };
+      if (result.status !== "PASS" || !artifact || !bytes) {
+        await this.#session.invalidatePreview();
+        return { requestSequence: input.requestSequence, previewToken: null, previewUrl: null, canonicalInputDigest: result.requestFingerprint, productAssetDigest: imageAsset.sha256, logoAssetDigest: logoAsset?.sha256 ?? null, productAssetDigests: assetDigests, previewPngDigest: null, pngMetadata: null, measurements: null, validationStatus: "ERROR", errors, warnings, generatedAt, template: "MASK_SEMICIRCLE_RIGHT", appliedImagePlacement: null, appliedImagePlacements: [] };
+      }
+      const stored = await this.#session.storePreview(bytes, result.requestFingerprint, imageAsset.sha256, artifact.checksumSha256, assetDigests);
+      return { requestSequence: input.requestSequence, previewToken: stored.token, previewUrl: `kbr-preview://preview/${stored.token}`, canonicalInputDigest: result.requestFingerprint, productAssetDigest: imageAsset.sha256, logoAssetDigest: logoAsset?.sha256 ?? null, productAssetDigests: assetDigests, previewPngDigest: artifact.checksumSha256, pngMetadata: { format: "PNG", colorType: "RGBA", bitDepth: 8, hasAlpha: true, width: 1029, height: 258, bytes: artifact.bytes }, measurements: null, validationStatus: warnings.length > 0 ? "WARNING" : "PASS", errors, warnings, generatedAt, template: "MASK_SEMICIRCLE_RIGHT", appliedImagePlacement: result.appliedImagePlacements[0] ?? null, appliedImagePlacements: result.appliedImagePlacements };
+    } catch {
+      await this.#session.invalidatePreview();
+      return { requestSequence: input.requestSequence, previewToken: null, previewUrl: null, canonicalInputDigest: null, productAssetDigest: imageAsset.sha256, logoAssetDigest: logoAsset?.sha256 ?? null, productAssetDigests: { IMAGE_PRIMARY: imageAsset.sha256, ...(logoAsset ? { LOGO_PRIMARY: logoAsset.sha256 } : {}) }, previewPngDigest: null, pngMetadata: null, measurements: null, validationStatus: "ERROR", errors: [], warnings: [], generatedAt, template: "MASK_SEMICIRCLE_RIGHT", appliedImagePlacement: null, appliedImagePlacements: [] };
+    }
+  }
+
 
   async requestPreview(input: UiRenderInput): Promise<PreviewResult> {
     const generatedAt = new Date().toISOString();
@@ -485,6 +635,10 @@ export class DesktopController {
       const asset = this.#session.getAsset(input.assetToken);
       if (input.template === "THUMBNAIL_BOX_RIGHT") return this.#thumbnailPreview(input, asset);
       if (input.template === "THUMBNAIL_MULTI_RIGHT") return this.#thumbnailMultiPreview(input, asset);
+      if (input.template === "MASK_SEMICIRCLE_RIGHT") {
+        const logo = input.logoAssetToken ? this.#session.getAsset(input.logoAssetToken) : undefined;
+        return this.#maskPreview(input, asset, logo);
+      }
       const coreInput = this.#buildInput(input, asset);
       const renderer = await createKakaoBizboardRenderer({
         projectRoot: this.#projectRoot,
@@ -585,7 +739,7 @@ export class DesktopController {
         canonicalInputDigest: result.requestFingerprint,
         normalizedInputDigest: result.requestFingerprint,
         outputPngDigest: result.artifact.checksumSha256,
-        templateContractVersion: "1.3.0",
+        templateContractVersion: "1.4.0",
         inputSchemaVersion: "1.2.0",
         outputSchemaVersion: "2.0.0",
         validatorResult: {
@@ -682,7 +836,7 @@ export class DesktopController {
         canonicalInputDigest: result.requestFingerprint,
         normalizedInputDigest: result.requestFingerprint,
         outputPngDigest: result.artifact.checksumSha256,
-        templateContractVersion: "1.3.0",
+        templateContractVersion: "1.4.0",
         inputSchemaVersion: "1.2.0",
         outputSchemaVersion: "2.0.0",
         templateId: THUMBNAIL_MULTI_RIGHT_TEMPLATE_ID,
@@ -693,6 +847,72 @@ export class DesktopController {
         assetDigests: {
           product: { id: result.appliedImagePlacements[0]?.assetId ?? THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, sha256: primaryAsset.sha256 },
           images: imageDigests,
+          fonts: fontDigests,
+          approvedIcons: [],
+          referenceFixture: { id: contracts.referenceRegistry.fixture.id, sha256: contracts.referenceRegistry.fixture.sha256 },
+        },
+        manualAcceptanceStatus: thumbnailManualAcceptanceStatus(),
+      };
+      const manifestText = canonicalJson(manifest);
+      const manifestDigest = sha256Bytes(Buffer.from(manifestText, "utf8"));
+      const jobDirectory = await resolveTrustedJobDirectory(output.root, ".", request.jobName);
+      const published = await publishArtifacts({ outputRoot: output.root, jobDirectory, png: bytes, manifest: manifestText, overwrite: false });
+      publishedPng = published.pngPath;
+      publishedManifest = published.manifestPath;
+      const [actualPngDigest, actualManifestDigest, pngStat] = await Promise.all([sha256File(published.pngPath), sha256File(published.manifestPath), stat(published.pngPath)]);
+      if (actualPngDigest !== result.artifact.checksumSha256 || actualManifestDigest !== manifestDigest) {
+        await Promise.allSettled([rm(published.pngPath, { force: true }), rm(published.manifestPath, { force: true })]);
+        return desktopFailure("ERROR", "DESKTOP-EXPORT-004", "저장된 산출물 digest 검증에 실패했습니다.");
+      }
+      const exportToken = this.#session.registerExport(published.pngPath, published.manifestPath);
+      return { status: "EXPORTED", exportToken, jobName: request.jobName, pngFileName: "output.png", manifestFileName: "render-manifest.json", pngDigest: actualPngDigest, manifestDigest: actualManifestDigest, bytes: pngStat.size, warnings };
+    } catch (error) {
+      if (publishedPng || publishedManifest) await Promise.allSettled([publishedPng ? rm(publishedPng, { force: true }) : Promise.resolve(), publishedManifest ? rm(publishedManifest, { force: true }) : Promise.resolve()]);
+      return desktopFailure("ERROR", error instanceof DesktopSecurityError ? error.code : "DESKTOP-EXPORT-999", error instanceof Error ? error.message : "Export 중 내부 오류가 발생했습니다.");
+    }
+  }
+
+  async #exportMask(
+    request: ExportRequest,
+    imageAsset: SessionAsset,
+    logoAsset: SessionAsset | undefined,
+    previewRecord: Awaited<ReturnType<DesktopSessionManager["getPreview"]>>,
+    output: Awaited<ReturnType<DesktopSessionManager["getOutputDirectory"]>>,
+  ): Promise<ExportResult> {
+    let publishedPng: string | null = null;
+    let publishedManifest: string | null = null;
+    try {
+      if (!logoAsset) return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "LOGO_PRIMARY가 없어 Export가 차단되었습니다.");
+      const imageDigest = await sha256File(imageAsset.absolutePath);
+      const logoDigest = await sha256File(logoAsset.absolutePath);
+      const expectedDigests = previewRecord.assetDigests ?? {};
+      if (imageDigest !== imageAsset.sha256 || logoDigest !== logoAsset.sha256 || expectedDigests.IMAGE_PRIMARY !== imageDigest || expectedDigests.LOGO_PRIMARY !== logoDigest) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", "MASK 이미지 또는 로고가 Preview 이후 변경되었습니다.");
+      const { result, bytes } = await this.#renderMaskIntegration(request, imageAsset, logoAsset);
+      const errors = mapIntegrationIssues(result.validation.errors);
+      const warnings = mapIntegrationIssues(result.validation.warnings);
+      if (result.status !== "PASS" || !result.artifact || !bytes || errors.length > 0) return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "최종 재검증에 실패하여 Export가 차단되었습니다.", errors, warnings);
+      if (result.requestFingerprint !== previewRecord.inputDigest || result.artifact.checksumSha256 !== previewRecord.pngDigest) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-003", "Preview가 현재 입력과 일치하지 않습니다.", errors, warnings);
+      const contracts = await loadContracts(this.#projectRoot);
+      const fontDigests = contracts.fontRegistry.requiredAssets.flatMap((entry) => entry.sha256 ? [{ id: entry.id, sha256: entry.sha256 }] : []);
+      const maskBytes = await readFile(resolveProjectRelativeMaskPath(this.#projectRoot));
+      const maskDigest = sha256Bytes(maskBytes);
+      const manifest = {
+        schemaVersion: "1.0.0",
+        canonicalInputDigest: result.requestFingerprint,
+        normalizedInputDigest: result.requestFingerprint,
+        outputPngDigest: result.artifact.checksumSha256,
+        templateContractVersion: "1.4.0",
+        inputSchemaVersion: "1.2.0",
+        outputSchemaVersion: "2.0.0",
+        templateId: MASK_SEMICIRCLE_RIGHT_TEMPLATE_ID,
+        pixelFingerprint: result.pixelFingerprint,
+        requestFingerprint: result.requestFingerprint,
+        appliedImagePlacements: result.appliedImagePlacements,
+        validatorResult: { errorCount: 0, warningCount: warnings.length, infoCount: result.validation.info.length, issues: [...warnings, ...mapIntegrationIssues(result.validation.info)] },
+        assetDigests: {
+          product: { id: result.appliedImagePlacements.find((placement) => placement.slotRole === "IMAGE")?.assetId ?? MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, sha256: imageAsset.sha256 },
+          images: [{ id: result.appliedImagePlacements.find((placement) => placement.slotRole === "LOGO")?.assetId ?? MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, sha256: logoAsset.sha256 }],
+          mask: { id: MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID, sha256: maskDigest },
           fonts: fontDigests,
           approvedIcons: [],
           referenceFixture: { id: contracts.referenceRegistry.fixture.id, sha256: contracts.referenceRegistry.fixture.sha256 },
@@ -731,6 +951,10 @@ export class DesktopController {
       const output = this.#session.getOutputDirectory(request.outputDirectoryToken);
       if (request.template === "THUMBNAIL_BOX_RIGHT") return this.#exportThumbnail(request, asset, previewRecord, output);
       if (request.template === "THUMBNAIL_MULTI_RIGHT") return this.#exportThumbnailMulti(request, asset, previewRecord, output);
+      if (request.template === "MASK_SEMICIRCLE_RIGHT") {
+        const logo = request.logoAssetToken ? this.#session.getAsset(request.logoAssetToken) : undefined;
+        return this.#exportMask(request, asset, logo, previewRecord, output);
+      }
       const currentAssetDigest = await sha256File(asset.absolutePath);
       if (currentAssetDigest !== asset.sha256 || currentAssetDigest !== previewRecord.assetDigest) {
         return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", "제품 자산이 Preview 이후 변경되었습니다.");

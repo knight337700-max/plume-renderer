@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(scriptDir, "..");
@@ -120,8 +121,8 @@ check(
 const versions = contracts.get("contract-versions.json");
 check(
   "template_contract_version",
-  versions?.templateContractVersion === "1.3.0" &&
-    versions?.coordinatesChanged === true &&
+  versions?.templateContractVersion === "1.4.0" &&
+    versions?.coordinatesChanged === false &&
     versions?.xCoordinatesChanged === false &&
     versions?.baselineDeltaPx === 4,
   `version=${versions?.templateContractVersion}; baselineDeltaPx=${versions?.baselineDeltaPx}; xCoordinatesChanged=${versions?.xCoordinatesChanged}`,
@@ -242,6 +243,76 @@ check(
     multiSlots[1]?.cornerRadiusPx === 12,
   JSON.stringify({ text: thumbnailMultiFixture?.text, slots: multiSlots }),
 );
+const maskFixture = fixtureRegistry?.templates?.maskSemicircleRight;
+const maskFixturePath = path.join(root, ...(maskFixture?.path?.split("/") ?? []));
+let actualMaskHash = null;
+try { actualMaskHash = await sha256(maskFixturePath); } catch { actualMaskHash = null; }
+check(
+  "mask_reference_hash",
+  actualMaskHash === maskFixture?.sha256 && maskFixture?.sha256 === "90a2e948d979b204867c837485ca0d4b391de4ca44c22ca36e9f3f53862ac75e",
+  `expected=${maskFixture?.sha256}; actual=${actualMaskHash}`,
+);
+const mask = maskFixture?.mask;
+check(
+  "mask_geometry",
+  maskFixture?.png?.width === 1029 && maskFixture?.png?.height === 258 &&
+    mask?.circle?.centerX === 801 && mask?.circle?.centerY === 225 && mask?.circle?.radius === 180 &&
+    mask?.cutout?.x === 839 && mask?.cutout?.y === 16 && mask?.cutout?.width === 142 && mask?.cutout?.height === 60 &&
+    mask?.imageDestination?.x === 621 && mask?.imageDestination?.y === 45 && mask?.imageDestination?.width === 360 && mask?.imageDestination?.height === 213 &&
+    mask?.rightExclusive === 981 && mask?.bottomExclusive === 258 &&
+    maskFixture?.logoSlot?.id === "LOGO_PRIMARY" && maskFixture?.logoSlot?.container?.x === 839 && maskFixture?.logoSlot?.safeBox?.x === 847,
+  JSON.stringify(maskFixture),
+);
+
+const maskAssetRegistry = contracts.get("mask-assets.json");
+const maskAsset = maskAssetRegistry?.assets?.find(({ id }) => id === "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT_V1");
+const maskAssetPath = path.join(root, ...(maskAsset?.path?.split("/") ?? []));
+let actualMaskAssetHash = null;
+try { actualMaskAssetHash = await sha256(maskAssetPath); } catch { actualMaskAssetHash = null; }
+let maskAssetIhdr = null;
+let maskAlphaBbox = null;
+let maskMetadataFree = false;
+try {
+  const rawPng = await readFile(maskAssetPath);
+  const chunkTypes = [];
+  let offset = 8;
+  while (offset + 12 <= rawPng.length) {
+    const length = rawPng.readUInt32BE(offset);
+    const type = rawPng.toString("ascii", offset + 4, offset + 8);
+    const end = offset + 12 + length;
+    if (end > rawPng.length) throw new Error("truncated PNG chunk");
+    chunkTypes.push(type);
+    offset = end;
+  }
+  maskMetadataFree = offset === rawPng.length && chunkTypes.every((type) => type === "IHDR" || type === "IDAT" || type === "IEND");
+  const raw = await sharp(maskAssetPath).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  maskAssetIhdr = raw.info;
+  let minX = raw.info.width;
+  let minY = raw.info.height;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < raw.info.height; y += 1) {
+    for (let x = 0; x < raw.info.width; x += 1) {
+      if (raw.data[(y * raw.info.width + x) * raw.info.channels + raw.info.channels - 1] > 0) {
+        minX = Math.min(minX, x); minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x); maxY = Math.max(maxY, y);
+      }
+    }
+  }
+  maskAlphaBbox = maxX >= 0 ? { minX, minY, maxX, maxY } : null;
+} catch {
+  maskAssetIhdr = null;
+}
+check(
+  "mask_asset_registry",
+  maskAsset?.path === "assets/masks/kakao-bizboard-mask-semicircle-right-v1.png" &&
+    actualMaskAssetHash === maskAsset?.sha256 &&
+    maskAsset?.sha256 === "6b4d6f9a30fe29faf46f94c000d9436bee0cbf384c9204bf45b1ce3ef35d51eb" &&
+    maskAssetIhdr?.width === 1029 && maskAssetIhdr?.height === 258 && maskAssetIhdr?.channels === 4 &&
+    maskAlphaBbox?.minX === 621 && maskAlphaBbox?.minY === 45 && maskAlphaBbox?.maxX === 980 && maskAlphaBbox?.maxY === 257 &&
+    maskMetadataFree,
+  `expected=${maskAsset?.sha256}; actual=${actualMaskAssetHash}; ihdr=${JSON.stringify(maskAssetIhdr)}; alphaBbox=${JSON.stringify(maskAlphaBbox)}; metadataFree=${maskMetadataFree}`,
+);
 
 check(
   "manifest_no_self_digest",
@@ -284,7 +355,7 @@ check(
 const textContract = contracts.get("text-contract.json");
 check(
   "text_contract",
-  textContract?.templateContractVersion === "1.3.0" &&
+  textContract?.templateContractVersion === "1.4.0" &&
     textContract?.headlineBaselineY === 120 &&
     textContract?.subcopyBaselineY === 178 &&
     textContract?.textStartX === 48 &&
@@ -338,20 +409,21 @@ const capabilityRegistry = contracts.get("template-capabilities.json");
 const implementedCapabilities = capabilityRegistry?.capabilities?.filter(({ implementationStatus }) => implementationStatus === "IMPLEMENTED") ?? [];
 check(
   "integration_capability_gate",
-  implementedCapabilities.length === 3 &&
+  implementedCapabilities.length === 4 &&
     implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_OBJECT_RIGHT") &&
     implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT") &&
-    implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT"),
+    implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT") &&
+    implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT"),
   `implemented=${implementedCapabilities.map(({ formatProfileId }) => formatProfileId).join(",")}`,
 );
 check(
   "integration_contract_version",
-  versions?.integrationContract?.current === "1.1.0" && versions?.canonicalPhaseC4JpegSupport?.documentCurrent === "1.5.1" && versions?.canonicalPhaseC4JpegSupport?.templateContractVersion === "1.3.0",
+  versions?.integrationContract?.current === "1.2.0" && versions?.canonicalPhaseC4JpegSupport?.documentCurrent === "1.5.1" && versions?.canonicalPhaseC4JpegSupport?.templateContractVersion === "1.3.0",
   JSON.stringify(versions?.integrationContract),
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.current === "1.6.2" && versions?.templateContractVersion === "1.3.0",
+  versions?.documentVersion?.current === "1.7.0" && versions?.templateContractVersion === "1.4.0",
   `document=${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

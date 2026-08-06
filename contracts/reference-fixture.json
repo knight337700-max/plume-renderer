@@ -1,6 +1,6 @@
 {
   "registryVersion": "1.0.0",
-  "templateContractVersion": "1.3.0",
+  "templateContractVersion": "1.4.0",
   "fixture": {
     "id": "KAKAO_TOOL_OBJECT_RIGHT_1029X258",
     "path": "reference/kakao-tool/OBJECT_RIGHT.png",
@@ -44,10 +44,6 @@
     }
   },
   "nonNormativeReferences": [
-    {
-      "path": "reference/kakao-tool/MASK_SEMICIRCLE_RIGHT.png",
-      "usage": "PRESERVE_ONLY"
-    },
     {
       "path": "reference/kakao-tool/THUMBNAIL_BOX_RIGHT.png",
       "usage": "PRESERVE_ONLY"
@@ -107,6 +103,36 @@
       "rightTransparentMarginPx": 48,
       "topMarginPx": 43,
       "bottomMarginPx": 43
+    },
+    "maskSemicircleRight": {
+      "id": "KAKAO_TOOL_MASK_SEMICIRCLE_RIGHT_1029X258",
+      "path": "reference/kakao-tool/MASK_SEMICIRCLE_RIGHT.png",
+      "sha256": "90a2e948d979b204867c837485ca0d4b391de4ca44c22ca36e9f3f53862ac75e",
+      "immutable": true,
+      "sourceClassification": "TOOL_OUTPUT",
+      "png": { "width": 1029, "height": 258, "colorType": "RGBA", "bitDepth": 8 },
+      "text": {
+        "headline": { "x": 48, "baselineY": 120 },
+        "subcopy": { "x": 48, "baselineY": 178 },
+        "hardRightEdgeExclusive": 588,
+        "maximumOccupiedWidthPx": 540,
+        "minimumGapPx": 33
+      },
+      "mask": {
+        "circle": { "centerX": 801, "centerY": 225, "radius": 180 },
+        "cutout": { "x": 839, "y": 16, "width": 142, "height": 60 },
+        "imageDestination": { "x": 621, "y": 45, "width": 360, "height": 213 },
+        "rightExclusive": 981,
+        "bottomExclusive": 258
+      },
+      "logoSlot": {
+        "id": "LOGO_PRIMARY",
+        "container": { "x": 839, "y": 16, "width": 142, "height": 60 },
+        "safeBox": { "x": 847, "y": 24, "width": 126, "height": 44 },
+        "required": true,
+        "format": "PNG",
+        "whiteRgbThreshold": 240
+      }
     }
   }
 }

@@ -31,7 +31,7 @@
       "$ref": "#/$defs/sha256"
     },
     "templateContractVersion": {
-      "const": "1.3.0"
+      "const": "1.4.0"
     },
     "inputSchemaVersion": {
       "const": "1.2.0"
@@ -101,6 +101,9 @@
           "items": {
             "$ref": "#/$defs/assetDigest"
           }
+        },
+        "mask": {
+          "$ref": "#/$defs/assetDigest"
         }
       }
     },
@@ -214,6 +217,9 @@
         "messageKey": {
           "type": "string"
         },
+        "imageSlotId": { "type": "string" },
+        "slotRole": { "enum": ["IMAGE", "LOGO"] },
+        "assetId": { "type": "string" },
         "expected": true,
         "actual": true,
         "bbox": {

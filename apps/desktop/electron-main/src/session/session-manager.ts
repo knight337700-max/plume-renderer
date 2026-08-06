@@ -112,6 +112,7 @@ export class DesktopSessionManager {
   readonly previewRoot: string;
   #asset: SessionAsset | null = null;
   #secondaryAsset: SessionAsset | null = null;
+  #logoAsset: SessionAsset | null = null;
   #preview: SessionPreview | null = null;
   readonly #outputDirectories = new Map<string, OutputDirectoryRecord>();
   readonly #exports = new Map<string, ExportRecord>();
@@ -157,7 +158,7 @@ export class DesktopSessionManager {
     await writeFile(path.join(this.sessionRoot, SESSION_MARKER), this.sessionId, { encoding: "utf8", flag: "wx" });
   }
 
-  async selectProduct(sourcePath: string, slot: "PRIMARY" | "SECONDARY" = "PRIMARY"): Promise<SessionAsset> {
+  async selectProduct(sourcePath: string, slot: "PRIMARY" | "SECONDARY" | "LOGO" = "PRIMARY"): Promise<SessionAsset> {
     assertLocalAbsoluteFilePath(sourcePath);
     const sourceLstat = await lstat(sourcePath);
     if (!sourceLstat.isFile() || sourceLstat.isSymbolicLink()) {
@@ -179,7 +180,10 @@ export class DesktopSessionManager {
     await this.invalidatePreview();
     const temporaryPath = path.join(this.inputRoot, `.product-${randomUUID()}.tmp`);
     const extension = inspected.metadata.detectedMimeType === "image/png" ? ".png" : path.extname(sourcePath).toLowerCase();
-    const fileStem = slot === "SECONDARY" ? "secondary-product" : "product";
+    if (slot === "LOGO" && inspected.metadata.detectedMimeType !== "image/png") {
+      throw new DesktopSecurityError("KBR-ASSET-MIME-NOT-ALLOWED", "LOGO_PRIMARY requires a PNG asset");
+    }
+    const fileStem = slot === "SECONDARY" ? "secondary-product" : slot === "LOGO" ? "logo" : "product";
     const productPath = path.join(this.inputRoot, `${fileStem}${extension}`);
     try {
       await copyOpenFile(sourcePath, temporaryPath);
@@ -202,6 +206,7 @@ export class DesktopSessionManager {
         sha256: await sha256File(productPath),
       };
       if (slot === "SECONDARY") this.#secondaryAsset = nextAsset;
+      else if (slot === "LOGO") this.#logoAsset = nextAsset;
       else this.#asset = nextAsset;
       return { ...nextAsset };
     } catch (error) {
@@ -212,7 +217,7 @@ export class DesktopSessionManager {
   }
 
   getAsset(token: string): SessionAsset {
-    const asset = [this.#asset, this.#secondaryAsset].find((entry) => entry?.token === token) ?? null;
+    const asset = [this.#asset, this.#secondaryAsset, this.#logoAsset].find((entry) => entry?.token === token) ?? null;
     if (!asset) {
       throw new DesktopSecurityError("DESKTOP-ASSET-005", "Asset token is stale or invalid");
     }
@@ -223,11 +228,12 @@ export class DesktopSessionManager {
     await this.clearProductForSlot("PRIMARY");
   }
 
-  async clearProductForSlot(slot: "PRIMARY" | "SECONDARY"): Promise<void> {
+  async clearProductForSlot(slot: "PRIMARY" | "SECONDARY" | "LOGO"): Promise<void> {
     await this.invalidatePreview();
-    const selected = slot === "SECONDARY" ? this.#secondaryAsset : this.#asset;
-    const fileStem = slot === "SECONDARY" ? "secondary-product" : "product";
+    const selected = slot === "SECONDARY" ? this.#secondaryAsset : slot === "LOGO" ? this.#logoAsset : this.#asset;
+    const fileStem = slot === "SECONDARY" ? "secondary-product" : slot === "LOGO" ? "logo" : "product";
     if (slot === "SECONDARY") this.#secondaryAsset = null;
+    else if (slot === "LOGO") this.#logoAsset = null;
     else this.#asset = null;
     await Promise.all([
       selected ? rm(path.join(this.inputRoot, selected.relativePath), { force: true }) : Promise.resolve(),
@@ -296,6 +302,7 @@ export class DesktopSessionManager {
   async cleanup(): Promise<void> {
     this.#asset = null;
     this.#secondaryAsset = null;
+    this.#logoAsset = null;
     this.#preview = null;
     this.#outputDirectories.clear();
     this.#exports.clear();

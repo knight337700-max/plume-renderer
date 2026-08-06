@@ -11,6 +11,12 @@ await Promise.all([
   mkdir(invalidDirectory, { recursive: true }),
 ]);
 
+const maskImage = path.join(validDirectory, "mask-semicircle-right__image__basic__pass.png");
+const maskLogo = path.join(validDirectory, "mask-semicircle-right__logo__white__pass.png");
+const maskLogoColored = path.join(invalidDirectory, "mask-semicircle-right__logo__colored__error.png");
+const maskLogoOpaque = path.join(invalidDirectory, "mask-semicircle-right__logo__opaque-background__error.png");
+const maskLogoEmpty = path.join(invalidDirectory, "mask-semicircle-right__logo__empty__error.png");
+
 function rawImage(width, height, paint) {
   const rgba = Buffer.alloc(width * height * 4);
   paint(rgba, width, height);
@@ -84,5 +90,37 @@ await writeFile(
     pixel(data, width, 4, 4, 120, 80, 210, 8);
   }),
 );
+
+await writeFile(
+  maskImage,
+  await rawImage(640, 480, (data, width) => {
+    rectangle(data, width, 0, 0, 640, 480, [29, 111, 205, 255]);
+    rectangle(data, width, 90, 60, 550, 420, [231, 109, 47, 255]);
+  }),
+);
+
+await writeFile(
+  maskLogo,
+  await rawImage(200, 60, (data, width) => {
+    rectangle(data, width, 38, 18, 162, 42, [255, 255, 255, 255]);
+    rectangle(data, width, 54, 10, 146, 18, [255, 255, 255, 255]);
+  }),
+);
+
+await writeFile(
+  maskLogoColored,
+  await rawImage(200, 60, (data, width) => {
+    rectangle(data, width, 38, 18, 162, 42, [230, 48, 48, 255]);
+  }),
+);
+
+await writeFile(
+  maskLogoOpaque,
+  await rawImage(200, 60, (data, width) => {
+    rectangle(data, width, 0, 0, width, 60, [255, 255, 255, 255]);
+  }),
+);
+
+await writeFile(maskLogoEmpty, await rawImage(200, 60, () => undefined));
 
 process.stdout.write("Generated deterministic Phase C1 PNG fixtures.\n");

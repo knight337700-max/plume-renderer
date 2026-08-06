@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -44,7 +44,7 @@
     "render": "node dist/cli/index.js"
   },
   "dependencies": {
-    "@kbr/renderer-contract": "workspace:1.1.0",
+    "@kbr/renderer-contract": "workspace:1.2.0",
     "@napi-rs/canvas": "1.0.3",
     "ajv": "8.20.0",
     "canonicalize": "3.0.0",
@@ -86,9 +86,11 @@
       "packages/renderer-contract/schema/**/*",
       "packages/renderer-contract/dist/**/*",
       "assets/fonts/**/*",
+      "assets/masks/**/*",
       "reference/kakao-tool/OBJECT_RIGHT.png",
       "reference/kakao-tool/THUMBNAIL_BOX_RIGHT.png",
       "reference/kakao-tool/THUMBNAIL_MULTI_RIGHT.png",
+      "reference/kakao-tool/MASK_SEMICIRCLE_RIGHT.png",
       "fixtures/valid/object-right__product__basic__pass.png",
       "fixtures/valid/thumbnail-box-right__asset__basic__pass.png",
       "fixtures/valid/thumbnail-box-right__asset__jpeg__pass.jpg",
@@ -96,8 +98,11 @@
       "fixtures/valid/jpeg-orientation-3.jpg",
       "fixtures/valid/jpeg-orientation-6.jpg",
       "fixtures/valid/jpeg-orientation-8.jpg",
+      "fixtures/valid/mask-semicircle-right__image__basic__pass.png",
+      "fixtures/valid/mask-semicircle-right__logo__white__pass.png",
       "fixtures/golden/thumbnail-box-right__valid__golden.png",
       "fixtures/golden/thumbnail-multi-right__valid__golden.png",
+      "fixtures/golden/mask-semicircle-right__valid__golden.png",
       "package.json"
     ],
     "win": {

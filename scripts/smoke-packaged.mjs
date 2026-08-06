@@ -11,6 +11,7 @@ const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "
 const expectedPngDigest = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
 const expectedThumbnailPngDigest = "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996";
 const expectedMultiPngDigest = "ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55";
+const expectedMaskPngDigest = "b9daf8cb11c386c06864e50494b14cc331a284919380fbc548c6a05420f486ac";
 const executables = [
   path.join(root, "release", "win-unpacked", "Kakao-Bizboard-Local-Renderer.exe"),
   path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`),
@@ -92,6 +93,12 @@ for (const executable of executables) {
   if (result.multiPreviewPngDigest !== expectedMultiPngDigest || result.multiPngDigest !== expectedMultiPngDigest || !result.multiManifestDigest) {
     throw new Error(`Packaged Thumbnail Multi Golden mismatch: ${JSON.stringify(result)}`);
   }
+  if (result.maskPreviewPngDigest !== expectedMaskPngDigest || result.maskPngDigest !== expectedMaskPngDigest || !result.maskManifestDigest) {
+    throw new Error(`Packaged MASK Golden mismatch: ${JSON.stringify(result)}`);
+  }
+  if (!Array.isArray(result.maskAppliedImagePlacements) || result.maskAppliedImagePlacements.length !== 2 || result.maskAppliedImagePlacements[0]?.imageSlotId !== "IMAGE_PRIMARY" || result.maskAppliedImagePlacements[1]?.imageSlotId !== "LOGO_PRIMARY") {
+    throw new Error(`Packaged MASK placement contract mismatch: ${JSON.stringify(result)}`);
+  }
   if (!result.jpegThumbnailPreviewPngDigest || result.jpegThumbnailPreviewPngDigest !== result.jpegThumbnailPngDigest || !result.jpegThumbnailManifestDigest) {
     throw new Error(`Packaged JPEG Thumbnail mismatch: ${JSON.stringify(result)}`);
   }
@@ -112,6 +119,8 @@ for (const executable of executables) {
     access(result.keyboardAdjustedManifestPath),
     access(result.multiPngPath),
     access(result.multiManifestPath),
+    access(result.maskPngPath),
+    access(result.maskManifestPath),
     access(result.jpegThumbnailPngPath),
     access(result.jpegThumbnailManifestPath),
     verifyRightMargin(result.pngPath),
@@ -119,6 +128,7 @@ for (const executable of executables) {
     verifyRightMargin(result.decimalThumbnailPngPath),
     verifyRightMargin(result.keyboardAdjustedPngPath),
     verifyRightMargin(result.multiPngPath),
+    verifyRightMargin(result.maskPngPath),
     verifyRightMargin(result.jpegThumbnailPngPath),
   ]);
   const report = {

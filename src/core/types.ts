@@ -15,6 +15,9 @@ export type ValidationIssue = {
   expected?: unknown;
   actual?: unknown;
   bbox?: BBox | null;
+  imageSlotId?: string;
+  slotRole?: "IMAGE" | "LOGO";
+  assetId?: string;
 };
 
 export type TextLimitStatus = "PASS" | "WARNING" | "ERROR";
@@ -88,7 +91,7 @@ export type KakaoBizboardInputV1 = {
     };
   };
   render?: {
-    templateContractVersion?: "1.3.0";
+    templateContractVersion?: "1.3.0" | "1.4.0";
     includeDebugOverlay?: false;
     pixelRatio?: 1;
   };
@@ -113,7 +116,7 @@ export type CanonicalInput = Omit<KakaoBizboardInputV1, "canvas" | "render" | "c
     };
   };
   render: {
-    templateContractVersion: "1.3.0";
+    templateContractVersion: "1.4.0";
     includeDebugOverlay: false;
     pixelRatio: 1;
   };
@@ -175,7 +178,7 @@ export type RenderManifest = {
   canonicalInputDigest: string;
   normalizedInputDigest: string;
   outputPngDigest: string;
-  templateContractVersion: "1.3.0";
+  templateContractVersion: "1.4.0";
   inputSchemaVersion: "1.2.0";
   outputSchemaVersion: "2.0.0";
   validatorResult: {
@@ -190,6 +193,7 @@ export type RenderManifest = {
     approvedIcons: AssetDigest[];
     referenceFixture: AssetDigest;
     images?: AssetDigest[];
+    mask?: AssetDigest;
   };
   templateId?: string;
   appliedImagePlacements?: unknown[];
@@ -288,7 +292,7 @@ export type CtaRegistry = {
 };
 
 export type ReferenceFixtureRegistry = {
-  templateContractVersion: "1.3.0";
+  templateContractVersion: "1.4.0";
   fixture: {
     id: string;
     path: string;

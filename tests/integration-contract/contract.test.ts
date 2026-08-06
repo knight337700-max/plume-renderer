@@ -157,7 +157,7 @@ describe("capability and adapter boundary", () => {
     expect(CAPABILITIES.KAKAO_BIZBOARD_OBJECT_RIGHT?.implementationStatus).toBe("IMPLEMENTED");
     expect(CAPABILITIES.KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT?.implementationStatus).toBe("IMPLEMENTED");
     expect(CAPABILITIES.KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT?.implementationStatus).toBe("IMPLEMENTED");
-    expect(Object.values(CAPABILITIES).filter((entry) => entry.implementationStatus === "IMPLEMENTED")).toHaveLength(3);
+    expect(Object.values(CAPABILITIES).filter((entry) => entry.implementationStatus === "IMPLEMENTED")).toHaveLength(4);
   });
 
   it("resolves a fixture asset and bridges an Integration Input to a legacy renderer callback", async () => {

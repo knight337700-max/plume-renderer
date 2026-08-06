@@ -1,11 +1,11 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.6.2
-- **Status:** Frozen Implementation Contract — Phase C5b simplified Crop keyboard controls
+- **Document version:** 1.7.0
+- **Status:** Frozen Implementation Contract — Phase C6 MASK_SEMICIRCLE_RIGHT analytic mask and white logo slot
 - **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
-- **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, and THUMBNAIL_MULTI_RIGHT / 1029×258`
+- **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, THUMBNAIL_MULTI_RIGHT, and MASK_SEMICIRCLE_RIGHT / 1029×258`
 
 ---
 
@@ -121,7 +121,7 @@ Phase C2a 이후 계약 우선순위는 이 문서의 **14. Phase C2a Text Basel
 - `#D9D9D9`는 제작툴 샘플에서 **이미지가 최대로 들어갈 수 있는 영역을 표시한 가이드 색상**이다.
 - `#D9D9D9` 사각형과 내부의 `Image` placeholder 문자는 최종 소재에 렌더링하지 않는다.
 - 다른 참고 템플릿의 `#FFFFFF` 영역은 로고 가이드 영역을 뜻하지만, `OBJECT_RIGHT`에는 별도 로고 영역이 없다.
-- `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`, `THUMBNAIL_BOX_RIGHT`는 향후 템플릿 확장 참고 자료이며 v1 구현 범위와 Acceptance 대상이 아니다.
+- C6 이전 문서의 `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`, `THUMBNAIL_BOX_RIGHT` 비범위 문장은 historical snapshot이다. 현재 v1.7.0에서는 세 유형과 C6 MASK 계약을 구현·Acceptance 대상으로 한다. **[PROJECT]**
 
 ## 1.5 v1 설계 원칙
 
@@ -140,7 +140,7 @@ Phase C2a 이후 계약 우선순위는 이 문서의 **14. Phase C2a Text Basel
 
 ## 2.1 제품 정의
 
-**Kakao Bizboard Local Renderer**는 구조화된 카피와 Template Capability가 허용하는 제품 이미지 한 개를 입력받아 카카오 비즈보드 우측형 배너 한 개를 로컬에서 생성하고, 자동 Validator 결과의 `ERROR`가 0개일 때만 최종 PNG 다운로드를 허용하는 독립 실행형 도구다. `OBJECT_RIGHT`는 투명 PNG만, `THUMBNAIL_BOX_RIGHT`는 PNG/JPG/JPEG를 허용한다. **[PROJECT]**
+**Kakao Bizboard Local Renderer**는 구조화된 카피와 Template Capability가 허용하는 제품 image slot을 입력받아 카카오 비즈보드 우측형 배너 한 개를 로컬에서 생성하고, 자동 Validator 결과의 `ERROR`가 0개일 때만 최종 PNG 다운로드를 허용하는 독립 실행형 도구다. `OBJECT_RIGHT`는 투명 PNG만, `THUMBNAIL_BOX_RIGHT`·`THUMBNAIL_MULTI_RIGHT`·MASK의 IMAGE_PRIMARY는 PNG/JPG/JPEG를 허용하고 MASK는 required white PNG LOGO_PRIMARY를 추가로 요구한다. **[PROJECT]**
 
 ## 2.2 목표
 
@@ -2493,3 +2493,74 @@ THUMBNAIL_BOX_RIGHT `f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c
 THUMBNAIL_MULTI_RIGHT `ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55`로
 유지한다. E2E와 packaged smoke는 버튼 부재, keyboard decimal 조절, wheel 보호,
 Preview/Export 및 Slot 독립성을 검증한다.
+
+## 23. Phase C6 — MASK_SEMICIRCLE_RIGHT [PROJECT]
+
+Phase C6는 기존 세 Template의 좌표·Golden을 변경하지 않고,
+`KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT`를 additive capability로 동결한다. 새 결정은
+[PROJECT] 또는 기준 PNG에서 계산한 [DERIVED]/[TOOL_OUTPUT]로 표시하며 카카오 업로드
+승인을 주장하지 않는다.
+
+### 23.1 Reference and geometry [TOOL_OUTPUT] [DERIVED]
+
+기준 파일은 `reference/kakao-tool/MASK_SEMICIRCLE_RIGHT.png`이며 SHA-256은
+`90a2e948d979b204867c837485ca0d4b391de4ca44c22ca36e9f3f53862ac75e`, PNG는
+1029×258 RGBA-32다. 기준 출력에서 확인한 형상은 다음과 같다.
+
+- circle center `(801,225)`, radius `180`
+- logo cutout `(839,16,142,60)`, right/bottom exclusive `(981,76)`
+- `IMAGE_PRIMARY` destination `(621,45,360,213)`, right/bottom exclusive `(981,258)`
+- text origin x=`48`, baselines headline=`120`, subcopy=`178`, hard right exclusive=`588`, maximum occupied width=`540`, minimum gap=`33`
+
+Renderer는 이 좌표를 변경하거나 좌우·상하 crop하지 않는다. 내부 runtime mask는
+`assets/masks/kakao-bizboard-mask-semicircle-right-v1.png`에 고정하고 registry의
+SHA-256과 dimensions를 매 실행 검증한다. 기준 PNG는 수정·재저장·최적화하지 않는다.
+
+### 23.2 Ordered slots and logo contract [PROJECT]
+
+Capability는 반드시 두 slot을 `IMAGE_PRIMARY` → `LOGO_PRIMARY` 순서로 실행한다.
+`IMAGE_PRIMARY`는 PNG/JPEG, `SEMANTIC_CROP_COVER` 또는 `MANUAL_CROP` + `COVER`를
+사용한다. `LOGO_PRIMARY`는 PNG·alpha 필수, `ALPHA_TRIM_CONTAIN` + `CONTAIN`,
+source `DETERMINISTIC`, anchor `CENTER`만 허용한다. 로고 safe box는
+`(847,24,126,44)`이며 container의 8px inset은 [PROJECT]다. visible RGB는 모든
+`alpha >= 8` 픽셀에서 각 채널 `>= 240`이어야 하고 자동 recolor·candidate·focal·crop은
+금지한다. 최대 upscale은 기존 1.5×이며 1× 초과는 WARNING, 1.5× 초과는 ERROR다.
+
+로고가 없거나 계획·alpha·투명 배경·백색·가시 픽셀·slot containment 조건을
+만족하지 않으면 `KBR-LOGO-*` 오류로 전체 artifact를 차단한다. IMAGE와 LOGO가 같은
+asset ID인 경우도 `KBR-LOGO-ASSET-DUPLICATE`로 차단한다.
+
+### 23.3 Mask composition and alpha [DERIVED] [PROJECT]
+
+Image crop를 contain scale의 부동소수점으로 계산하고 `round`/`floor` 규칙은 기존
+계약을 그대로 사용한다. 내부 mask alpha와 source alpha를 곱하여 IMAGE 픽셀을
+합성하고, logo와 copy는 그 위에 그린다. alpha를 이진화하지 않고 반투명 값을
+보존하며 완전 투명 픽셀의 RGB는 시각 콘텐츠로 보지 않는다. visible layout 검사는
+alpha `>= 8`, trim 보존은 alpha `>= 1`이다. 주 연결요소와 무관한 극소 고립 픽셀은
+visible bbox 확장에 사용하지 않는다.
+
+### 23.4 Versions and compatibility [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.6.2 | 1.7.0 | MASK_SEMICIRCLE_RIGHT additive template/slot contract |
+| Template Contract | 1.3.0 | 1.4.0 | Mask geometry and required logo slot registry |
+| Integration Contract | 1.1.0 | 1.2.0 | Ordered slot capabilities, mask digest, logo validation fields |
+| Desktop | 0.5.2 | 0.6.0 | Image/logo picker, preview/export, mask diagnostics |
+
+기존 Integration Input의 `1.1.0` plan은 읽기 호환으로 허용하지만 새 공개 계약과
+출력 capability는 `1.2.0`이다. 기존 OBJECT/BOX/MULTI Golden은 각각
+`20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`,
+`f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996`,
+`ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55`로 유지한다.
+
+### 23.5 Desktop Lab and acceptance [PROJECT]
+
+Lab은 MASK를 선택하면 IMAGE_PRIMARY와 LOGO_PRIMARY를 별도 표시하고, logo에는
+편집 UI 대신 PNG/white/alpha/safe-box 정책과 Core `whiteValidation`을 표시한다.
+preview에서만 black backdrop 토글을 제공하며 export PNG에는 포함하지 않는다. 오류가
+하나라도 있으면 PNG·manifest publish와 download를 모두 차단한다. 동일 Windows
+10/11 x64 환경에서 동일 입력·asset·dependency·runtime을 3회 실행한 MASK PNG는
+byte-equal이어야 하며, C6 Golden은
+`b9daf8cb11c386c06864e50494b14cc331a284919380fbc548c6a05420f486ac`다. macOS/Linux
+pixel tolerance는 v1 범위가 아니다.
