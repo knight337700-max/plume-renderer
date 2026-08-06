@@ -1,0 +1,31 @@
+{
+  "registryVersion": "1.0.0",
+  "namespace": "renderer-integration",
+  "codes": [
+    { "code": "KBR-PLACEMENT-PLAN-MISSING", "severity": "ERROR", "messageKey": "placement.plan_missing", "condition": "A required image slot has no placement plan" },
+    { "code": "KBR-PLACEMENT-POLICY-NOT-ALLOWED", "severity": "ERROR", "messageKey": "placement.policy_not_allowed", "condition": "Policy or fit mode is not allowed by the selected capability" },
+    { "code": "KBR-PLACEMENT-PLAN-DUPLICATE", "severity": "ERROR", "messageKey": "placement.plan_duplicate", "condition": "More than one plan targets the same image slot" },
+    { "code": "KBR-ASSET-NOT-FOUND", "severity": "ERROR", "messageKey": "asset.not_found", "condition": "A placement references an asset that is not present exactly once" },
+    { "code": "KBR-ASSET-UNUSED", "severity": "WARNING", "messageKey": "asset.unused", "condition": "An input asset is not referenced by any placement plan; v1 policy reports a warning" },
+    { "code": "KBR-ASSET-CHECKSUM-MISMATCH", "severity": "ERROR", "messageKey": "asset.checksum_mismatch", "condition": "Resolved asset bytes do not match the declared SHA-256" },
+    { "code": "KBR-ASSET-DIMENSION-MISMATCH", "severity": "ERROR", "messageKey": "asset.dimension_mismatch", "condition": "Resolved asset dimensions do not match declared dimensions" },
+    { "code": "KBR-IMAGE-SLOT-NOT-FOUND", "severity": "ERROR", "messageKey": "placement.image_slot_not_found", "condition": "Image slot is not defined by the selected template capability" },
+    { "code": "KBR-CROP-RECT-REQUIRED", "severity": "ERROR", "messageKey": "placement.crop_rect_required", "condition": "A crop policy lacks its required direct crop or candidate" },
+    { "code": "KBR-CROP-RECT-FORBIDDEN", "severity": "ERROR", "messageKey": "placement.crop_rect_forbidden", "condition": "A crop was supplied for a contain policy or with a candidate" },
+    { "code": "KBR-CROP-RECT-OUT-OF-BOUNDS", "severity": "ERROR", "messageKey": "placement.crop_rect_out_of_bounds", "condition": "Normalized crop is non-finite, invalid, or outside 0..1" },
+    { "code": "KBR-CROP-CANDIDATE-NOT-FOUND", "severity": "ERROR", "messageKey": "placement.crop_candidate_not_found", "condition": "A referenced crop candidate is absent" },
+    { "code": "KBR-CROP-CANDIDATE-MISMATCH", "severity": "ERROR", "messageKey": "placement.crop_candidate_mismatch", "condition": "Candidate asset, slot, ratios, or manual policy relationship is invalid" },
+    { "code": "KBR-FOCAL-POINT-OUT-OF-BOUNDS", "severity": "ERROR", "messageKey": "placement.focal_point_out_of_bounds", "condition": "Focal point is non-finite or outside 0..1" },
+    { "code": "KBR-PROTECTED-SUBJECT-CLIPPED", "severity": "ERROR", "messageKey": "placement.protected_subject_clipped", "condition": "A REQUIRED protected subject is outside the applied crop" },
+    { "code": "KBR-PROTECTED-SUBJECT-DATA-MISSING", "severity": "ERROR", "messageKey": "placement.protected_subject_data_missing", "condition": "REQUIRED protection has no protected subject data" },
+    { "code": "KBR-ALPHA-CHANNEL-REQUIRED", "severity": "ERROR", "messageKey": "asset.alpha_channel_required", "condition": "ALPHA_TRIM_CONTAIN receives an asset without an alpha channel" },
+    { "code": "KBR-ALPHA-TRIM-FAILED", "severity": "ERROR", "messageKey": "asset.alpha_trim_failed", "condition": "Alpha trim cannot produce a valid visible bounds" },
+    { "code": "KBR-IMAGE-DECODE-FAILED", "severity": "ERROR", "messageKey": "asset.image_decode_failed", "condition": "Resolved bytes cannot be decoded as the declared image type" },
+    { "code": "KBR-IMAGE-DIMENSION-INVALID", "severity": "ERROR", "messageKey": "asset.image_dimension_invalid", "condition": "Decoded image dimensions are invalid" },
+    { "code": "KBR-IMAGE-SLOT-OVERFLOW", "severity": "ERROR", "messageKey": "placement.image_slot_overflow", "condition": "Applied visible image pixels leave the target slot" },
+    { "code": "KBR-TEMPLATE-CONSTRAINT-VIOLATION", "severity": "ERROR", "messageKey": "template.constraint_violation", "condition": "Input asks for a template or capability that is not implemented" },
+    { "code": "KBR-SEMANTIC-PLACEMENT-REQUIRED", "severity": "ERROR", "messageKey": "placement.semantic_required", "condition": "A capability requiring semantic placement receives no valid plan" },
+    { "code": "KBR-OUTPUT-INVALID", "severity": "ERROR", "messageKey": "output.invalid", "condition": "Output request or final artifact violates the Integration Contract" },
+    { "code": "KBR-ASSET-REF-UNRESOLVED", "severity": "ERROR", "messageKey": "asset.ref_unresolved", "condition": "Runtime Asset Resolver cannot resolve the serializable asset reference" }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "formatProfileId": "TEST_GENERIC_SLOT",
+  "templateId": "TEST_GENERIC_SLOT_V1",
+  "copy": {},
+  "assets": [{ "assetId": "stock-01", "mimeType": "image/png", "assetRef": { "type": "FIXTURE_ASSET_ID", "value": "stock-01.png" } }],
+  "imagePlacementPlans": [{ "schemaVersion": "1.0.0", "imageSlotId": "TEST_IMAGE_SLOT", "assetId": "stock-01", "policy": "SEMANTIC_CROP_COVER", "source": "AGENT", "fitMode": "COVER", "cropCandidateId": "candidate-01", "anchor": "CENTER", "subjectProtection": "NONE" }],
+  "cropCandidates": [{ "schemaVersion": "1.0.0", "candidateId": "candidate-01", "assetId": "stock-01", "imageSlotId": "TEST_IMAGE_SLOT", "cropRect": { "x": 0.1, "y": 0.1, "width": 0.8, "height": 0.8 }, "preservedSubjectIds": [], "clippedSubjectIds": [], "fillRatio": 0.8, "subjectCoverageRatio": 1, "warnings": [] }],
+  "output": { "mimeType": "image/png" }
+}

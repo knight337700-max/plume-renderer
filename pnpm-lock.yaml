@@ -80,6 +80,12 @@ importers:
         specifier: 1.0.3
         version: 1.0.3
 
+  packages/renderer-contract:
+    dependencies:
+      canonicalize:
+        specifier: 3.0.0
+        version: 3.0.0
+
 packages:
 
   '@electron-internal/extract-zip@1.0.5':

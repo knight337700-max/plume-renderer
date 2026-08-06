@@ -1,0 +1,95 @@
+import { access, readFile } from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
+
+const root = process.cwd();
+const schemaRoot = path.join(root, "packages", "renderer-contract", "schema");
+const schemaFiles = [
+  "renderer-integration-input-v1.schema.json",
+  "renderer-integration-output-v1.schema.json",
+  "image-placement-plan-v1.schema.json",
+  "crop-candidate-v1.schema.json",
+  "template-capability-v1.schema.json",
+];
+
+const failures = [];
+const pass = (name, detail) => console.log(`PASS ${name}: ${detail}`);
+const fail = (name, detail) => failures.push(`FAIL ${name}: ${detail}`);
+const readJson = async (file) => JSON.parse(await readFile(file, "utf8"));
+
+const schemas = [];
+for (const file of schemaFiles) {
+  try {
+    const value = await readJson(path.join(schemaRoot, file));
+    schemas.push(value);
+  } catch (error) {
+    fail("json_parse", `${file}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+if (schemas.length === schemaFiles.length) pass("json_parse", `${schemas.length}/${schemaFiles.length} integration schemas parsed`);
+
+const ids = schemas.map((schema) => schema.$id).filter(Boolean);
+if (new Set(ids).size === ids.length) pass("schema_id_uniqueness", `${ids.length}/${ids.length} integration schema IDs are unique`);
+else fail("schema_id_uniqueness", "duplicate $id found");
+
+function findObjects(value, result = []) {
+  if (!value || typeof value !== "object") return result;
+  if (Array.isArray(value)) {
+    for (const item of value) findObjects(item, result);
+  } else {
+    result.push(value);
+    for (const item of Object.values(value)) findObjects(item, result);
+  }
+  return result;
+}
+
+const missingAdditional = [];
+for (const schema of schemas) {
+  for (const value of findObjects(schema)) {
+    if (value.type === "object" && value.additionalProperties !== false && typeof value.additionalProperties !== "object") missingAdditional.push(schema.$id ?? "unknown");
+  }
+}
+if (missingAdditional.length === 0) pass("additional_properties", "all object schemas explicitly reject unknown fields");
+else fail("additional_properties", missingAdditional.join(", "));
+
+if (schemas.every((schema) => JSON.stringify(schema).includes("1.0.0"))) pass("schema_versioning", "all Integration Contract schemas declare v1.0.0");
+else fail("schema_versioning", "one or more schemas do not declare v1.0.0");
+
+const registry = await readJson(path.join(root, "contracts", "integration-error-registry.json"));
+const registryCodes = registry.codes.map((entry) => entry.code);
+if (new Set(registryCodes).size === registryCodes.length) pass("error_code_uniqueness", `${registryCodes.length}/${registryCodes.length} integration error codes are unique`);
+else fail("error_code_uniqueness", "duplicate integration error code found");
+
+const requiredCodes = [
+  "KBR-PLACEMENT-PLAN-MISSING", "KBR-PLACEMENT-POLICY-NOT-ALLOWED", "KBR-PLACEMENT-PLAN-DUPLICATE", "KBR-ASSET-NOT-FOUND", "KBR-ASSET-UNUSED", "KBR-ASSET-CHECKSUM-MISMATCH", "KBR-ASSET-DIMENSION-MISMATCH", "KBR-IMAGE-SLOT-NOT-FOUND", "KBR-CROP-RECT-REQUIRED", "KBR-CROP-RECT-FORBIDDEN", "KBR-CROP-RECT-OUT-OF-BOUNDS", "KBR-CROP-CANDIDATE-NOT-FOUND", "KBR-CROP-CANDIDATE-MISMATCH", "KBR-FOCAL-POINT-OUT-OF-BOUNDS", "KBR-PROTECTED-SUBJECT-CLIPPED", "KBR-PROTECTED-SUBJECT-DATA-MISSING", "KBR-ALPHA-CHANNEL-REQUIRED", "KBR-ALPHA-TRIM-FAILED", "KBR-IMAGE-DECODE-FAILED", "KBR-IMAGE-DIMENSION-INVALID", "KBR-IMAGE-SLOT-OVERFLOW", "KBR-TEMPLATE-CONSTRAINT-VIOLATION", "KBR-SEMANTIC-PLACEMENT-REQUIRED", "KBR-OUTPUT-INVALID", "KBR-ASSET-REF-UNRESOLVED",
+];
+if (requiredCodes.every((code) => registryCodes.includes(code))) pass("required_error_codes", `${requiredCodes.length}/${requiredCodes.length} required integration codes registered`);
+else fail("required_error_codes", "one or more required integration codes missing");
+
+const contract = await readJson(path.join(root, "contracts", "contract-versions.json"));
+if (contract.templateContractVersion === "1.2.0") pass("template_contract", "templateContractVersion remains 1.2.0");
+else fail("template_contract", `expected 1.2.0, got ${contract.templateContractVersion}`);
+
+const capabilities = await readJson(path.join(root, "contracts", "template-capabilities.json"));
+const enabled = capabilities.capabilities.filter((entry) => entry.implementationStatus === "IMPLEMENTED").map((entry) => entry.formatProfileId);
+if (enabled.length === 1 && enabled[0] === "KAKAO_BIZBOARD_OBJECT_RIGHT") pass("capability_gate", "only OBJECT_RIGHT is IMPLEMENTED");
+else fail("capability_gate", `implemented=${enabled.join(",")}`);
+
+const fixtureDirectories = ["alpha-trim-contain", "center-contain", "manual-crop", "agent-semantic-crop", "invalid", "equivalence"];
+const missingFixtures = [];
+for (const directory of fixtureDirectories) {
+  try { await access(path.join(root, "fixtures", "integration", directory)); } catch { missingFixtures.push(directory); }
+}
+if (missingFixtures.length === 0) pass("fixture_layout", `${fixtureDirectories.length}/${fixtureDirectories.length} integration fixture directories present`);
+else fail("fixture_layout", missingFixtures.join(", "));
+
+const serializedSchemaText = schemas.map((schema) => JSON.stringify(schema)).join("\n");
+if (!/Blob|Uint8Array|absolutePath|absolute path/iu.test(serializedSchemaText)) pass("json_serializable", "JSON Schemas do not expose Blob, Uint8Array, or absolute paths");
+else fail("json_serializable", "forbidden runtime/absolute path type found in JSON Schemas");
+
+if (failures.length) {
+  for (const failure of failures) console.error(failure);
+  process.exitCode = 1;
+} else {
+  console.log(`PASS integration_contract_verification: ${schemaFiles.length} schemas, ${registryCodes.length} error codes`);
+}

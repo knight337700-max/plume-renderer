@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.3.0
-- **Status:** Frozen Implementation Contract — Phase C2a amendment
+- **Document version:** 1.4.0
+- **Status:** Frozen Implementation Contract — Phase C3 integration boundary
 - **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT / 1029×258`
@@ -2079,3 +2079,59 @@ Core 검증 전에는 확정 수치를 표시하지 않고 `Core 검증 후 실�
 8. baseline `120/178`, X 좌표 `48` 유지
 
 통합 Acceptance는 count/width 교차 조합, Warning-only Export, stale Preview 차단, Preview/Export byte equality, 제품 영역 불변, ERROR 상태 최종 파일 0, 동일 입력 3회 동일 SHA-256을 검증한다. 기존 OBJECT_RIGHT reference PNG는 수정하지 않으며, `x >= 633` 영역과 우측 48px 투명 계약은 유지한다.
+
+---
+
+# 15. Phase C3 Agent-ready Renderer Integration Contract
+
+이 절은 Canonical 문서 `1.4.0`의 `[PROJECT]` 통합 경계 결정이다. Renderer는 Agent, Plume, OpenAI 또는 원격 서비스의 존재를 알지 못한다. Agent가 만든 Plan과 Lab에서 만든 Plan은 동일한 `Integration Contract v1.0.0` JSON Schema와 동일한 Core Adapter를 통과해야 한다. 이번 절은 특정 Agent의 내부 ID, Prompt, Queue, DB 또는 업로드 승인 규칙을 정의하지 않는다.
+
+## 15.1 버전과 공존
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical document | `1.3.0` | `1.4.0` | Agent-independent Integration Contract boundary |
+| Template Contract | `1.2.0` | `1.2.0` | 좌표·현재 OBJECT_RIGHT 픽셀 변경 없음 |
+| Input Schema | `1.2.0` | `1.2.0` | 기존 공개 Renderer Input 유지 |
+| Output Schema | `2.0.0` | `2.0.0` | 기존 Core response/manifest 유지 |
+| Desktop application | `0.2.1` | `0.3.0` | Renderer Lab Placement Plan 기능 |
+| Integration Contract | 없음 | `1.0.0` | 별도 JSON namespace/package 추가 |
+
+기존 Desktop/CLI Input을 제거하거나 대체하지 않는다. `packages/renderer-contract`는 직렬화 가능한 타입·Schema·검증·fingerprint·Resolver 인터페이스를 제공하고, Adapter는 이를 기존 OBJECT_RIGHT Core Input 모델로 변환한다. Core는 Integration Input에 없는 값(카피, asset, slot, crop)을 추측하거나 자동 보정하지 않는다.
+
+## 15.2 Serializable Asset Descriptor와 Runtime Resolver
+
+Integration JSON의 Asset Descriptor는 `assetId`, PNG/JPEG/WebP `mimeType`, 선택적 declared dimensions/checksum, 그리고 `assetRef`(`DESKTOP_ASSET_TOKEN`, `INTEGRATION_ASSET_TOKEN`, `FIXTURE_ASSET_ID`)만 포함한다. Blob, Uint8Array, OS 절대 경로는 JSON 계약에 포함하지 않는다. Runtime에서는 `RendererAssetResolver.resolve(assetRef)`가 실제 bytes와 resolved MIME을 반환하고, Core가 bytes의 SHA-256·decode·dimensions·alpha를 직접 검증한다. 선언값과 실제값이 다르면 ERROR이며 `analysis`는 검증 가능한 힌트일 뿐 신뢰 원본이 아니다. Canonical JSON, request/pixel fingerprint에는 절대 경로를 포함하지 않는다.
+
+## 15.3 Placement Policy와 정규화 좌표
+
+지원 정책과 fit 조합은 다음으로 고정한다 `[PROJECT]`.
+
+| policy | fitMode | cropRect | cropCandidateId |
+|---|---|---|---|
+| `ALPHA_TRIM_CONTAIN` | `CONTAIN` | 금지 | 금지 |
+| `CENTER_CONTAIN` | `CONTAIN` | 금지 | 금지 |
+| `SEMANTIC_CROP_COVER` | `COVER` | 직접 Crop 또는 Candidate 중 정확히 하나 | 직접 Crop 또는 Candidate 중 정확히 하나 |
+| `MANUAL_CROP` | `COVER` | 필수 | 금지 |
+
+허용되지 않는 조합은 중앙 Crop 생성, clamp, 정책 변경 없이 BLOCKED다. Normalized point/rect의 모든 값은 finite이고 `NORMALIZED_EPSILON=1e-9` 경계로 검증한다. 범위 밖 값은 clamp하지 않는다. 픽셀 Rect는 `floor(x×sourceWidth)`, `floor(y×sourceHeight)`, `ceil((x+width)×sourceWidth)`, `ceil((y+height)×sourceHeight)`와 최소 `1×1`을 사용하며 source bounds를 넘으면 ERROR다.
+
+`REQUIRED` protected subject가 적용 Crop 밖이면 `KBR-PROTECTED-SUBJECT-CLIPPED` ERROR, `PREFERRED`면 WARNING, `NONE`이면 이 검사를 생성하지 않는다. REQUIRED인데 데이터가 비어 있으면 자동 검출 없이 `KBR-PROTECTED-SUBJECT-DATA-MISSING` ERROR다. Crop Candidate는 입력 안에서 unique하고 Plan의 asset/slot과 일치해야 하며 Renderer가 후보를 생성·재점수화·자동 선택하지 않는다.
+
+## 15.4 Integration Input/Output과 Capability
+
+`RendererIntegrationInputV1`의 `schemaVersion`은 `1.0.0`이다. 현재 실제 구현은 `output.mimeType=image/png`만 지원한다. JPEG를 Schema 또는 Capability에 IMPLEMENTED로 표시하지 않는다. `RendererIntegrationOutputV1`은 `PASS` 또는 `BLOCKED`이며 ERROR가 하나라도 있으면 artifact metadata와 다운로드를 제공하지 않는다. `AppliedImagePlacement`에는 requested/resolved crop, source pixel crop, destinationRect, scale, anchor, alphaTrimApplied, candidate ID를 기록하고 `changedFromRequestedPlan`은 v1에서 항상 `false`다.
+
+Capability Registry에서 `KAKAO_BIZBOARD_OBJECT_RIGHT`만 `IMPLEMENTED`다. 기본 정책은 `ALPHA_TRIM_CONTAIN`, semantic placement는 `NOT_REQUIRED`, 허용 정책은 `ALPHA_TRIM_CONTAIN`, manual/agent placement는 현재 `false`다. Thumbnail, mask, native, Naver 지면은 `NOT_IMPLEMENTED`이며 정책 표현 가능성과 실제 Renderer 지원을 혼동하지 않는다.
+
+## 15.5 Fingerprint
+
+`artifactChecksumSha256`은 실제 최종 PNG bytes의 SHA-256이다. `pixelFingerprint`는 pixel-affecting canonical input, 실제 asset digest, policy/fit/resolved crop, 실제 사용되는 anchor/encoding, Template Contract `1.2.0`을 포함하고 source/confidence/rationale/warnings/timestamp/absolute path/token 문자열 자체는 제외한다. 현재 Renderer가 focal point를 pixel 계산에 사용하지 않으므로 focal point는 pixel fingerprint에 포함하지 않는다. `requestFingerprint`는 전체 Integration Input의 Canonical JSON을 기반으로 하여 provenance 차이를 보존한다. 동일 Placement의 `MANUAL`과 `AGENT`는 동일 pixelFingerprint와 동일 artifact bytes를 만들고 requestFingerprint만 달라진다. 기존 `renderFingerprint`를 사용해야 하는 응답에서는 그 의미를 `pixelFingerprint`와 동일하게 고정한다.
+
+## 15.6 Renderer Lab과 금지 범위
+
+Desktop Lab은 Capability, policy/fit/anchor/protection, crop/focal/candidate 입력, 적용 destinationRect/validation, Plan JSON Import/Export를 표시한다. OBJECT_RIGHT에서 수동 Crop control은 disabled와 사유를 표시한다. JSON Import는 `additionalProperties:false` Schema와 안정적인 KBR 오류 매핑을 사용하며 누락값을 추측하거나 자동 보정하지 않는다. Agent fixture도 동일 Import 경로로 통과한다. OpenAI 호출, Plume 연결, Agent 구현, Object Detection, 자동 후보 생성, 미지원 지면 Renderer 구현, 원격 배포와 업로드는 이 계약 범위에 없다.
+
+## 15.7 Acceptance
+
+기존 C2a Golden `20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`은 동일해야 한다. Integration Contract는 Schema parse/ID/unknown-field, normalized geometry, policy matrix, Candidate/subject protection, asset checksum/dimension, manual-agent fingerprint equivalence, Adapter bridge, Lab round trip을 자동 검증한다. 공식 지원 플랫폼은 계속 Windows 10/11 x64이며, 다른 OS의 pixel tolerance는 추가 계약 버전에서 다룬다.

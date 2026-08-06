@@ -2,6 +2,13 @@ import { useEffect, useMemo, useReducer, useState } from "react";
 
 import type { AppInfo, ExportRequest, UiRenderInput } from "../../../shared/src/index.js";
 import type { TextMeasurement } from "../../../../../src/core/types.js";
+import {
+  INTEGRATION_SCHEMA_VERSION,
+  OBJECT_RIGHT_IMAGE_SLOT_ID,
+  parsePlacementPlan,
+  serializePlacementPlan,
+  type ImagePlacementPlan,
+} from "../../../../../packages/renderer-contract/src/index.js";
 import { formatProductMetadata } from "../features/product-file/format.js";
 import { fieldHasError, issueMessage } from "../features/validation/messages.js";
 import { canExport, canRequestPreview, initialUiState, uiReducer, type UiField } from "./state.js";
@@ -30,6 +37,27 @@ function TextMetric({ field, measurement }: { field: "headline" | "subcopy"; mea
 export function App() {
   const [state, dispatch] = useReducer(uiReducer, initialUiState);
   const [appInfo, setAppInfo] = useState<AppInfo | null>(null);
+  const [placementPlanText, setPlacementPlanText] = useState(() => JSON.stringify({
+    schemaVersion: INTEGRATION_SCHEMA_VERSION,
+    imageSlotId: OBJECT_RIGHT_IMAGE_SLOT_ID,
+    assetId: "selected-product",
+    policy: "ALPHA_TRIM_CONTAIN",
+    source: "DETERMINISTIC",
+    fitMode: "CONTAIN",
+    anchor: "CENTER",
+    subjectProtection: "NONE",
+  }, null, 2));
+  const [placementPlan, setPlacementPlan] = useState<ImagePlacementPlan | null>(() => ({
+    schemaVersion: INTEGRATION_SCHEMA_VERSION,
+    imageSlotId: OBJECT_RIGHT_IMAGE_SLOT_ID,
+    assetId: "selected-product",
+    policy: "ALPHA_TRIM_CONTAIN",
+    source: "DETERMINISTIC",
+    fitMode: "CONTAIN",
+    anchor: "CENTER",
+    subjectProtection: "NONE",
+  }));
+  const [placementPlanMessage, setPlacementPlanMessage] = useState("PASS · OBJECT_RIGHT 기본 Plan을 사용합니다.");
   const issues = useMemo(
     () => [...(state.preview?.errors ?? []), ...(state.preview?.warnings ?? [])],
     [state.preview],
@@ -89,6 +117,54 @@ export function App() {
     } catch {
       dispatch({ type: "INTERNAL_ERROR", message: "Export 요청을 처리하지 못했습니다." });
     }
+  }
+
+  function importPlacementPlan(text = placementPlanText) {
+    try {
+      const parsedJson: unknown = JSON.parse(text);
+      const parsed = parsePlacementPlan(parsedJson);
+      if (parsed.errors.length > 0 || !parsed.plan) {
+        setPlacementPlan(null);
+        setPlacementPlanMessage(`BLOCKED · ${parsed.errors.map((error) => error.code).join(", ")}`);
+        return;
+      }
+      if (parsed.plan.imageSlotId !== OBJECT_RIGHT_IMAGE_SLOT_ID || parsed.plan.policy !== "ALPHA_TRIM_CONTAIN" || parsed.plan.fitMode !== "CONTAIN") {
+        setPlacementPlan(null);
+        setPlacementPlanMessage("BLOCKED · OBJECT_RIGHT는 ALPHA_TRIM_CONTAIN + CONTAIN만 허용합니다.");
+        return;
+      }
+      setPlacementPlan(parsed.plan);
+      setPlacementPlanText(JSON.stringify(parsed.plan, null, 2));
+      setPlacementPlanMessage(`PASS · source=${parsed.plan.source} · 변경 없이 저장됨`);
+    } catch {
+      setPlacementPlan(null);
+      setPlacementPlanMessage("BLOCKED · JSON을 파싱할 수 없습니다.");
+    }
+  }
+
+  function exportPlacementPlan() {
+    if (!placementPlan) {
+      setPlacementPlanMessage("BLOCKED · 먼저 유효한 Plan을 Import하세요.");
+      return;
+    }
+    setPlacementPlanText(serializePlacementPlan(placementPlan));
+    setPlacementPlanMessage(`EXPORTED · source=${placementPlan.source} · canonical JSON`);
+  }
+
+  function loadAgentFixture() {
+    const fixture: ImagePlacementPlan = {
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      imageSlotId: OBJECT_RIGHT_IMAGE_SLOT_ID,
+      assetId: "selected-product",
+      policy: "ALPHA_TRIM_CONTAIN",
+      source: "AGENT",
+      fitMode: "CONTAIN",
+      anchor: "CENTER",
+      subjectProtection: "NONE",
+      confidence: 0.99,
+      rationale: "Agent fixture uses the same serializable PlacementPlan path.",
+    };
+    importPlacementPlan(JSON.stringify(fixture));
   }
 
   const statusLabel = {
@@ -177,6 +253,31 @@ export function App() {
             <span>Font</span><strong>Spoqa Han Sans</strong>
             <span>Baseline</span><strong>Headline 120 · Subcopy 178</strong>
           </div>
+
+          <section className="placement-panel" aria-label="Placement Plan">
+            <div className="section-heading">
+              <h2>Placement Plan</h2>
+              <span className="capability-pill">IMPLEMENTED</span>
+            </div>
+            <p className="hint">Capability · KAKAO_BIZBOARD_OBJECT_RIGHT · Agent-independent Contract v{INTEGRATION_SCHEMA_VERSION}</p>
+            <div className="placement-grid">
+              <label><span className="field-label">Policy</span><select value="ALPHA_TRIM_CONTAIN" disabled><option>ALPHA_TRIM_CONTAIN</option></select></label>
+              <label><span className="field-label">Fit Mode</span><select value="CONTAIN" disabled><option>CONTAIN</option></select></label>
+              <label><span className="field-label">Anchor</span><select value="CENTER" disabled><option>CENTER</option></select></label>
+              <label><span className="field-label">Protection</span><select value="NONE" disabled><option>NONE</option></select></label>
+            </div>
+            <label className="field-group placement-disabled-field"><span className="field-label">Crop Rect / Focal Point / Candidate</span><input value="비활성 · OBJECT_RIGHT는 Alpha Trim만 지원" disabled /></label>
+            <small className="hint">수동 Crop과 semantic candidate는 Capability 미지원 상태이며 자동 보정하지 않습니다.</small>
+            <label className="field-group"><span className="field-label">ImagePlacementPlan JSON</span><textarea data-testid="placement-plan-json" value={placementPlanText} onChange={(event) => setPlacementPlanText(event.target.value)} rows={9} spellCheck={false} /></label>
+            <div className="button-row">
+              <button type="button" onClick={() => importPlacementPlan()} data-testid="placement-plan-import">Plan Import</button>
+              <button type="button" className="secondary" onClick={exportPlacementPlan} data-testid="placement-plan-export">Plan Export</button>
+              <button type="button" className="secondary" onClick={loadAgentFixture} data-testid="placement-agent-fixture">Agent Fixture</button>
+            </div>
+            <small className={`placement-plan-status ${placementPlan ? "status-pass" : "status-error"}`} data-testid="placement-plan-status">{placementPlanMessage}</small>
+            <small className="hint" data-testid="applied-crop">Applied crop · none (ALPHA_TRIM_CONTAIN preserves source alpha bounds)</small>
+            {state.preview?.measurements?.productPlacedBox ? <small className="hint" data-testid="applied-destination-rect">Applied destinationRect · x={state.preview.measurements.productPlacedBox.x}, y={state.preview.measurements.productPlacedBox.y}, w={state.preview.measurements.productPlacedBox.width}, h={state.preview.measurements.productPlacedBox.height}</small> : null}
+          </section>
 
           <button
             type="button"

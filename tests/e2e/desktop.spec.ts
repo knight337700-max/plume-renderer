@@ -147,3 +147,46 @@ test("corrupt PNG and injected privileged fields are rejected", async () => {
     await rm(corruptRoot, { recursive: true, force: true });
   }
 });
+
+test("Renderer Lab imports and exports the same strict PlacementPlan JSON path", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "valid", "object-right__product__basic__pass.png"),
+  );
+  try {
+    await expect(launched.page.getByTestId("placement-plan-status")).toHaveText(/PASS/u);
+    await launched.page.getByTestId("placement-plan-json").fill(JSON.stringify({
+      schemaVersion: "1.0.0",
+      imageSlotId: "OBJECT_RIGHT_PRODUCT",
+      assetId: "selected-product",
+      policy: "ALPHA_TRIM_CONTAIN",
+      source: "MANUAL",
+      fitMode: "CONTAIN",
+      anchor: "CENTER",
+      subjectProtection: "NONE",
+      unknownField: true,
+    }));
+    await launched.page.getByTestId("placement-plan-import").click();
+    await expect(launched.page.getByTestId("placement-plan-status")).toHaveText(/BLOCKED/u);
+
+    await launched.page.getByTestId("placement-plan-json").fill(JSON.stringify({
+      schemaVersion: "1.0.0",
+      imageSlotId: "OBJECT_RIGHT_PRODUCT",
+      assetId: "selected-product",
+      policy: "ALPHA_TRIM_CONTAIN",
+      source: "MANUAL",
+      fitMode: "CONTAIN",
+      anchor: "CENTER",
+      subjectProtection: "NONE",
+    }));
+    await launched.page.getByTestId("placement-plan-import").click();
+    await expect(launched.page.getByTestId("placement-plan-status")).toContainText("source=MANUAL");
+    await launched.page.getByTestId("placement-plan-export").click();
+    await expect(launched.page.getByTestId("placement-plan-json")).toHaveValue(/"source":"MANUAL"/u);
+
+    await launched.page.getByTestId("placement-agent-fixture").click();
+    await expect(launched.page.getByTestId("placement-plan-status")).toContainText("source=AGENT");
+    await expect(launched.page.getByTestId("placement-plan-json")).toHaveValue(/"source"\s*:\s*"AGENT"/u);
+  } finally {
+    await close(launched);
+  }
+});

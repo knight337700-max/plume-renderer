@@ -51,6 +51,16 @@ button.full { width: 100%; margin-top: 8px; padding: 12px; }
 .asset-card code { overflow: hidden; color: #6b727a; text-overflow: ellipsis; }
 .fixed-contract { display: grid; grid-template-columns: 95px 1fr; gap: 6px 10px; margin: 18px 0 8px; border-top: 1px solid #eceef1; padding-top: 14px; font-size: 11px; }
 .fixed-contract span { color: #727981; }
+.placement-panel { margin-top: 18px; border-top: 1px solid #eceef1; padding-top: 14px; }
+.placement-panel h2 { font-size: 16px; }
+.capability-pill { border-radius: 999px; background: #dff5e8; color: #17613b; padding: 4px 7px; font-size: 9px; font-weight: 700; }
+.placement-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.placement-grid label { min-width: 0; }
+.placement-grid select, .placement-disabled-field input, .placement-panel textarea { width: 100%; border: 1px solid #cbd0d6; border-radius: 7px; background: #f5f6f8; color: #6f767e; padding: 8px; font-size: 11px; }
+.placement-panel textarea { resize: vertical; min-height: 125px; background: #fbfcfd; color: #252a30; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; line-height: 1.35; }
+.placement-plan-status { display: block; margin-top: 7px; font-size: 10px; }
+.placement-plan-status.status-pass { color: #17613b; }
+.placement-plan-status.status-error { color: #a22d2d; }
 
 .guide-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; }
 .preview-frame { position: relative; width: 100%; overflow: hidden; border: 1px solid #c7ccd2; background-color: #f5f6f8; background-image: linear-gradient(45deg, #e5e7ea 25%, transparent 25%), linear-gradient(-45deg, #e5e7ea 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e5e7ea 75%), linear-gradient(-45deg, transparent 75%, #e5e7ea 75%); background-position: 0 0, 0 8px, 8px -8px, -8px 0; background-size: 16px 16px; aspect-ratio: 1029 / 258; }

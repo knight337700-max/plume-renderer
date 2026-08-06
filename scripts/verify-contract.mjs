@@ -263,6 +263,31 @@ if (fontRegistry?.status === "UNRESOLVED_ASSET") {
   );
 }
 
+const integrationErrors = contracts.get("integration-error-registry.json");
+const integrationCodes = integrationErrors?.codes?.map(({ code }) => code) ?? [];
+check(
+  "integration_error_code_uniqueness",
+  new Set(integrationCodes).size === integrationCodes.length && integrationCodes.length >= 24,
+  `${new Set(integrationCodes).size}/${integrationCodes.length} integration error codes are unique`,
+);
+const capabilityRegistry = contracts.get("template-capabilities.json");
+const implementedCapabilities = capabilityRegistry?.capabilities?.filter(({ implementationStatus }) => implementationStatus === "IMPLEMENTED") ?? [];
+check(
+  "integration_capability_gate",
+  implementedCapabilities.length === 1 && implementedCapabilities[0]?.formatProfileId === "KAKAO_BIZBOARD_OBJECT_RIGHT",
+  `implemented=${implementedCapabilities.map(({ formatProfileId }) => formatProfileId).join(",")}`,
+);
+check(
+  "integration_contract_version",
+  versions?.integrationContract?.current === "1.0.0" && versions?.canonicalPhaseC3?.documentCurrent === "1.4.0" && versions?.canonicalPhaseC3?.templateCoordinatesChangedInC3 === false,
+  JSON.stringify(versions?.integrationContract),
+);
+check(
+  "canonical_document_version",
+  versions?.documentVersion?.current === "1.4.0" && versions?.templateContractVersion === "1.2.0",
+  `document=${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
+);
+
 for (const result of results) {
   process.stdout.write(`${result.status} ${result.name}: ${result.detail}\n`);
 }

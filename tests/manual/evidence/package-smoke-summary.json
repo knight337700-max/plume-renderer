@@ -1,20 +1,22 @@
 {
   "executedAt": "2026-08-06",
   "platform": "Windows x64",
-  "appVersion": "0.2.1",
+  "appVersion": "0.3.0",
   "fixture": "fixtures/valid/object-right__product__basic__pass.png",
   "unpacked": {
     "status": "PASS",
     "executable": "release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe",
+    "bytes": 225441792,
+    "sha256": "d03d645c19caabc415d429ded28d1c88b5fe05aee0aa4a67def03cea803fcd79",
     "pngSha256": "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1",
     "manifestSha256": "ed1edb50134079b7acb03db1f7b5f907240ec2e6d29a9a6abcbfc43ef6bf9a97",
     "runtimeNetworkRequestCount": 0
   },
   "portable": {
     "status": "PASS",
-    "executable": "release/Kakao-Bizboard-Local-Renderer-0.2.1-x64.exe",
-    "bytes": 125945081,
-    "sha256": "5c026279ef8bcd2e88305399076402e9787fcf8369e1c482437bd2653c3016f7",
+    "executable": "release/Kakao-Bizboard-Local-Renderer-0.3.0-x64.exe",
+    "bytes": 125959478,
+    "sha256": "b820f02d1598b7c7b22c9c21332d98eadc7458ad1e248d96e782f8cec663d65d",
     "signatureStatus": "NotSigned",
     "pngSha256": "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1",
     "manifestSha256": "ed1edb50134079b7acb03db1f7b5f907240ec2e6d29a9a6abcbfc43ef6bf9a97",
