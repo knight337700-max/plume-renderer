@@ -14,6 +14,7 @@ import {
 } from "electron";
 
 import type { UiRenderInput } from "../../shared/src/index.js";
+import { INTEGRATION_SCHEMA_VERSION } from "@kbr/renderer-contract";
 import { DesktopController } from "./desktop-controller.js";
 import { registerDesktopIpc } from "./ipc/register-ipc.js";
 import { DesktopSessionManager } from "./session/session-manager.js";
@@ -203,6 +204,35 @@ async function runPackagedSmoke(
     });
     if (exported.status !== "EXPORTED") throw new Error(`Export failed: ${exported.code}`);
     const paths = controller.getExportPaths(exported.exportToken);
+    const thumbnailInput: UiRenderInput = {
+      assetToken: product.assetToken,
+      advertiser: "자코모",
+      headline: "자코모 프리미엄 소파",
+      subcopy: "거실을 바꾸는 선택",
+      jobName: "package-smoke-thumbnail",
+      requestSequence: 2,
+      template: "THUMBNAIL_BOX_RIGHT",
+      placementPlan: {
+        schemaVersion: INTEGRATION_SCHEMA_VERSION,
+        imageSlotId: "IMAGE_PRIMARY",
+        assetId: "selected-product",
+        policy: "SEMANTIC_CROP_COVER",
+        source: "DETERMINISTIC",
+        fitMode: "COVER",
+        cropRect: { x: 0.1, y: 0, width: 0.8, height: 1 },
+        anchor: "CENTER",
+        subjectProtection: "NONE",
+      },
+    };
+    const thumbnailPreview = await controller.requestPreview(thumbnailInput);
+    if (!thumbnailPreview.previewToken || thumbnailPreview.validationStatus === "ERROR") throw new Error("Thumbnail preview failed");
+    const thumbnailExport = await controller.exportRender({
+      ...thumbnailInput,
+      previewToken: thumbnailPreview.previewToken,
+      outputDirectoryToken: selectedOutput.token,
+    });
+    if (thumbnailExport.status !== "EXPORTED") throw new Error(`Thumbnail export failed: ${thumbnailExport.code}`);
+    const thumbnailPaths = controller.getExportPaths(thumbnailExport.exportToken);
     await writeFile(
       resultPath,
       JSON.stringify({
@@ -212,6 +242,11 @@ async function runPackagedSmoke(
         manifestDigest: exported.manifestDigest,
         pngPath: paths.pngPath,
         manifestPath: paths.manifestPath,
+        thumbnailPreviewPngDigest: thumbnailPreview.previewPngDigest,
+        thumbnailPngDigest: thumbnailExport.pngDigest,
+        thumbnailManifestDigest: thumbnailExport.manifestDigest,
+        thumbnailPngPath: thumbnailPaths.pngPath,
+        thumbnailManifestPath: thumbnailPaths.manifestPath,
         blockedNetworkRequestCount,
       }),
       "utf8",

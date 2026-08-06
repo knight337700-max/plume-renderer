@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 
 import sharp from "sharp";
@@ -9,6 +10,7 @@ import type { BBox } from "../../src/core/types.js";
 import { projectRoot } from "../helpers.js";
 
 const referencePath = path.join(projectRoot, "reference", "kakao-tool", "OBJECT_RIGHT.png");
+const thumbnailReferencePath = path.join(projectRoot, "reference", "kakao-tool", "THUMBNAIL_BOX_RIGHT.png");
 
 function alphaBox(
   rgba: Uint8Array,
@@ -57,5 +59,18 @@ describe("immutable OBJECT_RIGHT reference fixture", () => {
         expect(raw.data[(y * 1029 + x) * 4 + 3]).toBe(0);
       }
     }
+  });
+});
+
+describe("immutable THUMBNAIL_BOX_RIGHT reference fixture", () => {
+  it("has the frozen SHA, RGBA IHDR, and IMAGE_PRIMARY guide bounds", async () => {
+    const bytes = await readFile(thumbnailReferencePath);
+    expect(createHash("sha256").update(bytes).digest("hex")).toBe("bde09ea925ede612c814868d90f9595fc29137b1183309123f02fd76dedff030");
+    expect(inspectPngIhdr(bytes)).toEqual({ width: 1029, height: 258, bitDepth: 8, colorType: 6 });
+    const raw = await sharp(bytes).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    expect(raw.info.width).toBe(1029);
+    expect(raw.info.height).toBe(258);
+    expect(raw.data[(36 * 1029 + 700) * 4 + 3]).toBe(255);
+    expect(raw.data[(222 * 1029 + 700) * 4 + 3]).toBe(0);
   });
 });

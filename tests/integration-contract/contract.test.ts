@@ -153,9 +153,10 @@ describe("fingerprints", () => {
 });
 
 describe("capability and adapter boundary", () => {
-  it("advertises only OBJECT_RIGHT as production implemented", () => {
+  it("advertises OBJECT_RIGHT and THUMBNAIL_BOX_RIGHT as production implemented", () => {
     expect(CAPABILITIES.KAKAO_BIZBOARD_OBJECT_RIGHT?.implementationStatus).toBe("IMPLEMENTED");
-    expect(Object.values(CAPABILITIES).filter((entry) => entry.implementationStatus === "IMPLEMENTED")).toHaveLength(1);
+    expect(CAPABILITIES.KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT?.implementationStatus).toBe("IMPLEMENTED");
+    expect(Object.values(CAPABILITIES).filter((entry) => entry.implementationStatus === "IMPLEMENTED")).toHaveLength(2);
   });
 
   it("resolves a fixture asset and bridges an Integration Input to a legacy renderer callback", async () => {
@@ -193,7 +194,7 @@ describe("capability and adapter boundary", () => {
             copy: legacyInput.copy,
             cta: { mode: "NONE", landingType: "DIRECT_URL", label: null, iconPath: null },
             assets: { product: { path: legacyInput.product.relativePath, expectedSha256: legacyInput.product.expectedSha256, alphaTrim: true } },
-            render: { templateContractVersion: "1.2.0", includeDebugOverlay: false, pixelRatio: 1 },
+            render: { templateContractVersion: "1.3.0", includeDebugOverlay: false, pixelRatio: 1 },
             output: { directory: "jobs", baseName: "integration-core", overwrite: false },
             canvas: { width: 1029, height: 258 },
           };

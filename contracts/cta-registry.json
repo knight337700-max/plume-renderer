@@ -1,6 +1,6 @@
 {
   "registryVersion": "1.0.0",
-  "templateContractVersion": "1.2.0",
+  "templateContractVersion": "1.3.0",
   "disabledModeErrorCode": "KBR-CTA-009",
   "modes": [
     {

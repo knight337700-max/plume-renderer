@@ -120,7 +120,7 @@ check(
 const versions = contracts.get("contract-versions.json");
 check(
   "template_contract_version",
-  versions?.templateContractVersion === "1.2.0" &&
+  versions?.templateContractVersion === "1.3.0" &&
     versions?.coordinatesChanged === true &&
     versions?.xCoordinatesChanged === false &&
     versions?.baselineDeltaPx === 4,
@@ -178,6 +178,30 @@ check(
     fixture?.objectSlot?.height === 258,
   JSON.stringify(fixture?.objectSlot),
 );
+const thumbnailFixture = fixtureRegistry?.templates?.thumbnailBoxRight;
+const thumbnailFixturePath = path.join(root, ...(thumbnailFixture?.path?.split("/") ?? []));
+let actualThumbnailHash = null;
+try {
+  actualThumbnailHash = await sha256(thumbnailFixturePath);
+} catch {
+  actualThumbnailHash = null;
+}
+check(
+  "thumbnail_reference_hash",
+  actualThumbnailHash === thumbnailFixture?.sha256,
+  `expected=${thumbnailFixture?.sha256}; actual=${actualThumbnailHash}`,
+);
+check(
+  "thumbnail_coordinates",
+  thumbnailFixture?.png?.width === 1029 &&
+    thumbnailFixture?.png?.height === 258 &&
+    thumbnailFixture?.imageSlot?.id === "IMAGE_PRIMARY" &&
+    thumbnailFixture?.imageSlot?.x === 666 &&
+    thumbnailFixture?.imageSlot?.y === 36 &&
+    thumbnailFixture?.imageSlot?.width === 315 &&
+    thumbnailFixture?.imageSlot?.height === 186,
+  JSON.stringify(thumbnailFixture?.imageSlot),
+);
 
 check(
   "manifest_no_self_digest",
@@ -220,7 +244,7 @@ check(
 const textContract = contracts.get("text-contract.json");
 check(
   "text_contract",
-  textContract?.templateContractVersion === "1.2.0" &&
+  textContract?.templateContractVersion === "1.3.0" &&
     textContract?.headlineBaselineY === 120 &&
     textContract?.subcopyBaselineY === 178 &&
     textContract?.textStartX === 48 &&
@@ -274,17 +298,19 @@ const capabilityRegistry = contracts.get("template-capabilities.json");
 const implementedCapabilities = capabilityRegistry?.capabilities?.filter(({ implementationStatus }) => implementationStatus === "IMPLEMENTED") ?? [];
 check(
   "integration_capability_gate",
-  implementedCapabilities.length === 1 && implementedCapabilities[0]?.formatProfileId === "KAKAO_BIZBOARD_OBJECT_RIGHT",
+  implementedCapabilities.length === 2 &&
+    implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_OBJECT_RIGHT") &&
+    implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT"),
   `implemented=${implementedCapabilities.map(({ formatProfileId }) => formatProfileId).join(",")}`,
 );
 check(
   "integration_contract_version",
-  versions?.integrationContract?.current === "1.0.0" && versions?.canonicalPhaseC3?.documentCurrent === "1.4.0" && versions?.canonicalPhaseC3?.templateCoordinatesChangedInC3 === false,
+  versions?.integrationContract?.current === "1.0.0" && versions?.canonicalPhaseC4?.documentCurrent === "1.5.0" && versions?.canonicalPhaseC4?.templateContractVersion === "1.3.0",
   JSON.stringify(versions?.integrationContract),
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.current === "1.4.0" && versions?.templateContractVersion === "1.2.0",
+  versions?.documentVersion?.current === "1.5.0" && versions?.templateContractVersion === "1.3.0",
   `document=${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

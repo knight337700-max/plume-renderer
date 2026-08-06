@@ -9,6 +9,11 @@ export { canonicalDigest, canonicalJson } from "./canonical.js";
 export { calculateLayout } from "./layout.js";
 export { analyzeAndResizeProduct } from "./product-image.js";
 export { inspectPngIhdr, renderRgbaPng, validateRenderedPng } from "./raster.js";
+export {
+  renderThumbnailBoxRight,
+  THUMBNAIL_BOX_RIGHT_RADIUS,
+  THUMBNAIL_BOX_RIGHT_SLOT,
+} from "./thumbnail-box-right.js";
 export { loadContracts } from "./contracts.js";
 export { SchemaValidators, parseJsonInput } from "./schema-validation.js";
 export { validateCanonicalSemantics, validateRawText } from "./semantic-validation.js";

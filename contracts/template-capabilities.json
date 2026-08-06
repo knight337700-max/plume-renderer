@@ -17,12 +17,13 @@
       "schemaVersion": "1.0.0",
       "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT",
       "templateId": "KAKAO_MOMENT_BIZBOARD_THUMBNAIL_BOX_RIGHT",
-      "implementationStatus": "NOT_IMPLEMENTED",
+      "implementationStatus": "IMPLEMENTED",
       "defaultPolicy": "SEMANTIC_CROP_COVER",
       "semanticPlacement": "REQUIRED",
       "allowedPolicies": ["SEMANTIC_CROP_COVER", "MANUAL_CROP"],
-      "supportsManualCrop": false,
-      "supportsAgentPlacement": false
+      "supportsManualCrop": true,
+      "supportsAgentPlacement": true,
+      "imageSlotIds": ["IMAGE_PRIMARY"]
     },
     {
       "schemaVersion": "1.0.0",

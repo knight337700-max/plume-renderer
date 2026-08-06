@@ -1,4 +1,7 @@
 import type { LayoutMeasurements, ValidationIssue } from "../../../../src/core/types.js";
+import type { AppliedImagePlacement, CropCandidate, ImagePlacementPlan } from "@kbr/renderer-contract";
+
+export type UiTemplate = "OBJECT_RIGHT" | "THUMBNAIL_BOX_RIGHT";
 
 export type UiRenderInput = {
   assetToken: string;
@@ -7,6 +10,9 @@ export type UiRenderInput = {
   subcopy: string;
   jobName: string;
   requestSequence: number;
+  template?: UiTemplate;
+  placementPlan?: ImagePlacementPlan;
+  cropCandidates?: readonly CropCandidate[];
 };
 
 export type ProductSelectionResult =
@@ -44,6 +50,8 @@ export type PreviewResult = {
   errors: ValidationIssue[];
   warnings: ValidationIssue[];
   generatedAt: string;
+  template?: UiTemplate;
+  appliedImagePlacement?: AppliedImagePlacement | null;
 };
 
 export type OutputDirectoryResult =
@@ -79,7 +87,7 @@ export type ExportResult =
 export type AppInfo = {
   name: string;
   version: string;
-  template: "OBJECT_RIGHT";
+  template: UiTemplate;
   canvas: { width: 1029; height: 258 };
   ctaMode: "NONE";
   runtimeNetworkAccess: "PROHIBITED";

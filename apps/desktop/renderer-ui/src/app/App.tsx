@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useReducer, useState } from "react";
 
-import type { AppInfo, ExportRequest, UiRenderInput } from "../../../shared/src/index.js";
+import type { AppInfo, ExportRequest, UiRenderInput, UiTemplate } from "../../../shared/src/index.js";
 import type { TextMeasurement } from "../../../../../src/core/types.js";
 import {
   INTEGRATION_SCHEMA_VERSION,
   OBJECT_RIGHT_IMAGE_SLOT_ID,
+  THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
   parsePlacementPlan,
   serializePlacementPlan,
+  type CropCandidate,
   type ImagePlacementPlan,
 } from "../../../../../packages/renderer-contract/src/index.js";
 import { formatProductMetadata } from "../features/product-file/format.js";
@@ -37,6 +39,24 @@ function TextMetric({ field, measurement }: { field: "headline" | "subcopy"; mea
 export function App() {
   const [state, dispatch] = useReducer(uiReducer, initialUiState);
   const [appInfo, setAppInfo] = useState<AppInfo | null>(null);
+  const [template, setTemplate] = useState<UiTemplate>("OBJECT_RIGHT");
+  const [policy, setPolicy] = useState<ImagePlacementPlan["policy"]>("ALPHA_TRIM_CONTAIN");
+  const [anchor, setAnchor] = useState<ImagePlacementPlan["anchor"]>("CENTER");
+  const [subjectProtection, setSubjectProtection] = useState<ImagePlacementPlan["subjectProtection"]>("NONE");
+  const [cropRectText, setCropRectText] = useState("0,0,1,1");
+  const [candidateId, setCandidateId] = useState("");
+  const thumbnailCandidate: CropCandidate = {
+    schemaVersion: INTEGRATION_SCHEMA_VERSION,
+    candidateId: "full-frame",
+    assetId: "selected-product",
+    imageSlotId: THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
+    cropRect: { x: 0, y: 0, width: 1, height: 1 },
+    preservedSubjectIds: [],
+    clippedSubjectIds: [],
+    fillRatio: 1,
+    subjectCoverageRatio: 1,
+    warnings: [],
+  };
   const [placementPlanText, setPlacementPlanText] = useState(() => JSON.stringify({
     schemaVersion: INTEGRATION_SCHEMA_VERSION,
     imageSlotId: OBJECT_RIGHT_IMAGE_SLOT_ID,
@@ -63,6 +83,78 @@ export function App() {
     [state.preview],
   );
 
+  function setTemplateMode(next: UiTemplate) {
+    setTemplate(next);
+    dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
+    if (next === "OBJECT_RIGHT") {
+      setPolicy("ALPHA_TRIM_CONTAIN");
+      setAnchor("CENTER");
+      setSubjectProtection("NONE");
+      setCandidateId("");
+      const plan: ImagePlacementPlan = {
+        schemaVersion: INTEGRATION_SCHEMA_VERSION,
+        imageSlotId: OBJECT_RIGHT_IMAGE_SLOT_ID,
+        assetId: "selected-product",
+        policy: "ALPHA_TRIM_CONTAIN",
+        source: "DETERMINISTIC",
+        fitMode: "CONTAIN",
+        anchor: "CENTER",
+        subjectProtection: "NONE",
+      };
+      setPlacementPlan(plan);
+      setPlacementPlanText(JSON.stringify(plan, null, 2));
+      setPlacementPlanMessage("PASS · OBJECT_RIGHT 기본 Plan을 사용합니다.");
+      return;
+    }
+    setPolicy("SEMANTIC_CROP_COVER");
+    const plan: ImagePlacementPlan = {
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      imageSlotId: THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
+      assetId: "selected-product",
+      policy: "SEMANTIC_CROP_COVER",
+      source: "DETERMINISTIC",
+      fitMode: "COVER",
+      anchor,
+      subjectProtection,
+      cropRect: { x: 0, y: 0, width: 1, height: 1 },
+    };
+    setPlacementPlan(plan);
+    setPlacementPlanText(JSON.stringify(plan, null, 2));
+    setCropRectText("0,0,1,1");
+    setPlacementPlanMessage("PASS · THUMBNAIL_BOX_RIGHT direct crop를 사용합니다.");
+  }
+
+  function updateThumbnailPlan(next: Partial<ImagePlacementPlan>, selectedCandidateId = candidateId) {
+    if (template !== "THUMBNAIL_BOX_RIGHT") return;
+    const current = placementPlan;
+    const nextPlan: ImagePlacementPlan = {
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      imageSlotId: THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
+      assetId: "selected-product",
+      policy,
+      source: policy === "MANUAL_CROP" ? "MANUAL" : "DETERMINISTIC",
+      fitMode: "COVER",
+      anchor,
+      subjectProtection,
+      ...(!selectedCandidateId && current?.cropRect ? { cropRect: current.cropRect } : {}),
+      ...(selectedCandidateId ? { cropCandidateId: selectedCandidateId } : {}),
+      ...next,
+    };
+    setPlacementPlan(nextPlan);
+    setPlacementPlanText(JSON.stringify(nextPlan, null, 2));
+  }
+
+  function applyCropRect() {
+    const values = cropRectText.split(",").map((value) => Number(value.trim()));
+    if (values.length !== 4 || values.some((value) => !Number.isFinite(value))) {
+      setPlacementPlanMessage("BLOCKED · Crop Rect는 x,y,width,height 숫자 4개여야 합니다.");
+      return;
+    }
+    setCandidateId("");
+    updateThumbnailPlan({ cropRect: { x: values[0] ?? 0, y: values[1] ?? 0, width: values[2] ?? 0, height: values[3] ?? 0 } });
+    setPlacementPlanMessage("PASS · direct crop rect를 적용했습니다.");
+  }
+
   useEffect(() => {
     void window.kbrDesktop.getAppInfo().then(setAppInfo).catch(() => {
       dispatch({ type: "INTERNAL_ERROR", message: "앱 정보를 불러오지 못했습니다." });
@@ -87,6 +179,7 @@ export function App() {
       assetToken: state.product.assetToken,
       ...state.fields,
       requestSequence,
+      ...(template === "THUMBNAIL_BOX_RIGHT" ? { template, ...(placementPlan ? { placementPlan } : {}), ...(candidateId ? { cropCandidates: [thumbnailCandidate] } : {}) } : {}),
     };
     dispatch({ type: "PREVIEW_STARTED", requestSequence });
     try {
@@ -110,6 +203,7 @@ export function App() {
       ...state.fields,
       previewToken: state.preview.previewToken,
       outputDirectoryToken: state.output.outputDirectoryToken,
+      ...(template === "THUMBNAIL_BOX_RIGHT" ? { template, ...(placementPlan ? { placementPlan } : {}), ...(candidateId ? { cropCandidates: [thumbnailCandidate] } : {}) } : {}),
     };
     dispatch({ type: "EXPORT_STARTED" });
     try {
@@ -128,11 +222,21 @@ export function App() {
         setPlacementPlanMessage(`BLOCKED · ${parsed.errors.map((error) => error.code).join(", ")}`);
         return;
       }
-      if (parsed.plan.imageSlotId !== OBJECT_RIGHT_IMAGE_SLOT_ID || parsed.plan.policy !== "ALPHA_TRIM_CONTAIN" || parsed.plan.fitMode !== "CONTAIN") {
+      if (template === "OBJECT_RIGHT" && (parsed.plan.imageSlotId !== OBJECT_RIGHT_IMAGE_SLOT_ID || parsed.plan.policy !== "ALPHA_TRIM_CONTAIN" || parsed.plan.fitMode !== "CONTAIN")) {
         setPlacementPlan(null);
         setPlacementPlanMessage("BLOCKED · OBJECT_RIGHT는 ALPHA_TRIM_CONTAIN + CONTAIN만 허용합니다.");
         return;
       }
+      if (template === "THUMBNAIL_BOX_RIGHT" && (parsed.plan.imageSlotId !== THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID || !["SEMANTIC_CROP_COVER", "MANUAL_CROP"].includes(parsed.plan.policy) || parsed.plan.fitMode !== "COVER")) {
+        setPlacementPlan(null);
+        setPlacementPlanMessage("BLOCKED · THUMBNAIL_BOX_RIGHT는 COVER + Crop 정책만 허용합니다.");
+        return;
+      }
+      setPolicy(parsed.plan.policy);
+      setAnchor(parsed.plan.anchor);
+      setSubjectProtection(parsed.plan.subjectProtection);
+      setCandidateId(parsed.plan.cropCandidateId ?? "");
+      if (parsed.plan.cropRect) setCropRectText([parsed.plan.cropRect.x, parsed.plan.cropRect.y, parsed.plan.cropRect.width, parsed.plan.cropRect.height].join(","));
       setPlacementPlan(parsed.plan);
       setPlacementPlanText(JSON.stringify(parsed.plan, null, 2));
       setPlacementPlanMessage(`PASS · source=${parsed.plan.source} · 변경 없이 저장됨`);
@@ -152,7 +256,19 @@ export function App() {
   }
 
   function loadAgentFixture() {
-    const fixture: ImagePlacementPlan = {
+    const fixture: ImagePlacementPlan = template === "THUMBNAIL_BOX_RIGHT" ? {
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      imageSlotId: THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
+      assetId: "selected-product",
+      policy: "SEMANTIC_CROP_COVER",
+      source: "AGENT",
+      fitMode: "COVER",
+      anchor: "CENTER",
+      subjectProtection: "NONE",
+      cropRect: { x: 0, y: 0, width: 1, height: 1 },
+      confidence: 0.99,
+      rationale: "Agent fixture uses the same serializable semantic crop path.",
+    } : {
       schemaVersion: INTEGRATION_SCHEMA_VERSION,
       imageSlotId: OBJECT_RIGHT_IMAGE_SLOT_ID,
       assetId: "selected-product",
@@ -185,7 +301,7 @@ export function App() {
         <div>
           <p className="eyebrow">비공식 내부 제작 도구</p>
           <h1>카카오 비즈보드 로컬 Renderer</h1>
-          <p>OBJECT_RIGHT · 1029×258 · CTA 없음 · Runtime network 0</p>
+          <p>{template} · 1029×258 · CTA 없음 · Runtime network 0</p>
         </div>
         <div className="app-version">v{appInfo?.version ?? "…"}</div>
       </header>
@@ -249,7 +365,7 @@ export function App() {
 
           <div className="fixed-contract">
             <span>CTA</span><strong>없음 (NONE)</strong>
-            <span>Template</span><strong>OBJECT_RIGHT</strong>
+            <span>Template</span><strong>{template}</strong>
             <span>Font</span><strong>Spoqa Han Sans</strong>
             <span>Baseline</span><strong>Headline 120 · Subcopy 178</strong>
           </div>
@@ -259,15 +375,26 @@ export function App() {
               <h2>Placement Plan</h2>
               <span className="capability-pill">IMPLEMENTED</span>
             </div>
-            <p className="hint">Capability · KAKAO_BIZBOARD_OBJECT_RIGHT · Agent-independent Contract v{INTEGRATION_SCHEMA_VERSION}</p>
+            <label className="field-group"><span className="field-label">Template</span><select data-testid="template-select" value={template} onChange={(event) => setTemplateMode(event.target.value as UiTemplate)}><option value="OBJECT_RIGHT">OBJECT_RIGHT</option><option value="THUMBNAIL_BOX_RIGHT">THUMBNAIL_BOX_RIGHT</option></select></label>
+            <p className="hint">Capability · {template === "OBJECT_RIGHT" ? "KAKAO_BIZBOARD_OBJECT_RIGHT" : "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT"} · Agent-independent Contract v{INTEGRATION_SCHEMA_VERSION}</p>
             <div className="placement-grid">
-              <label><span className="field-label">Policy</span><select value="ALPHA_TRIM_CONTAIN" disabled><option>ALPHA_TRIM_CONTAIN</option></select></label>
-              <label><span className="field-label">Fit Mode</span><select value="CONTAIN" disabled><option>CONTAIN</option></select></label>
-              <label><span className="field-label">Anchor</span><select value="CENTER" disabled><option>CENTER</option></select></label>
-              <label><span className="field-label">Protection</span><select value="NONE" disabled><option>NONE</option></select></label>
+              <label><span className="field-label">Policy</span><select data-testid="policy-select" value={policy} disabled={template === "OBJECT_RIGHT"} onChange={(event) => { const next = event.target.value as ImagePlacementPlan["policy"]; setPolicy(next); setCandidateId(""); updateThumbnailPlan({ policy: next, source: next === "MANUAL_CROP" ? "MANUAL" : "DETERMINISTIC", fitMode: "COVER", cropRect: placementPlan?.cropRect ?? { x: 0, y: 0, width: 1, height: 1 } }); }}><option value="ALPHA_TRIM_CONTAIN">ALPHA_TRIM_CONTAIN</option><option value="SEMANTIC_CROP_COVER">SEMANTIC_CROP_COVER</option><option value="MANUAL_CROP">MANUAL_CROP</option></select></label>
+              <label><span className="field-label">Fit Mode</span><select value={template === "OBJECT_RIGHT" ? "CONTAIN" : "COVER"} disabled><option>{template === "OBJECT_RIGHT" ? "CONTAIN" : "COVER"}</option></select></label>
+              <label><span className="field-label">Anchor</span><select data-testid="anchor-select" value={anchor} disabled={template === "OBJECT_RIGHT"} onChange={(event) => { const next = event.target.value as ImagePlacementPlan["anchor"]; setAnchor(next); updateThumbnailPlan({ anchor: next }); }}><option value="CENTER">CENTER</option><option value="CENTER_LEFT">CENTER_LEFT</option><option value="CENTER_RIGHT">CENTER_RIGHT</option><option value="TOP_CENTER">TOP_CENTER</option><option value="BOTTOM_CENTER">BOTTOM_CENTER</option></select></label>
+              <label><span className="field-label">Protection</span><select data-testid="subject-protection-select" value={subjectProtection} disabled={template === "OBJECT_RIGHT"} onChange={(event) => { const next = event.target.value as ImagePlacementPlan["subjectProtection"]; setSubjectProtection(next); updateThumbnailPlan({ subjectProtection: next }); }}><option value="NONE">NONE</option><option value="PREFERRED">PREFERRED</option><option value="REQUIRED">REQUIRED</option></select></label>
             </div>
-            <label className="field-group placement-disabled-field"><span className="field-label">Crop Rect / Focal Point / Candidate</span><input value="비활성 · OBJECT_RIGHT는 Alpha Trim만 지원" disabled /></label>
-            <small className="hint">수동 Crop과 semantic candidate는 Capability 미지원 상태이며 자동 보정하지 않습니다.</small>
+            {template === "THUMBNAIL_BOX_RIGHT" ? (
+              <>
+                <label className="field-group"><span className="field-label">Crop Rect (normalized x,y,w,h)</span><input data-testid="crop-rect-input" value={cropRectText} onChange={(event) => setCropRectText(event.target.value)} /><button type="button" className="secondary" onClick={applyCropRect} data-testid="crop-rect-apply">Apply Crop Rect</button></label>
+                <label className="field-group"><span className="field-label">Crop Candidate</span><select data-testid="crop-candidate-select" value={candidateId} onChange={(event) => { const next = event.target.value; setCandidateId(next); if (next) updateThumbnailPlan({ cropCandidateId: next }, next); else updateThumbnailPlan({ cropRect: { x: 0, y: 0, width: 1, height: 1 } }, ""); }}><option value="">Direct crop</option><option value="full-frame">full-frame</option></select></label>
+                <small className="hint">Candidate가 없으면 입력한 direct crop만 사용합니다. Renderer는 crop을 자동 추정하지 않습니다.</small>
+              </>
+            ) : (
+              <>
+                <label className="field-group placement-disabled-field"><span className="field-label">Crop Rect / Focal Point / Candidate</span><input value="비활성 · OBJECT_RIGHT는 Alpha Trim만 지원" disabled /></label>
+                <small className="hint">수동 Crop과 semantic candidate는 OBJECT_RIGHT에서 지원하지 않습니다.</small>
+              </>
+            )}
             <label className="field-group"><span className="field-label">ImagePlacementPlan JSON</span><textarea data-testid="placement-plan-json" value={placementPlanText} onChange={(event) => setPlacementPlanText(event.target.value)} rows={9} spellCheck={false} /></label>
             <div className="button-row">
               <button type="button" onClick={() => importPlacementPlan()} data-testid="placement-plan-import">Plan Import</button>
@@ -275,8 +402,8 @@ export function App() {
               <button type="button" className="secondary" onClick={loadAgentFixture} data-testid="placement-agent-fixture">Agent Fixture</button>
             </div>
             <small className={`placement-plan-status ${placementPlan ? "status-pass" : "status-error"}`} data-testid="placement-plan-status">{placementPlanMessage}</small>
-            <small className="hint" data-testid="applied-crop">Applied crop · none (ALPHA_TRIM_CONTAIN preserves source alpha bounds)</small>
-            {state.preview?.measurements?.productPlacedBox ? <small className="hint" data-testid="applied-destination-rect">Applied destinationRect · x={state.preview.measurements.productPlacedBox.x}, y={state.preview.measurements.productPlacedBox.y}, w={state.preview.measurements.productPlacedBox.width}, h={state.preview.measurements.productPlacedBox.height}</small> : null}
+            <small className="hint" data-testid="applied-crop">Applied crop · {state.preview?.appliedImagePlacement?.resolvedSourceCropRect ? JSON.stringify(state.preview.appliedImagePlacement.resolvedSourceCropRect) : template === "OBJECT_RIGHT" ? "none (ALPHA_TRIM_CONTAIN preserves source alpha bounds)" : "pending"}</small>
+            {state.preview?.appliedImagePlacement?.destinationRect ? <small className="hint" data-testid="applied-destination-rect">Applied destinationRect · x={state.preview.appliedImagePlacement.destinationRect.x}, y={state.preview.appliedImagePlacement.destinationRect.y}, w={state.preview.appliedImagePlacement.destinationRect.width}, h={state.preview.appliedImagePlacement.destinationRect.height}</small> : state.preview?.measurements?.productPlacedBox ? <small className="hint" data-testid="applied-destination-rect">Applied destinationRect · x={state.preview.measurements.productPlacedBox.x}, y={state.preview.measurements.productPlacedBox.y}, w={state.preview.measurements.productPlacedBox.width}, h={state.preview.measurements.productPlacedBox.height}</small> : null}
           </section>
 
           <button
@@ -314,7 +441,7 @@ export function App() {
             )}
             {state.guideVisible ? (
               <div className="guide-overlay" aria-hidden="true" data-testid="guide-overlay">
-                <div className="guide-object"><span>Object slot 666,0,315,258</span></div>
+                <div className="guide-object"><span>{template === "OBJECT_RIGHT" ? "Object slot 666,0,315,258" : "Image slot 666,36,315,186 · r12"}</span></div>
                 <div className="guide-hard-edge" />
                 <div className="guide-gap" />
                 <div className="guide-right-margin" />

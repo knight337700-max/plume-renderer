@@ -1,10 +1,23 @@
 import { readFile, rm, stat } from "node:fs/promises";
 import {
+  INTEGRATION_SCHEMA_VERSION,
+  THUMBNAIL_BOX_RIGHT_FORMAT_PROFILE_ID,
+  THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
+  THUMBNAIL_BOX_RIGHT_TEMPLATE_ID,
+  renderWithIntegrationAdapter,
+  type RendererIntegrationInputV1,
+} from "@kbr/renderer-contract";
+import {
   assertDownloadAllowed,
   createKakaoBizboardRenderer,
   loadContracts,
+  renderThumbnailBoxRight,
 } from "../../../../src/core/index.js";
-import { sha256File } from "../../../../src/core/hash.js";
+import { verifyRuntimeAssets } from "../../../../src/core/assets.js";
+import { canonicalJson } from "../../../../src/core/canonical.js";
+import { sha256Bytes, sha256File } from "../../../../src/core/hash.js";
+import { publishArtifacts } from "../../../../src/core/publish.js";
+import { resolveTrustedJobDirectory } from "../../../../src/core/path-security.js";
 import type { KakaoBizboardInputV1, ValidationIssue } from "../../../../src/core/types.js";
 import type {
   AppInfo,
@@ -38,6 +51,34 @@ function extractMaximum(schema: Record<string, unknown>, pathParts: string[]): n
     current = (current as Record<string, unknown>)[part];
   }
   return typeof current === "number" ? current : 0;
+}
+
+function mapIntegrationIssues(
+  issues: readonly { code: string; severity: "ERROR" | "WARNING" | "INFO"; messageKey: string; path?: string; expected?: unknown; actual?: unknown }[],
+): ValidationIssue[] {
+  return issues.map((entry) => ({
+    code: entry.code,
+    severity: entry.severity,
+    messageKey: entry.messageKey,
+    path: entry.path ?? "/",
+    ...(entry.expected !== undefined ? { expected: entry.expected } : {}),
+    ...(entry.actual !== undefined ? { actual: entry.actual } : {}),
+  }));
+}
+
+function thumbnailManualAcceptanceStatus(): {
+  status: "NOT_REVIEWED";
+  items: Array<{ id: string; status: "NOT_REVIEWED"; reviewer: null; reviewedAt: null }>;
+} {
+  return {
+    status: "NOT_REVIEWED",
+    items: ["M-001", "M-002", "M-003", "M-004", "M-005", "M-006"].map((id) => ({
+      id,
+      status: "NOT_REVIEWED" as const,
+      reviewer: null,
+      reviewedAt: null,
+    })),
+  };
 }
 
 export type DesktopControllerConfig = {
@@ -107,10 +148,153 @@ export class DesktopController {
     };
   }
 
+  #buildThumbnailIntegrationInput(input: Omit<UiRenderInput, "requestSequence">, asset?: SessionAsset): RendererIntegrationInputV1 {
+    const placementPlan = input.placementPlan ?? {
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      imageSlotId: THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID,
+      assetId: "selected-product",
+      policy: "SEMANTIC_CROP_COVER" as const,
+      source: "DETERMINISTIC" as const,
+      fitMode: "COVER" as const,
+      anchor: "CENTER" as const,
+      subjectProtection: "NONE" as const,
+    };
+    const assetId = placementPlan.assetId;
+    const base: RendererIntegrationInputV1 = {
+      schemaVersion: INTEGRATION_SCHEMA_VERSION,
+      formatProfileId: THUMBNAIL_BOX_RIGHT_FORMAT_PROFILE_ID,
+      templateId: THUMBNAIL_BOX_RIGHT_TEMPLATE_ID,
+      copy: {
+        advertiser: input.advertiser,
+        headline: input.headline,
+        subcopy: input.subcopy,
+        cta: "NONE",
+      },
+      assets: [{
+        assetId,
+        mimeType: "image/png",
+        ...(asset ? { declaredWidth: asset.width, declaredHeight: asset.height, checksumSha256: asset.sha256 } : {}),
+        assetRef: { type: "DESKTOP_ASSET_TOKEN", value: input.assetToken },
+      }],
+      imagePlacementPlans: [placementPlan],
+      output: { mimeType: "image/png" },
+    };
+    if (input.cropCandidates && input.cropCandidates.length > 0) return { ...base, cropCandidates: input.cropCandidates };
+    return base;
+  }
+
+  async #renderThumbnailIntegration(input: Omit<UiRenderInput, "requestSequence">, asset: SessionAsset): Promise<{
+    integrationInput: RendererIntegrationInputV1;
+    result: Awaited<ReturnType<typeof renderWithIntegrationAdapter>>;
+    bytes: Buffer | null;
+  }> {
+    const integrationInput = this.#buildThumbnailIntegrationInput(input, asset);
+    const runtimeContracts = await loadContracts(this.#projectRoot);
+    const runtimeAssets = await verifyRuntimeAssets(this.#projectRoot, runtimeContracts);
+    if (runtimeAssets.issues.some((entry) => entry.severity === "ERROR") || !runtimeAssets.assets) {
+      throw new Error("Pinned runtime fonts or reference fixture are unavailable");
+    }
+    const resolvedBytes = await readFile(asset.absolutePath);
+    const integrationAsset = integrationInput.assets[0];
+    if (!integrationAsset) throw new Error("Thumbnail integration asset is missing");
+    let renderedBytes: Buffer | null = null;
+    const result = await renderWithIntegrationAdapter(integrationInput, {
+      resolver: {
+        resolve: async (assetRef) => {
+          if (assetRef.type !== "DESKTOP_ASSET_TOKEN" || assetRef.value !== asset.token) {
+            throw new Error("Desktop asset token is stale or invalid");
+          }
+          return { bytes: resolvedBytes, resolvedMimeType: "image/png" };
+        },
+      },
+      renderThumbnail: async (request) => {
+        const rendered = await renderThumbnailBoxRight(request);
+        renderedBytes = rendered.bytes;
+        return rendered;
+      },
+      assetDigests: { [integrationAsset.assetId]: asset.sha256 },
+    });
+    return { integrationInput, result, bytes: renderedBytes };
+  }
+
+  async #thumbnailPreview(input: UiRenderInput, asset: SessionAsset): Promise<PreviewResult> {
+    const generatedAt = new Date().toISOString();
+    try {
+      const { result, bytes } = await this.#renderThumbnailIntegration(input, asset);
+      const errors = mapIntegrationIssues(result.validation.errors);
+      const warnings = mapIntegrationIssues(result.validation.warnings);
+      const artifact = result.artifact;
+      if (result.status !== "PASS" || !artifact || !bytes) {
+        await this.#session.invalidatePreview();
+        return {
+          requestSequence: input.requestSequence,
+          previewToken: null,
+          previewUrl: null,
+          canonicalInputDigest: result.requestFingerprint,
+          productAssetDigest: asset.sha256,
+          previewPngDigest: null,
+          pngMetadata: null,
+          measurements: null,
+          validationStatus: "ERROR",
+          errors,
+          warnings,
+          generatedAt,
+          template: "THUMBNAIL_BOX_RIGHT",
+          appliedImagePlacement: null,
+        };
+      }
+      const stored = await this.#session.storePreview(bytes, result.requestFingerprint, asset.sha256, artifact.checksumSha256);
+      return {
+        requestSequence: input.requestSequence,
+        previewToken: stored.token,
+        previewUrl: `kbr-preview://preview/${stored.token}`,
+        canonicalInputDigest: result.requestFingerprint,
+        productAssetDigest: asset.sha256,
+        previewPngDigest: artifact.checksumSha256,
+        pngMetadata: {
+          format: "PNG",
+          colorType: "RGBA",
+          bitDepth: 8,
+          hasAlpha: true,
+          width: 1029,
+          height: 258,
+          bytes: artifact.bytes,
+        },
+        measurements: null,
+        validationStatus: warnings.length > 0 ? "WARNING" : "PASS",
+        errors,
+        warnings,
+        generatedAt,
+        template: "THUMBNAIL_BOX_RIGHT",
+        appliedImagePlacement: result.appliedImagePlacements[0] ?? null,
+      };
+    } catch {
+      await this.#session.invalidatePreview();
+      return {
+        requestSequence: input.requestSequence,
+        previewToken: null,
+        previewUrl: null,
+        canonicalInputDigest: null,
+        productAssetDigest: null,
+        previewPngDigest: null,
+        pngMetadata: null,
+        measurements: null,
+        validationStatus: "ERROR",
+        errors: [],
+        warnings: [],
+        generatedAt,
+        template: "THUMBNAIL_BOX_RIGHT",
+        appliedImagePlacement: null,
+      };
+    }
+  }
+
+
   async requestPreview(input: UiRenderInput): Promise<PreviewResult> {
     const generatedAt = new Date().toISOString();
     try {
       const asset = this.#session.getAsset(input.assetToken);
+      if (input.template === "THUMBNAIL_BOX_RIGHT") return this.#thumbnailPreview(input, asset);
       const coreInput = this.#buildInput(input, asset);
       const renderer = await createKakaoBizboardRenderer({
         projectRoot: this.#projectRoot,
@@ -179,6 +363,103 @@ export class DesktopController {
     }
   }
 
+  async #exportThumbnail(
+    request: ExportRequest,
+    asset: SessionAsset,
+    previewRecord: Awaited<ReturnType<DesktopSessionManager["getPreview"]>>,
+    output: Awaited<ReturnType<DesktopSessionManager["getOutputDirectory"]>>,
+  ): Promise<ExportResult> {
+    let publishedPng: string | null = null;
+    let publishedManifest: string | null = null;
+    try {
+      const currentAssetDigest = await sha256File(asset.absolutePath);
+      if (currentAssetDigest !== asset.sha256 || currentAssetDigest !== previewRecord.assetDigest) {
+        return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", "제품 자산이 Preview 이후 변경되었습니다.");
+      }
+      const { result, bytes } = await this.#renderThumbnailIntegration(request, asset);
+      const errors = mapIntegrationIssues(result.validation.errors);
+      const warnings = mapIntegrationIssues(result.validation.warnings);
+      if (result.status !== "PASS" || !result.artifact || !bytes || errors.length > 0) {
+        return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "최종 재검증에 실패하여 Export가 차단되었습니다.", errors, warnings);
+      }
+      if (result.requestFingerprint !== previewRecord.inputDigest || result.artifact.checksumSha256 !== previewRecord.pngDigest) {
+        return desktopFailure("BLOCKED", "DESKTOP-EXPORT-003", "Preview가 현재 입력과 일치하지 않습니다.", errors, warnings);
+      }
+
+      const contracts = await loadContracts(this.#projectRoot);
+      const fontDigests = contracts.fontRegistry.requiredAssets.flatMap((entry) =>
+        entry.sha256 ? [{ id: entry.id, sha256: entry.sha256 }] : [],
+      );
+      const manifest = {
+        schemaVersion: "1.0.0",
+        canonicalInputDigest: result.requestFingerprint,
+        normalizedInputDigest: result.requestFingerprint,
+        outputPngDigest: result.artifact.checksumSha256,
+        templateContractVersion: "1.3.0",
+        inputSchemaVersion: "1.2.0",
+        outputSchemaVersion: "2.0.0",
+        validatorResult: {
+          errorCount: 0,
+          warningCount: warnings.length,
+          infoCount: result.validation.info.length,
+          issues: [...warnings, ...mapIntegrationIssues(result.validation.info)],
+        },
+        assetDigests: {
+          product: { id: result.appliedImagePlacements[0]?.assetId ?? "IMAGE_PRIMARY", sha256: asset.sha256 },
+          fonts: fontDigests,
+          approvedIcons: [],
+          referenceFixture: { id: contracts.referenceRegistry.fixture.id, sha256: contracts.referenceRegistry.fixture.sha256 },
+        },
+        manualAcceptanceStatus: thumbnailManualAcceptanceStatus(),
+      };
+      const manifestText = canonicalJson(manifest);
+      const manifestDigest = sha256Bytes(Buffer.from(manifestText, "utf8"));
+      const jobDirectory = await resolveTrustedJobDirectory(output.root, ".", request.jobName);
+      const published = await publishArtifacts({
+        outputRoot: output.root,
+        jobDirectory,
+        png: bytes,
+        manifest: manifestText,
+        overwrite: false,
+      });
+      publishedPng = published.pngPath;
+      publishedManifest = published.manifestPath;
+      const [actualPngDigest, actualManifestDigest, pngStat] = await Promise.all([
+        sha256File(published.pngPath),
+        sha256File(published.manifestPath),
+        stat(published.pngPath),
+      ]);
+      if (actualPngDigest !== result.artifact.checksumSha256 || actualManifestDigest !== manifestDigest) {
+        await Promise.allSettled([rm(published.pngPath, { force: true }), rm(published.manifestPath, { force: true })]);
+        return desktopFailure("ERROR", "DESKTOP-EXPORT-004", "저장된 산출물 digest 검증에 실패했습니다.");
+      }
+      const exportToken = this.#session.registerExport(published.pngPath, published.manifestPath);
+      return {
+        status: "EXPORTED",
+        exportToken,
+        jobName: request.jobName,
+        pngFileName: "output.png",
+        manifestFileName: "render-manifest.json",
+        pngDigest: actualPngDigest,
+        manifestDigest: actualManifestDigest,
+        bytes: pngStat.size,
+        warnings,
+      };
+    } catch (error) {
+      if (publishedPng || publishedManifest) {
+        await Promise.allSettled([
+          publishedPng ? rm(publishedPng, { force: true }) : Promise.resolve(),
+          publishedManifest ? rm(publishedManifest, { force: true }) : Promise.resolve(),
+        ]);
+      }
+      return desktopFailure(
+        "ERROR",
+        error instanceof DesktopSecurityError ? error.code : "DESKTOP-EXPORT-999",
+        error instanceof Error ? error.message : "Export 중 내부 오류가 발생했습니다.",
+      );
+    }
+  }
+
   async registerOutputDirectory(rootPath: string): Promise<{ token: string; displayName: string }> {
     return this.#session.registerOutputDirectory(rootPath);
   }
@@ -190,6 +471,7 @@ export class DesktopController {
       const asset = this.#session.getAsset(request.assetToken);
       const previewRecord = this.#session.getPreview(request.previewToken);
       const output = this.#session.getOutputDirectory(request.outputDirectoryToken);
+      if (request.template === "THUMBNAIL_BOX_RIGHT") return this.#exportThumbnail(request, asset, previewRecord, output);
       const currentAssetDigest = await sha256File(asset.absolutePath);
       if (currentAssetDigest !== asset.sha256 || currentAssetDigest !== previewRecord.assetDigest) {
         return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", "제품 자산이 Preview 이후 변경되었습니다.");

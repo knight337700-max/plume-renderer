@@ -2,7 +2,7 @@ import type { BBox } from "./types.js";
 
 export const CANVAS_WIDTH = 1029;
 export const CANVAS_HEIGHT = 258;
-export const TEMPLATE_CONTRACT_VERSION = "1.2.0" as const;
+export const TEMPLATE_CONTRACT_VERSION = "1.3.0" as const;
 export const INPUT_SCHEMA_VERSION = "1.2.0" as const;
 export const OUTPUT_SCHEMA_VERSION = "2.0.0" as const;
 export const MANIFEST_SCHEMA_VERSION = "1.0.0" as const;

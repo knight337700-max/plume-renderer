@@ -1,11 +1,11 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.4.0
-- **Status:** Frozen Implementation Contract — Phase C3 integration boundary
+- **Document version:** 1.5.0
+- **Status:** Frozen Implementation Contract — Phase C4 thumbnail implementation
 - **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
-- **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT / 1029×258`
+- **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT and THUMBNAIL_BOX_RIGHT / 1029×258`
 
 ---
 
@@ -2122,11 +2122,11 @@ Integration JSON의 Asset Descriptor는 `assetId`, PNG/JPEG/WebP `mimeType`, 선
 
 `RendererIntegrationInputV1`의 `schemaVersion`은 `1.0.0`이다. 현재 실제 구현은 `output.mimeType=image/png`만 지원한다. JPEG를 Schema 또는 Capability에 IMPLEMENTED로 표시하지 않는다. `RendererIntegrationOutputV1`은 `PASS` 또는 `BLOCKED`이며 ERROR가 하나라도 있으면 artifact metadata와 다운로드를 제공하지 않는다. `AppliedImagePlacement`에는 requested/resolved crop, source pixel crop, destinationRect, scale, anchor, alphaTrimApplied, candidate ID를 기록하고 `changedFromRequestedPlan`은 v1에서 항상 `false`다.
 
-Capability Registry에서 `KAKAO_BIZBOARD_OBJECT_RIGHT`만 `IMPLEMENTED`다. 기본 정책은 `ALPHA_TRIM_CONTAIN`, semantic placement는 `NOT_REQUIRED`, 허용 정책은 `ALPHA_TRIM_CONTAIN`, manual/agent placement는 현재 `false`다. Thumbnail, mask, native, Naver 지면은 `NOT_IMPLEMENTED`이며 정책 표현 가능성과 실제 Renderer 지원을 혼동하지 않는다.
+Capability Registry에서 `KAKAO_BIZBOARD_OBJECT_RIGHT`와 `KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT`가 `IMPLEMENTED`다. OBJECT_RIGHT는 기본 정책 `ALPHA_TRIM_CONTAIN`, semantic placement `NOT_REQUIRED`, manual/agent placement `false`다. THUMBNAIL_BOX_RIGHT는 기본 정책 `SEMANTIC_CROP_COVER`, semantic placement `REQUIRED`, `SEMANTIC_CROP_COVER`와 `MANUAL_CROP`만 허용하고 manual/agent placement를 `true`로 둔다. Thumbnail Multi, mask, native, Naver 지면은 `NOT_IMPLEMENTED`이며 정책 표현 가능성과 실제 Renderer 지원을 혼동하지 않는다.
 
 ## 15.5 Fingerprint
 
-`artifactChecksumSha256`은 실제 최종 PNG bytes의 SHA-256이다. `pixelFingerprint`는 pixel-affecting canonical input, 실제 asset digest, policy/fit/resolved crop, 실제 사용되는 anchor/encoding, Template Contract `1.2.0`을 포함하고 source/confidence/rationale/warnings/timestamp/absolute path/token 문자열 자체는 제외한다. 현재 Renderer가 focal point를 pixel 계산에 사용하지 않으므로 focal point는 pixel fingerprint에 포함하지 않는다. `requestFingerprint`는 전체 Integration Input의 Canonical JSON을 기반으로 하여 provenance 차이를 보존한다. 동일 Placement의 `MANUAL`과 `AGENT`는 동일 pixelFingerprint와 동일 artifact bytes를 만들고 requestFingerprint만 달라진다. 기존 `renderFingerprint`를 사용해야 하는 응답에서는 그 의미를 `pixelFingerprint`와 동일하게 고정한다.
+`artifactChecksumSha256`은 실제 최종 PNG bytes의 SHA-256이다. `pixelFingerprint`는 pixel-affecting canonical input, 실제 asset digest, policy/fit/resolved crop, 실제 사용되는 anchor/encoding, Template Contract `1.3.0`을 포함하고 source/confidence/rationale/warnings/timestamp/absolute path/token 문자열 자체는 제외한다. 현재 Renderer가 focal point를 pixel 계산에 사용하지 않으므로 focal point는 pixel fingerprint에 포함하지 않는다. `requestFingerprint`는 전체 Integration Input의 Canonical JSON을 기반으로 하여 provenance 차이를 보존한다. 동일 Placement의 `MANUAL`과 `AGENT`는 동일 pixelFingerprint와 동일 artifact bytes를 만들고 requestFingerprint만 달라진다. 기존 `renderFingerprint`를 사용해야 하는 응답에서는 그 의미를 `pixelFingerprint`와 동일하게 고정한다.
 
 ## 15.6 Renderer Lab과 금지 범위
 
@@ -2135,3 +2135,80 @@ Desktop Lab은 Capability, policy/fit/anchor/protection, crop/focal/candidate �
 ## 15.7 Acceptance
 
 기존 C2a Golden `20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`은 동일해야 한다. Integration Contract는 Schema parse/ID/unknown-field, normalized geometry, policy matrix, Candidate/subject protection, asset checksum/dimension, manual-agent fingerprint equivalence, Adapter bridge, Lab round trip을 자동 검증한다. 공식 지원 플랫폼은 계속 Windows 10/11 x64이며, 다른 OS의 pixel tolerance는 추가 계약 버전에서 다룬다.
+
+## 18. Phase C4 — THUMBNAIL_BOX_RIGHT 실행 계약 [PROJECT]
+
+이 절은 Canonical 문서 `1.4.0`에서 `1.5.0`으로 증가한 C4 amendment다. 기존
+`OBJECT_RIGHT` 좌표와 출력 바이트는 변경하지 않는다. 새 템플릿의 회색 가이드와
+문구는 제작툴 출력 측정값인 `[TOOL_OUTPUT]`이며, 12px 모서리 반경과 실행 알고리즘은
+`[DERIVED][PROJECT]`로 고정한다. 자동 Subject Detection 모델이나 자동 Candidate 생성은
+이 버전에 포함하지 않는다.
+
+### 18.1 Template Capability
+
+`KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT` / `KAKAO_MOMENT_BIZBOARD_THUMBNAIL_BOX_RIGHT`는
+현재 실제 렌더링 가능한 `IMPLEMENTED` 지면이다. `semanticPlacement`는 `REQUIRED`이고
+허용 정책은 `SEMANTIC_CROP_COVER`, `MANUAL_CROP`뿐이다. `CENTER_CONTAIN`으로
+자동 대체하지 않으며, 나머지 THUMBNAIL_MULTI_RIGHT, MASK_SEMICIRCLE_RIGHT,
+KAKAO_NATIVE_1200, NAVER_GFA_IMAGE_BANNER는 계속 `NOT_IMPLEMENTED`다.
+
+### 18.2 측정 기준과 고정 좌표 [TOOL_OUTPUT][DERIVED][PROJECT]
+
+불변 Canvas는 1029×258이다. `IMAGE_PRIMARY` 슬롯은 `x=666, y=36, width=315,
+height=186`, right-exclusive 981, bottom-exclusive 222, radius 12px이다. 우측
+투명 여백은 48px, 상·하 여백은 각각 36px이며, 텍스트 hard right edge는 633,
+최소 gap은 33px이다. Headline은 x=48/baseline=120, Subcopy는 x=48/baseline=178이고
+기존 Spoqa Han Sans, 색상, 12/15 한글 환산 unit 및 585px 폭 계약을 그대로 사용한다.
+
+기준 PNG `reference/kakao-tool/THUMBNAIL_BOX_RIGHT.png`는 수정하지 않고 SHA-256
+`bde09ea925ede612c814868d90f9595fc29137b1183309123f02fd76dedff030`으로 검증한다.
+회색 `#D9D9D9`와 `Image` placeholder는 가이드에만 존재하며 최종 PNG에는 포함하지
+않는다. 슬롯 밖, 특히 x=981..1028은 완전 투명이어야 한다.
+
+### 18.3 Crop 실행 [PROJECT]
+
+- `SEMANTIC_CROP_COVER`는 `fitMode=COVER`이고 `cropRect` 또는
+  `cropCandidateId` 중 하나를 정확히 요구한다. 둘 다 없거나 둘 다 있으면
+  `KBR-CROP-RECT-REQUIRED` 또는 `KBR-CROP-RECT-FORBIDDEN`으로 `BLOCKED`다.
+- `MANUAL_CROP`는 `fitMode=COVER`, 직접 `cropRect`, `source=MANUAL`을 요구하고
+  Candidate를 받지 않는다. 입력된 정규화 Crop을 보정·재선택하지 않는다.
+- Candidate가 참조되면 Registry의 `cropRect`를 그대로 해석한다. Candidate 자동 생성,
+  중심 Crop 추정, clamp는 하지 않는다.
+- 정규화 좌표는 `left=floor(x*sourceWidth)`, `top=floor(y*sourceHeight)`,
+  `right=ceil((x+width)*sourceWidth)`, `bottom=ceil((y+height)*sourceHeight)`로
+  exclusive 픽셀 Rect를 만든다. Cover scale은 슬롯을 채우고 비율을 유지하며, anchor에
+  따른 초과 영역만 결정적으로 잘라낸다.
+- `IMAGE_PRIMARY` 최종 배치는 radius 12px clip으로만 마스킹한다. 모든 적용 결과는
+  `requestedCropRect`, `resolvedSourceCropRect`, `resolvedSourceCropPixels`,
+  `destinationRect`, `appliedScale`, `appliedAnchor`, `changedFromRequestedPlan=false`를
+  `appliedImagePlacements`에 기록한다.
+
+### 18.4 Subject Protection [PROJECT]
+
+`REQUIRED` 보호 주체가 Crop 밖으로 나가면 `KBR-PROTECTED-SUBJECT-CLIPPED` ERROR,
+`PREFERRED`면 WARNING, `NONE`이면 이슈를 만들지 않는다. 검증 실패 시 Preview와
+Export 모두 artifact를 만들지 않는다.
+
+### 18.5 Renderer Lab 및 실행 경계 [PROJECT]
+
+Desktop Lab은 OBJECT_RIGHT와 THUMBNAIL_BOX_RIGHT를 선택할 수 있다. 후자에서만
+정책, anchor, subject protection, direct Crop Rect, Candidate 선택, Plan JSON Import/
+Export를 활성화한다. Lab의 Preview와 Export는 동일 Integration Adapter와 Core
+Thumbnail Renderer를 사용하며, ERROR 0일 때만 `downloadAllowed`와 publish를 허용한다.
+Renderer Process는 절대 경로를 전달하지 않고 Main/Core가 token, trusted root, reparse
+point, overwrite 및 atomic publish를 최종 판정한다.
+
+### 18.6 버전 및 호환성 [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.4.0 | 1.5.0 | THUMBNAIL_BOX_RIGHT 실행 계약 및 Lab 연동 |
+| Template Contract | 1.2.0 | 1.3.0 | 새 템플릿 슬롯·Crop 실행 계약 추가; 기존 좌표 불변 |
+| Input Schema | 1.2.0 | 1.2.0 | 공개 입력 구조 유지; 기본 template contract 값만 1.3.0으로 물질화 |
+| Output Schema | 2.0.0 | 2.0.0 | 구조 변경 없음 |
+| Integration Contract | 1.0.0 | 1.0.0 | 스키마 구조 유지, Capability 실행 대상 확대 |
+| Desktop | 0.3.0 | 0.4.0 | Template/Crop Lab 및 Preview/Export 지원 |
+
+`OBJECT_RIGHT`의 기존 공개 Input과 `ALPHA_TRIM_CONTAIN` 경로는 호환성을 위해
+그대로 유지한다. 이 문서는 구현 가능한 로컬 Renderer 계약이며, 카카오 공식 업로드
+승인이나 광고 심사 결과를 보장하지 않는다.

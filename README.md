@@ -1,6 +1,6 @@
 # Kakao Bizboard OBJECT_RIGHT local renderer
 
-Canonical 계약 `1.4.0`과 Template 좌표 계약 `1.2.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않으며 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.0.0`은 Agent-independent JSON boundary와 Runtime Asset Resolver를 제공하지만 Agent/OpenAI/Plume client를 포함하지 않는다.
+Canonical 계약 `1.5.0`과 Template Contract `1.3.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`와 `THUMBNAIL_BOX_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.0.0`은 Agent-independent JSON boundary와 Runtime Asset Resolver를 제공하지만 Agent/OpenAI/Plume client를 포함하지 않는다.
 
 ## 요구 환경
 
@@ -51,7 +51,7 @@ pnpm smoke:package
 
 ```text
 release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
-release/Kakao-Bizboard-Local-Renderer-0.3.0-x64.exe
+release/Kakao-Bizboard-Local-Renderer-0.4.0-x64.exe
 ```
 
 Portable 앱은 설치와 관리자 권한을 요구하지 않는다. 코드 서명과 자동 업데이트가 없으므로 Windows SmartScreen 경고가 표시될 수 있다. 앱은 비공식 로컬 Renderer이며 카카오 공식 서비스가 아니고 실제 광고 심사 승인을 보장하지 않는다.
@@ -72,7 +72,7 @@ node dist/cli/index.js render `
 
 ## 지원 범위
 
-- `OBJECT_RIGHT`, Canvas `1029×258`
+- `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, Canvas `1029×258`
 - CTA `NONE`만 활성
 - Spoqa Han Sans Bold/Regular 고정 파일 및 SHA-256 검증
 - Alpha Trim, 8-neighbor 노이즈 분리, 1.5× 최대 업스케일
@@ -81,7 +81,7 @@ node dist/cli/index.js render `
 
 ## Integration Contract
 
-`packages/renderer-contract/`와 `docs/integration/plume-renderer-contract-v1.md`가 별도 `schemaVersion: 1.0.0` 계약이다. JSON에는 절대 경로 또는 바이너리 객체를 넣지 않고 `assetRef`를 Runtime Asset Resolver로 해석한다. 현재 production Capability는 `KAKAO_BIZBOARD_OBJECT_RIGHT` 하나뿐이며 `ALPHA_TRIM_CONTAIN + CONTAIN`만 구현되어 있다. `SEMANTIC_CROP_COVER`, `MANUAL_CROP`, Crop Candidate는 범용 계약 검증 대상이지만 아직 미지원 지면의 Renderer를 의미하지 않는다.
+`packages/renderer-contract/`와 `docs/integration/plume-renderer-contract-v1.md`가 별도 `schemaVersion: 1.0.0` 계약이다. JSON에는 절대 경로 또는 바이너리 객체를 넣지 않고 `assetRef`를 Runtime Asset Resolver로 해석한다. 현재 production Capability는 `KAKAO_BIZBOARD_OBJECT_RIGHT`와 `KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT`다. OBJECT_RIGHT는 `ALPHA_TRIM_CONTAIN + CONTAIN`, Thumbnail Box Right는 `SEMANTIC_CROP_COVER` 또는 `MANUAL_CROP + COVER`를 실제 구현한다. Candidate와 Subject Protection은 입력 Plan을 검증하고 자동 Crop 생성이나 자동 중심 대체를 하지 않는다.
 
 동일한 Placement 값의 Manual/Agent Plan은 같은 `pixelFingerprint`와 artifact bytes를 만들고 `requestFingerprint`로 provenance만 구분한다. 오류가 하나라도 있으면 Integration Output은 `BLOCKED`이며 artifact/download를 제공하지 않는다. Runtime network access는 계속 금지된다.
 - Electron Main + sandboxed Preload + React 단일 화면 UI

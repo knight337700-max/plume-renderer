@@ -15,6 +15,9 @@ export const previewRequestSchema = z.strictObject({
   subcopy: boundedText,
   jobName,
   requestSequence: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+  template: z.enum(["OBJECT_RIGHT", "THUMBNAIL_BOX_RIGHT"]).optional(),
+  placementPlan: z.unknown().optional(),
+  cropCandidates: z.array(z.unknown()).optional(),
 });
 
 export const exportRequestSchema = z.strictObject({
@@ -25,6 +28,9 @@ export const exportRequestSchema = z.strictObject({
   jobName,
   previewToken: token,
   outputDirectoryToken: token,
+  template: z.enum(["OBJECT_RIGHT", "THUMBNAIL_BOX_RIGHT"]).optional(),
+  placementPlan: z.unknown().optional(),
+  cropCandidates: z.array(z.unknown()).optional(),
 });
 
 export const revealRequestSchema = token;

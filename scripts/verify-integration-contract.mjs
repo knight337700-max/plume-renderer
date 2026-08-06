@@ -67,15 +67,15 @@ if (requiredCodes.every((code) => registryCodes.includes(code))) pass("required_
 else fail("required_error_codes", "one or more required integration codes missing");
 
 const contract = await readJson(path.join(root, "contracts", "contract-versions.json"));
-if (contract.templateContractVersion === "1.2.0") pass("template_contract", "templateContractVersion remains 1.2.0");
-else fail("template_contract", `expected 1.2.0, got ${contract.templateContractVersion}`);
+if (contract.templateContractVersion === "1.3.0") pass("template_contract", "templateContractVersion is 1.3.0");
+else fail("template_contract", `expected 1.3.0, got ${contract.templateContractVersion}`);
 
 const capabilities = await readJson(path.join(root, "contracts", "template-capabilities.json"));
 const enabled = capabilities.capabilities.filter((entry) => entry.implementationStatus === "IMPLEMENTED").map((entry) => entry.formatProfileId);
-if (enabled.length === 1 && enabled[0] === "KAKAO_BIZBOARD_OBJECT_RIGHT") pass("capability_gate", "only OBJECT_RIGHT is IMPLEMENTED");
+if (enabled.length === 2 && enabled.includes("KAKAO_BIZBOARD_OBJECT_RIGHT") && enabled.includes("KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT")) pass("capability_gate", "OBJECT_RIGHT and THUMBNAIL_BOX_RIGHT are IMPLEMENTED");
 else fail("capability_gate", `implemented=${enabled.join(",")}`);
 
-const fixtureDirectories = ["alpha-trim-contain", "center-contain", "manual-crop", "agent-semantic-crop", "invalid", "equivalence"];
+const fixtureDirectories = ["alpha-trim-contain", "center-contain", "manual-crop", "agent-semantic-crop", "invalid", "equivalence", "thumbnail-box-right"];
 const missingFixtures = [];
 for (const directory of fixtureDirectories) {
   try { await access(path.join(root, "fixtures", "integration", directory)); } catch { missingFixtures.push(directory); }

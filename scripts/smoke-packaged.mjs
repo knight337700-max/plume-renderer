@@ -9,6 +9,7 @@ import sharp from "sharp";
 const root = process.cwd();
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const expectedPngDigest = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
+const expectedThumbnailPngDigest = "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996";
 const executables = [
   path.join(root, "release", "win-unpacked", "Kakao-Bizboard-Local-Renderer.exe"),
   path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`),
@@ -64,10 +65,20 @@ for (const executable of executables) {
   if (result.previewPngDigest !== expectedPngDigest || result.pngDigest !== expectedPngDigest) {
     throw new Error(`Packaged Golden mismatch: ${JSON.stringify(result)}`);
   }
+  if (result.thumbnailPreviewPngDigest !== expectedThumbnailPngDigest || result.thumbnailPngDigest !== expectedThumbnailPngDigest) {
+    throw new Error(`Packaged Thumbnail Golden mismatch: ${JSON.stringify(result)}`);
+  }
   if (result.blockedNetworkRequestCount !== 0) {
     throw new Error(`Packaged runtime attempted ${result.blockedNetworkRequestCount} network requests`);
   }
-  await Promise.all([access(result.pngPath), access(result.manifestPath), verifyRightMargin(result.pngPath)]);
+  await Promise.all([
+    access(result.pngPath),
+    access(result.manifestPath),
+    access(result.thumbnailPngPath),
+    access(result.thumbnailManifestPath),
+    verifyRightMargin(result.pngPath),
+    verifyRightMargin(result.thumbnailPngPath),
+  ]);
   const report = {
     executable,
     executableBytes: (await stat(executable)).size,

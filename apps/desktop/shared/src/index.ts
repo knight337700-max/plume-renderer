@@ -9,4 +9,5 @@ export type {
   PreviewResult,
   ProductSelectionResult,
   UiRenderInput,
+  UiTemplate,
 } from "./types.js";

@@ -5,6 +5,9 @@ export const NORMALIZED_EPSILON = 1e-9;
 export const OBJECT_RIGHT_FORMAT_PROFILE_ID = "KAKAO_BIZBOARD_OBJECT_RIGHT" as const;
 export const OBJECT_RIGHT_TEMPLATE_ID = "KAKAO_MOMENT_BIZBOARD_OBJECT_RIGHT_1029X258_V1" as const;
 export const OBJECT_RIGHT_IMAGE_SLOT_ID = "OBJECT_RIGHT_PRODUCT" as const;
+export const THUMBNAIL_BOX_RIGHT_FORMAT_PROFILE_ID = "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT" as const;
+export const THUMBNAIL_BOX_RIGHT_TEMPLATE_ID = "KAKAO_MOMENT_BIZBOARD_THUMBNAIL_BOX_RIGHT" as const;
+export const THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID = "IMAGE_PRIMARY" as const;
 
 export type RendererImageMimeType = "image/png" | "image/jpeg" | "image/webp";
 export type AssetRefType = "DESKTOP_ASSET_TOKEN" | "INTEGRATION_ASSET_TOKEN" | "FIXTURE_ASSET_ID";
@@ -412,7 +415,7 @@ export function parsePlacementPlan(value: unknown): { plan: ImagePlacementPlan |
 
 export const CAPABILITIES: Readonly<Record<string, ImagePlacementCapability>> = Object.freeze({
   KAKAO_BIZBOARD_OBJECT_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "IMPLEMENTED", defaultPolicy: "ALPHA_TRIM_CONTAIN", semanticPlacement: "NOT_REQUIRED", allowedPolicies: ["ALPHA_TRIM_CONTAIN"] as const, supportsManualCrop: false, supportsAgentPlacement: false, imageSlotIds: [OBJECT_RIGHT_IMAGE_SLOT_ID] as const }),
-  KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "NOT_IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: false, supportsAgentPlacement: false }),
+  KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: true, supportsAgentPlacement: true, imageSlotIds: [THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID] as const }),
   KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "NOT_IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: false, supportsAgentPlacement: false }),
   KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "NOT_IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: false, supportsAgentPlacement: false }),
   KAKAO_NATIVE_1200: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "NOT_IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: false, supportsAgentPlacement: false }),
@@ -438,7 +441,7 @@ export async function computeFingerprints(input: RendererIntegrationInputV1, ass
     assets: input.assets.map((asset) => ({ assetId: asset.assetId, mimeType: asset.mimeType, digest: assetDigests[asset.assetId] ?? "" })),
     imagePlacementPlans: resolvedPlans.map((plan) => ({ imageSlotId: plan.imageSlotId, assetId: plan.assetId, policy: plan.policy, fitMode: plan.fitMode, cropRect: plan.cropRect, anchor: plan.anchor, subjectProtection: plan.subjectProtection })),
     output: input.output,
-    templateContractVersion: "1.2.0",
+    templateContractVersion: "1.3.0",
   };
   const pixelFingerprint = await sha256Hex(canonicalJson(pixelInput));
   return { requestFingerprint, pixelFingerprint };
@@ -464,9 +467,18 @@ export type LegacyRenderResult = Readonly<{
   appliedImagePlacement?: AppliedImagePlacement;
 }>;
 
+export type ThumbnailRenderRequest = Readonly<{
+  input: RendererIntegrationInputV1;
+  asset: RendererAssetDescriptor;
+  resolvedAsset: AssetResolverResult;
+  resolvedPlan: ImagePlacementPlan;
+  resolvedSourceCropRect: NormalizedRect;
+}>;
+
 export type IntegrationAdapterDependencies = Readonly<{
   resolver: RendererAssetResolver;
-  renderLegacy: (input: LegacyObjectRightInput, resolvedAsset: AssetResolverResult) => Promise<LegacyRenderResult>;
+  renderLegacy?: (input: LegacyObjectRightInput, resolvedAsset: AssetResolverResult) => Promise<LegacyRenderResult>;
+  renderThumbnail?: (request: ThumbnailRenderRequest) => Promise<LegacyRenderResult>;
   assetDigests?: Readonly<Record<string, string>>;
 }>;
 
@@ -495,13 +507,14 @@ export async function renderWithIntegrationAdapter(
     ? validateIntegrationInput(input, context)
     : [issue("KBR-TEMPLATE-CONSTRAINT-VIOLATION", "ERROR", "template.capability_not_implemented", { path: "/formatProfileId", actual: input.formatProfileId })];
   if (input.formatProfileId === OBJECT_RIGHT_FORMAT_PROFILE_ID && input.templateId !== OBJECT_RIGHT_TEMPLATE_ID) initialIssues.push(issue("KBR-TEMPLATE-CONSTRAINT-VIOLATION", "ERROR", "template.template_id_mismatch", { path: "/templateId", actual: input.templateId, expected: OBJECT_RIGHT_TEMPLATE_ID }));
+  if (input.formatProfileId === THUMBNAIL_BOX_RIGHT_FORMAT_PROFILE_ID && input.templateId !== THUMBNAIL_BOX_RIGHT_TEMPLATE_ID) initialIssues.push(issue("KBR-TEMPLATE-CONSTRAINT-VIOLATION", "ERROR", "template.template_id_mismatch", { path: "/templateId", actual: input.templateId, expected: THUMBNAIL_BOX_RIGHT_TEMPLATE_ID }));
   const assetDigests: Record<string, string> = { ...(dependencies.assetDigests ?? {}) };
   const resolvedPlans = input.imagePlacementPlans.map((plan) => {
     const candidate = input.cropCandidates?.find((item) => item.candidateId === plan.cropCandidateId);
     return candidate && !plan.cropRect ? { ...plan, cropRect: candidate.cropRect } : plan;
   });
   const issues = [...initialIssues];
-  let legacyResult: LegacyRenderResult | undefined;
+  let renderResult: LegacyRenderResult | undefined;
   if (issues.every((entry) => entry.severity !== "ERROR")) {
     const asset = input.assets.find((entry) => entry.assetId === input.imagePlacementPlans[0]?.assetId);
     if (!asset) issues.push(issue("KBR-ASSET-NOT-FOUND", "ERROR", "asset.not_found", { path: "/imagePlacementPlans/0/assetId" }));
@@ -513,15 +526,26 @@ export async function renderWithIntegrationAdapter(
         if (asset.checksumSha256 && asset.checksumSha256.toLowerCase() !== digest) issues.push(issue("KBR-ASSET-CHECKSUM-MISMATCH", "ERROR", "asset.checksum_mismatch", { path: "/assets", assetId: asset.assetId, actual: digest, expected: asset.checksumSha256 }));
         if (resolved.resolvedMimeType !== asset.mimeType) issues.push(issue("KBR-IMAGE-DECODE-FAILED", "ERROR", "asset.mime_type_mismatch", { path: "/assets", assetId: asset.assetId }));
         const pngMetadata = resolved.resolvedMimeType === "image/png" ? inspectResolvedPng(resolved.bytes) : null;
-        if (!pngMetadata) issues.push(issue("KBR-IMAGE-DECODE-FAILED", "ERROR", "asset.image_decode_failed", { path: "/assets", assetId: asset.assetId }));
-        else {
+        if (resolved.resolvedMimeType === "image/png" && !pngMetadata) issues.push(issue("KBR-IMAGE-DECODE-FAILED", "ERROR", "asset.image_decode_failed", { path: "/assets", assetId: asset.assetId }));
+        else if (pngMetadata) {
           if (asset.declaredWidth !== undefined && asset.declaredWidth !== pngMetadata.width || asset.declaredHeight !== undefined && asset.declaredHeight !== pngMetadata.height) issues.push(issue("KBR-ASSET-DIMENSION-MISMATCH", "ERROR", "asset.dimension_mismatch", { path: "/assets", assetId: asset.assetId, actual: { width: pngMetadata.width, height: pngMetadata.height }, expected: { width: asset.declaredWidth, height: asset.declaredHeight } }));
           if (input.imagePlacementPlans.some((plan) => plan.assetId === asset.assetId && plan.policy === "ALPHA_TRIM_CONTAIN") && !pngMetadata.hasAlpha) issues.push(issue("KBR-ALPHA-CHANNEL-REQUIRED", "ERROR", "asset.alpha_channel_required", { path: "/assets", assetId: asset.assetId }));
         }
         const copy = input.copy;
         if (!copy.advertiser || !copy.headline || !copy.subcopy) issues.push(issue("KBR-INPUT-007", "ERROR", "input.required_string_missing", { path: "/copy" }));
         if (issues.every((entry) => entry.severity !== "ERROR")) {
-          legacyResult = await dependencies.renderLegacy({ channel: "KAKAO_MOMENT", placement: "BIZBOARD", template: "OBJECT_RIGHT", advertiser: copy.advertiser!, copy: { headline: copy.headline!, subcopy: copy.subcopy! }, cta: { mode: "NONE", label: "" }, product: { relativePath: `integration/${asset.assetId}`, expectedSha256: digest }, output: { directory: "integration-output", baseName: "output", overwrite: false }, canvas: { width: 1029, height: 258 } }, resolved);
+          const plan = resolvedPlans.find((entry) => entry.imageSlotId === input.imagePlacementPlans[0]?.imageSlotId);
+          if (input.formatProfileId === THUMBNAIL_BOX_RIGHT_FORMAT_PROFILE_ID) {
+            if (!dependencies.renderThumbnail) issues.push(issue("KBR-OUTPUT-INVALID", "ERROR", "output.thumbnail_renderer_missing", { path: "/artifact" }));
+            else if (!plan?.cropRect) issues.push(issue("KBR-CROP-RECT-REQUIRED", "ERROR", "placement.semantic_crop_required", { path: "/imagePlacementPlans/0/cropRect" }));
+            else {
+              renderResult = await dependencies.renderThumbnail({ input, asset, resolvedAsset: resolved, resolvedPlan: plan, resolvedSourceCropRect: plan.cropRect });
+            }
+          } else if (dependencies.renderLegacy) {
+            renderResult = await dependencies.renderLegacy({ channel: "KAKAO_MOMENT", placement: "BIZBOARD", template: "OBJECT_RIGHT", advertiser: copy.advertiser!, copy: { headline: copy.headline!, subcopy: copy.subcopy! }, cta: { mode: "NONE", label: "" }, product: { relativePath: `integration/${asset.assetId}`, expectedSha256: digest }, output: { directory: "integration-output", baseName: "output", overwrite: false }, canvas: { width: 1029, height: 258 } }, resolved);
+          } else {
+            issues.push(issue("KBR-OUTPUT-INVALID", "ERROR", "output.renderer_missing", { path: "/artifact" }));
+          }
         }
       } catch (error) {
         issues.push(issue("KBR-ASSET-REF-UNRESOLVED", "ERROR", "asset.ref_unresolved", { path: "/assets", assetId: asset.assetId, message: error instanceof Error ? error.message : String(error) }));
@@ -533,20 +557,20 @@ export async function renderWithIntegrationAdapter(
   const errors = sorted.filter((entry) => entry.severity === "ERROR");
   const warnings = sorted.filter((entry) => entry.severity === "WARNING");
   const info = sorted.filter((entry) => entry.severity === "INFO");
-  if (!legacyResult || errors.length > 0) return { schemaVersion: INTEGRATION_SCHEMA_VERSION, status: "BLOCKED", appliedImagePlacements: [], validation: { errors, warnings, info }, ...fingerprints, renderFingerprint: fingerprints.pixelFingerprint };
-  if (legacyResult.mimeType !== "image/png" || legacyResult.width !== 1029 || legacyResult.height !== 258) {
-    const outputError = issue("KBR-OUTPUT-INVALID", "ERROR", "output.artifact_contract_invalid", { path: "/artifact", actual: { mimeType: legacyResult.mimeType, width: legacyResult.width, height: legacyResult.height }, expected: { mimeType: "image/png", width: 1029, height: 258 } });
+  if (!renderResult || errors.length > 0) return { schemaVersion: INTEGRATION_SCHEMA_VERSION, status: "BLOCKED", appliedImagePlacements: [], validation: { errors, warnings, info }, ...fingerprints, renderFingerprint: fingerprints.pixelFingerprint };
+  if (renderResult.mimeType !== "image/png" || renderResult.width !== 1029 || renderResult.height !== 258) {
+    const outputError = issue("KBR-OUTPUT-INVALID", "ERROR", "output.artifact_contract_invalid", { path: "/artifact", actual: { mimeType: renderResult.mimeType, width: renderResult.width, height: renderResult.height }, expected: { mimeType: "image/png", width: 1029, height: 258 } });
     return { schemaVersion: INTEGRATION_SCHEMA_VERSION, status: "BLOCKED", appliedImagePlacements: [], validation: { errors: [outputError], warnings, info }, ...fingerprints, renderFingerprint: fingerprints.pixelFingerprint };
   }
-  if (!legacyResult.appliedImagePlacement) {
+  if (!renderResult.appliedImagePlacement) {
     const placementError = issue("KBR-OUTPUT-INVALID", "ERROR", "output.applied_placement_missing", { path: "/appliedImagePlacements" });
     return { schemaVersion: INTEGRATION_SCHEMA_VERSION, status: "BLOCKED", appliedImagePlacements: [], validation: { errors: [placementError], warnings, info }, ...fingerprints, renderFingerprint: fingerprints.pixelFingerprint };
   }
-  const requestedPlan = input.imagePlacementPlans.find((plan) => plan.imageSlotId === legacyResult.appliedImagePlacement!.imageSlotId);
-  if (legacyResult.appliedImagePlacement.changedFromRequestedPlan !== false || !requestedPlan || legacyResult.appliedImagePlacement.assetId !== requestedPlan.assetId || legacyResult.appliedImagePlacement.policy !== requestedPlan.policy) {
-    const placementError = issue("KBR-OUTPUT-INVALID", "ERROR", "output.applied_placement_changed", { path: "/appliedImagePlacements/0", expected: { changedFromRequestedPlan: false, imageSlotId: requestedPlan?.imageSlotId, assetId: requestedPlan?.assetId, policy: requestedPlan?.policy }, actual: legacyResult.appliedImagePlacement });
+  const requestedPlan = input.imagePlacementPlans.find((plan) => plan.imageSlotId === renderResult.appliedImagePlacement!.imageSlotId);
+  if (renderResult.appliedImagePlacement.changedFromRequestedPlan !== false || !requestedPlan || renderResult.appliedImagePlacement.assetId !== requestedPlan.assetId || renderResult.appliedImagePlacement.policy !== requestedPlan.policy) {
+    const placementError = issue("KBR-OUTPUT-INVALID", "ERROR", "output.applied_placement_changed", { path: "/appliedImagePlacements/0", expected: { changedFromRequestedPlan: false, imageSlotId: requestedPlan?.imageSlotId, assetId: requestedPlan?.assetId, policy: requestedPlan?.policy }, actual: renderResult.appliedImagePlacement });
     return { schemaVersion: INTEGRATION_SCHEMA_VERSION, status: "BLOCKED", appliedImagePlacements: [], validation: { errors: [placementError], warnings, info }, ...fingerprints, renderFingerprint: fingerprints.pixelFingerprint };
   }
-  const artifactChecksum = await sha256Hex(legacyResult.bytes);
-  return { schemaVersion: INTEGRATION_SCHEMA_VERSION, status: "PASS", artifact: { mimeType: "image/png", width: legacyResult.width, height: legacyResult.height, bytes: legacyResult.bytes.byteLength, checksumSha256: artifactChecksum }, appliedImagePlacements: [legacyResult.appliedImagePlacement], validation: { errors, warnings, info }, ...fingerprints, renderFingerprint: fingerprints.pixelFingerprint };
+  const artifactChecksum = await sha256Hex(renderResult.bytes);
+  return { schemaVersion: INTEGRATION_SCHEMA_VERSION, status: "PASS", artifact: { mimeType: "image/png", width: renderResult.width, height: renderResult.height, bytes: renderResult.bytes.byteLength, checksumSha256: artifactChecksum }, appliedImagePlacements: [renderResult.appliedImagePlacement], validation: { errors, warnings, info }, ...fingerprints, renderFingerprint: fingerprints.pixelFingerprint };
 }

@@ -9,6 +9,7 @@ import { sha256File } from "../../src/core/hash.js";
 import { projectRoot } from "../helpers.js";
 
 const GOLDEN_SHA256 = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
+const THUMBNAIL_GOLDEN_SHA256 = "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996";
 
 type Launched = {
   app: ElectronApplication;
@@ -186,6 +187,30 @@ test("Renderer Lab imports and exports the same strict PlacementPlan JSON path",
     await launched.page.getByTestId("placement-agent-fixture").click();
     await expect(launched.page.getByTestId("placement-plan-status")).toContainText("source=AGENT");
     await expect(launched.page.getByTestId("placement-plan-json")).toHaveValue(/"source"\s*:\s*"AGENT"/u);
+  } finally {
+    await close(launched);
+  }
+});
+
+test("THUMBNAIL_BOX_RIGHT Lab executes direct semantic crop and exports the same PNG", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "valid", "thumbnail-box-right__asset__basic__pass.png"),
+  );
+  try {
+    await launched.page.getByTestId("select-product").click();
+    await fillValidForm(launched.page, "thumbnail-box-e2e");
+    await launched.page.getByTestId("template-select").selectOption("THUMBNAIL_BOX_RIGHT");
+    await launched.page.getByTestId("crop-rect-input").fill("0.1,0,0.8,1");
+    await launched.page.getByTestId("crop-rect-apply").click();
+    await launched.page.getByTestId("request-preview").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText(/VALID_(?:PASS|WARNING)/u);
+    await expect(launched.page.getByTestId("preview-image")).toBeVisible();
+    await expect(launched.page.getByTestId("applied-destination-rect")).toContainText("x=666, y=36, w=315, h=186");
+    await launched.page.getByTestId("select-output").click();
+    await launched.page.getByTestId("export-render").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText("EXPORTED");
+    await expect(launched.page.getByTestId("export-result")).toContainText(THUMBNAIL_GOLDEN_SHA256);
+    await expect.poll(async () => sha256File(path.join(launched.outputRoot, "thumbnail-box-e2e", "output.png"))).toBe(THUMBNAIL_GOLDEN_SHA256);
   } finally {
     await close(launched);
   }
