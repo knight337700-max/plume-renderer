@@ -7,10 +7,10 @@ export const CROP_RECT_FIELDS = ["x", "y", "width", "height"] as const;
 export type CropRectField = (typeof CROP_RECT_FIELDS)[number];
 export type CropRectDraft = Record<CropRectField, string>;
 
-export const CROP_RECT_STEPS = {
-  fine: 0.0001,
-  normal: 0.001,
-  coarse: 0.01,
+export const CROP_KEYBOARD_STEPS = {
+  default: 0.1,
+  shift: 0.01,
+  alt: 0.001,
 } as const;
 
 const COMPLETE_DECIMAL_PATTERN = /^-?(?:\d+(?:\.\d+)?|\.\d+)$/u;
@@ -69,10 +69,6 @@ export function validateCropRectDraft(draft: CropRectDraft): CropDraftValidation
   return { rect };
 }
 
-export function decimalStepLabel(step: number): string {
-  return step.toString();
-}
-
 function addDecimalStrings(base: string, delta: string): string {
   const parse = (value: string): { sign: bigint; digits: string; fraction: number } | null => {
     const match = value.trim().match(/^(-?)(\d+)(?:\.(\d+))?$/u);
@@ -96,10 +92,10 @@ function addDecimalStrings(base: string, delta: string): string {
   return `${sign}${integer}${fraction ? `.${fraction}` : ""}`;
 }
 
-export function nudgeCropRectDraft(draft: CropRectDraft, field: CropRectField, delta: number): CropRectDraft {
+export function adjustCropRectDraft(draft: CropRectDraft, field: CropRectField, delta: number): CropRectDraft {
   const current = Number(draft[field]);
   if (!Number.isFinite(current)) return { ...draft, [field]: draft[field] };
-  // A nudge is a deliberate decimal operation. It never clamps to the contract
+  // A keyboard adjustment is a deliberate decimal operation. It never clamps to the contract
   // boundary; the caller validates the resulting draft before committing it.
   const nextText = addDecimalStrings(draft[field], String(delta));
   return { ...draft, [field]: nextText };

@@ -239,13 +239,22 @@ async function runPackagedSmoke(
     });
     if (thumbnailExport.status !== "EXPORTED") throw new Error(`Thumbnail export failed: ${thumbnailExport.code}`);
     const thumbnailPaths = controller.getExportPaths(thumbnailExport.exportToken);
-    if (!thumbnailInput.placementPlan) throw new Error("Thumbnail placement plan is missing");
+    const thumbnailPlan = thumbnailInput.placementPlan;
+    if (!thumbnailPlan) throw new Error("Thumbnail placement plan is missing");
     const decimalThumbnailInput: UiRenderInput = {
       ...thumbnailInput,
       jobName: "package-smoke-thumbnail-decimal",
       requestSequence: 5,
       placementPlan: {
-        ...thumbnailInput.placementPlan,
+        ...thumbnailPlan,
+        schemaVersion: thumbnailPlan.schemaVersion,
+        imageSlotId: thumbnailPlan.imageSlotId,
+        assetId: thumbnailPlan.assetId,
+        policy: thumbnailPlan.policy,
+        source: thumbnailPlan.source,
+        fitMode: thumbnailPlan.fitMode,
+        anchor: thumbnailPlan.anchor,
+        subjectProtection: thumbnailPlan.subjectProtection,
         cropRect: { x: 0.125, y: 0.0835, width: 0.734, height: 0.8125 },
       },
     };
@@ -258,6 +267,41 @@ async function runPackagedSmoke(
     });
     if (decimalThumbnailExport.status !== "EXPORTED") throw new Error(`Decimal thumbnail export failed: ${decimalThumbnailExport.code}`);
     const decimalThumbnailPaths = controller.getExportPaths(decimalThumbnailExport.exportToken);
+    const keyboardAdjustmentBasePlan = {
+      ...thumbnailPlan,
+      schemaVersion: thumbnailPlan.schemaVersion,
+      imageSlotId: thumbnailPlan.imageSlotId,
+      assetId: thumbnailPlan.assetId,
+      policy: thumbnailPlan.policy,
+      source: thumbnailPlan.source,
+      fitMode: thumbnailPlan.fitMode,
+      anchor: thumbnailPlan.anchor,
+      subjectProtection: thumbnailPlan.subjectProtection,
+      cropRect: { x: 0, y: 0, width: 0.5, height: 1 },
+    };
+    const keyboardAdjustmentPlan = { ...keyboardAdjustmentBasePlan, cropRect: { x: 0.1, y: 0, width: 0.5, height: 1 } };
+    const keyboardAdjustmentBaseInput: UiRenderInput = {
+      ...thumbnailInput,
+      jobName: "package-smoke-thumbnail-keyboard-base",
+      requestSequence: 6,
+      placementPlan: keyboardAdjustmentBasePlan,
+    };
+    const keyboardAdjustmentInput: UiRenderInput = {
+      ...keyboardAdjustmentBaseInput,
+      jobName: "package-smoke-thumbnail-keyboard-adjusted",
+      requestSequence: 7,
+      placementPlan: keyboardAdjustmentPlan,
+    };
+    const keyboardBasePreview = await controller.requestPreview(keyboardAdjustmentBaseInput);
+    const keyboardAdjustedPreview = await controller.requestPreview(keyboardAdjustmentInput);
+    if (!keyboardBasePreview.previewToken || keyboardBasePreview.validationStatus === "ERROR" || !keyboardAdjustedPreview.previewToken || keyboardAdjustedPreview.validationStatus === "ERROR") throw new Error("Keyboard crop adjustment preview failed");
+    const keyboardAdjustedExport = await controller.exportRender({
+      ...keyboardAdjustmentInput,
+      previewToken: keyboardAdjustedPreview.previewToken,
+      outputDirectoryToken: selectedOutput.token,
+    });
+    if (keyboardAdjustedExport.status !== "EXPORTED") throw new Error(`Keyboard crop adjustment export failed: ${keyboardAdjustedExport.code}`);
+    const keyboardAdjustedPaths = controller.getExportPaths(keyboardAdjustedExport.exportToken);
     const multiSecondary = await controller.selectSecondaryProductFromPath(jpegProductPath);
     if (multiSecondary.status !== "SELECTED") throw new Error("Thumbnail multi secondary selection failed");
     const multiInput: UiRenderInput = {
@@ -329,6 +373,12 @@ async function runPackagedSmoke(
         decimalThumbnailManifestDigest: decimalThumbnailExport.manifestDigest,
         decimalThumbnailPngPath: decimalThumbnailPaths.pngPath,
         decimalThumbnailManifestPath: decimalThumbnailPaths.manifestPath,
+        keyboardBasePreviewPngDigest: keyboardBasePreview.previewPngDigest,
+        keyboardAdjustedPreviewPngDigest: keyboardAdjustedPreview.previewPngDigest,
+        keyboardAdjustedPngDigest: keyboardAdjustedExport.pngDigest,
+        keyboardAdjustedManifestDigest: keyboardAdjustedExport.manifestDigest,
+        keyboardAdjustedPngPath: keyboardAdjustedPaths.pngPath,
+        keyboardAdjustedManifestPath: keyboardAdjustedPaths.manifestPath,
         multiPreviewPngDigest: multiPreview.previewPngDigest,
         multiPngDigest: multiExport.pngDigest,
         multiManifestDigest: multiExport.manifestDigest,

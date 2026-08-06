@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.6.1
-- **Status:** Frozen Implementation Contract — Phase C5a decimal Crop Rect clarification
+- **Document version:** 1.6.2
+- **Status:** Frozen Implementation Contract — Phase C5b simplified Crop keyboard controls
 - **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, and THUMBNAIL_MULTI_RIGHT / 1029×258`
@@ -2396,7 +2396,7 @@ scientific notation은 허용하지 않고, JSON Import에서는 JSON parser가 
 number 표현을 사용한다. 이번 patch에는 임의 반올림이나 새 precision 오류 코드를
 추가하지 않는다. **[PROJECT]**
 
-### 21.2 Renderer Lab edit buffer and nudge [PROJECT]
+### 21.2 Renderer Lab edit buffer [PROJECT]
 
 각 Crop Rect 필드는 `x`, `y`, `width`, `height` 별도 문자열 edit buffer를
 사용한다. `""`, `"0."`, `"0.0"` 같은 중간 입력은 문자열 그대로 유지하고 기존의
@@ -2404,12 +2404,11 @@ number 표현을 사용한다. 이번 patch에는 임의 반올림이나 새 pre
 통과할 때만 Plan draft를 갱신한다. 오류 입력은 표시하되 자동 복원·clamp하지
 않으며, width/height의 0은 Core 검증에서 거부한다.
 
-HTML 입력은 `type=number`, `min=0`, `max=1`, `step=0.001`,
+HTML 입력은 `type=number`, `min=0`, `max=1`, `step=any`,
 `inputMode=decimal`을 사용한다. 브라우저의 stepMismatch는 계약 판정이 아니며
-수동 `0.123456` 입력을 허용한다. Arrow Up/Down과 +/- 버튼은 다음 delta를
-고정한다: `fine=0.0001`, `normal=0.001`, `coarse=0.01`. Shift+Arrow는 fine,
-Alt+Arrow는 coarse, 일반 Arrow는 normal이다. 범위를 넘는 nudge는 적용하지
-않고 오류를 표시한다.
+수동 `0.123456` 입력을 허용한다. 커스텀 +/- 버튼은 제공하지 않는다. 명시적인
+keydown 처리로 Arrow Up/Down은 `±0.1`, Shift+Arrow는 `±0.01`, Alt+Arrow는
+`±0.001`을 적용한다. 범위를 넘는 키보드 조절은 적용하지 않고 오류를 표시한다.
 
 ### 21.3 Pixel conversion and fingerprints [PROJECT]
 
@@ -2449,3 +2448,48 @@ THUMBNAIL_BOX_RIGHT `f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c
 THUMBNAIL_MULTI_RIGHT `ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55`.
 Windows 10/11 x64 고정 환경에서 decimal fine crop, Plan round trip, 두 Slot 독립성,
 Preview/Export byte equality, package smoke를 자동 검증한다.
+
+## 22. Phase C5b — Crop keyboard adjustment UI simplification [PROJECT]
+
+이 절은 Canonical 문서 `1.6.1`의 Renderer Lab 조절 UX를 `1.6.2` patch로
+명확히 한다. `OBJECT_RIGHT`에는 Crop UI가 없으므로 변경하지 않는다. Core,
+Template Contract `1.3.0`, Integration Contract `1.1.0`, 좌표, 픽셀 변환 및 기존
+Golden PNG는 변경하지 않는다.
+
+### 22.1 Controls
+
+Box Right와 Multi의 각 Slot은 `x`, `y`, `width`, `height` 입력 필드만 표시한다.
+필드 아래의 커스텀 `-`/`+` 버튼, fine/normal/coarse 버튼 묶음, 전용 wrapper와
+관련 CSS/handler는 사용하지 않는다. Crop 그룹 하단에는 안내를 한 번만 표시한다:
+`↑↓ 0.1 · Shift+↑↓ 0.01 · Alt+↑↓ 0.001`.
+
+각 필드는 `type=number`, `min=0`, `max=1`, `inputMode=decimal`, `step=any`다.
+브라우저의 native stepMismatch에 의존하지 않으며, keydown을 직접 처리한다.
+Arrow Up/Down은 `±0.1`, Shift는 `±0.01`, Alt는 `±0.001`이다. 직접 입력한
+`0.05`, `0.125`, `0.333333`과 C5a의 문자열 중간 입력은 그대로 보존한다.
+
+### 22.2 Deterministic adjustment and bounds
+
+키보드 조절에는 C5a의 decimal 정수 연산 helper를 사용한다. `0.2 + 0.1`은
+`0.3`이며 `0.30000000000000004`를 표시하거나 Plan에 저장하지 않는다. 조절
+결과가 normalized rect 계약을 벗어나면 변경을 적용하지 않고 기존 유효값을
+유지한다. 자동 clamp, 정수 반올림, 빈 값의 0 대체는 금지한다.
+
+Crop number input이 focus된 상태의 wheel 이벤트는 `preventDefault`하여 값이
+우발적으로 변경되지 않게 한다. Focus되지 않은 페이지의 wheel/scroll은 그대로
+동작한다.
+
+### 22.3 Version and acceptance [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.6.1 | 1.6.2 | Crop keyboard adjustment UI simplification |
+| Template Contract | 1.3.0 | 1.3.0 | 변경 없음 |
+| Integration Contract | 1.1.0 | 1.1.0 | 변경 없음 |
+| Desktop | 0.5.1 | 0.5.2 | 커스텀 버튼 제거, keyboard step 및 wheel 보호 |
+
+기존 Golden SHA는 OBJECT_RIGHT `20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`,
+THUMBNAIL_BOX_RIGHT `f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996`,
+THUMBNAIL_MULTI_RIGHT `ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55`로
+유지한다. E2E와 packaged smoke는 버튼 부재, keyboard decimal 조절, wheel 보호,
+Preview/Export 및 Slot 독립성을 검증한다.

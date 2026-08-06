@@ -24,12 +24,25 @@ C5a keeps the normalized geometry and Core conversion unchanged. Box Right and e
 Multi slot expose separate `x`, `y`, `width`, and `height` fields backed by strings so
 `""`, `"0."`, and other intermediate values remain editable. Only a complete finite
 decimal draft that passes `validateNormalizedRect` replaces the current Plan; invalid
-values remain visible and are never clamped or rounded. The HTML controls use
-`type=number`, `min=0`, `max=1`, `step=0.001`, and `inputMode=decimal`, while manual
-typing preserves at least six decimal places.
+values remain visible and are never clamped or rounded. The initial C5a snapshot used
+`type=number`, `min=0`, `max=1`, and `inputMode=decimal`, while manual typing preserves
+at least six decimal places. C5b is the current control contract and changes the
+native step attribute to `step=any`.
 
-Arrow/nudge semantics are deterministic: normal `0.001`, Shift/fine `0.0001`, and
-Alt/coarse `0.01`. A nudge that would leave the normalized contract is rejected. The
-same decimal values flow through Plan Import/Export and are passed to the existing
+The same decimal values flow through Plan Import/Export and are passed to the existing
 floor/ceil normalized-to-pixel conversion. Multi Slot drafts are keyed by Slot ID, so
 editing Primary cannot mutate Secondary. OBJECT_RIGHT retains disabled Crop controls.
+The C5b follow-up supersedes the initial C5a control details: the current UI uses
+`step=any`, explicit keyboard deltas of `0.1`/`0.01`/`0.001`, and no custom button rows.
+
+## C5b keyboard-only Crop adjustment
+
+The Lab removes all custom Crop `-`/`+` buttons and their wrapper styles/handlers.
+Each decimal input uses `step=any` so direct values below `0.1` remain valid. Keydown
+is handled explicitly: Arrow `±0.1`, Shift+Arrow `±0.01`, and Alt+Arrow `±0.001`.
+The existing deterministic decimal helper prevents binary floating-point noise. A
+keyboard result outside the normalized contract is rejected without changing the
+current valid draft. Focused Crop number inputs prevent wheel-based value changes,
+while ordinary page scrolling remains available. One group-level hint documents the
+three keyboard steps; field-level button rows and repeated fine/normal/coarse text are
+not rendered.

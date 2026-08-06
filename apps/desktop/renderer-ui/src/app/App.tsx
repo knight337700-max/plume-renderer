@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useReducer, useState, type KeyboardEvent, type WheelEvent } from "react";
 
 import type { AppInfo, ExportRequest, ProductSelectionResult, UiRenderInput, UiTemplate } from "../../../shared/src/index.js";
 import type { TextMeasurement } from "../../../../../src/core/types.js";
@@ -16,13 +16,12 @@ import {
 import { formatProductMetadata } from "../features/product-file/format.js";
 import {
   CROP_RECT_FIELDS,
-  CROP_RECT_STEPS,
+  CROP_KEYBOARD_STEPS,
   cropDraftErrorMessage,
   cropRectToDraft,
   cropRectToTuple,
-  decimalStepLabel,
   emptyCropRectDraft,
-  nudgeCropRectDraft,
+  adjustCropRectDraft,
   tupleToCropRectDraft,
   validateCropRectDraft,
   type CropRectDraft,
@@ -168,12 +167,18 @@ export function App() {
     setPlacementPlanMessage("PASS · direct crop rect decimal을 적용했습니다.");
   }
 
-  function nudgeBoxCrop(field: CropRectField, delta: number) {
+  function adjustBoxCrop(field: CropRectField, delta: number) {
     if (candidateId) {
       setPlacementPlanMessage("BLOCKED · Crop Candidate가 선택된 동안 direct crop을 수정할 수 없습니다.");
       return;
     }
-    setBoxCropDraftValue(field, nudgeCropRectDraft(boxCropDraft, field, delta)[field]);
+    const nextDraft = adjustCropRectDraft(boxCropDraft, field, delta);
+    const validation = validateCropRectDraft(nextDraft);
+    if (!validation.rect) {
+      setPlacementPlanMessage(cropDraftErrorMessage(validation));
+      return;
+    }
+    setBoxCropDraftValue(field, nextDraft[field]);
   }
 
   function setMultiCropDraftValue(imageSlotId: string, field: CropRectField, value: string) {
@@ -190,22 +195,32 @@ export function App() {
     setPlacementPlanMessage(`PASS · ${imageSlotId} decimal crop을 적용했습니다.`);
   }
 
-  function nudgeMultiCrop(imageSlotId: string, field: CropRectField, delta: number) {
+  function adjustMultiCrop(imageSlotId: string, field: CropRectField, delta: number) {
     const plan = multiPlans[imageSlotId];
     if (plan?.cropCandidateId) {
       setPlacementPlanMessage("BLOCKED · Crop Candidate가 선택된 동안 direct crop을 수정할 수 없습니다.");
       return;
     }
     const draft = multiCropDrafts[imageSlotId] ?? cropRectToDraft(plan?.cropRect);
-    setMultiCropDraftValue(imageSlotId, field, nudgeCropRectDraft(draft, field, delta)[field]);
+    const nextDraft = adjustCropRectDraft(draft, field, delta);
+    const validation = validateCropRectDraft(nextDraft);
+    if (!validation.rect) {
+      setPlacementPlanMessage(cropDraftErrorMessage(validation));
+      return;
+    }
+    setMultiCropDraftValue(imageSlotId, field, nextDraft[field]);
   }
 
-  function handleCropKeyDown(event: KeyboardEvent<HTMLInputElement>, nudge: (delta: number) => void) {
+  function handleCropKeyDown(event: KeyboardEvent<HTMLInputElement>, adjust: (delta: number) => void) {
     if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
     event.preventDefault();
     const direction = event.key === "ArrowUp" ? 1 : -1;
-    const step = event.altKey ? CROP_RECT_STEPS.coarse : event.shiftKey ? CROP_RECT_STEPS.fine : CROP_RECT_STEPS.normal;
-    nudge(direction * step);
+    const step = event.altKey ? CROP_KEYBOARD_STEPS.alt : event.shiftKey ? CROP_KEYBOARD_STEPS.shift : CROP_KEYBOARD_STEPS.default;
+    adjust(direction * step);
+  }
+
+  function preventFocusedCropWheel(event: WheelEvent<HTMLInputElement>) {
+    if (document.activeElement === event.currentTarget) event.preventDefault();
   }
 
   function setTemplateMode(next: UiTemplate) {
@@ -662,26 +677,19 @@ export function App() {
                           type="number"
                           min="0"
                           max="1"
-                          step="0.001"
+                          step="any"
                           inputMode="decimal"
                           value={boxCropDraft[field]}
                           disabled={Boolean(candidateId)}
                           aria-invalid={Boolean(candidateId ? false : validateCropRectDraft(boxCropDraft).reason === "OUT_OF_BOUNDS")}
                           onChange={(event) => setBoxCropDraftValue(field, event.target.value)}
-                          onKeyDown={(event) => handleCropKeyDown(event, (delta) => nudgeBoxCrop(field, delta))}
+                          onKeyDown={(event) => handleCropKeyDown(event, (delta) => adjustBoxCrop(field, delta))}
+                          onWheel={preventFocusedCropWheel}
                         />
-                        <div className="crop-nudge-row">
-                          {(["fine", "normal", "coarse"] as const).map((precision) => (
-                            <span className="crop-nudge-group" key={precision}>
-                              <button type="button" className="secondary" disabled={Boolean(candidateId)} aria-label={`${field} ${precision} 감소`} data-testid={`crop-rect-${field}-${precision}-down`} onClick={() => nudgeBoxCrop(field, -CROP_RECT_STEPS[precision])}>−</button>
-                              <button type="button" className="secondary" disabled={Boolean(candidateId)} aria-label={`${field} ${precision} 증가`} data-testid={`crop-rect-${field}-${precision}-up`} onClick={() => nudgeBoxCrop(field, CROP_RECT_STEPS[precision])}>+</button>
-                            </span>
-                          ))}
-                        </div>
                       </label>
                     ))}
                   </div>
-                  <small className="hint">step=0.001 · fine={decimalStepLabel(CROP_RECT_STEPS.fine)} · normal={decimalStepLabel(CROP_RECT_STEPS.normal)} · coarse={decimalStepLabel(CROP_RECT_STEPS.coarse)} · 입력값은 자동 clamp하지 않습니다.</small>
+                  <small className="hint">↑↓ 0.1 · Shift+↑↓ 0.01 · Alt+↑↓ 0.001</small>
                   <label className="legacy-crop-tuple"><span className="field-label">Crop Rect tuple (호환 입력)</span><input data-testid="crop-rect-input" value={cropRectText} onChange={(event) => { setCropRectText(event.target.value); dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName }); }} /><button type="button" className="secondary" onClick={applyCropRect} data-testid="crop-rect-apply">Apply Crop Rect</button></label>
                 </div>
                 <label className="field-group"><span className="field-label">Crop Candidate</span><select data-testid="crop-candidate-select" value={candidateId} onChange={(event) => { const next = event.target.value; setCandidateId(next); if (next) { setBoxCropDraft(cropRectToDraft(thumbnailCandidate.cropRect)); setCropRectText(cropRectToTuple(thumbnailCandidate.cropRect)); updateThumbnailPlan({ cropCandidateId: next }, next); } else updateThumbnailPlan({ cropRect: { x: 0, y: 0, width: 1, height: 1 } }, ""); }}><option value="">Direct crop</option><option value="full-frame">full-frame</option></select></label>
@@ -729,27 +737,20 @@ export function App() {
                                   type="number"
                                   min="0"
                                   max="1"
-                                  step="0.001"
+                                  step="any"
                                   inputMode="decimal"
                                   value={draft[field]}
                                   disabled={Boolean(plan.cropCandidateId)}
                                   aria-invalid={Boolean(plan.cropCandidateId ? false : validation.reason === "OUT_OF_BOUNDS")}
                                   onChange={(event) => setMultiCropDraftValue(slotId, field, event.target.value)}
-                                  onKeyDown={(event) => handleCropKeyDown(event, (delta) => nudgeMultiCrop(slotId, field, delta))}
+                                  onKeyDown={(event) => handleCropKeyDown(event, (delta) => adjustMultiCrop(slotId, field, delta))}
+                                  onWheel={preventFocusedCropWheel}
                                 />
-                                <div className="crop-nudge-row">
-                                  {(["fine", "normal", "coarse"] as const).map((precision) => (
-                                    <span className="crop-nudge-group" key={precision}>
-                                      <button type="button" className="secondary" disabled={Boolean(plan.cropCandidateId)} aria-label={`${slotLabel} ${field} ${precision} 감소`} data-testid={`crop-${slotLabel}-${field}-${precision}-down`} onClick={() => nudgeMultiCrop(slotId, field, -CROP_RECT_STEPS[precision])}>−</button>
-                                      <button type="button" className="secondary" disabled={Boolean(plan.cropCandidateId)} aria-label={`${slotLabel} ${field} ${precision} 증가`} data-testid={`crop-${slotLabel}-${field}-${precision}-up`} onClick={() => nudgeMultiCrop(slotId, field, CROP_RECT_STEPS[precision])}>+</button>
-                                    </span>
-                                  ))}
-                                </div>
                               </label>
                             );
                           })}
                         </div>
-                        <small className="hint">step=0.001 · fine={decimalStepLabel(CROP_RECT_STEPS.fine)} · normal={decimalStepLabel(CROP_RECT_STEPS.normal)} · coarse={decimalStepLabel(CROP_RECT_STEPS.coarse)} · 입력값은 자동 clamp하지 않습니다.</small>
+                        <small className="hint">↑↓ 0.1 · Shift+↑↓ 0.01 · Alt+↑↓ 0.001</small>
                         <label className="legacy-crop-tuple"><span className="field-label">Crop Rect tuple (호환 표시)</span><input data-testid={`crop-${slotLabel}`} disabled={Boolean(plan.cropCandidateId)} value={cropRectToTuple(plan.cropRect)} readOnly /></label>
                       </div>
                       <small className="hint">Destination · {slotId === THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID ? "x=621 y=43 w=172 h=172" : "x=809 y=43 w=172 h=172"} · radius=12</small>

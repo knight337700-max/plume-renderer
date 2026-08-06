@@ -11,9 +11,9 @@ import {
   type RendererIntegrationInputV1,
 } from "../../packages/renderer-contract/src/index.js";
 import {
-  CROP_RECT_STEPS,
+  CROP_KEYBOARD_STEPS,
+  adjustCropRectDraft,
   cropRectToDraft,
-  nudgeCropRectDraft,
   validateCropRectDraft,
 } from "../../apps/desktop/renderer-ui/src/features/placement/crop-rect.js";
 
@@ -92,12 +92,18 @@ describe("Renderer Lab decimal edit buffer", () => {
     expect(validateCropRectDraft({ ...draft, x: "" }).reason).toBe("INCOMPLETE");
   });
 
-  it("provides the fixed fine, normal, and coarse nudge values without clamping", () => {
-    expect(CROP_RECT_STEPS).toEqual({ fine: 0.0001, normal: 0.001, coarse: 0.01 });
+  it("provides deterministic keyboard adjustment values without clamping", () => {
+    expect(CROP_KEYBOARD_STEPS).toEqual({ default: 0.1, shift: 0.01, alt: 0.001 });
     const draft = cropRectToDraft({ x: 0, y: 0, width: 1, height: 1 });
-    const fine = nudgeCropRectDraft(draft, "x", CROP_RECT_STEPS.fine);
-    expect(fine.x).toBe("0.0001");
-    const outOfBounds = nudgeCropRectDraft(draft, "x", -CROP_RECT_STEPS.fine);
+    const normal = adjustCropRectDraft({ ...draft, x: "0.2" }, "x", CROP_KEYBOARD_STEPS.default);
+    const shift = adjustCropRectDraft({ ...draft, x: "0.2" }, "x", CROP_KEYBOARD_STEPS.shift);
+    const alt = adjustCropRectDraft({ ...draft, x: "0.2" }, "x", CROP_KEYBOARD_STEPS.alt);
+    expect(normal.x).toBe("0.3");
+    expect(shift.x).toBe("0.21");
+    expect(alt.x).toBe("0.201");
+    expect(adjustCropRectDraft({ ...draft, x: "0.2" }, "x", -CROP_KEYBOARD_STEPS.default).x).toBe("0.1");
+    const outOfBounds = adjustCropRectDraft(draft, "x", -CROP_KEYBOARD_STEPS.alt);
     expect(validateCropRectDraft(outOfBounds).reason).toBe("OUT_OF_BOUNDS");
+    expect(adjustCropRectDraft({ ...draft, x: "0.2" }, "x", 0.1).x).not.toBe("0.30000000000000004");
   });
 });

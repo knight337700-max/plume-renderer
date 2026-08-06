@@ -351,7 +351,7 @@ check(
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.current === "1.6.1" && versions?.templateContractVersion === "1.3.0",
+  versions?.documentVersion?.current === "1.6.2" && versions?.templateContractVersion === "1.3.0",
   `document=${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

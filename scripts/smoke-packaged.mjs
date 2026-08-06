@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { access, readFile, stat } from "node:fs/promises";
+import { access, readFile, readdir, stat } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
@@ -50,6 +50,20 @@ async function verifyRightMargin(pngPath) {
   }
 }
 
+async function verifyPackagedCropUi() {
+  const uiRoot = path.join(root, "release", "win-unpacked", "resources", "app", "dist-desktop", "renderer-ui", "assets");
+  const assetNames = await readdir(uiRoot);
+  const source = (await Promise.all(assetNames.filter((name) => /\.(?:js|css)$/u.test(name)).map((name) => readFile(path.join(uiRoot, name), "utf8")))).join("\n");
+  if (source.includes("crop-nudge-row") || source.includes("crop-nudge-group") || source.includes("CROP_RECT_STEPS")) {
+    throw new Error("Packaged Crop UI still contains removed custom adjustment controls");
+  }
+  if (!source.includes("ArrowUp") || (!source.includes('step:"any"') && !source.includes("step:`any`"))) {
+    throw new Error("Packaged Crop UI keyboard/step=any contract is missing");
+  }
+}
+
+await verifyPackagedCropUi();
+
 const reports = [];
 for (const executable of executables) {
   if (!(await exists(executable))) throw new Error(`Packaged executable is missing: ${executable}`);
@@ -72,6 +86,9 @@ for (const executable of executables) {
   if (!result.decimalThumbnailPreviewPngDigest || result.decimalThumbnailPreviewPngDigest !== result.decimalThumbnailPngDigest || !result.decimalThumbnailManifestDigest || result.decimalThumbnailPngDigest === expectedThumbnailPngDigest) {
     throw new Error(`Packaged decimal Thumbnail mismatch: ${JSON.stringify(result)}`);
   }
+  if (!result.keyboardBasePreviewPngDigest || !result.keyboardAdjustedPreviewPngDigest || result.keyboardBasePreviewPngDigest === result.keyboardAdjustedPreviewPngDigest || result.keyboardAdjustedPreviewPngDigest !== result.keyboardAdjustedPngDigest || !result.keyboardAdjustedManifestDigest) {
+    throw new Error(`Packaged keyboard Crop adjustment mismatch: ${JSON.stringify(result)}`);
+  }
   if (result.multiPreviewPngDigest !== expectedMultiPngDigest || result.multiPngDigest !== expectedMultiPngDigest || !result.multiManifestDigest) {
     throw new Error(`Packaged Thumbnail Multi Golden mismatch: ${JSON.stringify(result)}`);
   }
@@ -91,6 +108,8 @@ for (const executable of executables) {
     access(result.thumbnailManifestPath),
     access(result.decimalThumbnailPngPath),
     access(result.decimalThumbnailManifestPath),
+    access(result.keyboardAdjustedPngPath),
+    access(result.keyboardAdjustedManifestPath),
     access(result.multiPngPath),
     access(result.multiManifestPath),
     access(result.jpegThumbnailPngPath),
@@ -98,6 +117,7 @@ for (const executable of executables) {
     verifyRightMargin(result.pngPath),
     verifyRightMargin(result.thumbnailPngPath),
     verifyRightMargin(result.decimalThumbnailPngPath),
+    verifyRightMargin(result.keyboardAdjustedPngPath),
     verifyRightMargin(result.multiPngPath),
     verifyRightMargin(result.jpegThumbnailPngPath),
   ]);

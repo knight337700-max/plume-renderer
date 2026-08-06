@@ -65,9 +65,6 @@ button.full { width: 100%; margin-top: 8px; padding: 12px; }
 .crop-rect-fields > label { min-width: 0; color: #667085; font-size: 10px; font-weight: 700; }
 .crop-rect-fields input { width: 100%; margin-top: 4px; border: 1px solid #cbd0d6; border-radius: 6px; padding: 7px 5px; font-size: 11px; }
 .crop-rect-fields input[aria-invalid="true"] { border-color: #c64444; background: #fff8f8; }
-.crop-nudge-row { display: flex; justify-content: center; gap: 2px; margin-top: 3px; }
-.crop-nudge-group { display: inline-flex; gap: 1px; }
-.crop-nudge-row button { min-width: 17px; padding: 2px 3px; border-radius: 4px; font-size: 9px; line-height: 1; }
 .legacy-crop-tuple { display: block; margin-top: 8px; }
 .legacy-crop-tuple input { width: 100%; }
 .legacy-crop-tuple button { margin-top: 5px; }
