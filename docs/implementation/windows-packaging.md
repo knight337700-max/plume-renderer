@@ -13,7 +13,7 @@ Outputs:
 
 ```text
 release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
-release/Kakao-Bizboard-Local-Renderer-0.2.0-x64.exe
+release/Kakao-Bizboard-Local-Renderer-0.2.1-x64.exe
 ```
 
 Portable package는 installer와 관리자 권한이 필요 없는 x64 실행형이다. 코드 서명과 auto update가 없으며 원격 publish를 수행하지 않는다. 서명되지 않은 실행 파일이므로 Windows SmartScreen 경고가 나타날 수 있다.

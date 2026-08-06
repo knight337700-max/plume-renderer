@@ -8,7 +8,7 @@ import { _electron as electron, expect, test, type ElectronApplication, type Pag
 import { sha256File } from "../../src/core/hash.js";
 import { projectRoot } from "../helpers.js";
 
-const GOLDEN_SHA256 = "b67c95b239884e21270190cb2ba8019fcc68016af8ef22cf1c904315f1f2b4b9";
+const GOLDEN_SHA256 = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
 
 type Launched = {
   app: ElectronApplication;

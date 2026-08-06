@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useReducer, useState } from "react";
 
 import type { AppInfo, ExportRequest, UiRenderInput } from "../../../shared/src/index.js";
+import type { TextMeasurement } from "../../../../../src/core/types.js";
 import { formatProductMetadata } from "../features/product-file/format.js";
 import { fieldHasError, issueMessage } from "../features/validation/messages.js";
 import { canExport, canRequestPreview, initialUiState, uiReducer, type UiField } from "./state.js";
@@ -11,6 +12,20 @@ const fieldConfig: Array<{ id: UiField; label: string; pointer: string; multilin
   { id: "subcopy", label: "Subcopy", pointer: "/copy/subcopy" },
   { id: "jobName", label: "결과 폴더명", pointer: "/output" },
 ];
+
+function TextMetric({ field, measurement }: { field: "headline" | "subcopy"; measurement: TextMeasurement | null }) {
+  if (!measurement) {
+    return <small className="text-metric text-metric-pending">Core 검증 후 실제 폭과 한글 환산값이 표시됩니다.</small>;
+  }
+  const status = measurement.metrics.limitStatus.toLowerCase();
+  const label = field === "headline" ? "헤드라인" : "서브카피";
+  return (
+    <small className={`text-metric text-metric-${status}`} data-testid={`text-metrics-${field}`}>
+      {label} · 한글 환산 {measurement.metrics.koreanEquivalentUnits} / {measurement.metrics.maxKoreanEquivalentUnits}자 · 실제 폭 {measurement.metrics.occupiedWidthPx} / {measurement.metrics.maxOccupiedWidthPx}px
+      <span> · 공백 포함 {measurement.metrics.graphemeCountIncludingSpaces}자</span>
+    </small>
+  );
+}
 
 export function App() {
   const [state, dispatch] = useReducer(uiReducer, initialUiState);
@@ -133,20 +148,25 @@ export function App() {
 
           {fieldConfig.map(({ id, label, pointer }) => {
             const error = fieldHasError(state.preview?.errors ?? [], pointer);
-            const maximum = appInfo?.limits[id] || 120;
+            const measurement = id === "headline"
+              ? state.preview?.measurements?.headline ?? null
+              : id === "subcopy"
+                ? state.preview?.measurements?.subcopy ?? null
+                : null;
             return (
               <label className="field-group" key={id}>
                 <span className="field-label">{label}</span>
                 <input
                   data-testid={`input-${id}`}
                   value={state.fields[id]}
-                  maxLength={maximum}
                   aria-invalid={error}
                   onChange={(event) => dispatch({ type: "FIELD_CHANGED", field: id, value: event.target.value })}
                   autoComplete="off"
                   spellCheck={false}
                 />
-                <span className="counter">{state.fields[id].length}/{maximum}</span>
+                {id === "headline" || id === "subcopy" ? (
+                  <TextMetric field={id} measurement={measurement} />
+                ) : null}
               </label>
             );
           })}
@@ -155,6 +175,7 @@ export function App() {
             <span>CTA</span><strong>없음 (NONE)</strong>
             <span>Template</span><strong>OBJECT_RIGHT</strong>
             <span>Font</span><strong>Spoqa Han Sans</strong>
+            <span>Baseline</span><strong>Headline 120 · Subcopy 178</strong>
           </div>
 
           <button

@@ -217,8 +217,8 @@
       "additionalProperties": false,
       "properties": {
         "templateContractVersion": {
-          "const": "1.1.0",
-          "default": "1.1.0"
+          "const": "1.2.0",
+          "default": "1.2.0"
         },
         "includeDebugOverlay": {
           "const": false,
@@ -230,7 +230,7 @@
         }
       },
       "default": {
-        "templateContractVersion": "1.1.0",
+        "templateContractVersion": "1.2.0",
         "includeDebugOverlay": false,
         "pixelRatio": 1
       }

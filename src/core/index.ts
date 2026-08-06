@@ -12,6 +12,16 @@ export { inspectPngIhdr, renderRgbaPng, validateRenderedPng } from "./raster.js"
 export { loadContracts } from "./contracts.js";
 export { SchemaValidators, parseJsonInput } from "./schema-validation.js";
 export { validateCanonicalSemantics, validateRawText } from "./semantic-validation.js";
+export {
+  createTextLimitMetrics,
+  graphemeCountIncludingSpaces,
+  hasConsecutiveSpaces,
+  koreanEquivalentUnits,
+  segmentGraphemes,
+  TEXT_CONTRACT,
+  textMaximumUnits,
+  textWidthStatus,
+} from "./text-contract.js";
 export { resolveTrustedInputFile, resolveTrustedJobDirectory, resolveTrustedRoot } from "./path-security.js";
 export type {
   BBox,
@@ -21,5 +31,8 @@ export type {
   RenderManifest,
   RendererConfig,
   RenderResponse,
+  TextLimitMetrics,
+  TextLimitStatus,
+  TextMeasurement,
   ValidationIssue,
 } from "./types.js";

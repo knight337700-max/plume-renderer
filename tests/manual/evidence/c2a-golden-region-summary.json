@@ -1,0 +1,14 @@
+{
+  "previousPngSha256": "b67c95b239884e21270190cb2ba8019fcc68016af8ef22cf1c904315f1f2b4b9",
+  "currentPngSha256": "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1",
+  "sameInput": true,
+  "sameAsset": true,
+  "changedPixelCount": 11320,
+  "changedPixelCountBeforeHardEdge": 11320,
+  "changedPixelCountAtOrAfterHardEdge": 0,
+  "productRegionUnchanged": true,
+  "rightMarginTransparent": true,
+  "textBaselineDeltaPx": 4,
+  "textOnlyChange": true,
+  "classification": "DERIVED_TEST_EVIDENCE"
+}

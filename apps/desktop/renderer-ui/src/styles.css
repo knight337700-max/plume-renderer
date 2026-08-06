@@ -41,7 +41,11 @@ button.full { width: 100%; margin-top: 8px; padding: 12px; }
 .field-group input { width: 100%; border: 1px solid #cbd0d6; border-radius: 7px; padding: 10px 44px 10px 10px; }
 .field-group input:focus { outline: 2px solid #9eb9dc; border-color: #537aa9; }
 .field-group input[aria-invalid="true"] { border-color: #c64444; background: #fff8f8; }
-.counter { position: absolute; right: 9px; bottom: 11px; color: #8b9198; font-size: 10px; }
+.text-metric { display: block; margin-top: 5px; color: #6f767e; font-size: 10px; line-height: 1.4; }
+.text-metric span { color: #8b9198; }
+.text-metric-warning { color: #8a6700; }
+.text-metric-error { color: #a22d2d; }
+.text-metric-pending { color: #8b9198; }
 .button-row { display: flex; gap: 8px; }
 .asset-card { display: grid; gap: 4px; margin-top: 8px; border-radius: 7px; background: #f5f7f9; padding: 10px; font-size: 11px; }
 .asset-card code { overflow: hidden; color: #6b727a; text-overflow: ellipsis; }

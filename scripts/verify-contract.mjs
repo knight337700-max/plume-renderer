@@ -120,8 +120,11 @@ check(
 const versions = contracts.get("contract-versions.json");
 check(
   "template_contract_version",
-  versions?.templateContractVersion === "1.1.0" && versions?.coordinatesChanged === false,
-  `version=${versions?.templateContractVersion}; coordinatesChanged=${versions?.coordinatesChanged}`,
+  versions?.templateContractVersion === "1.2.0" &&
+    versions?.coordinatesChanged === true &&
+    versions?.xCoordinatesChanged === false &&
+    versions?.baselineDeltaPx === 4,
+  `version=${versions?.templateContractVersion}; baselineDeltaPx=${versions?.baselineDeltaPx}; xCoordinatesChanged=${versions?.xCoordinatesChanged}`,
 );
 
 const inputSchema = contracts.get("input.schema.json");
@@ -212,6 +215,21 @@ check(
   "runtime_network_policy",
   versions?.runtimeNetworkAccess === "PROHIBITED",
   `runtimeNetworkAccess=${versions?.runtimeNetworkAccess}`,
+);
+
+const textContract = contracts.get("text-contract.json");
+check(
+  "text_contract",
+  textContract?.templateContractVersion === "1.2.0" &&
+    textContract?.headlineBaselineY === 120 &&
+    textContract?.subcopyBaselineY === 178 &&
+    textContract?.textStartX === 48 &&
+    textContract?.hardRightEdgeExclusive === 633 &&
+    textContract?.maximumOccupiedWidthPx === 585 &&
+    textContract?.warningWidthThresholdPx === 527 &&
+    textContract?.headlineMaxKoreanEquivalentUnits === 12 &&
+    textContract?.subcopyMaxKoreanEquivalentUnits === 15,
+  "baseline=120/178; x=48; hardRight=633; width=585; warning=527; units=12/15",
 );
 
 const fontRegistry = contracts.get("font-asset-registry.json");

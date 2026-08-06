@@ -12,9 +12,15 @@ import {
   OBJECT_SLOT,
   SUBCOPY_BASELINE_Y,
   TEXT_DRAW_X,
-  TEXT_HARD_RIGHT_EDGE,
 } from "./constants.js";
 import { createIssue, sortAndDedupeIssues } from "./errors.js";
+import {
+  createTextLimitMetrics,
+  hasConsecutiveSpaces,
+  textMaximumUnits,
+  textWidthStatus,
+  type TextField,
+} from "./text-contract.js";
 import type {
   BBox,
   CanonicalInput,
@@ -42,6 +48,7 @@ function scanCanvasAlpha(data: Uint8ClampedArray, width: number, height: number)
 }
 
 function measureText(
+  field: TextField,
   text: string,
   fontSize: number,
   fontAlias: string,
@@ -58,7 +65,15 @@ function measureText(
   const imageData = context.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   const bbox = scanCanvasAlpha(imageData.data, CANVAS_WIDTH, CANVAS_HEIGHT);
   if (!bbox) throw new Error("Text produced no visible pixels");
-  return { text, advanceWidth, bbox, drawX: TEXT_DRAW_X, baselineY };
+  return {
+    text,
+    advanceWidth,
+    bbox,
+    inkBounds: bbox,
+    drawX: TEXT_DRAW_X,
+    baselineY,
+    metrics: createTextLimitMetrics(field, text, bbox, baselineY),
+  };
 }
 
 function intersects(left: BBox, right: BBox): boolean {
@@ -76,32 +91,106 @@ export function calculateLayout(
   contracts: ContractBundle,
 ): { measurements: LayoutMeasurements; issues: ValidationIssue[] } {
   const issues: ValidationIssue[] = [];
-  const headline = measureText(input.copy.headline, 48, FONT_ALIAS_BOLD, "#4C4C4C", HEADLINE_BASELINE_Y);
-  const subcopy = measureText(input.copy.subcopy, 39, FONT_ALIAS_REGULAR, "#777777", SUBCOPY_BASELINE_Y);
+  const headline = measureText(
+    "headline",
+    input.copy.headline,
+    48,
+    FONT_ALIAS_BOLD,
+    "#4C4C4C",
+    HEADLINE_BASELINE_Y,
+  );
+  const subcopy = measureText(
+    "subcopy",
+    input.copy.subcopy,
+    39,
+    FONT_ALIAS_REGULAR,
+    "#777777",
+    SUBCOPY_BASELINE_Y,
+  );
 
-  if (headline.bbox.x + headline.bbox.width > TEXT_HARD_RIGHT_EDGE) {
-    issues.push(
-      createIssue(contracts.errorRegistry, "KBR-TEXT-004", "/copy/headline", {
-        expected: { maximumRightExclusive: TEXT_HARD_RIGHT_EDGE },
-        actual: { rightExclusive: headline.bbox.x + headline.bbox.width },
-        bbox: headline.bbox,
-      }),
+  for (const [field, measurement, pointer] of [
+    ["headline", headline, "/copy/headline"],
+    ["subcopy", subcopy, "/copy/subcopy"],
+  ] as const) {
+    const maximumUnits = textMaximumUnits(field);
+    if (measurement.metrics.koreanEquivalentUnits > maximumUnits) {
+      issues.push(
+        createIssue(
+          contracts.errorRegistry,
+          field === "headline" ? "KBR-TEXT-COUNT-HEADLINE-001" : "KBR-TEXT-COUNT-SUBCOPY-001",
+          pointer,
+          {
+            actual: {
+              actual: measurement.metrics.koreanEquivalentUnits,
+              limit: maximumUnits,
+              unit: "KOREAN_EQUIVALENT_CHARACTER",
+            },
+          },
+        ),
+      );
+    }
+    const widthStatus = textWidthStatus(
+      measurement.metrics.occupiedWidthPx,
+      measurement.metrics.rightExclusive,
     );
+    if (widthStatus === "ERROR") {
+      issues.push(
+        createIssue(
+          contracts.errorRegistry,
+          field === "headline" ? "KBR-TEXT-004" : "KBR-TEXT-005",
+          pointer,
+          {
+            expected: {
+              limitWidthPx: measurement.metrics.maxOccupiedWidthPx,
+              hardRightEdgeExclusive: measurement.metrics.hardRightEdgeExclusive,
+            },
+            actual: {
+              actualWidthPx: measurement.metrics.occupiedWidthPx,
+              limitWidthPx: measurement.metrics.maxOccupiedWidthPx,
+              overflowPx: Math.max(0, measurement.metrics.occupiedWidthPx - measurement.metrics.maxOccupiedWidthPx),
+              rightExclusive: measurement.metrics.rightExclusive,
+              hardRightEdgeExclusive: measurement.metrics.hardRightEdgeExclusive,
+            },
+            bbox: measurement.inkBounds,
+          },
+        ),
+      );
+    } else if (widthStatus === "WARNING") {
+      issues.push(
+        createIssue(
+          contracts.errorRegistry,
+          field === "headline" ? "KBR-TEXT-WIDTH-HEADLINE-W001" : "KBR-TEXT-WIDTH-SUBCOPY-W001",
+          pointer,
+          {
+            expected: { warningThresholdPx: 527, maximumWidthPx: measurement.metrics.maxOccupiedWidthPx },
+            actual: {
+              actualWidthPx: measurement.metrics.occupiedWidthPx,
+              limitWidthPx: measurement.metrics.maxOccupiedWidthPx,
+              rightExclusive: measurement.metrics.rightExclusive,
+            },
+            bbox: measurement.inkBounds,
+          },
+        ),
+      );
+    }
+    const value = field === "headline" ? input.copy.headline : input.copy.subcopy;
+    if (hasConsecutiveSpaces(value)) {
+      issues.push(
+        createIssue(contracts.errorRegistry, "KBR-TEXT-SPACING-001", pointer, {
+          actual: { consecutiveSpaces: true },
+        }),
+      );
+    }
   }
-  if (subcopy.bbox.x + subcopy.bbox.width > TEXT_HARD_RIGHT_EDGE) {
-    issues.push(
-      createIssue(contracts.errorRegistry, "KBR-TEXT-005", "/copy/subcopy", {
-        expected: { maximumRightExclusive: TEXT_HARD_RIGHT_EDGE },
-        actual: { rightExclusive: subcopy.bbox.x + subcopy.bbox.width },
-        bbox: subcopy.bbox,
-      }),
-    );
-  }
-  if (headline.advanceWidth < MINIMUM_COPY_WIDTH && subcopy.advanceWidth < MINIMUM_COPY_WIDTH) {
+
+  if (headline.metrics.occupiedWidthPx < MINIMUM_COPY_WIDTH && subcopy.metrics.occupiedWidthPx < MINIMUM_COPY_WIDTH) {
     issues.push(
       createIssue(contracts.errorRegistry, "KBR-TEXT-006", "/copy", {
         expected: { atLeastOneWidth: MINIMUM_COPY_WIDTH },
-        actual: { headlineWidth: headline.advanceWidth, subcopyWidth: subcopy.advanceWidth },
+        actual: {
+          headlineWidth: headline.metrics.occupiedWidthPx,
+          subcopyWidth: subcopy.metrics.occupiedWidthPx,
+        },
       }),
     );
   }
@@ -139,8 +228,8 @@ export function calculateLayout(
     measurements: {
       headline,
       subcopy,
-      headlineWidthPx: headline.advanceWidth,
-      subcopyWidthPx: subcopy.advanceWidth,
+      headlineWidthPx: headline.metrics.occupiedWidthPx,
+      subcopyWidthPx: subcopy.metrics.occupiedWidthPx,
       advertiserMatchedInCopy: inHeadline || inSubcopy,
       advertiserMatchedField,
       copyObjectGapPx,

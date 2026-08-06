@@ -1,6 +1,6 @@
 {
   "registryVersion": "1.0.0",
-  "templateContractVersion": "1.1.0",
+  "templateContractVersion": "1.2.0",
   "fixture": {
     "id": "KAKAO_TOOL_OBJECT_RIGHT_1029X258",
     "path": "reference/kakao-tool/OBJECT_RIGHT.png",

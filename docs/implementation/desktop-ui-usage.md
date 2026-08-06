@@ -9,6 +9,14 @@
 
 입력 변경 또는 제품 교체 시 기존 PASS는 즉시 무효화된다. ERROR는 export를 막고 WARNING은 표시하되 export를 허용한다. CTA와 Template, Canvas, Font, 좌표는 변경할 수 없다.
 
+Headline/Subcopy 입력 하단에는 Core 검증이 완료된 뒤에만 다음 metrics가 표시된다.
+
+```text
+한글 환산 10.5 / 12자 · 실제 폭 510 / 585px · 공백 포함 15자
+```
+
+Headline baseline은 `120`, Subcopy baseline은 `178`, text X는 `48`이다. 527~585px은 WARNING, 586px 이상 또는 hard right edge `633` 초과는 ERROR이며, Korean-equivalent unit 초과도 ERROR다. 연속 내부 공백은 자동 수정하지 않고 WARNING으로 남긴다.
+
 Guide 기본값은 켜짐이다. Object slot, text hard edge, 33px gap, 우측 48px margin을 DOM overlay로 표시하며 Preview와 output PNG bytes에는 포함되지 않는다.
 
 성공 출력:

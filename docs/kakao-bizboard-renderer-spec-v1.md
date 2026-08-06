@@ -1,9 +1,9 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.2.0
-- **Status:** Frozen Implementation Contract — Phase C0
-- **Checked date:** 2026-08-05 (KST)
+- **Document version:** 1.3.0
+- **Status:** Frozen Implementation Contract — Phase C2a amendment
+- **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT / 1029×258`
 
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase C0 이후 계약 우선순위는 이 문서의 **13. Phase C0 Contract Freeze**, `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase C2a 이후 계약 우선순위는 이 문서의 **14. Phase C2a Text Baseline and Copy Limit**, `contracts/`의 machine-readable contract, Phase C0 freeze, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -283,7 +283,7 @@ Phase C0 이후 계약 우선순위는 이 문서의 **13. Phase C0 Contract Fre
 ```json
 {
   "templateId": "KAKAO_MOMENT_BIZBOARD_OBJECT_RIGHT_1029X258_V1",
-  "templateContractVersion": "1.1.0",
+  "templateContractVersion": "1.2.0",
   "coordinateSource": "KAKAO_BUSINESS_TOOL_OUTPUT_MEASURED_PLUS_INFERRED_TEXT_ANCHORS",
   "referenceFixture": {
     "path": "reference/kakao-tool/OBJECT_RIGHT.png",
@@ -347,10 +347,10 @@ Phase C0 이후 계약 우선순위는 이 문서의 **13. Phase C0 Contract Fre
 
 | 요소 | draw x | baseline y | max right | font |
 |---|---:|---:|---:|---|
-| Headline | 48 | 116 | 633 | 48px Bold |
-| Subcopy | 48 | 174 | 633 | 39px Regular |
+| Headline | 48 | 120 | 633 | 48px Bold |
+| Subcopy | 48 | 178 | 633 | 39px Regular |
 
-`draw x`와 baseline은 TOOL-003·004의 visible ink bbox를 재현하기 위한 `[INFERRED]` 렌더 좌표다. Canvas와 Object slot의 절대 좌표는 `[TOOL_OUTPUT]`이다.
+`draw x`와 baseline은 TOOL-003·004의 visible ink bbox를 재현하기 위한 `[INFERRED]` 렌더 좌표이며, Phase C2a에서 기존 baseline에 +4px을 적용했다 `[PROJECT]`. Canvas와 Object slot의 절대 좌표는 `[TOOL_OUTPUT]`이다.
 
 ### 3.6.2 CTA 상단 행 있음 — 비활성 잠정 프로파일
 
@@ -640,8 +640,8 @@ JSON Schema Draft 2020-12를 사용한다.
       "additionalProperties": false,
       "properties": {
         "templateContractVersion": {
-          "const": "1.1.0",
-          "default": "1.1.0"
+          "const": "1.2.0",
+          "default": "1.2.0"
         },
         "includeDebugOverlay": {
           "type": "boolean",
@@ -654,7 +654,7 @@ JSON Schema Draft 2020-12를 사용한다.
         }
       },
       "default": {
-        "templateContractVersion": "1.1.0",
+        "templateContractVersion": "1.2.0",
         "includeDebugOverlay": false,
         "pixelRatio": 1
       }
@@ -718,7 +718,7 @@ JSON Schema Draft 2020-12를 사용한다.
     }
   },
   "render": {
-    "templateContractVersion": "1.1.0",
+    "templateContractVersion": "1.2.0",
     "includeDebugOverlay": false,
     "pixelRatio": 1
   },
@@ -1686,7 +1686,7 @@ official/tool-output source diff
 - 광고주체는 구조화 metadata로 입력받고 Headline 또는 Subcopy 포함 여부를 검증한다.
 - 제품 PNG는 Alpha Trim 후 비율을 유지하여 Object slot 전체에 `CENTER_CENTER contain`으로 배치한다.
 - Headline은 `48px Bold #4C4C4C`, Subcopy는 `39px Regular #777777`로 고정한다.
-- CTA 없음 기준 draw 좌표는 `Headline x=48/baseline=116`, `Subcopy x=48/baseline=174`다.
+- CTA 없음 기준 draw 좌표는 `Headline x=48/baseline=120`, `Subcopy x=48/baseline=178`다. **[INFERRED][PROJECT]**
 - 카피와 Object slot의 간격은 최소 `33px`이며 Text hard right edge는 `x=633`이다.
 - Headline·Subcopy 중 하나는 실제 폭 `290px 이상`이어야 한다.
 - 일반 배너 안에 근거 없는 CTA 버튼을 그리지 않는다.
@@ -1695,16 +1695,16 @@ official/tool-output source diff
 
 ---
 
-# 13. Phase C0 Contract Freeze
+# 13. Phase C0 Contract Freeze (historical baseline)
 
-이 절은 Phase C0에서 승인한 `[PROJECT]` 계약이다. 이전 본문과 충돌하면 이 절과 `contracts/`의 machine-readable contract가 우선한다. 좌표와 `templateContractVersion`은 변경하지 않는다.
+이 절은 Phase C0에서 승인한 `[PROJECT]` 기준선이다. Phase C2a amendment가 명시한 텍스트 기준선과 카피 제한은 이 절보다 우선한다. C0의 object slot, X 좌표, asset, PNG, CTA 및 보안 계약은 유지한다.
 
 ## 13.1 버전 동결
 
 | 계약 | 이전 | 동결 버전 | 사유 |
 |---|---:|---:|---|
-| Canonical document | `1.1.0` | `1.2.0` | clarification minor bump |
-| Template Contract | `1.1.0` | `1.1.0` | 좌표 변경 없음 |
+| Canonical document | `1.1.0` | `1.2.0` | C0 clarification minor bump |
+| Template Contract | `1.1.0` | `1.1.0` | C0 좌표 변경 없음; C2a에서 1.2.0으로 amendment |
 | Input Schema | `1.1` (`1.1.0`) | `1.2.0` | 하위 호환 default 물질화와 canonicalization |
 | Output Schema | `1.1` (`1.1.0`) | `2.0.0` | manifest/response 구조 분리 |
 | Render Manifest Schema | 없음 | `1.0.0` | 신규 persisted schema |
@@ -1726,15 +1726,15 @@ official/tool-output source diff
 
 ## 13.2 Font Asset Freeze
 
-Phase C0 검사 시 Spoqa Han Sans Bold와 Regular 실제 파일은 패키지에 없다.
+Phase C0 freeze 시점에는 Spoqa Han Sans Bold와 Regular 파일이 unresolved였으나, 현재 registry는 C1에서 검증된 패키지 자산으로 해소되었다.
 
-- 상태: `UNRESOLVED_ASSET`
+- 상태: `RESOLVED_ASSET`
 - 시스템 font fallback: MUST NOT
 - 원격 font 또는 인터넷 다운로드: MUST NOT
 - 임의 filename 또는 SHA-256 생성: MUST NOT
-- 실제 텍스트 Renderer와 Golden PNG: asset 해결 전 BLOCKED
+- 실제 파일: `assets/fonts/SpoqaHanSansBold.ttf`, `assets/fonts/SpoqaHanSansRegular.ttf`
 - 필요한 weight: Bold `700`, Regular `400`
-- 라이선스 확인: `UNVERIFIED`
+- 라이선스 확인: `VERIFIED_OFL_1.1`
 
 정확한 조건은 `assets/fonts/README.md`와 `contracts/font-asset-registry.json`에 기록한다.
 
@@ -1779,7 +1779,7 @@ Phase C0 검사 시 Spoqa Han Sans Bold와 Regular 실제 파일은 패키지에
 2. JSON Schema validation
 3. applyDefaults
 4. Unicode NFC normalization
-5. 문자열 trim 정책 적용
+5. 문자열 trim 정책 적용; 중간 연속 U+0020은 자동 축약하지 않음
 6. Canonical Input 생성
 7. RFC 8785 JCS 호환 직렬화
 8. Digest 계산
@@ -1941,7 +1941,7 @@ Naming:
 
 100개 fixture는 Contract Freeze 선행 조건이 아니며 실제 생성은 구현 단계로 이관한다.
 
-## 13.15 Phase C0 미해결 Blocker
+## 13.15 Phase C0 미해결 Blocker (historical record)
 
 1. Spoqa Han Sans Bold 실제 파일, SHA-256, 라이선스
 2. Spoqa Han Sans Regular 실제 파일, SHA-256, 라이선스
@@ -1949,4 +1949,133 @@ Naming:
 4. KAKAO_SERVICE_ACTION 승인 asset과 정책 자료
 5. 후속 Windows x64 구현 runtime 및 native dependency pin
 
-Blocker를 가짜 asset, 가짜 digest, 시스템 fallback 또는 임의 공식 규칙으로 숨겨서는 안 된다.
+첫 두 항목은 C1에서 실제 자산과 검증된 digest로 해소되었다. 나머지 CTA·후속 플랫폼 항목은 현재도 범위 밖이다. Blocker를 가짜 asset, 가짜 digest, 시스템 fallback 또는 임의 공식 규칙으로 숨겨서는 안 된다.
+
+---
+
+# 14. Phase C2a Text Baseline and Copy Limit
+
+이 절은 Canonical 문서 `1.2.0`에 대한 Phase C2a amendment이며 현재 문서 버전 `1.3.0`의 구현 계약이다. 아래의 baseline, 한글 환산 unit, 실제 raster 폭은 카카오 공식 규칙으로 주장하지 않는다. baseline은 `[INFERRED][PROJECT]`, 카피 제한과 warning 정책은 `[PROJECT]`, 실제 ink 측정은 `[DERIVED][PROJECT]`로 분류한다.
+
+## 14.1 버전과 변경 범위
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical document | `1.2.0` | `1.3.0` | 텍스트 기준선·카피 제한 clarification |
+| Template Contract | `1.1.0` | `1.2.0` | CTA 없음 텍스트 baseline amendment |
+| Input Schema | `1.2.0` | `1.2.0` | 구조 변경 없음 |
+| Output Schema | `2.0.0` | `2.0.0` | 구조 변경 없음 |
+| Render Manifest Schema | `1.0.0` | `1.0.0` | 구조 변경 없음 |
+| Response Envelope Schema | `1.0.0` | `1.0.0` | 구조 변경 없음 |
+| Desktop application | `0.2.0` | `0.2.1` | C2a implementation release |
+
+변경하지 않는 값은 Headline/Subcopy X 좌표 `48`, 제품 위치·크기, object slot, font 파일·version·SHA-256, font size/weight/color, Alpha Trim, PNG encoder, CTA 정책이다. X 좌표 변경은 `0`이다.
+
+## 14.2 TextContract
+
+구현과 Desktop UI는 다음 단일 계약을 사용한다.
+
+```text
+TextContract {
+  headlineBaselineY: 120
+  subcopyBaselineY: 178
+  textStartX: 48
+  hardRightEdgeExclusive: 633
+  maximumOccupiedWidthPx: 585
+  headlineMaxKoreanUnits: 12
+  subcopyMaxKoreanUnits: 15
+  warningWidthThresholdPx: 527
+}
+```
+
+기존 C0 CTA 없음 baseline `116/174`에 정확히 `+4px`을 적용한 결과가 `120/178`이다 `[PROJECT][INFERRED]`. Headline은 `48px Bold #4C4C4C`, Subcopy는 `39px Regular #777777`을 유지한다 `[PROJECT]`.
+
+## 14.3 Grapheme와 한글 환산 unit
+
+Core는 Unicode NFC 정규화 후 `Intl.Segmenter`의 `granularity: "grapheme"`로 grapheme cluster를 분할한다. UTF-16 `string.length`, 단순 공백 포함 문자 수, UI `maxlength`는 계약 판정에 사용하지 않는다.
+
+| grapheme 분류 | unit |
+|---|---:|
+| 한글·한자·CJK·일본어 가나 | 1.0 |
+| 전각 문자 | 1.0 |
+| Emoji grapheme | 1.0 |
+| ASCII 영문·숫자·문장부호·기호 및 반각 라틴 | 0.5 |
+| 공백 `U+0020` | 0 |
+| 그 밖의 분류 불명 grapheme | 1.0 |
+
+Headline은 `koreanEquivalentUnits <= 12.0`, Subcopy는 `koreanEquivalentUnits <= 15.0`이어야 한다. 초과 시 각각 `KBR-TEXT-COUNT-HEADLINE-001`, `KBR-TEXT-COUNT-SUBCOPY-001` ERROR다. Emoji는 계산 규칙상 1.0이지만 기존 `KBR-TEXT-001` prohibited Unicode 계약도 함께 적용될 수 있다.
+
+## 14.4 공백과 제어문자
+
+- 앞뒤 공백은 Normalize에서 trim한다.
+- 중간 단일 `U+0020`은 허용하고 unit에는 0, raster advance에는 포함한다.
+- 중간 연속 공백은 자동 축약·삭제하지 않고 보존하며 `KBR-TEXT-SPACING-001` WARNING을 반환한다.
+- 탭과 줄바꿈은 `KBR-TEXT-002` ERROR다.
+- 문구 자동 축약, 문자 삭제, ellipsis, 자동 줄바꿈은 금지한다.
+
+## 14.5 실제 raster ink 폭
+
+각 문구는 pinned font로 임시 투명 canvas에 실제 rasterize한 뒤 alpha ink bbox를 계산한다. `occupiedWidthPx`는 다음과 같다.
+
+```text
+inkBounds.rightExclusive = inkBounds.x + inkBounds.width
+occupiedWidthPx = inkBounds.rightExclusive - textStartX
+```
+
+PASS는 `occupiedWidthPx <= 585` 및 `inkBounds.rightExclusive <= 633`이다. 마지막 visible pixel은 `x <= 632`여야 한다. `633` 이상은 hard edge를 초과한다. 실제 ink 폭과 hard edge 초과는 기존 의미가 같은 `KBR-TEXT-004`(Headline), `KBR-TEXT-005`(Subcopy)를 재사용하고, payload에 `actualWidthPx`, `limitWidthPx`, `overflowPx`, `rightExclusive`, `hardRightEdgeExclusive`를 포함한다.
+
+자동 축소, 자간 축소, 좌표 이동, crop, 문자 잘라내기는 금지한다. 공백은 ink가 아니어도 raster advance가 뒤 글자의 right edge에 반영된다.
+
+## 14.6 Width warning과 통합 판정
+
+| occupied width | 판정 |
+|---:|---|
+| `0..526px` | PASS |
+| `527..585px` | WARNING |
+| `586px 이상` 또는 `rightExclusive > 633` | ERROR |
+
+Width warning은 Headline `KBR-TEXT-WIDTH-HEADLINE-W001`, Subcopy `KBR-TEXT-WIDTH-SUBCOPY-W001`이다. 한글 환산 unit 초과는 90% warning 없이 ERROR만 반환한다. Count와 width 모두 통과해야 ERROR 0 및 Export 허용 상태다. Warning만 있으면 Export를 허용한다.
+
+Core의 `TextLimitMetrics`는 최소 다음을 반환한다.
+
+```text
+graphemeCountIncludingSpaces
+koreanEquivalentUnits
+maxKoreanEquivalentUnits
+occupiedWidthPx
+maxOccupiedWidthPx
+widthRatio
+inkBounds
+rightExclusive
+baselineY
+textStartX
+hardRightEdgeExclusive
+limitStatus
+```
+
+Preview와 Export는 같은 Core pipeline과 같은 `TextContract`를 사용한다. Renderer Process는 unit 또는 width를 독자 계산하지 않으며, UI는 Core가 반환한 metrics를 표시만 한다. 입력 변경 시 기존 Preview·PASS·Export token은 즉시 무효화한다.
+
+## 14.7 UI 표시
+
+Headline과 Subcopy 입력 하단에 Core 검증 결과를 다음 형식으로 표시한다.
+
+```text
+한글 환산 10.5 / 12자 · 실제 폭 510 / 585px · 공백 포함 15자
+```
+
+Core 검증 전에는 확정 수치를 표시하지 않고 `Core 검증 후 실제 폭과 한글 환산값이 표시됩니다.`를 표시한다. Width warning은 경고색, count/width ERROR는 오류색으로 표시하며 ERROR이면 Export 버튼을 비활성화한다. 브라우저 `maxlength`는 계약 enforcement에 사용하지 않는다.
+
+## 14.8 Fixture와 Acceptance 추가
+
+필수 unit 경계는 다음을 포함한다.
+
+1. Headline 12/13 Korean-equivalent units
+2. Subcopy 15/16 Korean-equivalent units
+3. U+0020 unit 0과 내부 공백 raster advance
+4. ASCII·Emoji·결합문자 grapheme 분할
+5. trim, tab/linebreak ERROR, 연속 공백 WARNING
+6. 526 PASS, 527 WARNING, 585 WARNING, 586 ERROR
+7. `rightExclusive=633` PASS, `634` ERROR
+8. baseline `120/178`, X 좌표 `48` 유지
+
+통합 Acceptance는 count/width 교차 조합, Warning-only Export, stale Preview 차단, Preview/Export byte equality, 제품 영역 불변, ERROR 상태 최종 파일 0, 동일 입력 3회 동일 SHA-256을 검증한다. 기존 OBJECT_RIGHT reference PNG는 수정하지 않으며, `x >= 633` 영역과 우측 48px 투명 계약은 유지한다.

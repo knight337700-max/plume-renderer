@@ -35,7 +35,7 @@ describe("input contract and canonicalization", () => {
     });
     expect(canonical.assets.product).toMatchObject({ expectedSha256: null, alphaTrim: true });
     expect(canonical.render).toEqual({
-      templateContractVersion: "1.1.0",
+      templateContractVersion: "1.2.0",
       includeDebugOverlay: false,
       pixelRatio: 1,
     });
@@ -52,7 +52,7 @@ describe("input contract and canonicalization", () => {
     const canonical = normalizeInput(applyDefaults(input));
 
     expect(canonical.advertiser.text).toBe("자코모");
-    expect(canonical.copy.headline).toBe("자코모 프리미엄 소파");
+    expect(canonical.copy.headline).toBe("자코모   프리미엄 소파");
     expect(canonical.assets.product.path).toBe("fixtures/valid/object-right__product__basic__pass.png");
   });
 

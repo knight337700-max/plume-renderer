@@ -7,7 +7,7 @@ function normalizeCommonString(value: string): string {
 }
 
 function normalizeCopyString(value: string): string {
-  return normalizeCommonString(value).replace(/ {2,}/g, " ");
+  return normalizeCommonString(value);
 }
 
 function normalizeRelativeReference(value: string): string {
@@ -60,7 +60,7 @@ export function applyDefaults(input: KakaoBizboardInputV1): CanonicalInput {
       },
     },
     render: {
-      templateContractVersion: "1.1.0",
+      templateContractVersion: "1.2.0",
       includeDebugOverlay: false,
       pixelRatio: 1,
     },

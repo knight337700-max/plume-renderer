@@ -6,7 +6,7 @@
 |---|---|---|
 | Electron Main | OS dialog, session workspace, Core Preview/render, output token, reveal token | remote API, auto update, telemetry |
 | Preload | 일곱 개 typed wrapper | generic invoke, fs/process 노출 |
-| Renderer UI | form, state reducer, Preview 표시, DOM Guide | Node, fs, 절대 경로, Core 규칙 재구현 |
+| Renderer UI | form, state reducer, Core metrics 표시, Preview 표시, DOM Guide | Node, fs, 절대 경로, Core 규칙 재구현 |
 
 Production은 `kbr-app://app/index.html`을 사용한다. protocol handler는 `dist-desktop/renderer-ui` descendant만 읽고 traversal을 거부한다. `kbr-preview`는 현재 session Preview UUID 하나만 PNG로 반환한다.
 

@@ -17,6 +17,23 @@ export type ValidationIssue = {
   bbox?: BBox | null;
 };
 
+export type TextLimitStatus = "PASS" | "WARNING" | "ERROR";
+
+export type TextLimitMetrics = {
+  graphemeCountIncludingSpaces: number;
+  koreanEquivalentUnits: number;
+  maxKoreanEquivalentUnits: number;
+  occupiedWidthPx: number;
+  maxOccupiedWidthPx: number;
+  widthRatio: number;
+  inkBounds: BBox;
+  rightExclusive: number;
+  baselineY: number;
+  textStartX: number;
+  hardRightEdgeExclusive: number;
+  limitStatus: TextLimitStatus;
+};
+
 export type NoneCtaInput = {
   mode: "NONE";
   landingType: "DIRECT_URL" | "ADVIEW" | "KAKAO_SERVICE";
@@ -71,7 +88,7 @@ export type KakaoBizboardInputV1 = {
     };
   };
   render?: {
-    templateContractVersion?: "1.1.0";
+    templateContractVersion?: "1.2.0";
     includeDebugOverlay?: false;
     pixelRatio?: 1;
   };
@@ -96,7 +113,7 @@ export type CanonicalInput = Omit<KakaoBizboardInputV1, "canvas" | "render" | "c
     };
   };
   render: {
-    templateContractVersion: "1.1.0";
+    templateContractVersion: "1.2.0";
     includeDebugOverlay: false;
     pixelRatio: 1;
   };
@@ -126,8 +143,10 @@ export type TextMeasurement = {
   text: string;
   advanceWidth: number;
   bbox: BBox;
+  inkBounds: BBox;
   drawX: number;
   baselineY: number;
+  metrics: TextLimitMetrics;
 };
 
 export type LayoutMeasurements = {
@@ -156,7 +175,7 @@ export type RenderManifest = {
   canonicalInputDigest: string;
   normalizedInputDigest: string;
   outputPngDigest: string;
-  templateContractVersion: "1.1.0";
+  templateContractVersion: "1.2.0";
   inputSchemaVersion: "1.2.0";
   outputSchemaVersion: "2.0.0";
   validatorResult: {
@@ -264,7 +283,7 @@ export type CtaRegistry = {
 };
 
 export type ReferenceFixtureRegistry = {
-  templateContractVersion: "1.1.0";
+  templateContractVersion: "1.2.0";
   fixture: {
     id: string;
     path: string;

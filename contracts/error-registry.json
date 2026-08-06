@@ -45,6 +45,11 @@
     { "code": "KBR-TEXT-008", "severity": "ERROR", "messageKey": "text.cta_label_overflow", "condition": "Enabled CTA label overflows its allowed row" },
     { "code": "KBR-TEXT-009", "severity": "ERROR", "messageKey": "text.strikethrough_unsupported", "condition": "A strikethrough request is made in v1" },
     { "code": "KBR-TEXT-010", "severity": "INFO", "messageKey": "text.advertiser_in_both_fields", "condition": "Advertiser text appears in both headline and subcopy" },
+    { "code": "KBR-TEXT-COUNT-HEADLINE-001", "severity": "ERROR", "messageKey": "text.headline_korean_equivalent_limit", "condition": "Headline koreanEquivalentUnits is greater than 12" },
+    { "code": "KBR-TEXT-COUNT-SUBCOPY-001", "severity": "ERROR", "messageKey": "text.subcopy_korean_equivalent_limit", "condition": "Subcopy koreanEquivalentUnits is greater than 15" },
+    { "code": "KBR-TEXT-WIDTH-HEADLINE-W001", "severity": "WARNING", "messageKey": "text.headline_width_warning", "condition": "Headline occupied width is between 527 and 585 pixels inclusive" },
+    { "code": "KBR-TEXT-WIDTH-SUBCOPY-W001", "severity": "WARNING", "messageKey": "text.subcopy_width_warning", "condition": "Subcopy occupied width is between 527 and 585 pixels inclusive" },
+    { "code": "KBR-TEXT-SPACING-001", "severity": "WARNING", "messageKey": "text.consecutive_spaces", "condition": "Copy contains two or more consecutive U+0020 spaces after normalization" },
 
     { "code": "KBR-CTA-001", "severity": "ERROR", "messageKey": "cta.mode_unregistered", "condition": "CTA mode is not present in the CTA Registry" },
     { "code": "KBR-CTA-002", "severity": "ERROR", "messageKey": "cta.label_not_allowed", "condition": "CTA label is absent from the enabled mode allowedLabels" },

@@ -8,7 +8,7 @@ import sharp from "sharp";
 
 const root = process.cwd();
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
-const expectedPngDigest = "b67c95b239884e21270190cb2ba8019fcc68016af8ef22cf1c904315f1f2b4b9";
+const expectedPngDigest = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
 const executables = [
   path.join(root, "release", "win-unpacked", "Kakao-Bizboard-Local-Renderer.exe"),
   path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`),
