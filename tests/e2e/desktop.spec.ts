@@ -216,6 +216,32 @@ test("THUMBNAIL_BOX_RIGHT Lab executes direct semantic crop and exports the same
   }
 });
 
+test("THUMBNAIL_BOX_RIGHT preserves decimal Crop Rect values through Preview and Export", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "valid", "thumbnail-box-right__asset__jpeg__pass.jpg"),
+  );
+  try {
+    await launched.page.getByTestId("select-product").click();
+    await fillValidForm(launched.page, "thumbnail-decimal-e2e");
+    await launched.page.getByTestId("template-select").selectOption("THUMBNAIL_BOX_RIGHT");
+    await launched.page.getByTestId("crop-rect-width").fill("0.8125");
+    await launched.page.getByTestId("crop-rect-height").fill("0.8125");
+    await launched.page.getByTestId("crop-rect-x").fill("0.125");
+    await launched.page.getByTestId("crop-rect-y").fill("0.0835");
+    await expect(launched.page.getByTestId("placement-plan-json")).toHaveValue(/"x":\s*0\.125/u);
+    await expect(launched.page.getByTestId("placement-plan-json")).toHaveValue(/"height":\s*0\.8125/u);
+    await launched.page.getByTestId("request-preview").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText(/VALID_(?:PASS|WARNING)/u);
+    await expect(launched.page.getByTestId("applied-crop")).toContainText('"x":0.125');
+    await launched.page.getByTestId("select-output").click();
+    await launched.page.getByTestId("export-render").click();
+    await expect(launched.page.getByTestId("workflow-status")).toHaveText("EXPORTED");
+    await expect.poll(async () => access(path.join(launched.outputRoot, "thumbnail-decimal-e2e", "output.png")).then(() => true).catch(() => false)).toBe(true);
+  } finally {
+    await close(launched);
+  }
+});
+
 test("THUMBNAIL_BOX_RIGHT accepts JPEG input and keeps the final artifact as RGBA PNG", async () => {
   const launched = await launch(
     path.join(projectRoot, "fixtures", "valid", "thumbnail-box-right__asset__jpeg__pass.jpg"),
@@ -254,9 +280,22 @@ test("THUMBNAIL_MULTI_RIGHT renders two independent Lab slots with explicit Asse
     await fillValidForm(launched.page, "thumbnail-multi-e2e");
     await expect(launched.page.getByTestId("slot-panel-IMAGE_PRIMARY")).toBeVisible();
     await expect(launched.page.getByTestId("slot-panel-IMAGE_SECONDARY")).toContainText("image/png");
+    await launched.page.getByTestId("crop-PRIMARY-width").fill("0.5");
+    await launched.page.getByTestId("crop-PRIMARY-height").fill("0.8125");
+    await launched.page.getByTestId("crop-PRIMARY-x").fill("0.125");
+    await launched.page.getByTestId("crop-PRIMARY-y").fill("0.0835");
+    await launched.page.getByTestId("crop-SECONDARY-width").fill("0.5");
+    await launched.page.getByTestId("crop-SECONDARY-height").fill("0.75");
+    await launched.page.getByTestId("crop-SECONDARY-x").fill("0.375");
+    await launched.page.getByTestId("crop-SECONDARY-y").fill("0.125");
+    await launched.page.getByTestId("placement-plan-export").click();
+    await expect(launched.page.getByTestId("placement-plan-json")).toHaveValue(/"x":\s*0\.125/u);
+    await expect(launched.page.getByTestId("placement-plan-json")).toHaveValue(/"x":\s*0\.375/u);
     await launched.page.getByTestId("request-preview").click();
     await expect(launched.page.getByTestId("workflow-status")).toHaveText(/VALID_(?:PASS|WARNING)/u);
     await expect(launched.page.getByTestId("preview-image")).toBeVisible();
+    await expect(launched.page.getByTestId("applied-crop-PRIMARY")).toContainText('"x":0.125');
+    await expect(launched.page.getByTestId("applied-crop-SECONDARY")).toContainText('"x":0.375');
     await expect(launched.page.getByTestId("applied-destination-PRIMARY")).toContainText('"x":621');
     await expect(launched.page.getByTestId("applied-destination-SECONDARY")).toContainText('"x":809');
     await launched.page.getByTestId("select-output").click();

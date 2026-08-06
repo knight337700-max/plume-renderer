@@ -1,6 +1,6 @@
 # Kakao Bizboard OBJECT_RIGHT local renderer
 
-Canonical 계약 `1.6.0`과 Template Contract `1.3.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.1.0`은 bytes 기반 PNG/JPEG MIME 검증, EXIF Orientation metadata, Agent-independent JSON boundary와 Runtime Asset Resolver를 제공하지만 Agent/OpenAI/Plume client를 포함하지 않는다.
+Canonical 계약 `1.6.1`과 Template Contract `1.3.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.1.0`은 bytes 기반 PNG/JPEG MIME 검증, EXIF Orientation metadata, Agent-independent JSON boundary와 Runtime Asset Resolver를 제공하지만 Agent/OpenAI/Plume client를 포함하지 않는다.
 
 ## 요구 환경
 
@@ -51,7 +51,7 @@ pnpm smoke:package
 
 ```text
 release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
-release/Kakao-Bizboard-Local-Renderer-0.5.0-x64.exe
+release/Kakao-Bizboard-Local-Renderer-0.5.1-x64.exe
 ```
 
 Portable 앱은 설치와 관리자 권한을 요구하지 않는다. 코드 서명과 자동 업데이트가 없으므로 Windows SmartScreen 경고가 표시될 수 있다. 앱은 비공식 로컬 Renderer이며 카카오 공식 서비스가 아니고 실제 광고 심사 승인을 보장하지 않는다.
@@ -87,6 +87,7 @@ node dist/cli/index.js render `
 - Electron Main + sandboxed Preload + React 단일 화면 UI
 - 제품·Preview·output·export opaque token과 session cleanup
 - 동일 Core 기반 Preview/export byte equality
+- THUMBNAIL_BOX_RIGHT와 THUMBNAIL_MULTI_RIGHT의 Crop Rect는 `x/y/width/height`별 문자열 edit buffer로 decimal 입력을 보존한다. `step=0.001`, fine `0.0001`, normal `0.001`, coarse `0.01`이며 범위 밖 값은 자동 clamp하지 않는다.
 - Headline baseline `120`, Subcopy baseline `178`, X `48` 유지
 - Headline 12 / Subcopy 15 Korean-equivalent units 및 실제 ink 폭 585px 계약
 - Runtime HTTP/HTTPS/WebSocket/telemetry/auto-update 0

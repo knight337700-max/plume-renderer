@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.6.0
-- **Status:** Frozen Implementation Contract — Phase C5 THUMBNAIL_MULTI_RIGHT amendment
+- **Document version:** 1.6.1
+- **Status:** Frozen Implementation Contract — Phase C5a decimal Crop Rect clarification
 - **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, and THUMBNAIL_MULTI_RIGHT / 1029×258`
@@ -2370,3 +2370,82 @@ Windows 10/11 x64 고정 환경에서 동일 입력·Asset bytes·dependency·ru
 세 번 실행한 Multi Golden PNG는 byte-equal이어야 한다. C5는 기존 OBJECT_RIGHT
 `20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`과 C4
 THUMBNAIL_BOX_RIGHT Golden을 byte-equal로 유지하는 것을 필수로 한다.
+
+## 21. Phase C5a — Crop Rect decimal precision [PROJECT]
+
+이 절은 Canonical 문서 `1.6.0`의 입력 UI·검증 경로를 `1.6.1` patch로
+명확히 한다. Template Contract `1.3.0`의 좌표, Core의 Crop 알고리즘, 기존
+Golden PNG는 변경하지 않는다. 적용 대상은 `THUMBNAIL_BOX_RIGHT`의
+`IMAGE_PRIMARY`와 `THUMBNAIL_MULTI_RIGHT`의 `IMAGE_PRIMARY`/
+`IMAGE_SECONDARY`이며, `OBJECT_RIGHT`에는 Crop UI를 추가하지 않는다.
+
+### 21.1 Normalized decimal contract [PROJECT]
+
+`NormalizedRect`는 기존과 같이 `{ x:number, y:number, width:number, height:number }`다.
+모든 값은 finite이고 `0 ≤ x,y ≤ 1`, `0 < width,height ≤ 1`,
+`x+width ≤ 1`, `y+height ≤ 1`을 만족해야 한다. 비교 epsilon은
+`NORMALIZED_EPSILON=1e-9`로 유지한다. 음수, 0 크기, 범위 초과, NaN,
+Infinity는 `KBR-CROP-RECT-OUT-OF-BOUNDS`로 BLOCKED하며 clamp, 자동 이동,
+width/height 보정, 중앙 Crop 대체를 하지 않는다.
+
+Integration JSON Schema는 이미 `number`를 사용하므로 Integration Contract는
+`1.1.0`을 유지한다. JSON number의 유한 소수 정밀도에는 임의의 6자리 제한을
+추가하지 않는다. UI는 최소 6자리 decimal 입력을 손실 없이 보존하며, 더 긴
+유한 JSON 값도 Core에서 받은 IEEE-754 number 그대로 검증한다. UI 직접 입력에서
+scientific notation은 허용하지 않고, JSON Import에서는 JSON parser가 허용하는
+number 표현을 사용한다. 이번 patch에는 임의 반올림이나 새 precision 오류 코드를
+추가하지 않는다. **[PROJECT]**
+
+### 21.2 Renderer Lab edit buffer and nudge [PROJECT]
+
+각 Crop Rect 필드는 `x`, `y`, `width`, `height` 별도 문자열 edit buffer를
+사용한다. `""`, `"0."`, `"0.0"` 같은 중간 입력은 문자열 그대로 유지하고 기존의
+유효한 Plan을 덮어쓰지 않는다. 완성된 finite decimal 네 필드가 Contract를
+통과할 때만 Plan draft를 갱신한다. 오류 입력은 표시하되 자동 복원·clamp하지
+않으며, width/height의 0은 Core 검증에서 거부한다.
+
+HTML 입력은 `type=number`, `min=0`, `max=1`, `step=0.001`,
+`inputMode=decimal`을 사용한다. 브라우저의 stepMismatch는 계약 판정이 아니며
+수동 `0.123456` 입력을 허용한다. Arrow Up/Down과 +/- 버튼은 다음 delta를
+고정한다: `fine=0.0001`, `normal=0.001`, `coarse=0.01`. Shift+Arrow는 fine,
+Alt+Arrow는 coarse, 일반 Arrow는 normal이다. 범위를 넘는 nudge는 적용하지
+않고 오류를 표시한다.
+
+### 21.3 Pixel conversion and fingerprints [PROJECT]
+
+유효한 normalized decimal은 픽셀 변환 직전까지 보존한다. 기존 변환을 그대로
+사용한다: `left=floor(x×sourceWidth)`, `top=floor(y×sourceHeight)`,
+`right=ceil((x+width)×sourceWidth)`, `bottom=ceil((y+height)×sourceHeight)`;
+right/bottom은 exclusive이며 source dimensions와 EXIF orientation 보정 후
+크기를 사용한다. 변환 전 정수 percent나 반올림을 사용하지 않는다.
+
+Request fingerprint에는 normalized decimal 값이 반영된다. 기존 구현의
+pixelFingerprint가 normalized `cropRect`를 직접 포함하는 의미는 C5a에서 바꾸지
+않는다. 따라서 동일 pixel Rect로 resolve될 수 있는 서로 다른 decimal 값도
+기존 pixel fingerprint 정책을 따른다. 동일 입력·Asset bytes·runtime은 동일
+fingerprint와 byte-equal Preview/Export를 생성해야 한다.
+
+### 21.4 Plan Import/Export and template scope [PROJECT]
+
+Manual Plan과 Agent Plan은 동일 decimal parser/validator/serializer를 사용한다.
+Import→Export→re-Import에서 `0.123456`, `0.078125`, `0.654321`, `0.8125` 같은
+값을 손실 없이 보존하고 `additionalProperties:false`를 유지한다. Multi Plan은
+Slot ID로 매핑하며 Primary edit가 Secondary draft를 변경하지 않고 그 반대도
+동일하다. Candidate가 선택된 필드는 resolved candidate 값을 표시하지만 direct
+Crop 편집은 비활성화한다.
+
+### 21.5 Version and acceptance [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.6.0 | 1.6.1 | Decimal Crop Rect edit/validation clarification |
+| Template Contract | 1.3.0 | 1.3.0 | 좌표·픽셀 계약 불변 |
+| Integration Contract | 1.1.0 | 1.1.0 | Schema가 이미 number이며 구조 변경 없음 |
+| Desktop | 0.5.0 | 0.5.1 | 문자열 buffer, decimal 필드, nudge UX |
+
+C5 Golden은 다음 SHA-256으로 byte-equal을 유지한다: OBJECT_RIGHT
+`20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`,
+THUMBNAIL_BOX_RIGHT `f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996`,
+THUMBNAIL_MULTI_RIGHT `ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55`.
+Windows 10/11 x64 고정 환경에서 decimal fine crop, Plan round trip, 두 Slot 독립성,
+Preview/Export byte equality, package smoke를 자동 검증한다.

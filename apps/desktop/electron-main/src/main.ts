@@ -239,6 +239,25 @@ async function runPackagedSmoke(
     });
     if (thumbnailExport.status !== "EXPORTED") throw new Error(`Thumbnail export failed: ${thumbnailExport.code}`);
     const thumbnailPaths = controller.getExportPaths(thumbnailExport.exportToken);
+    if (!thumbnailInput.placementPlan) throw new Error("Thumbnail placement plan is missing");
+    const decimalThumbnailInput: UiRenderInput = {
+      ...thumbnailInput,
+      jobName: "package-smoke-thumbnail-decimal",
+      requestSequence: 5,
+      placementPlan: {
+        ...thumbnailInput.placementPlan,
+        cropRect: { x: 0.125, y: 0.0835, width: 0.734, height: 0.8125 },
+      },
+    };
+    const decimalThumbnailPreview = await controller.requestPreview(decimalThumbnailInput);
+    if (!decimalThumbnailPreview.previewToken || decimalThumbnailPreview.validationStatus === "ERROR") throw new Error("Decimal thumbnail preview failed");
+    const decimalThumbnailExport = await controller.exportRender({
+      ...decimalThumbnailInput,
+      previewToken: decimalThumbnailPreview.previewToken,
+      outputDirectoryToken: selectedOutput.token,
+    });
+    if (decimalThumbnailExport.status !== "EXPORTED") throw new Error(`Decimal thumbnail export failed: ${decimalThumbnailExport.code}`);
+    const decimalThumbnailPaths = controller.getExportPaths(decimalThumbnailExport.exportToken);
     const multiSecondary = await controller.selectSecondaryProductFromPath(jpegProductPath);
     if (multiSecondary.status !== "SELECTED") throw new Error("Thumbnail multi secondary selection failed");
     const multiInput: UiRenderInput = {
@@ -305,6 +324,11 @@ async function runPackagedSmoke(
         thumbnailManifestDigest: thumbnailExport.manifestDigest,
         thumbnailPngPath: thumbnailPaths.pngPath,
         thumbnailManifestPath: thumbnailPaths.manifestPath,
+        decimalThumbnailPreviewPngDigest: decimalThumbnailPreview.previewPngDigest,
+        decimalThumbnailPngDigest: decimalThumbnailExport.pngDigest,
+        decimalThumbnailManifestDigest: decimalThumbnailExport.manifestDigest,
+        decimalThumbnailPngPath: decimalThumbnailPaths.pngPath,
+        decimalThumbnailManifestPath: decimalThumbnailPaths.manifestPath,
         multiPreviewPngDigest: multiPreview.previewPngDigest,
         multiPngDigest: multiExport.pngDigest,
         multiManifestDigest: multiExport.manifestDigest,

@@ -69,6 +69,9 @@ for (const executable of executables) {
   if (result.thumbnailPreviewPngDigest !== expectedThumbnailPngDigest || result.thumbnailPngDigest !== expectedThumbnailPngDigest) {
     throw new Error(`Packaged Thumbnail Golden mismatch: ${JSON.stringify(result)}`);
   }
+  if (!result.decimalThumbnailPreviewPngDigest || result.decimalThumbnailPreviewPngDigest !== result.decimalThumbnailPngDigest || !result.decimalThumbnailManifestDigest || result.decimalThumbnailPngDigest === expectedThumbnailPngDigest) {
+    throw new Error(`Packaged decimal Thumbnail mismatch: ${JSON.stringify(result)}`);
+  }
   if (result.multiPreviewPngDigest !== expectedMultiPngDigest || result.multiPngDigest !== expectedMultiPngDigest || !result.multiManifestDigest) {
     throw new Error(`Packaged Thumbnail Multi Golden mismatch: ${JSON.stringify(result)}`);
   }
@@ -86,12 +89,15 @@ for (const executable of executables) {
     access(result.manifestPath),
     access(result.thumbnailPngPath),
     access(result.thumbnailManifestPath),
+    access(result.decimalThumbnailPngPath),
+    access(result.decimalThumbnailManifestPath),
     access(result.multiPngPath),
     access(result.multiManifestPath),
     access(result.jpegThumbnailPngPath),
     access(result.jpegThumbnailManifestPath),
     verifyRightMargin(result.pngPath),
     verifyRightMargin(result.thumbnailPngPath),
+    verifyRightMargin(result.decimalThumbnailPngPath),
     verifyRightMargin(result.multiPngPath),
     verifyRightMargin(result.jpegThumbnailPngPath),
   ]);

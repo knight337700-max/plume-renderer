@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useState } from "react";
+import { useEffect, useMemo, useReducer, useState, type KeyboardEvent } from "react";
 
 import type { AppInfo, ExportRequest, ProductSelectionResult, UiRenderInput, UiTemplate } from "../../../shared/src/index.js";
 import type { TextMeasurement } from "../../../../../src/core/types.js";
@@ -14,6 +14,20 @@ import {
   type ImagePlacementPlan,
 } from "../../../../../packages/renderer-contract/src/index.js";
 import { formatProductMetadata } from "../features/product-file/format.js";
+import {
+  CROP_RECT_FIELDS,
+  CROP_RECT_STEPS,
+  cropDraftErrorMessage,
+  cropRectToDraft,
+  cropRectToTuple,
+  decimalStepLabel,
+  emptyCropRectDraft,
+  nudgeCropRectDraft,
+  tupleToCropRectDraft,
+  validateCropRectDraft,
+  type CropRectDraft,
+  type CropRectField,
+} from "../features/placement/crop-rect.js";
 import { fieldHasError, issueMessage } from "../features/validation/messages.js";
 import { canExport, canRequestPreview, initialUiState, uiReducer, type UiField } from "./state.js";
 
@@ -63,6 +77,7 @@ export function App() {
   const [anchor, setAnchor] = useState<ImagePlacementPlan["anchor"]>("CENTER");
   const [subjectProtection, setSubjectProtection] = useState<ImagePlacementPlan["subjectProtection"]>("NONE");
   const [cropRectText, setCropRectText] = useState("0,0,1,1");
+  const [boxCropDraft, setBoxCropDraft] = useState<CropRectDraft>(() => cropRectToDraft({ x: 0, y: 0, width: 1, height: 1 }));
   const [candidateId, setCandidateId] = useState("");
   const thumbnailCandidate: CropCandidate = {
     schemaVersion: INTEGRATION_SCHEMA_VERSION,
@@ -100,6 +115,10 @@ export function App() {
     [THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID]: defaultMultiPlan(THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, "selected-primary"),
     [THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]: defaultMultiPlan(THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID, "selected-secondary"),
   }));
+  const [multiCropDrafts, setMultiCropDrafts] = useState<Record<string, CropRectDraft>>(() => ({
+    [THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID]: cropRectToDraft({ x: 0, y: 0, width: 1, height: 1 }),
+    [THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]: cropRectToDraft({ x: 0, y: 0, width: 1, height: 1 }),
+  }));
   const [multiPlanText, setMultiPlanText] = useState("");
   const multiPlanList = [multiPlans[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID], multiPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]].filter((plan): plan is ImagePlacementPlan => Boolean(plan));
   const multiCropCandidates = multiPlanList.flatMap((plan) => {
@@ -125,6 +144,69 @@ export function App() {
     [state.preview],
   );
   const assetTemplateMismatch = state.product !== null && template === "OBJECT_RIGHT" && state.product.detectedMimeType !== "image/png";
+  const cropInputReady = template === "OBJECT_RIGHT"
+    ? true
+    : template === "THUMBNAIL_BOX_RIGHT"
+      ? Boolean(candidateId || validateCropRectDraft(boxCropDraft).rect)
+      : [THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID, THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID].every((slotId) => {
+          const plan = multiPlans[slotId];
+          return Boolean(plan?.cropCandidateId || validateCropRectDraft(multiCropDrafts[slotId] ?? cropRectToDraft(plan?.cropRect)).rect);
+        });
+
+  function setBoxCropDraftValue(field: CropRectField, value: string) {
+    const nextDraft = { ...boxCropDraft, [field]: value };
+    setBoxCropDraft(nextDraft);
+    setCropRectText(CROP_RECT_FIELDS.map((entry) => nextDraft[entry]).join(","));
+    const validation = validateCropRectDraft(nextDraft);
+    if (!validation.rect) {
+      dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
+      setPlacementPlanMessage(cropDraftErrorMessage(validation));
+      return;
+    }
+    setCandidateId("");
+    updateThumbnailPlan({ cropRect: validation.rect }, "");
+    setPlacementPlanMessage("PASS · direct crop rect decimal을 적용했습니다.");
+  }
+
+  function nudgeBoxCrop(field: CropRectField, delta: number) {
+    if (candidateId) {
+      setPlacementPlanMessage("BLOCKED · Crop Candidate가 선택된 동안 direct crop을 수정할 수 없습니다.");
+      return;
+    }
+    setBoxCropDraftValue(field, nudgeCropRectDraft(boxCropDraft, field, delta)[field]);
+  }
+
+  function setMultiCropDraftValue(imageSlotId: string, field: CropRectField, value: string) {
+    const current = multiCropDrafts[imageSlotId] ?? cropRectToDraft(multiPlans[imageSlotId]?.cropRect);
+    const nextDraft = { ...current, [field]: value };
+    setMultiCropDrafts((previous) => ({ ...previous, [imageSlotId]: nextDraft }));
+    const validation = validateCropRectDraft(nextDraft);
+    if (!validation.rect) {
+      dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
+      setPlacementPlanMessage(cropDraftErrorMessage(validation));
+      return;
+    }
+    updateMultiPlan(imageSlotId, { cropRect: validation.rect, cropCandidateId: undefined });
+    setPlacementPlanMessage(`PASS · ${imageSlotId} decimal crop을 적용했습니다.`);
+  }
+
+  function nudgeMultiCrop(imageSlotId: string, field: CropRectField, delta: number) {
+    const plan = multiPlans[imageSlotId];
+    if (plan?.cropCandidateId) {
+      setPlacementPlanMessage("BLOCKED · Crop Candidate가 선택된 동안 direct crop을 수정할 수 없습니다.");
+      return;
+    }
+    const draft = multiCropDrafts[imageSlotId] ?? cropRectToDraft(plan?.cropRect);
+    setMultiCropDraftValue(imageSlotId, field, nudgeCropRectDraft(draft, field, delta)[field]);
+  }
+
+  function handleCropKeyDown(event: KeyboardEvent<HTMLInputElement>, nudge: (delta: number) => void) {
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    event.preventDefault();
+    const direction = event.key === "ArrowUp" ? 1 : -1;
+    const step = event.altKey ? CROP_RECT_STEPS.coarse : event.shiftKey ? CROP_RECT_STEPS.fine : CROP_RECT_STEPS.normal;
+    nudge(direction * step);
+  }
 
   function setTemplateMode(next: UiTemplate) {
     setTemplate(next);
@@ -146,6 +228,8 @@ export function App() {
       };
       setPlacementPlan(plan);
       setPlacementPlanText(JSON.stringify(plan, null, 2));
+      setBoxCropDraft(emptyCropRectDraft());
+      setCropRectText("");
       setPlacementPlanMessage("PASS · OBJECT_RIGHT 기본 Plan을 사용합니다.");
       return;
     }
@@ -155,6 +239,10 @@ export function App() {
         [THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]: defaultMultiPlan(THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID, "selected-secondary"),
       };
       setMultiPlans(nextPlans);
+      setMultiCropDrafts({
+        [THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID]: cropRectToDraft(nextPlans[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID]?.cropRect),
+        [THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]: cropRectToDraft(nextPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]?.cropRect),
+      });
       setMultiPlanText(JSON.stringify({ schemaVersion: "1.0.0", templateId: "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT", imagePlacementPlans: Object.values(nextPlans) }, null, 2));
       setPlacementPlan(null);
       setPlacementPlanMessage("PASS · THUMBNAIL_MULTI_RIGHT에는 IMAGE_PRIMARY와 IMAGE_SECONDARY Plan이 필요합니다.");
@@ -175,6 +263,7 @@ export function App() {
     setPlacementPlan(plan);
     setPlacementPlanText(JSON.stringify(plan, null, 2));
     setCropRectText("0,0,1,1");
+    setBoxCropDraft(cropRectToDraft(plan.cropRect));
     setPlacementPlanMessage("PASS · THUMBNAIL_BOX_RIGHT direct crop를 사용합니다.");
   }
 
@@ -196,6 +285,11 @@ export function App() {
     };
     setPlacementPlan(nextPlan);
     setPlacementPlanText(JSON.stringify(nextPlan, null, 2));
+    dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
+    if (nextPlan.cropRect) {
+      setBoxCropDraft(cropRectToDraft(nextPlan.cropRect));
+      setCropRectText(cropRectToTuple(nextPlan.cropRect));
+    }
   }
 
   type MultiPlanPatch = Omit<Partial<ImagePlacementPlan>, "cropRect" | "cropCandidateId"> & { cropRect?: ImagePlacementPlan["cropRect"] | undefined; cropCandidateId?: string | undefined };
@@ -213,18 +307,25 @@ export function App() {
     const nextPlan = nextPlanRaw as ImagePlacementPlan;
     const nextPlans = { ...multiPlans, [imageSlotId]: nextPlan };
     setMultiPlans(nextPlans);
+    dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
+    if (nextPlan.cropRect) {
+      setMultiCropDrafts((previous) => ({ ...previous, [imageSlotId]: cropRectToDraft(nextPlan.cropRect) }));
+    }
     setMultiPlanText(JSON.stringify({ schemaVersion: "1.0.0", templateId: "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT", imagePlacementPlans: [nextPlans[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID], nextPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]], cropCandidates: multiCropCandidates }, null, 2));
   }
 
   function applyCropRect() {
-    const values = cropRectText.split(",").map((value) => Number(value.trim()));
-    if (values.length !== 4 || values.some((value) => !Number.isFinite(value))) {
-      setPlacementPlanMessage("BLOCKED · Crop Rect는 x,y,width,height 숫자 4개여야 합니다.");
+    const draft = tupleToCropRectDraft(cropRectText);
+    setBoxCropDraft(draft);
+    const validation = validateCropRectDraft(draft);
+    if (!validation.rect) {
+      dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName });
+      setPlacementPlanMessage(cropDraftErrorMessage(validation));
       return;
     }
     setCandidateId("");
-    updateThumbnailPlan({ cropRect: { x: values[0] ?? 0, y: values[1] ?? 0, width: values[2] ?? 0, height: values[3] ?? 0 } });
-    setPlacementPlanMessage("PASS · direct crop rect를 적용했습니다.");
+    updateThumbnailPlan({ cropRect: validation.rect }, "");
+    setPlacementPlanMessage("PASS · direct crop rect decimal을 적용했습니다.");
   }
 
   useEffect(() => {
@@ -259,7 +360,7 @@ export function App() {
   }
 
   async function requestPreview() {
-    if (!state.product || !canRequestPreview(state)) return;
+    if (!state.product || !canRequestPreview(state) || !cropInputReady) return;
     const requestSequence = state.requestSequence + 1;
     const input: UiRenderInput = {
       assetToken: state.product.assetToken,
@@ -285,7 +386,7 @@ export function App() {
   }
 
   async function exportRender() {
-    if (!canExport(state) || !state.product || !state.preview?.previewToken || !state.output) return;
+    if (!canExport(state) || !cropInputReady || !state.product || !state.preview?.previewToken || !state.output) return;
     const request: ExportRequest = {
       assetToken: state.product.assetToken,
       ...(template === "THUMBNAIL_MULTI_RIGHT" && secondaryProduct ? { secondaryAssetToken: secondaryProduct.assetToken } : {}),
@@ -323,6 +424,10 @@ export function App() {
         }
         const nextPlans = Object.fromEntries(plans.map((plan) => [plan.imageSlotId, plan]));
         setMultiPlans(nextPlans);
+        setMultiCropDrafts({
+          [THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID]: cropRectToDraft(nextPlans[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID]?.cropRect),
+          [THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]: cropRectToDraft(nextPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]?.cropRect),
+        });
         setMultiPlanText(JSON.stringify({ schemaVersion: "1.0.0", templateId: "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT", imagePlacementPlans: [nextPlans[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID], nextPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]] }, null, 2));
         setPlacementPlanMessage(`PASS · 두 Slot Plan을 ID 기준으로 매핑했습니다.`);
         return;
@@ -347,7 +452,8 @@ export function App() {
       setAnchor(parsed.plan.anchor);
       setSubjectProtection(parsed.plan.subjectProtection);
       setCandidateId(parsed.plan.cropCandidateId ?? "");
-      if (parsed.plan.cropRect) setCropRectText([parsed.plan.cropRect.x, parsed.plan.cropRect.y, parsed.plan.cropRect.width, parsed.plan.cropRect.height].join(","));
+      setBoxCropDraft(cropRectToDraft(parsed.plan.cropRect));
+      setCropRectText(cropRectToTuple(parsed.plan.cropRect));
       setPlacementPlan(parsed.plan);
       setPlacementPlanText(JSON.stringify(parsed.plan, null, 2));
       setPlacementPlanMessage(`PASS · source=${parsed.plan.source} · 변경 없이 저장됨`);
@@ -385,6 +491,10 @@ export function App() {
         [THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]: { ...(multiPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID] ?? defaultMultiPlan(THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID, "selected-secondary")), source: "AGENT", policy: "SEMANTIC_CROP_COVER", fitMode: "COVER" },
       };
       setMultiPlans(nextPlans);
+      setMultiCropDrafts({
+        [THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID]: cropRectToDraft(nextPlans[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID]?.cropRect),
+        [THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]: cropRectToDraft(nextPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]?.cropRect),
+      });
       setMultiPlanText(JSON.stringify({ schemaVersion: "1.0.0", templateId: "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT", imagePlacementPlans: [nextPlans[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID], nextPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]], cropCandidates: multiCropCandidates }, null, 2));
       setPlacementPlanMessage("PASS · Agent source를 두 Slot에 적용했습니다.");
       return;
@@ -541,8 +651,40 @@ export function App() {
             </div>
             {template === "THUMBNAIL_BOX_RIGHT" ? (
               <>
-                <label className="field-group"><span className="field-label">Crop Rect (normalized x,y,w,h)</span><input data-testid="crop-rect-input" value={cropRectText} onChange={(event) => setCropRectText(event.target.value)} /><button type="button" className="secondary" onClick={applyCropRect} data-testid="crop-rect-apply">Apply Crop Rect</button></label>
-                <label className="field-group"><span className="field-label">Crop Candidate</span><select data-testid="crop-candidate-select" value={candidateId} onChange={(event) => { const next = event.target.value; setCandidateId(next); if (next) updateThumbnailPlan({ cropCandidateId: next }, next); else updateThumbnailPlan({ cropRect: { x: 0, y: 0, width: 1, height: 1 } }, ""); }}><option value="">Direct crop</option><option value="full-frame">full-frame</option></select></label>
+                <div className="field-group crop-editor" data-testid="crop-rect-editor">
+                  <span className="field-label">Crop Rect (normalized decimal x/y/width/height)</span>
+                  <div className="crop-rect-fields">
+                    {CROP_RECT_FIELDS.map((field) => (
+                      <label key={field}>
+                        <span>{field}</span>
+                        <input
+                          data-testid={`crop-rect-${field}`}
+                          type="number"
+                          min="0"
+                          max="1"
+                          step="0.001"
+                          inputMode="decimal"
+                          value={boxCropDraft[field]}
+                          disabled={Boolean(candidateId)}
+                          aria-invalid={Boolean(candidateId ? false : validateCropRectDraft(boxCropDraft).reason === "OUT_OF_BOUNDS")}
+                          onChange={(event) => setBoxCropDraftValue(field, event.target.value)}
+                          onKeyDown={(event) => handleCropKeyDown(event, (delta) => nudgeBoxCrop(field, delta))}
+                        />
+                        <div className="crop-nudge-row">
+                          {(["fine", "normal", "coarse"] as const).map((precision) => (
+                            <span className="crop-nudge-group" key={precision}>
+                              <button type="button" className="secondary" disabled={Boolean(candidateId)} aria-label={`${field} ${precision} 감소`} data-testid={`crop-rect-${field}-${precision}-down`} onClick={() => nudgeBoxCrop(field, -CROP_RECT_STEPS[precision])}>−</button>
+                              <button type="button" className="secondary" disabled={Boolean(candidateId)} aria-label={`${field} ${precision} 증가`} data-testid={`crop-rect-${field}-${precision}-up`} onClick={() => nudgeBoxCrop(field, CROP_RECT_STEPS[precision])}>+</button>
+                            </span>
+                          ))}
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                  <small className="hint">step=0.001 · fine={decimalStepLabel(CROP_RECT_STEPS.fine)} · normal={decimalStepLabel(CROP_RECT_STEPS.normal)} · coarse={decimalStepLabel(CROP_RECT_STEPS.coarse)} · 입력값은 자동 clamp하지 않습니다.</small>
+                  <label className="legacy-crop-tuple"><span className="field-label">Crop Rect tuple (호환 입력)</span><input data-testid="crop-rect-input" value={cropRectText} onChange={(event) => { setCropRectText(event.target.value); dispatch({ type: "FIELD_CHANGED", field: "jobName", value: state.fields.jobName }); }} /><button type="button" className="secondary" onClick={applyCropRect} data-testid="crop-rect-apply">Apply Crop Rect</button></label>
+                </div>
+                <label className="field-group"><span className="field-label">Crop Candidate</span><select data-testid="crop-candidate-select" value={candidateId} onChange={(event) => { const next = event.target.value; setCandidateId(next); if (next) { setBoxCropDraft(cropRectToDraft(thumbnailCandidate.cropRect)); setCropRectText(cropRectToTuple(thumbnailCandidate.cropRect)); updateThumbnailPlan({ cropCandidateId: next }, next); } else updateThumbnailPlan({ cropRect: { x: 0, y: 0, width: 1, height: 1 } }, ""); }}><option value="">Direct crop</option><option value="full-frame">full-frame</option></select></label>
                 <small className="hint">Candidate가 없으면 입력한 direct crop만 사용합니다. Renderer는 crop을 자동 추정하지 않습니다.</small>
               </>
             ) : (
@@ -573,7 +715,43 @@ export function App() {
                           else updateMultiPlan(slotId, { cropCandidateId: undefined, cropRect: plan.cropRect ?? { x: 0, y: 0, width: 1, height: 1 } });
                         }}><option value="">Direct crop</option><option value={`${slotId}-full-frame`}>Full-frame candidate</option></select></label>
                       </div>
-                      <label className="field-group"><span className="field-label">Crop Rect (normalized x,y,w,h)</span><input data-testid={`crop-${slotLabel}`} disabled={Boolean(plan.cropCandidateId)} value={plan.cropRect ? [plan.cropRect.x, plan.cropRect.y, plan.cropRect.width, plan.cropRect.height].join(",") : ""} onChange={(event) => { const values = event.target.value.split(",").map((value) => Number(value.trim())); if (values.length === 4 && values.every((value) => Number.isFinite(value))) updateMultiPlan(slotId, { cropRect: { x: values[0] ?? 0, y: values[1] ?? 0, width: values[2] ?? 0, height: values[3] ?? 0 }, cropCandidateId: undefined }); }} /></label>
+                      <div className="field-group crop-editor" data-testid={`crop-editor-${slotLabel}`}>
+                        <span className="field-label">Crop Rect (normalized decimal x/y/width/height)</span>
+                        <div className="crop-rect-fields">
+                          {CROP_RECT_FIELDS.map((field) => {
+                            const draft = multiCropDrafts[slotId] ?? cropRectToDraft(plan.cropRect);
+                            const validation = validateCropRectDraft(draft);
+                            return (
+                              <label key={field}>
+                                <span>{field}</span>
+                                <input
+                                  data-testid={`crop-${slotLabel}-${field}`}
+                                  type="number"
+                                  min="0"
+                                  max="1"
+                                  step="0.001"
+                                  inputMode="decimal"
+                                  value={draft[field]}
+                                  disabled={Boolean(plan.cropCandidateId)}
+                                  aria-invalid={Boolean(plan.cropCandidateId ? false : validation.reason === "OUT_OF_BOUNDS")}
+                                  onChange={(event) => setMultiCropDraftValue(slotId, field, event.target.value)}
+                                  onKeyDown={(event) => handleCropKeyDown(event, (delta) => nudgeMultiCrop(slotId, field, delta))}
+                                />
+                                <div className="crop-nudge-row">
+                                  {(["fine", "normal", "coarse"] as const).map((precision) => (
+                                    <span className="crop-nudge-group" key={precision}>
+                                      <button type="button" className="secondary" disabled={Boolean(plan.cropCandidateId)} aria-label={`${slotLabel} ${field} ${precision} 감소`} data-testid={`crop-${slotLabel}-${field}-${precision}-down`} onClick={() => nudgeMultiCrop(slotId, field, -CROP_RECT_STEPS[precision])}>−</button>
+                                      <button type="button" className="secondary" disabled={Boolean(plan.cropCandidateId)} aria-label={`${slotLabel} ${field} ${precision} 증가`} data-testid={`crop-${slotLabel}-${field}-${precision}-up`} onClick={() => nudgeMultiCrop(slotId, field, CROP_RECT_STEPS[precision])}>+</button>
+                                    </span>
+                                  ))}
+                                </div>
+                              </label>
+                            );
+                          })}
+                        </div>
+                        <small className="hint">step=0.001 · fine={decimalStepLabel(CROP_RECT_STEPS.fine)} · normal={decimalStepLabel(CROP_RECT_STEPS.normal)} · coarse={decimalStepLabel(CROP_RECT_STEPS.coarse)} · 입력값은 자동 clamp하지 않습니다.</small>
+                        <label className="legacy-crop-tuple"><span className="field-label">Crop Rect tuple (호환 표시)</span><input data-testid={`crop-${slotLabel}`} disabled={Boolean(plan.cropCandidateId)} value={cropRectToTuple(plan.cropRect)} readOnly /></label>
+                      </div>
                       <small className="hint">Destination · {slotId === THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID ? "x=621 y=43 w=172 h=172" : "x=809 y=43 w=172 h=172"} · radius=12</small>
                       <small className="hint" data-testid={`applied-crop-${slotLabel}`}>Applied crop · {state.preview?.appliedImagePlacements?.find((placement) => placement.imageSlotId === slotId)?.resolvedSourceCropRect ? JSON.stringify(state.preview.appliedImagePlacements.find((placement) => placement.imageSlotId === slotId)?.resolvedSourceCropRect) : "pending"}</small>
                       <small className="hint" data-testid={`applied-destination-${slotLabel}`}>Applied destination · {state.preview?.appliedImagePlacements?.find((placement) => placement.imageSlotId === slotId)?.destinationRect ? JSON.stringify(state.preview.appliedImagePlacements.find((placement) => placement.imageSlotId === slotId)?.destinationRect) : "pending"}</small>
@@ -588,15 +766,15 @@ export function App() {
               <button type="button" className="secondary" onClick={exportPlacementPlan} data-testid="placement-plan-export">Plan Export</button>
               <button type="button" className="secondary" onClick={loadAgentFixture} data-testid="placement-agent-fixture">Agent Fixture</button>
             </div>
-            <small className={`placement-plan-status ${(template === "THUMBNAIL_MULTI_RIGHT" ? Boolean(multiPlans[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID] && multiPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]) : Boolean(placementPlan)) ? "status-pass" : "status-error"}`} data-testid="placement-plan-status">{placementPlanMessage}</small>
+            <small className={`placement-plan-status ${(template === "THUMBNAIL_MULTI_RIGHT" ? Boolean(multiPlans[THUMBNAIL_MULTI_RIGHT_PRIMARY_SLOT_ID] && multiPlans[THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID]) : Boolean(placementPlan)) && cropInputReady ? "status-pass" : "status-error"}`} data-testid="placement-plan-status">{placementPlanMessage}</small>
             <small className="hint" data-testid="applied-crop">Applied crop · {state.preview?.appliedImagePlacement?.resolvedSourceCropRect ? JSON.stringify(state.preview.appliedImagePlacement.resolvedSourceCropRect) : template === "OBJECT_RIGHT" ? "none (ALPHA_TRIM_CONTAIN preserves source alpha bounds)" : "pending"}</small>
             {state.preview?.appliedImagePlacement?.destinationRect ? <small className="hint" data-testid="applied-destination-rect">Applied destinationRect · x={state.preview.appliedImagePlacement.destinationRect.x}, y={state.preview.appliedImagePlacement.destinationRect.y}, w={state.preview.appliedImagePlacement.destinationRect.width}, h={state.preview.appliedImagePlacement.destinationRect.height}</small> : state.preview?.measurements?.productPlacedBox ? <small className="hint" data-testid="applied-destination-rect">Applied destinationRect · x={state.preview.measurements.productPlacedBox.x}, y={state.preview.measurements.productPlacedBox.y}, w={state.preview.measurements.productPlacedBox.width}, h={state.preview.measurements.productPlacedBox.height}</small> : null}
           </section>
 
-          <button
-            type="button"
-            className="primary full"
-            disabled={!canRequestPreview(state)}
+            <button
+              type="button"
+              className="primary full"
+            disabled={!canRequestPreview(state) || !cropInputReady}
             onClick={() => void requestPreview()}
             data-testid="request-preview"
           >
@@ -669,7 +847,7 @@ export function App() {
         <button type="button" className="secondary" onClick={() => void selectOutputDirectory()} data-testid="select-output">
           출력 폴더 선택
         </button>
-        <button type="button" className="primary" disabled={!canExport(state)} onClick={() => void exportRender()} data-testid="export-render">
+        <button type="button" className="primary" disabled={!canExport(state) || !cropInputReady} onClick={() => void exportRender()} data-testid="export-render">
           PNG 및 Manifest 저장
         </button>
         {state.exported ? (

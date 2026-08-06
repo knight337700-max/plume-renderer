@@ -17,3 +17,19 @@ template ID, and an `imagePlacementPlans` array. Import accepts either array ord
 unknown fields/duplicate or missing Slot IDs, and maps by Slot ID. Export always emits Template
 Slot order. A Primary Asset can be explicitly reused in the Secondary panel; no implicit copy
 or automatic Crop generation is performed.
+
+## C5a decimal Crop Rect editing
+
+C5a keeps the normalized geometry and Core conversion unchanged. Box Right and each
+Multi slot expose separate `x`, `y`, `width`, and `height` fields backed by strings so
+`""`, `"0."`, and other intermediate values remain editable. Only a complete finite
+decimal draft that passes `validateNormalizedRect` replaces the current Plan; invalid
+values remain visible and are never clamped or rounded. The HTML controls use
+`type=number`, `min=0`, `max=1`, `step=0.001`, and `inputMode=decimal`, while manual
+typing preserves at least six decimal places.
+
+Arrow/nudge semantics are deterministic: normal `0.001`, Shift/fine `0.0001`, and
+Alt/coarse `0.01`. A nudge that would leave the normalized contract is rejected. The
+same decimal values flow through Plan Import/Export and are passed to the existing
+floor/ceil normalized-to-pixel conversion. Multi Slot drafts are keyed by Slot ID, so
+editing Primary cannot mutate Secondary. OBJECT_RIGHT retains disabled Crop controls.
