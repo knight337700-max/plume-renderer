@@ -2,15 +2,15 @@
   "contractFreezePhase": "F0",
   "freezeStatus": "FROZEN",
   "documentVersion": {
-    "previous": "1.9.0",
-    "current": "1.10.0",
+    "previous": "1.10.0",
+    "current": "1.11.0",
     "bump": "minor",
-    "reason": "F0 freezes the additive FREEFORM execution model, Template boundary, deterministic fonts, text rules, FormatProfile identity, and fingerprint policy"
+    "reason": "F3A adds the Kakao Moment FREEFORM fixed-format catalog, channel compliance metadata, and deterministic JPEG output"
   },
   "templateContractVersion": "1.6.0",
   "desktopAppVersion": "0.7.1",
-  "errorRegistryVersion": "1.1.0",
-  "integrationErrorRegistryVersion": "1.5.0",
+  "errorRegistryVersion": "1.2.0",
+  "integrationErrorRegistryVersion": "1.6.0",
   "coordinatesChanged": false,
   "xCoordinatesChanged": false,
   "baselineChanged": true,
@@ -62,11 +62,11 @@
     "textStartX": 48
   },
   "integrationContract": {
-    "schemaVersion": "1.5.0",
-    "previous": "1.4.0",
-    "current": "1.5.0",
+    "schemaVersion": "1.6.0",
+    "previous": "1.5.0",
+    "current": "1.6.0",
     "bump": "minor",
-    "reason": "F0 adds optional layoutMode and CreativeLayoutPlan fields without changing existing TEMPLATE_LOCKED field semantics"
+    "reason": "F3A adds additive FREEFORM catalog profile metadata and explicit PNG/JPEG output capability without changing TEMPLATE_LOCKED field semantics"
   },
   "creativeLayoutPlan": {
     "schemaVersion": "1.0.0",
@@ -274,5 +274,29 @@
     "freeformValidatorImplementationStatus": "HARDENED_PRE_RENDER_POST_RENDER",
     "native1200Status": "CATALOG_NOT_READY",
     "deferred": ["WORD_WRAP", "SHAPE_RASTER", "JPG_OUTPUT", "FREEFORM_LAB_UI"]
+  },
+  "canonicalPhaseF3A": {
+    "documentPrevious": "1.10.0",
+    "documentCurrent": "1.11.0",
+    "documentBump": "minor",
+    "documentReason": "Kakao Moment FREEFORM fixed-canvas Format Catalog, Channel Compliance safe zones, profile element constraints, and deterministic JPEG output",
+    "templateContractVersion": "1.6.0",
+    "templateCoordinatesChanged": false,
+    "integrationContractPrevious": "1.5.0",
+    "integrationContractCurrent": "1.6.0",
+    "integrationContractBump": "minor",
+    "integrationContractReason": "Additive public output format/profile metadata and JPEG encoding request fields",
+    "creativeLayoutPlanVersion": "1.0.0",
+    "creativeLayoutPlanChanged": false,
+    "desktopPrevious": "0.7.1",
+    "desktopCurrent": "0.7.1",
+    "desktopBump": "none",
+    "desktopReason": "F3A is Core/contract/test only; Renderer Lab UI is deferred to F4",
+    "freeformRasterImplementationStatus": "FIXED_CANVAS_CATALOG_IMPLEMENTED",
+    "jpegOutputStatus": "DETERMINISTIC_SHARP_LIBVIPS",
+    "variableCanvasStatus": "CATALOG_ONLY",
+    "collectionStatus": "SINGLE_ITEM_RENDER_COLLECTION_METADATA_ONLY",
+    "officialPlatform": "Windows 10/11 x64",
+    "runtimeNetworkAccess": "PROHIBITED"
   }
 }

@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.10.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.5.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0` 계약을 동결했다. F1에서 FREEFORM Core Raster는 내부 `KBR_FREEFORM_CONTRACT_TEST_1029X258` Profile에 한해 PNG 실행을 지원하고, F2에서 PRE_RENDER/POST_RENDER Validator와 applied-element 무결성을 하드닝했다. Native 1200·JPG·Shape Raster·WORD_WRAP·UI 편집은 구현하지 않는다.
+Canonical 계약 `1.11.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.6.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0`과 FREEFORM profile/output metadata를 제공한다. F3A에서 카카오모먼트 fixed FREEFORM Profile 14개와 deterministic JPEG output을 추가했고, F2의 PRE_RENDER/POST_RENDER Validator와 applied-element 무결성을 유지한다. Renderer Lab UI와 variable-canvas collection은 후속 Phase다.
 
 ## 요구 환경
 
@@ -19,7 +19,7 @@ pnpm check
 
 `pnpm check`는 기존 계약과 Integration Contract 무결성, TypeScript, lint, Core·Desktop build, 단위·통합·보안·Golden·Electron E2E 테스트를 순서대로 실행한다. Integration 전용 검증은 `pnpm test:integration-contract`다.
 
-FREEFORM Contract 전용 검증은 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`다. F1 Core Raster 검증은 `pnpm test:freeform-core`이며 기존 Template Golden 회귀와 함께 실행한다.
+FREEFORM Contract 전용 검증은 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`다. F1 Core Raster 검증은 `pnpm test:freeform-core`이며 기존 Template Golden 회귀와 함께 실행한다. F3A 카탈로그/프로파일 검증은 `pnpm test:kakao-freeform-profiles`, JPEG 결정성 검증은 `pnpm test:jpeg-determinism`이다.
 
 F2 Validator 검증은 `pnpm test:freeform-validator`다. PRE_RENDER ERROR는 raster/PNG/publish를
 실행하지 않고, POST_RENDER ERROR는 publish/download를 차단한다. Validator는 계약·매체
@@ -72,7 +72,7 @@ node dist/cli/index.js render `
   --output-root "C:\absolute\trusted-output-root"
 ```
 
-`--input`은 input root 아래의 상대 경로여야 한다. 입력 안의 제품 경로도 input root 기준 상대 경로다. 출력은 `<output-root>/<output.directory>/<output.baseName>/` 아래의 `render-manifest.json` 1개와 `output.png` 1개다.
+`--input`은 input root 아래의 상대 경로여야 한다. 입력 안의 제품 경로도 input root 기준 상대 경로다. 출력은 `<output-root>/<output.directory>/<output.baseName>/` 아래의 `render-manifest.json` 1개와 명시한 `output.png` 또는 `output.jpg` 1개다.
 
 종료 코드는 성공 `0`, 결정적 입력·Validator 실패 `2`, CLI 사용법 또는 내부 시작 실패 `1`이다. `downloadAllowed=false`이면 파일 경로와 digest를 반환하지 않고 publish를 차단한다.
 
@@ -83,7 +83,7 @@ node dist/cli/index.js render `
 - CTA `NONE`만 활성
 - Spoqa Han Sans Bold/Regular 고정 파일 및 SHA-256 검증
 - Alpha Trim, 8-neighbor 노이즈 분리, 1.5× 최대 업스케일
-- RGBA PNG-32, 300000 decimal-byte hard limit
+- RGBA PNG-32, F3A fixed Profile별 decimal-byte limit, deterministic JPEG (`4:2:0`, metadata stripped, progressive=false)
 
 ## FREEFORM Contract and Core Raster
 
@@ -91,18 +91,20 @@ node dist/cli/index.js render `
 `TEMPLATE_LOCKED`이며 기존 Template Slot/Golden은 그대로 사용한다. FREEFORM은
 Template `imageSlotId` 없이 `CreativeLayoutPlan`의 normalized Element bounds와
 `ImagePlacementSpec`을 검증한다. Text는 canonical Hex color와 deterministic
-`fontId` Registry를 사용하고 OS/remote font fallback은 금지한다. Native 1200은 공식
-dimensions가 확정될 때까지 `CATALOG_NOT_READY`다. F1은 내부 테스트 Profile에서만
+`fontId` Registry를 사용하고 OS/remote font fallback은 금지한다. F3A는
+`KAKAO_DISPLAY_NATIVE_*`, Video Native, Bizboard Expandable, AdView의 fixed
+FREEFORM Profile을 `contracts/freeform-format-profiles.json`에 등록한다. Native 1200
+legacy entry는 그대로 `CATALOG_NOT_READY`다. F1은 내부 테스트 Profile에서만
 normalized bounds, stable zIndex, IMAGE/TEXT/LOGO Raster, appliedElements, fingerprints,
-atomic PNG publish를 실행한다. FREEFORM JPG/Shape raster/WORD_WRAP/Drag UI는 후속
-Phase다. F2는 `src/core/freeform-validator.ts`에서 staged validation, asset/logo/text
-compliance, PNG/appliedElements/checksum integrity를 추가했으며 버전과 F1/Template
-Golden bytes는 유지한다.
+atomic publish를 실행하고 F3A는 명시적 PNG/JPEG와 Profile size/alpha/safe-zone/
+element constraints를 검증한다. F2는 `src/core/freeform-validator.ts`에서 staged validation,
+asset/logo/text compliance, appliedElements/checksum integrity를 유지한다. Renderer Lab
+Profile selector와 variable-canvas collection은 후속 Phase다.
 - 동일 output root의 staging을 통한 manifest-first / PNG-last publish
 
 ## Integration Contract
 
-`packages/renderer-contract/`와 Integration Contract 문서가 별도 `schemaVersion: 1.5.0` 계약이다. JSON에는 절대 경로 또는 바이너리 객체를 넣지 않고 `assetRef`를 Runtime Asset Resolver로 해석한다. 입력 Asset은 PNG/JPEG만 허용하며 WebP/GIF/AVIF/BMP/TIFF/SVG는 Production Capability에서 차단한다. 현재 production Capability는 `KAKAO_BIZBOARD_OBJECT_RIGHT`, `KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT`, `KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT`, `KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT`다. MASK는 required `IMAGE_PRIMARY`와 optional transparent color-unrestricted `LOGO_PRIMARY` overlay Slot, pinned circle-only analytic mask, logo alpha/transparent validation을 사용한다. 로고 없이도 PASS/Preview/Export가 가능하며 자동 recolor는 하지 않는다. OBJECT_RIGHT는 `ALPHA_TRIM_CONTAIN + CONTAIN`과 alpha PNG만, Thumbnail Box/Multi는 PNG/JPEG semantic/manual crop을 실제 구현한다. JPEG EXIF Orientation은 crop 전에 보정한다. Candidate와 Subject Protection은 입력 Plan을 검증하고 자동 Crop 생성이나 자동 중심 대체를 하지 않는다.
+`packages/renderer-contract/`와 Integration Contract 문서가 별도 `schemaVersion: 1.6.0` 계약이다. JSON에는 절대 경로 또는 바이너리 객체를 넣지 않고 `assetRef`를 Runtime Asset Resolver로 해석한다. 입력 Asset은 PNG/JPEG만 허용하며 WebP/GIF/AVIF/BMP/TIFF/SVG는 Production Capability에서 차단한다. F3A FREEFORM Profile은 명시적 PNG/JPEG output, profile별 decimal-byte gate, opaque/safe-zone/element constraints를 사용한다. 기존 Template Capability는 그대로 유지하고, JPEG EXIF Orientation은 crop 전에 보정한다. Candidate와 Subject Protection은 입력 Plan을 검증하고 자동 Crop 생성이나 자동 중심 대체를 하지 않는다.
 
 동일한 Placement 값의 Manual/Agent Plan은 같은 `pixelFingerprint`와 artifact bytes를 만들고 `requestFingerprint`로 provenance만 구분한다. 오류가 하나라도 있으면 Integration Output은 `BLOCKED`이며 artifact/download를 제공하지 않는다. Runtime network access는 계속 금지된다.
 - Electron Main + sandboxed Preload + React 단일 화면 UI

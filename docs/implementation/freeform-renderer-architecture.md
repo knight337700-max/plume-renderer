@@ -1,8 +1,8 @@
 # FREEFORM Renderer Architecture
 
-상태: `CONTRACT_FROZEN`, F1에서 내부 `KBR_FREEFORM_CONTRACT_TEST_1029X258`
-Profile에 한해 deterministic Core Raster가 구현되었다. 이 상태는 카카오의 공식
-FREEFORM 규격 승인이나 Native 1200 지원을 의미하지 않는다.
+상태: `CONTRACT_FROZEN`, F3A에서 Kakao Moment fixed FREEFORM catalog Profile과
+deterministic PNG/JPEG Core Raster가 구현되었다. 이 상태는 카카오의 공식 업로드
+승인이나 디자인 의미 적합성 보장을 의미하지 않는다.
 
 ```text
 Agent/User
@@ -19,12 +19,14 @@ Renderer boundary
   ├─ FormatProfile identity and capability validation
   ├─ deterministic Font Registry / asset digest validation
   ├─ canonical JCS + pixel/request fingerprint material
-  └─ FREEFORM Core Raster (F1, test Profile only)
+  └─ FREEFORM Core Raster (F1 test Profile + F3A fixed catalog Profiles)
        ├─ normalized bounds → pixel rect
        ├─ stable zIndex composite
        ├─ IMAGE / LOGO placement primitives
        ├─ TEXT NO_WRAP / EXPLICIT_NEWLINES
        ├─ RGBA PNG encode
+       ├─ deterministic JPEG encode (sRGB, 4:2:0, no metadata, non-progressive)
+       ├─ Channel Compliance safe-zone / allowlist / opacity / byte gates
        └─ appliedElements + fingerprints + atomic publish
 ```
 
@@ -37,19 +39,19 @@ automatic crop inference, OpenAI/Plume/Queue/DB/remote call은 수행하지 않�
 
 ## Current capability status
 
-| 기능 | F0 상태 |
+| 기능 | F3A 상태 |
 |---|---|
 | CreativeLayoutPlan schema/types/validation | FROZEN; runtime validation active |
-| PNG output profile | IMPLEMENTED for internal 1029×258 test Profile |
-| JPG output | NOT_IMPLEMENTED |
+| PNG output profile | IMPLEMENTED for internal + fixed catalog Profiles |
+| JPEG output | IMPLEMENTED; explicit Sharp/libvips quality ladder |
 | Shape raster | CONTRACT_ONLY; explicit NOT_SUPPORTED error |
-| Native 1200 | CATALOG_NOT_READY |
+| Kakao fixed Format Catalog | 14 IMPLEMENTED Profiles; Scroll catalog-only |
 | Drag/resize Renderer Lab | EXCLUDED |
 | WORD_WRAP | NOT_IMPLEMENTED; explicit NOT_SUPPORTED error |
 | IMAGE / LOGO raster | ALPHA_TRIM_CONTAIN, CENTER_CONTAIN, SEMANTIC_CROP_COVER, MANUAL_CROP |
 | TEXT raster | NO_WRAP, EXPLICIT_NEWLINES; ERROR/CLIP overflow |
 
-## F1 dispatch and publish boundary
+## F1/F3A dispatch and publish boundary
 
 `createKakaoBizboardRenderer().render()` resolves `layoutMode` before legacy schema
 execution. Omitted `layoutMode` continues down the unchanged `TEMPLATE_LOCKED` path;
@@ -57,25 +59,28 @@ execution. Omitted `layoutMode` continues down the unchanged `TEMPLATE_LOCKED` p
 registered font digests, and project-relative asset references. FREEFORM never creates
 Template slots or `imageSlotId` values.
 
-F1 uses the existing RGBA PNG encoder and atomic staging publisher. It writes a manifest
+F1 uses the existing RGBA PNG encoder and atomic staging publisher. F3A adds explicit
+deterministic JPEG encoding and Profile byte/alpha gates. It writes a manifest
 only after validation has zero errors; the manifest contains `appliedElements`,
 `pixelFingerprint`, and `requestFingerprint`, but never a digest of itself. Any validation
 error returns a blocked response and leaves no final PNG or manifest.
 
-## F2 validator and evidence boundary
+## F2/F3A validator and evidence boundary
 
 ```text
 FREEFORM request
   ├─ PRE_RENDER: shape/profile/plan/assets/fonts/unsupported features
   │    └─ ERROR → no raster, no PNG, no staging/publish/download
-  ├─ raster (F1 path)
-  └─ POST_RENDER: PNG IHDR/decode/appliedElements/pixel rect/checksum
+  ├─ raster (F1/F3A path)
+  └─ POST_RENDER: PNG/JPEG decode, canvas/bytes/alpha/appliedElements/checksum
        └─ ERROR → no publish/download
 ```
 
-`src/core/freeform-validator.ts` owns the staged validation primitives. The raster path
+`src/core/freeform-validator.ts` owns the staged validation primitives. F3A Profile metadata
+adds safe-zone and element allowlist checks. The raster path
 creates `appliedElements` and the POST_RENDER validator checks that same evidence; it does not
 reconstruct a second layout. All FREEFORM issues carry a stage and stable KBR code. Absolute
 filesystem paths, AJV-native prose, aesthetic warnings, auto layout, clamp, crop inference,
 font fallback and auto-shrink are outside the boundary. Legacy TEMPLATE_LOCKED dispatch and
-Golden bytes are not routed through the new stage metadata by default.
+Golden bytes are not routed through the new stage metadata by default. Baked IMAGE semantics
+remain manual review; no OCR/CV/LLM inference is performed.

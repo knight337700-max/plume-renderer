@@ -103,6 +103,22 @@
     "requestFingerprint": { "$ref": "#/$defs/sha256" },
     "renderFingerprint": { "$ref": "#/$defs/sha256" },
     "appliedElements": { "type": "array", "items": { "type": "object" } }
+    ,"artifactFormat": { "enum": ["PNG", "JPEG"] }
+    ,"artifactDigest": { "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] }
+    ,"artifactPath": { "type": ["string", "null"] }
+    ,"outputEncoding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format"],
+      "properties": {
+        "format": { "enum": ["PNG", "JPEG"] },
+        "qualityRequested": { "oneOf": [{ "type": "number", "minimum": 0, "maximum": 100 }, { "const": "AUTO_FIT" }] },
+        "qualityResolved": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "chromaSubsampling": { "const": "4:2:0" },
+        "progressive": { "const": false },
+        "metadataStripped": { "const": true }
+      }
+    }
   },
   "allOf": [
     {

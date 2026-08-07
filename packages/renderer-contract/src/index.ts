@@ -8,11 +8,11 @@ import {
 
 export * from "./freeform.js";
 
-export const INTEGRATION_SCHEMA_VERSION = "1.5.0" as const;
-export const PREVIOUS_INTEGRATION_SCHEMA_VERSION = "1.4.0" as const;
+export const INTEGRATION_SCHEMA_VERSION = "1.6.0" as const;
+export const PREVIOUS_INTEGRATION_SCHEMA_VERSION = "1.5.0" as const;
 export const LEGACY_INTEGRATION_SCHEMA_VERSION = "1.2.0" as const;
 export const EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION = "1.1.0" as const;
-export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof PREVIOUS_INTEGRATION_SCHEMA_VERSION | "1.3.0" | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
+export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof PREVIOUS_INTEGRATION_SCHEMA_VERSION | "1.4.0" | "1.3.0" | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
 export const NORMALIZED_EPSILON = 1e-9;
 export const OBJECT_RIGHT_FORMAT_PROFILE_ID = "KAKAO_BIZBOARD_OBJECT_RIGHT" as const;
 export const OBJECT_RIGHT_TEMPLATE_ID = "KAKAO_MOMENT_BIZBOARD_OBJECT_RIGHT_1029X258_V1" as const;
@@ -124,8 +124,9 @@ export type RendererCopyInput = Readonly<{
 }>;
 
 export type RendererOutputRequest = Readonly<{
-  mimeType: "image/png";
-  quality?: number;
+  mimeType: "image/png" | "image/jpeg";
+  format?: "PNG" | "JPEG";
+  quality?: number | "AUTO_FIT";
 }>;
 
 export type RendererIntegrationInputV1 = Readonly<{
@@ -187,7 +188,7 @@ export type RendererIntegrationOutputV1 = Readonly<{
   schemaVersion: typeof INTEGRATION_SCHEMA_VERSION;
   status: "PASS" | "BLOCKED";
   artifact?: Readonly<{
-    mimeType: "image/png";
+    mimeType: "image/png" | "image/jpeg";
     width: number;
     height: number;
     bytes: number;
@@ -204,7 +205,7 @@ export type RendererIntegrationOutputV1 = Readonly<{
   renderFingerprint: string;
 }>;
 
-export type ImplementationStatus = "NOT_IMPLEMENTED" | "PARTIAL" | "IMPLEMENTED";
+export type ImplementationStatus = "NOT_IMPLEMENTED" | "PARTIAL" | "IMPLEMENTED" | "CONTRACT_BLOCKED_VARIABLE_CANVAS";
 export type SemanticPlacement = "NOT_REQUIRED" | "OPTIONAL" | "REQUIRED";
 export type ImagePlacementCapability = Readonly<{
   schemaVersion: typeof INTEGRATION_SCHEMA_VERSION;
@@ -297,7 +298,7 @@ function isFiniteNumber(value: unknown): value is number {
 }
 
 function isSupportedIntegrationSchemaVersion(value: unknown): value is IntegrationSchemaVersion {
-  return value === INTEGRATION_SCHEMA_VERSION || value === PREVIOUS_INTEGRATION_SCHEMA_VERSION || value === "1.3.0" || value === LEGACY_INTEGRATION_SCHEMA_VERSION || value === EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
+  return value === INTEGRATION_SCHEMA_VERSION || value === PREVIOUS_INTEGRATION_SCHEMA_VERSION || value === "1.4.0" || value === "1.3.0" || value === LEGACY_INTEGRATION_SCHEMA_VERSION || value === EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
 }
 
 export function validateNormalizedPoint(value: unknown, path = ""): RendererValidationIssue[] {

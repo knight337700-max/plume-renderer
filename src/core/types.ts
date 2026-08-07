@@ -222,6 +222,17 @@ export type RenderManifest = {
   canonicalInputDigest: string;
   normalizedInputDigest: string;
   outputPngDigest: string;
+  /** F3A authoritative digest for either PNG or JPEG; outputPngDigest is retained for v1 compatibility. */
+  outputArtifactDigest?: string;
+  outputFileName?: string;
+  outputEncoding?: {
+    format: "PNG" | "JPEG";
+    qualityRequested?: number | "AUTO_FIT";
+    qualityResolved?: number;
+    chromaSubsampling?: "4:2:0";
+    progressive?: false;
+    metadataStripped?: true;
+  };
   templateContractVersion: "1.6.0";
   inputSchemaVersion: "1.2.0";
   outputSchemaVersion: "2.0.0";
@@ -272,6 +283,10 @@ export type RenderResponse = {
   requestFingerprint?: string;
   renderFingerprint?: string;
   appliedElements?: FreeformAppliedElement[];
+  artifactFormat?: "PNG" | "JPEG";
+  artifactDigest?: string | null;
+  artifactPath?: string | null;
+  outputEncoding?: RenderManifest["outputEncoding"];
 };
 
 /** @internal Desktop preview result. This is not part of the public JSON Input contract. */

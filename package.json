@@ -35,6 +35,8 @@
     "test:freeform-contract": "pnpm verify:freeform-contract && pnpm build:contract && vitest run tests/freeform-contract",
     "test:freeform-core": "pnpm build && vitest run tests/freeform-core",
     "test:freeform-validator": "pnpm build && vitest run tests/freeform-validator",
+    "test:kakao-freeform-profiles": "pnpm build && vitest run tests/kakao-freeform-profiles",
+    "test:jpeg-determinism": "pnpm build && vitest run tests/kakao-freeform-profiles -t JPEG",
     "test:golden": "vitest run tests/golden",
     "test:security": "vitest run tests/desktop/security",
     "test:desktop": "vitest run tests/desktop",
@@ -48,7 +50,7 @@
     "render": "node dist/cli/index.js"
   },
   "dependencies": {
-    "@kbr/renderer-contract": "workspace:1.5.0",
+    "@kbr/renderer-contract": "workspace:1.6.0",
     "@napi-rs/canvas": "1.0.3",
     "ajv": "8.20.0",
     "canonicalize": "3.0.0",

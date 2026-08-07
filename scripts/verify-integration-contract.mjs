@@ -52,8 +52,8 @@ for (const schema of schemas) {
 if (missingAdditional.length === 0) pass("additional_properties", "all object schemas explicitly reject unknown fields");
 else fail("additional_properties", missingAdditional.join(", "));
 
-if (schemas.every((schema) => JSON.stringify(schema).includes("1.5.0"))) pass("schema_versioning", "all Integration Contract schemas declare v1.5.0");
-else fail("schema_versioning", "one or more schemas do not declare v1.5.0");
+if (schemas.every((schema) => JSON.stringify(schema).includes("1.6.0"))) pass("schema_versioning", "all Integration Contract schemas declare v1.6.0");
+else fail("schema_versioning", "one or more schemas do not declare v1.6.0");
 
 const registry = await readJson(path.join(root, "contracts", "integration-error-registry.json"));
 const registryCodes = registry.codes.map((entry) => entry.code);
@@ -70,8 +70,8 @@ else fail("required_error_codes", "one or more required integration codes missin
 const contract = await readJson(path.join(root, "contracts", "contract-versions.json"));
 if (contract.templateContractVersion === "1.6.0") pass("template_contract", "templateContractVersion is 1.6.0");
 else fail("template_contract", `expected 1.6.0, got ${contract.templateContractVersion}`);
-if (contract.integrationContract?.current === "1.5.0") pass("integration_contract_version", "Integration Contract is v1.5.0");
-else fail("integration_contract_version", `expected Integration Contract v1.5.0, got ${contract.integrationContract?.current ?? "missing"}`);
+if (contract.integrationContract?.current === "1.6.0") pass("integration_contract_version", "Integration Contract is v1.6.0");
+else fail("integration_contract_version", `expected Integration Contract v1.6.0, got ${contract.integrationContract?.current ?? "missing"}`);
 
 const capabilities = await readJson(path.join(root, "contracts", "template-capabilities.json"));
 const enabled = capabilities.capabilities.filter((entry) => entry.implementationStatus === "IMPLEMENTED").map((entry) => entry.formatProfileId);

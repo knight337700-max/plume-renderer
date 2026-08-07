@@ -24,7 +24,7 @@ export {
   SUPPORTED_INPUT_MIME_TYPES,
 } from "./image-input.js";
 export type { ImageInputErrorCode, ImageInputMetadata, InspectedImage, SupportedInputMimeType } from "./image-input.js";
-export { inspectPngIhdr, renderRgbaPng, validateRenderedPng } from "./raster.js";
+export { encodeFreeformArtifact, hasOpaquePixels, inspectPngIhdr, inspectRenderedArtifact, renderRgbaPng, validateRenderedPng } from "./raster.js";
 export {
   validateFreeformAppliedElements,
   validateFreeformPostRender,

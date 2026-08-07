@@ -41,15 +41,20 @@ async function writeFlushed(filePath: string, bytes: Uint8Array | string): Promi
 export async function publishArtifacts(options: {
   outputRoot: string;
   jobDirectory: string;
-  png: Buffer;
+  png?: Buffer;
+  artifact?: Buffer;
+  artifactFileName?: string;
   manifest: string;
   overwrite: boolean;
-}): Promise<{ pngPath: string; manifestPath: string }> {
+}): Promise<{ pngPath: string; artifactPath: string; manifestPath: string }> {
   const stagingRoot = path.join(options.outputRoot, STAGING_DIRECTORY_NAME);
   const stagingDirectory = path.join(stagingRoot, randomUUID());
-  const stagedPng = path.join(stagingDirectory, OUTPUT_PNG_FILE_NAME);
+  const artifactFileName = options.artifactFileName ?? OUTPUT_PNG_FILE_NAME;
+  const artifactBytes = options.artifact ?? options.png;
+  if (!artifactBytes) throw new PublishError("KBR-SYSTEM-004", "No artifact bytes supplied");
+  const stagedPng = path.join(stagingDirectory, artifactFileName);
   const stagedManifest = path.join(stagingDirectory, RENDER_MANIFEST_FILE_NAME);
-  const pngPath = path.join(options.jobDirectory, OUTPUT_PNG_FILE_NAME);
+  const pngPath = path.join(options.jobDirectory, artifactFileName);
   const manifestPath = path.join(options.jobDirectory, RENDER_MANIFEST_FILE_NAME);
   let manifestPublished = false;
 
@@ -60,7 +65,7 @@ export async function publishArtifacts(options: {
     }
 
     await createSafeDirectory(options.outputRoot, stagingDirectory);
-    await writeFlushed(stagedPng, options.png);
+    await writeFlushed(stagedPng, artifactBytes);
     await writeFlushed(stagedManifest, options.manifest);
     await createSafeDirectory(options.outputRoot, options.jobDirectory);
 
@@ -72,7 +77,7 @@ export async function publishArtifacts(options: {
     manifestPublished = true;
     await rename(stagedPng, pngPath);
     await rm(stagingDirectory, { recursive: true, force: true });
-    return { pngPath, manifestPath };
+    return { pngPath, artifactPath: pngPath, manifestPath };
   } catch (error) {
     if (manifestPublished) await rm(manifestPath, { force: true }).catch(() => undefined);
     await rm(stagingDirectory, { recursive: true, force: true }).catch(() => undefined);

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/schema/renderer-integration-output-v1.schema.json",
-  "title": "Renderer Integration Output v1",
+  "$id": "https://kbr.local/schema/renderer-integration-output-v1.6.0.schema.json",
+  "title": "Renderer Integration Output v1.6",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "status", "appliedImagePlacements", "validation", "requestFingerprint", "pixelFingerprint", "renderFingerprint"],
@@ -10,12 +10,12 @@
     { "if": { "properties": { "status": { "const": "BLOCKED" } } }, "then": { "not": { "required": ["artifact"] } } }
   ],
   "properties": {
-    "schemaVersion": { "const": "1.5.0" },
+    "schemaVersion": { "const": "1.6.0" },
     "status": { "enum": ["PASS", "BLOCKED"] },
     "artifact": {
       "type": "object", "additionalProperties": false,
       "required": ["mimeType", "width", "height", "bytes", "checksumSha256"],
-      "properties": { "mimeType": { "const": "image/png" }, "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }, "bytes": { "type": "integer", "minimum": 1 }, "checksumSha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" } }
+      "properties": { "mimeType": { "enum": ["image/png", "image/jpeg"] }, "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }, "bytes": { "type": "integer", "minimum": 1 }, "checksumSha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" } }
     },
     "appliedImagePlacements": { "type": "array", "items": { "$ref": "#/$defs/applied" } },
     "validation": {

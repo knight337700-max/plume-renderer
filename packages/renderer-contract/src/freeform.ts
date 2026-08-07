@@ -32,7 +32,12 @@ export type CreativeSemanticRole =
   | "OTHER";
 export type TextWrapMode = "NO_WRAP" | "EXPLICIT_NEWLINES" | "WORD_WRAP";
 export type TextOverflowMode = "ERROR" | "CLIP";
-export type OutputFormat = "PNG" | "JPG";
+/**
+ * Public output aliases. `JPG` is retained for compatibility with the F1
+ * test-profile request shape; new catalog profiles use the canonical
+ * `JPEG` spelling.
+ */
+export type OutputFormat = "PNG" | "JPG" | "JPEG";
 export type FormatCatalogStatus = "READY" | "CATALOG_NOT_READY" | "INTERNAL_TEST_ONLY";
 
 export type CanvasBackground =
@@ -109,11 +114,31 @@ export type CreativeLayoutPlan = Readonly<{
 
 export type FormatProfile = Readonly<{
   formatProfileId: string;
+  channel?: string;
   canvas: Readonly<{ width: number; height: number }>;
+  canvasSpec?: Readonly<{ kind: "FIXED" | "VARIABLE_HEIGHT"; width: number; minimumHeight?: number; maximumHeight?: number }>;
   layoutMode: LayoutMode;
   allowedOutputFormats: readonly OutputFormat[];
   implementationStatus: ImplementationStatus;
   catalogStatus?: FormatCatalogStatus;
+  /** Additive F3A channel-catalog metadata. */
+  officialSizeRule?: "EXACT" | "MINIMUM_WITH_RATIO";
+  officialRatio?: string;
+  outputConstraints?: Readonly<{
+    allowedFormats: readonly ("PNG" | "JPEG")[];
+    maximumBytes?: number;
+    maximumBytesComparator?: "LTE" | "LT";
+    requiresOpaqueOutput: boolean | "UNSPECIFIED";
+  }>;
+  elementConstraints?: Readonly<{
+    allowImage: boolean;
+    allowText: boolean;
+    allowLogo: boolean;
+    allowShape?: boolean;
+  }>;
+  safeZonePolicy?: unknown;
+  collectionRule?: unknown;
+  classification?: string;
 }>;
 
 export type FontRegistryEntry = Readonly<{
@@ -285,9 +310,11 @@ export function validateCreativeLayoutPlan(value: unknown, options: FreeformPlan
 }
 
 export function validateFreeformOutputFormat(format: OutputFormat, profile: FormatProfile): RendererValidationIssue[] {
-  return profile.allowedOutputFormats.includes(format)
+  const normalized = format === "JPG" ? "JPEG" : format;
+  const allowed = profile.allowedOutputFormats.map((entry) => entry === "JPG" ? "JPEG" : entry);
+  return allowed.includes(normalized)
     ? []
-    : [freeformIssue("KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "freeform.output_format_not_supported", { path: "/output/format", actual: format, expected: profile.allowedOutputFormats })];
+    : [freeformIssue("KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "freeform.output_format_not_supported", { path: "/output/format", actual: format, expected: allowed })];
 }
 
 export function applyCreativeLayoutPlanDefaults(plan: CreativeLayoutPlan): CreativeLayoutPlan {
@@ -332,11 +359,12 @@ export function canonicalFreeformPlan(plan: CreativeLayoutPlan): string {
   return serialized;
 }
 
-function pixelFingerprintMaterial(plan: CreativeLayoutPlan, assetDigests: Readonly<Record<string, string>>, profile?: FormatProfile): unknown {
+function pixelFingerprintMaterial(plan: CreativeLayoutPlan, assetDigests: Readonly<Record<string, string>>, profile?: FormatProfile, outputEncoding?: unknown): unknown {
   const background = plan.background.type === "SOLID" ? { type: "SOLID", color: plan.background.color.toUpperCase() } : plan.background;
   return {
     formatProfileId: plan.formatProfileId,
     canvas: profile?.canvas,
+    ...(outputEncoding !== undefined ? { outputEncoding } : {}),
     background,
     elements: stableSortCreativeElements(plan.elements).map((element) => {
       const base = { id: element.id, type: element.type, bounds: element.bounds, zIndex: element.zIndex, opacity: element.opacity ?? FREEFORM_DEFAULT_OPACITY, role: element.role };
@@ -360,6 +388,6 @@ export async function computeFreeformFingerprints(
 ): Promise<{ pixelFingerprint: string; requestFingerprint: string }> {
   const canonicalPlan = canonicalFreeformPlan(plan);
   const requestFingerprint = await sha256Text(canonicalize(normalizeNfc(canonicalizeColors({ plan: applyCreativeLayoutPlanDefaults(plan), provenance }))) ?? canonicalPlan);
-  const pixelFingerprint = await sha256Text(canonicalize(normalizeNfc(pixelFingerprintMaterial(applyCreativeLayoutPlanDefaults(plan), assetDigests, profile))) ?? canonicalPlan);
+  const pixelFingerprint = await sha256Text(canonicalize(normalizeNfc(pixelFingerprintMaterial(applyCreativeLayoutPlanDefaults(plan), assetDigests, profile, provenance.outputEncoding))) ?? canonicalPlan);
   return { pixelFingerprint, requestFingerprint };
 }

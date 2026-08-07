@@ -1,11 +1,11 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.10.0
-- **Status:** Frozen Implementation Contract — Phase F1 FREEFORM Core Raster implemented for the internal test Profile only
+- **Document version:** 1.11.0
+- **Status:** Frozen Implementation Contract — Phase F3A Kakao Moment FREEFORM fixed-format catalog and deterministic JPEG output implemented
 - **Checked date:** 2026-08-07 (KST)
 - **Owner:** Local Renderer Project
-- **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, THUMBNAIL_MULTI_RIGHT, and MASK_SEMICIRCLE_RIGHT / 1029×258`
+- **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates plus F3A FREEFORM Format Catalog`
 
 ---
 
@@ -140,7 +140,7 @@ Phase F0 이후 계약 우선순위는 이 문서의 **26. Phase F0 FREEFORM Ren
 
 ## 2.1 제품 정의
 
-**Kakao Bizboard Local Renderer**는 구조화된 카피와 Template Capability가 허용하는 제품 image slot을 입력받아 카카오 비즈보드 우측형 배너 한 개를 로컬에서 생성하고, 자동 Validator 결과의 `ERROR`가 0개일 때만 최종 PNG 다운로드를 허용하는 독립 실행형 도구다. `OBJECT_RIGHT`는 투명 PNG만, `THUMBNAIL_BOX_RIGHT`·`THUMBNAIL_MULTI_RIGHT`·MASK의 IMAGE_PRIMARY는 PNG/JPG/JPEG를 허용한다. MASK의 LOGO_PRIMARY는 선택형 검정 투명 PNG 슬롯이다. **[PROJECT]**
+**Kakao Bizboard Local Renderer**는 구조화된 카피와 Template Capability가 허용하는 제품 image slot을 입력받아 카카오 비즈보드 우측형 배너를 로컬에서 생성하고, 자동 Validator 결과의 `ERROR`가 0개일 때만 최종 artifact 다운로드를 허용하는 독립 실행형 도구다. Template-locked 경로의 기존 PNG 계약은 유지하며, F3A에서는 동일 Core에 고정 Canvas FREEFORM Profile과 명시적 PNG/JPEG 출력을 additive하게 제공한다(현재 계약은 §29). `OBJECT_RIGHT`는 투명 PNG만, `THUMBNAIL_BOX_RIGHT`·`THUMBNAIL_MULTI_RIGHT`·MASK의 IMAGE_PRIMARY는 PNG/JPG/JPEG를 허용한다. MASK의 LOGO_PRIMARY는 선택형 검정 투명 PNG 슬롯이다. **[PROJECT]**
 
 ## 2.2 목표
 
@@ -150,7 +150,7 @@ Phase F0 이후 계약 우선순위는 이 문서의 **26. Phase F0 FREEFORM Ren
 4. `ERROR 0` 다운로드 게이트 강제
 5. 기존 플룸 서비스와의 런타임·데이터·배포 의존성 제거
 
-## 2.3 v1 지원 범위
+## 2.3 v1 Template-locked baseline 범위 (F0–F2)
 
 | 항목 | 값 |
 |---|---|
@@ -164,6 +164,10 @@ Phase F0 이후 계약 우선순위는 이 문서의 **26. Phase F0 FREEFORM Ren
 | Output | PNG 1개 + validation manifest JSON 1개 |
 | Execution | 로컬 전용 |
 | Download gate | `errorCount === 0` |
+
+위 표는 F0–F2의 Template-locked baseline을 보존한 것이다. 현재 F3A의
+FREEFORM fixed-format catalog와 PNG/JPEG output 계약은 §29 및
+`contracts/freeform-format-profiles.json`을 우선한다. **[PROJECT]**
 
 ## 2.4 명시적 제외 범위
 
@@ -1552,6 +1556,10 @@ Golden test는 최소 다음을 고정한다.
 - job directory 내부 최종 파일명: `output.png`
 - job directory 내부 manifest 파일명: `render-manifest.json`
 
+위 10.7의 PNG-32/`output.png` 규칙은 Template-locked F0–F2 baseline이다.
+F3A fixed FREEFORM Profile은 Profile의 명시적 `PNG` 또는 `JPEG` output과
+`output.jpg` 경로를 사용하며, JPEG 세부 규칙은 §29.2를 따른다. **[PROJECT]**
+
 ## 10.8 UI 최소 요구사항
 
 1. Template Capability에 맞는 제품 이미지(PNG/JPG/JPEG) 선택
@@ -1764,8 +1772,13 @@ Phase C0 freeze 시점에는 Spoqa Han Sans Bold와 Regular 파일이 unresolved
 - `validatorResult`
 - `assetDigests`
 - `manualAcceptanceStatus`
+- F3A additive fields: `outputArtifactDigest`, `outputFileName`, `outputEncoding`,
+  `formatProfileId`, `appliedElements`, `pixelFingerprint`, `requestFingerprint`
 
 `render-manifest.json`은 자신의 SHA-256을 MUST NOT 포함한다. `manifestDigest`, `pngDigest`, `manifestPath`, `pngPath`, `downloadAllowed`, `status`, `errors`, `warnings`는 response envelope에만 둔다.
+F3A JPEG 결과에서는 기존 `outputPngDigest`/`pngDigest` 필드를 호환성을 위해
+artifact digest와 함께 유지하고, canonical artifact 형식·경로·인코딩은 위 additive
+fields와 `artifact*` response fields로 구분한다.
 
 ## 13.4 CTA Activation Gate
 
@@ -1918,7 +1931,10 @@ staging은 동일 output root 내부 `.out-staging/<jobId>/`에 둔다.
 9. 실패 시 staging과 부분 manifest 정리
 ```
 
-최종 `output.png` 존재는 ERROR 0 publish 완료를 의미해야 한다. 최종 PNG rename 후 response 생성 실패가 발생하더라도 Core는 published 두 파일을 재검증하여 일관된 response를 복구하거나 둘 다 정리해야 한다.
+최종 `output.png` 존재는 Template-locked PNG publish 완료를 의미해야 한다. F3A에서는
+Profile에 따른 `output.png` 또는 `output.jpg`가 ERROR 0 publish 완료의 artifact다.
+최종 artifact rename 후 response 생성 실패가 발생하더라도 Core는 published 두 파일을
+재검증하여 일관된 response를 복구하거나 둘 다 정리해야 한다.
 
 ## 13.13 Runtime Network
 
@@ -1930,7 +1946,7 @@ staging은 동일 output root 내부 `.out-staging/<jobId>/`에 둔다.
 
 ## 13.14 Golden과 Fixture
 
-v1 공식 지원 플랫폼은 Windows 10/11 x64다. 동일 입력, asset, dependency version, runtime 조건에서 byte-equal PNG를 목표로 하며 동일 입력 3회 SHA-256이 같아야 한다. 다른 OS의 pixel tolerance는 v1 Acceptance에 포함하지 않는다.
+v1 공식 지원 플랫폼은 Windows 10/11 x64다. 동일 입력, asset, dependency version, runtime 조건에서 Template PNG와 F3A JPEG 모두 byte-equal을 목표로 하며 동일 입력 3회 SHA-256이 같아야 한다. 다른 OS의 pixel tolerance는 v1 Acceptance에 포함하지 않는다.
 
 Phase C0 최소 fixture 계약:
 
@@ -2780,7 +2796,7 @@ interface FormatProfile {
   formatProfileId: string;
   canvas: { width: number; height: number };
   layoutMode: LayoutMode;
-  allowedOutputFormats: readonly ("PNG" | "JPG")[];
+  allowedOutputFormats: readonly ("PNG" | "JPG" | "JPEG")[];
   implementationStatus: "NOT_IMPLEMENTED" | "PARTIAL" | "IMPLEMENTED";
 }
 ```
@@ -2791,7 +2807,9 @@ Loaded FormatProfile.formatProfileId`를 exact equality로 검증한다. 불일�
 `KBR-FREEFORM-CANVAS-PROFILE-MISSING`이다. 현재 내부 contract test profile만 기존
 1029×258을 사용하며 `PROJECT_TEST_ONLY`다. Native 1200은 공식 dimensions/file size가
 확정되지 않았으므로 `CATALOG_NOT_READY`이고 숫자를 추측하지 않는다. PNG는 기존
-encoder를 재사용할 수 있는 계약 상태, JPG는 `NOT_IMPLEMENTED`다. **[PROJECT]**
+encoder를 재사용할 수 있는 계약 상태였다. F0/F1의 JPG `NOT_IMPLEMENTED` 상태는
+historical baseline이며, F3A fixed Profile은 canonical `JPEG`와 호환 `JPG` alias를
+추가한다. **[PROJECT]**
 
 ### 26.6 Fingerprint policy [PROJECT] [DERIVED]
 
@@ -2838,8 +2856,9 @@ pixel rect로 변환한다. `zIndex` ascending과 원래 배열 순서를 안정
 배경은 deterministic RGBA transparent/solid다. Text는 등록된 Spoqa font만 사용하고
 `NO_WRAP`, `EXPLICIT_NEWLINES`, `ERROR`/`CLIP`만 실행한다. `WORD_WRAP`은
 `KBR-FREEFORM-TEXT-WRAP-NOT-SUPPORTED`, `SHAPE`는
-`KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED`, JPG는
-`KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED` ERROR로 fail closed한다. 자동 Layout,
+`KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED`로 fail closed한다. F1/F2 당시 JPG도
+`KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED`였지만 F3A fixed catalog에서는 명시적
+PNG/JPEG Profile output으로 대체한다. 자동 Layout,
 font shrink, crop candidate 생성, rotation/skew/effect, Native 1200은 F1 범위가 아니다.
 **[PROJECT]**
 
@@ -2869,7 +2888,7 @@ F2는 F0/F1의 FREEFORM 의미와 버전을 변경하지 않고 검증 경계를
 
 ```text
 Input shape/schema → FormatProfile/LayoutMode → Plan/elements → assets/fonts
-→ PRE_RENDER gate → raster → PNG/appliedElements/checksum POST_RENDER
+→ PRE_RENDER gate → raster → PNG/JPEG/appliedElements/checksum POST_RENDER
 → atomic publish
 ```
 
@@ -2883,7 +2902,7 @@ message key와 식별자 기준으로 deterministic sort/dedupe하며 AJV 원문
 ### 28.2 Plan, profile, asset, and unsupported features [PROJECT]
 
 FormatProfile ID는 request, CreativeLayoutPlan, loaded registry에서 exact equality여야
-하고 `layoutMode`는 FREEFORM, canvas와 PNG capability가 구현 상태여야 한다. Plan의
+하고 `layoutMode`는 FREEFORM, canvas와 해당 Profile의 PNG/JPEG capability가 구현 상태여야 한다. Plan의
 schemaVersion, unknown property, unique element ID, normalized bounds, integer zIndex,
 background(`TRANSPARENT`/`SOLID`와 `#RRGGBB`/`#RRGGBBAA`)를 검증한다. MIME signature,
 decode, dimensions, declared checksum/dimensions, trusted asset resolution을 검증하며
@@ -2893,8 +2912,9 @@ alpha channel이 없는 자산을 거부한다. **[PROJECT]**
 
 LOGO는 alpha PNG, layout-visible pixel, 투명 배경 조건을 요구하지만 색상은 제한하지
 않는다. 등록된 Font ID와 SHA-256이 일치하는 asset만 사용하며 system/remote fallback은
-금지한다. `NO_WRAP`과 `EXPLICIT_NEWLINES`만 실행하고 `WORD_WRAP`, `SHAPE` raster,
-`JPG` output은 PRE_RENDER에서 명시적 ERROR로 fail closed한다. Text `ERROR` overflow는
+금지한다. `NO_WRAP`과 `EXPLICIT_NEWLINES`만 실행하고 `WORD_WRAP`, `SHAPE` raster는
+PRE_RENDER에서 명시적 ERROR로 fail closed한다. F3A는 explicit JPEG output을 추가하며,
+transparent background JPEG는 별도 ERROR다. Text `ERROR` overflow는
 raster ink 기준 POST_RENDER ERROR, `CLIP` overflow는 deterministic clip과
 `overflowDetected`/`clipped` evidence로 기록한다. **[PROJECT]**
 
@@ -2904,8 +2924,9 @@ raster ink 기준 POST_RENDER ERROR, `CLIP` overflow는 deterministic clip과
 normalized bounds, zIndex/order, opacity, destination pixel rect, asset/font digest,
 placement/crop, text metrics/color/wrap/overflow evidence를 검증한다. Pixel rect는
 canvas 안의 양의 정수 rect이고 normalized 변환 및 실제 crop 결과와 일치해야 한다.
-PNG signature/decode, FormatProfile canvas dimensions, RGBA 8-bit IHDR, non-zero bytes와
-artifact checksum을 POST_RENDER에서 재검증한다. 기존 `validateRenderedPng`와 atomic
+PNG signature/decode 또는 JPEG metadata/decode, FormatProfile canvas dimensions,
+PNG의 경우 RGBA 8-bit IHDR, non-zero bytes와 artifact checksum을 POST_RENDER에서
+재검증한다. 기존 `validateRenderedPng`와 atomic
 staging publisher는 Template 경로의 의미와 Golden bytes를 변경하지 않는다. **[PROJECT]
 [DERIVED]**
 
@@ -2925,3 +2946,100 @@ F2의 구현 상세와 acceptance는
 `contracts/contract-versions.json`의 `canonicalPhaseF2`에 기록한다. 이 단계는 공식
 카카오 FREEFORM 업로드 승인, Native 1200 dimensions, 또는 디자인 적합성을 보장하지
 않는다. **[PROJECT]**
+
+## 29. Phase F3A — Kakao Moment FREEFORM Fixed Format Catalog [PROJECT] [OFFICIAL]
+
+F3A는 카카오모먼트 공식 가이드에서 확인된 정적 이미지 계열을 기존 FREEFORM
+Core가 실행할 수 있도록 `FormatProfile + ChannelCompliance` registry로 추가한다.
+Renderer는 Layout을 생성하지 않고 제출된 `CreativeLayoutPlan 1.0.0`을 exact
+실행한다. 메시지 광고, 개인화 메시지, 보장형/PSD Layer 소재, 상품 Feed, Video
+Raster는 이 단계의 범위가 아니다. **[PROJECT]**
+
+### 29.1 Fixed profile catalog [OFFICIAL] [PROJECT]
+
+`MINIMUM_WITH_RATIO`는 공식 최소 크기와 비율을 보존하며, v1의 결정적 Canvas는
+공식 최소 크기로 물질화한다(`[PROJECT] OFFICIAL_MINIMUM_SIZE`). `EXACT`는 공식
+Canvas를 그대로 사용한다. 같은 Canvas라도 Channel Compliance가 다르면 Profile
+ID를 합치지 않는다.
+
+| Profile | Canonical Canvas | Ratio / rule | Output byte rule | Status |
+|---|---:|---|---:|---|
+| `KAKAO_DISPLAY_NATIVE_2_1` | 1200×600 | 2:1 / minimum | ≤500000 | IMPLEMENTED |
+| `KAKAO_DISPLAY_NATIVE_1_1` | 500×500 | 1:1 / minimum | ≤500000 | IMPLEMENTED |
+| `KAKAO_DISPLAY_NATIVE_9_16` | 720×1280 | 9:16 / minimum | ≤500000 | IMPLEMENTED |
+| `KAKAO_DISPLAY_NATIVE_4_5` | 800×1000 | 4:5 / minimum | ≤500000 | IMPLEMENTED |
+| `KAKAO_DISPLAY_CATALOG_SLIDE_1_1` | 500×500 | 1:1 / minimum | ≤500000 | IMPLEMENTED |
+| `KAKAO_VIDEO_NATIVE_THUMBNAIL_16_9` | 1280×720 | 16:9 / minimum | ≤500000 | IMPLEMENTED |
+| `KAKAO_VIDEO_NATIVE_THUMBNAIL_9_16` | 720×1280 | 9:16 / minimum | ≤500000 | IMPLEMENTED |
+| `KAKAO_VIDEO_NATIVE_SLIDE_1_1` | 500×500 | 1:1 / minimum | ≤500000 | IMPLEMENTED |
+| `KAKAO_BIZBOARD_EXPANDABLE_IMAGE_2_1` | 1200×600 | 2:1 / minimum | <500000 | IMPLEMENTED |
+| `KAKAO_BIZBOARD_EXPANDABLE_MULTI_1_1` | 1080×1080 | 1:1 / minimum | <1000000 | IMPLEMENTED |
+| `KAKAO_ADVIEW_FULL_IMAGE` | 720×1560 | exact | ≤400000 | IMPLEMENTED |
+| `KAKAO_ADVIEW_COMPACT_IMAGE` | 1280×720 | exact | ≤400000 | IMPLEMENTED |
+| `KAKAO_ADVIEW_CAROUSEL_IMAGE` | 1280×720 | exact | ≤400000 | IMPLEMENTED |
+| `KAKAO_ADVIEW_SHARE_BUBBLE_IMAGE` | 1280×720 | exact | no additional catalog limit | IMPLEMENTED |
+| `KAKAO_ADVIEW_SCROLL_IMAGE` | width 720, height 360–7800 | variable height | ≤400000 | CATALOG_ONLY |
+
+`500KB`, `1MB`, `400KB`는 현재 저장소에서 확인된 exact API byte semantics가
+없으므로 `[PROJECT_CONSERVATIVE]` decimal byte `500000`, `1000000`, `400000`으로
+고정한다. `미만`은 `LT`, `이하`는 `LTE`다. **[PROJECT]**
+
+### 29.2 Output format and JPEG contract [PROJECT] [DERIVED]
+
+F3A Profile의 명시적 renderer output은 `PNG`와 canonical `JPEG`다. F1 호환을
+위해 `JPG` request alias를 parse할 수 있지만 자동 format switching은 금지한다.
+JPEG는 현재 lockfile의 Sharp/libvips로 sRGB, alpha 미지원, metadata stripped,
+progressive=false, chroma `4:2:0`을 고정한다. `AUTO_FIT`은 quality
+`92,88,84,80,76,72,68,64,60,56,52,48` 순서에서 Profile comparator를 처음
+만족하는 값이고, 모두 초과하면 `KBR-FREEFORM-JPEG-TARGET-SIZE-NOT-ACHIEVABLE`
+ERROR다. JPEG quality/options는 manifest `outputEncoding`과 pixel fingerprint에,
+`AUTO_FIT` request는 request fingerprint에 포함한다.
+
+`TRANSPARENT` background + JPEG는 `KBR-FREEFORM-JPEG-TRANSPARENT-BACKGROUND-NOT-SUPPORTED`
+ERROR다. 자동 흰색 flatten 또는 alpha 이진화는 하지 않는다. `requiresOpaqueOutput`
+가 `true`인 Profile은 최종 artifact pixels가 모두 alpha 255인지 검사하고,
+`UNSPECIFIED`는 false로 추론하지 않는다. **[PROJECT]**
+
+### 29.3 Channel Compliance and review boundary [OFFICIAL] [PROJECT] [MANUAL]
+
+- Display Native 2:1 recommended avoid margin `top40,left40,right40,bottom90`는
+  renderer-managed TEXT/LOGO 침범 시 WARNING이다.
+- Display Native 9:16 required margin `top89,bottom89,left47,right47`는 ERROR,
+  low-resolution recommended `top279,bottom438`는 WARNING이다.
+- Display Native 4:5 required `top100,bottom100,left40`는 ERROR다. right-bottom
+  UI occlusion rectangle은 확정하지 않고 MANUAL REVIEW다.
+- Bizboard Expandable Image는 edge 50px와 top-right close-button 84×78을
+  renderer-managed TEXT/LOGO가 침범하면 ERROR다. CTA geometry는
+  `CTA_SAFE_ZONE_GEOMETRY_NOT_CATALOGED`로 기록한다.
+- Bizboard Expandable Multi는 `IMAGE`만 허용하며 TEXT/LOGO/SHAPE는 ERROR다.
+  법정 disclaimer PSD 예외는 구현하지 않고
+  `PROFILE_NOT_SUITABLE_FOR_REQUIRED_DISCLAIMER_V1`로 문서화한다.
+- AdView Fullview의 720×1000 image safe zone과 720×900 text safe zone은
+  dimension만 catalog하고 y 위치는 MANUAL REVIEW다. Compactview에는 근거 없는
+  safe zone을 추가하지 않는다.
+- IMAGE asset 내부 baked text/logo/button/제품 의미는 OCR/CV/LLM으로 분석하지
+  않는다. 필요한 경우 `KBR-FREEFORM-MANUAL-REVIEW-REQUIRED` WARNING만 기록한다.
+
+### 29.4 Collection and variable canvas boundary [PROJECT]
+
+Catalog의 `collectionRule`은 min/max metadata다. F3A 공개 request는 단일
+`CreativeLayoutPlan`과 단일 artifact만 실행하며 multi-artifact orchestration은
+F3B로 연기한다. AdView Scroll은 fixed `FormatProfile.canvas`를 범위형으로
+변경하지 않고 `CONTRACT_BLOCKED_VARIABLE_CANVAS` catalog-only로 두며 실행 시
+`KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED`를 반환한다.
+
+### 29.5 F3A version and acceptance boundary [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.10.0 | 1.11.0 | fixed FREEFORM catalog, compliance, JPEG contract |
+| Integration Contract | 1.5.0 | 1.6.0 | additive output format/profile metadata |
+| CreativeLayoutPlan | 1.0.0 | 1.0.0 | Layout shape unchanged |
+| Template Contract | 1.6.0 | 1.6.0 | coordinates and Goldens unchanged |
+| Desktop | 0.7.1 | 0.7.1 | UI deferred to F4 |
+
+F3A의 상세 registry는 `contracts/freeform-format-profiles.json`, 구현은
+`docs/implementation/kakao-freeform-format-profiles-v1.md`, catalog 근거는
+`docs/catalog/kakao-moment-freeform-format-catalog-v1.md`, ADR은
+`docs/adr/ADR-0032`–`ADR-0036`에 둔다. 이 계약은 카카오 공식 업로드 승인이나
+이미지 내부 의미 적합성을 보장하지 않는다.

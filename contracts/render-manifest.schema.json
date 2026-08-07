@@ -30,6 +30,16 @@
     "outputPngDigest": {
       "$ref": "#/$defs/sha256"
     },
+    "outputArtifactDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "outputFileName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outputEncoding": {
+      "$ref": "#/$defs/outputEncoding"
+    },
     "templateContractVersion": {
       "const": "1.6.0"
     },
@@ -223,6 +233,19 @@
         "overflowMode": { "enum": ["ERROR", "CLIP"] },
         "overflowDetected": { "type": "boolean" },
         "clipped": { "type": "boolean" }
+      }
+    },
+    "outputEncoding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format"],
+      "properties": {
+        "format": { "enum": ["PNG", "JPEG"] },
+        "qualityRequested": { "oneOf": [{ "type": "number", "minimum": 0, "maximum": 100 }, { "const": "AUTO_FIT" }] },
+        "qualityResolved": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "chromaSubsampling": { "const": "4:2:0" },
+        "progressive": { "const": false },
+        "metadataStripped": { "const": true }
       }
     },
     "normalizedRect": {

@@ -23,6 +23,81 @@ export type PngIhdr = {
   colorType: number;
 };
 
+export type JpegEncoding = Readonly<{
+  format: "JPEG";
+  qualityRequested: number | "AUTO_FIT";
+  qualityResolved: number;
+  chromaSubsampling: "4:2:0";
+  progressive: false;
+  metadataStripped: true;
+}>;
+
+export type FreeformArtifactEncoding = Readonly<{
+  format: "PNG" | "JPEG";
+  bytes: Buffer;
+  jpeg?: JpegEncoding;
+}>;
+
+/** Encode the already-rasterized RGBA canvas without introducing a format switch. */
+export async function encodeFreeformArtifact(
+  rgbaPng: Buffer,
+  format: "PNG" | "JPEG",
+  options: Readonly<{ quality?: number | "AUTO_FIT"; maximumBytes?: number; maximumBytesComparator?: "LTE" | "LT" }> = {},
+): Promise<FreeformArtifactEncoding | null> {
+  if (format === "PNG") return { format, bytes: rgbaPng };
+  const requested = options.quality ?? "AUTO_FIT";
+  const qualities = typeof requested === "number" ? [Math.round(requested)] : [92, 88, 84, 80, 76, 72, 68, 64, 60, 56, 52, 48];
+  for (const quality of qualities) {
+    const bytes = await sharp(rgbaPng, { failOn: "error" })
+      .jpeg({ quality, chromaSubsampling: "4:2:0", progressive: false, mozjpeg: false })
+      .toBuffer();
+    const maximumBytes = options.maximumBytes;
+    const withinLimit = maximumBytes === undefined
+      ? true
+      : options.maximumBytesComparator === "LT" ? bytes.byteLength < maximumBytes : bytes.byteLength <= maximumBytes;
+    if (withinLimit) {
+      return {
+        format,
+        bytes,
+        jpeg: {
+          format: "JPEG",
+          qualityRequested: requested,
+          qualityResolved: quality,
+          chromaSubsampling: "4:2:0",
+          progressive: false,
+          metadataStripped: true,
+        },
+      };
+    }
+    if (typeof requested === "number") break;
+  }
+  return null;
+}
+
+export async function hasOpaquePixels(bytes: Buffer): Promise<boolean> {
+  const raw = await sharp(bytes, { failOn: "error" }).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  for (let index = 3; index < raw.data.length; index += 4) if ((raw.data[index] ?? 0) !== 255) return false;
+  return true;
+}
+
+export async function inspectRenderedArtifact(
+  bytes: Buffer,
+  format: "PNG" | "JPEG",
+  expectedCanvas: Readonly<{ width: number; height: number }>,
+): Promise<{ width: number; height: number; hasAlpha: boolean; opaque: boolean; metadata: Awaited<ReturnType<ReturnType<typeof sharp>["metadata"]>> | null }> {
+  try {
+    const image = sharp(bytes, { failOn: "error" });
+    const metadata = await image.metadata();
+    const formatMatches = format === "PNG" ? metadata.format === "png" : metadata.format === "jpeg";
+    if (!formatMatches || metadata.width !== expectedCanvas.width || metadata.height !== expectedCanvas.height) {
+      return { width: metadata.width ?? 0, height: metadata.height ?? 0, hasAlpha: Boolean(metadata.hasAlpha), opaque: false, metadata };
+    }
+    return { width: metadata.width ?? 0, height: metadata.height ?? 0, hasAlpha: Boolean(metadata.hasAlpha), opaque: await hasOpaquePixels(bytes), metadata };
+  } catch {
+    return { width: 0, height: 0, hasAlpha: false, opaque: false, metadata: null };
+  }
+}
+
 export function inspectPngIhdr(png: Uint8Array): PngIhdr | null {
   const buffer = Buffer.from(png.buffer, png.byteOffset, png.byteLength);
   if (buffer.length < 29 || buffer.subarray(0, 8).toString("hex") !== "89504e470d0a1a0a") return null;

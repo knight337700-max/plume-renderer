@@ -10,7 +10,7 @@ import {
 import type { ContractBundle } from "./contracts.js";
 import { createIssue, sortAndDedupeIssues } from "./errors.js";
 import { sha256Bytes } from "./hash.js";
-import { inspectPngIhdr } from "./raster.js";
+import { inspectPngIhdr, inspectRenderedArtifact } from "./raster.js";
 import type {
   FreeformAppliedElement,
   Severity,
@@ -45,6 +45,8 @@ export type FreeformPostRenderValidationOptions = Readonly<{
   resolvedAssets?: ReadonlyMap<string, FreeformAssetValidationMetadata>;
   fontDigests?: Readonly<Record<string, string>>;
   png?: Buffer | null;
+  artifact?: Buffer | null;
+  artifactFormat?: "PNG" | "JPEG";
   expectedArtifactChecksumSha256?: string;
 }>;
 
@@ -88,8 +90,14 @@ function hasUnknownKeys(value: RecordValue, allowed: readonly string[]): string[
 
 function outputFormat(request: RecordValue): unknown {
   const output = isRecord(request.output) ? request.output : undefined;
-  if (output?.format !== undefined) return output.format;
+  if (output?.format !== undefined) return output.format === "JPG" ? "JPEG" : output.format;
   return output?.mimeType === "image/jpeg" ? "JPG" : "PNG";
+}
+
+function requestedOutputFormat(request: RecordValue): "PNG" | "JPEG" {
+  const output = isRecord(request.output) ? request.output : undefined;
+  if (output?.format === "JPEG" || output?.format === "JPG" || output?.mimeType === "image/jpeg") return "JPEG";
+  return "PNG";
 }
 
 function issue(
@@ -158,10 +166,10 @@ function validateRequestShape(request: unknown, contracts: ContractBundle): Vali
       if (unknownOutputKeys.length > 0) issues.push(issue(contracts, "KBR-INPUT-002", "/output", { actual: unknownOutputKeys, expected: OUTPUT_KEYS }));
       if (request.output.format !== undefined && typeof request.output.format !== "string") issues.push(issue(contracts, "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "/output/format", { actual: request.output.format }));
       if (request.output.mimeType !== undefined && !["image/png", "image/jpeg"].includes(request.output.mimeType as string)) issues.push(issue(contracts, "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "/output/mimeType", { actual: request.output.mimeType }));
-      if ((request.output.format === "PNG" && request.output.mimeType === "image/jpeg") || (request.output.format === "JPG" && request.output.mimeType === "image/png")) {
+      if ((request.output.format === "PNG" && request.output.mimeType === "image/jpeg") || ((request.output.format === "JPG" || request.output.format === "JPEG") && request.output.mimeType === "image/png")) {
         issues.push(issue(contracts, "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "/output", { actual: { format: request.output.format, mimeType: request.output.mimeType }, expected: "format and mimeType agree" }));
       }
-      if (request.output.quality !== undefined && (!isFiniteNumber(request.output.quality) || request.output.quality < 0 || request.output.quality > 100)) issues.push(issue(contracts, "KBR-INPUT-002", "/output/quality", { actual: request.output.quality, expected: "0..100" }));
+      if (request.output.quality !== undefined && request.output.quality !== "AUTO_FIT" && (!isFiniteNumber(request.output.quality) || request.output.quality < 0 || request.output.quality > 100)) issues.push(issue(contracts, "KBR-INPUT-002", "/output/quality", { actual: request.output.quality, expected: "AUTO_FIT or 0..100" }));
     }
   }
 
@@ -260,6 +268,86 @@ function validatePlacementSemantics(
   return issues;
 }
 
+type MarginBox = { top?: number; right?: number; bottom?: number; left?: number };
+
+function marginValues(value: unknown): MarginBox | null {
+  if (!isRecord(value)) return null;
+  const values = ["top", "right", "bottom", "left"] as const;
+  const result: MarginBox = {};
+  for (const key of values) if (typeof value[key] === "number" && Number.isFinite(value[key])) result[key] = value[key] as number;
+  return Object.keys(result).length > 0 ? result : null;
+}
+
+function pixelRectIntersects(left: { x: number; y: number; width: number; height: number }, right: { x: number; y: number; width: number; height: number }): boolean {
+  return left.x < right.x + right.width && left.x + left.width > right.x && left.y < right.y + right.height && left.y + left.height > right.y;
+}
+
+function insideMargins(rect: { x: number; y: number; width: number; height: number }, canvas: { width: number; height: number }, margins: MarginBox): boolean {
+  const top = margins.top ?? 0;
+  const right = margins.right ?? 0;
+  const bottom = margins.bottom ?? 0;
+  const left = margins.left ?? 0;
+  return rect.x >= left && rect.y >= top && rect.x + rect.width <= canvas.width - right && rect.y + rect.height <= canvas.height - bottom;
+}
+
+function validateManagedSafeZones(
+  plan: CreativeLayoutPlan,
+  profile: FormatProfile,
+  contracts: ContractBundle,
+): ValidationIssue[] {
+  if (!isRecord(profile.safeZonePolicy)) return [];
+  const policy = profile.safeZonePolicy;
+  const issues: ValidationIssue[] = [];
+  const managed = plan.elements
+    .map((element, index) => ({ element, index }))
+    .filter(({ element }) => element.type === "TEXT" || element.type === "LOGO");
+  const canvas = profile.canvas;
+  const emit = (code: string, element: CreativeLayoutPlan["elements"][number], index: number, actual: unknown, expected: unknown) => {
+    issues.push(issue(contracts, code, `/creativeLayoutPlan/elements/${index}/bounds`, {
+      elementId: element.id,
+      actual,
+      expected,
+      formatProfileId: profile.formatProfileId,
+    }));
+  };
+  const checkMargins = (rawMargins: unknown, severityCode: "KBR-FREEFORM-SAFE-ZONE-VIOLATION" | "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", label: string) => {
+    const margins = marginValues(rawMargins);
+    if (!margins) return;
+    for (const { element, index } of managed) {
+      const rect = normalizedRectToPixelRect(element.bounds, canvas);
+      if (!insideMargins(rect, canvas, margins)) emit(severityCode, element, index, rect, { label, margins, canvas });
+    }
+  };
+  checkMargins(policy.required, "KBR-FREEFORM-SAFE-ZONE-VIOLATION", "required");
+  checkMargins(policy.avoid, "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", "recommended");
+  checkMargins(policy.lowResolutionRecommended, "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", "lowResolutionRecommended");
+  checkMargins(policy.edgeSafeZone, "KBR-FREEFORM-SAFE-ZONE-VIOLATION", "edgeSafeZone");
+  if (isRecord(policy.closeButtonArea) && policy.closeButtonArea.position === "TOP_RIGHT") {
+    const width = typeof policy.closeButtonArea.width === "number" ? policy.closeButtonArea.width : 0;
+    const height = typeof policy.closeButtonArea.height === "number" ? policy.closeButtonArea.height : 0;
+    const closeArea = { x: canvas.width - width, y: 0, width, height };
+    for (const { element, index } of managed) {
+      const rect = normalizedRectToPixelRect(element.bounds, canvas);
+      if (pixelRectIntersects(rect, closeArea)) emit("KBR-FREEFORM-SAFE-ZONE-VIOLATION", element, index, rect, { label: "closeButtonArea", closeArea });
+    }
+  }
+  if (typeof policy.rightBottomOcclusion === "string" || policy.status === "DIMENSION_KNOWN_POSITION_NOT_CATALOGED" || policy.position === "MANUAL_REVIEW_REQUIRED" || policy.ctaArea === "CTA_SAFE_ZONE_GEOMETRY_NOT_CATALOGED") {
+    issues.push(issue(contracts, "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "/formatProfileId/safeZonePolicy", {
+      expected: policy,
+      actual: "geometry-not-fully-cataloged",
+      formatProfileId: profile.formatProfileId,
+    }));
+  }
+  if (policy.bakedImageContent === "MANUAL_REVIEW_REQUIRED" && plan.elements.some((element) => element.type === "IMAGE")) {
+    issues.push(issue(contracts, "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "/creativeLayoutPlan/elements", {
+      expected: "baked-image semantic safe-zone review",
+      actual: "IMAGE content is not OCR/CV analyzed",
+      formatProfileId: profile.formatProfileId,
+    }));
+  }
+  return issues;
+}
+
 function validateProfileAndPlan(
   request: unknown,
   options: FreeformPreRenderValidationOptions,
@@ -272,9 +360,21 @@ function validateProfileAndPlan(
   if (formatProfileId && !profile) issues.push(issue(contracts, "KBR-FREEFORM-FORMAT-PROFILE-NOT-FOUND", "/formatProfileId", { actual: formatProfileId, formatProfileId }));
   if (profile && profile.layoutMode !== "FREEFORM") issues.push(issue(contracts, "KBR-FREEFORM-LAYOUT-MODE-MISMATCH", "/formatProfileId", { actual: profile.layoutMode, expected: "FREEFORM", formatProfileId }));
   if (profile && (!Number.isInteger(profile.canvas.width) || !Number.isInteger(profile.canvas.height) || profile.canvas.width <= 0 || profile.canvas.height <= 0)) issues.push(issue(contracts, "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "/formatProfileId", { actual: profile.canvas, formatProfileId }));
-  if (profile && profile.implementationStatus !== "IMPLEMENTED") issues.push(issue(contracts, "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "/formatProfileId", { actual: profile.implementationStatus, expected: "IMPLEMENTED", formatProfileId }));
+  if (profile && profile.implementationStatus !== "IMPLEMENTED") issues.push(issue(contracts, "KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED", "/formatProfileId", { actual: profile.implementationStatus, expected: "IMPLEMENTED", formatProfileId }));
   if (profile && formatProfileId && profile.formatProfileId !== formatProfileId) issues.push(issue(contracts, "KBR-FREEFORM-FORMAT-PROFILE-MISMATCH", "/formatProfileId", { actual: formatProfileId, expected: profile.formatProfileId, formatProfileId }));
-  if (profile && isRecord(request.output)) issues.push(...mapPlanIssues(contracts, validateFreeformOutputFormat(outputFormat(request) as never, profile), formatProfileId));
+  if (profile?.outputConstraints && (!isRecord(request.output) || (request.output.format === undefined && request.output.mimeType === undefined))) {
+    issues.push(issue(contracts, "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "/output/format", { actual: "omitted", expected: ["PNG", "JPEG"], formatProfileId }));
+  }
+  if (profile && isRecord(request.output)) {
+    issues.push(...mapPlanIssues(contracts, validateFreeformOutputFormat(outputFormat(request) as never, profile), formatProfileId));
+    const constraints = profile.outputConstraints;
+    if (constraints && !constraints.allowedFormats.includes(requestedOutputFormat(request))) {
+      issues.push(issue(contracts, "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "/output/format", { actual: requestedOutputFormat(request), expected: constraints.allowedFormats, formatProfileId }));
+    }
+    if (requestedOutputFormat(request) === "JPEG" && isRecord(request.creativeLayoutPlan) && isRecord(request.creativeLayoutPlan.background) && request.creativeLayoutPlan.background.type === "TRANSPARENT") {
+      issues.push(issue(contracts, "KBR-FREEFORM-JPEG-TRANSPARENT-BACKGROUND-NOT-SUPPORTED", "/creativeLayoutPlan/background/type", { actual: "TRANSPARENT", expected: "SOLID for JPEG", formatProfileId }));
+    }
+  }
   if (request.creativeLayoutPlan !== undefined) {
     if (isRecord(request.creativeLayoutPlan) && isRecord(request.creativeLayoutPlan.background)) {
       const backgroundType = request.creativeLayoutPlan.background.type;
@@ -290,8 +390,16 @@ function validateProfileAndPlan(
     }), formatProfileId));
     if (isRecord(request.creativeLayoutPlan) && Array.isArray(request.creativeLayoutPlan.elements)) {
       request.creativeLayoutPlan.elements.forEach((element, index) => {
-        if (isRecord(element)) issues.push(...validatePlacementSemantics(element, `/creativeLayoutPlan/elements/${index}`, contracts));
+        if (isRecord(element)) {
+          issues.push(...validatePlacementSemantics(element, `/creativeLayoutPlan/elements/${index}`, contracts));
+          const constraints = profile?.elementConstraints;
+          if (constraints) {
+            const allowed = element.type === "IMAGE" ? constraints.allowImage : element.type === "TEXT" ? constraints.allowText : element.type === "LOGO" ? constraints.allowLogo : constraints.allowShape ?? false;
+            if (!allowed) issues.push(issue(contracts, "KBR-FREEFORM-ELEMENT-NOT-ALLOWED-FOR-PROFILE", `/creativeLayoutPlan/elements/${index}/type`, { elementId: typeof element.id === "string" ? element.id : undefined, actual: element.type, expected: constraints, formatProfileId }));
+          }
+        }
       });
+      if (profile) issues.push(...validateManagedSafeZones(request.creativeLayoutPlan as unknown as CreativeLayoutPlan, profile, contracts));
     }
   }
   return sortAndDedupeIssues(issues);
@@ -474,14 +582,22 @@ export function validateFreeformAppliedElements(
 
 export async function validateFreeformPostRender(options: FreeformPostRenderValidationOptions): Promise<ValidationIssue[]> {
   const issues = validateFreeformAppliedElements(options.plan, options.profile, options.appliedElements, options.contracts, options);
-  if (options.png === null || options.png === undefined || options.png.byteLength === 0) {
-    issues.push(issue(options.contracts, "KBR-OUTPUT-001", "/output.png", { stage: "POST_RENDER" }));
+  const artifact = options.artifact ?? options.png;
+  const artifactFormat = options.artifactFormat ?? "PNG";
+  if (artifact === null || artifact === undefined || artifact.byteLength === 0) {
+    issues.push(issue(options.contracts, "KBR-OUTPUT-001", artifactFormat === "JPEG" ? "/output.jpg" : "/output.png", { stage: "POST_RENDER" }));
   } else {
-    const actualDigest = sha256Bytes(options.png);
+    const actualDigest = sha256Bytes(artifact);
     if (options.expectedArtifactChecksumSha256 !== undefined && actualDigest !== options.expectedArtifactChecksumSha256) issues.push(issue(options.contracts, "KBR-FREEFORM-VALIDATION-INTERNAL-MISMATCH", "/artifactChecksumSha256", { actual: actualDigest, expected: options.expectedArtifactChecksumSha256, stage: "POST_RENDER" }));
-    const ihdr = inspectPngIhdr(options.png);
-    if (!ihdr) issues.push(issue(options.contracts, "KBR-OUTPUT-003", "/output.png", { expected: { format: "PNG", signature: true }, stage: "POST_RENDER" }));
-    else if (ihdr.width !== options.profile.canvas.width || ihdr.height !== options.profile.canvas.height) issues.push(issue(options.contracts, "KBR-OUTPUT-002", "/output.png", { actual: { width: ihdr.width, height: ihdr.height }, expected: options.profile.canvas, stage: "POST_RENDER" }));
+    if (artifactFormat === "PNG") {
+      const ihdr = inspectPngIhdr(artifact);
+      if (!ihdr) issues.push(issue(options.contracts, "KBR-OUTPUT-003", "/output.png", { expected: { format: "PNG", signature: true }, stage: "POST_RENDER" }));
+      else if (ihdr.width !== options.profile.canvas.width || ihdr.height !== options.profile.canvas.height) issues.push(issue(options.contracts, "KBR-OUTPUT-002", "/output.png", { actual: { width: ihdr.width, height: ihdr.height }, expected: options.profile.canvas, stage: "POST_RENDER" }));
+    } else {
+      const inspected = await inspectRenderedArtifact(artifact, "JPEG", options.profile.canvas);
+      if (!inspected.metadata || inspected.metadata.format !== "jpeg") issues.push(issue(options.contracts, "KBR-OUTPUT-003", "/output.jpg", { expected: { format: "JPEG" }, actual: inspected.metadata?.format, stage: "POST_RENDER" }));
+      else if (inspected.width !== options.profile.canvas.width || inspected.height !== options.profile.canvas.height) issues.push(issue(options.contracts, "KBR-OUTPUT-002", "/output.jpg", { actual: { width: inspected.width, height: inspected.height }, expected: options.profile.canvas, stage: "POST_RENDER" }));
+    }
   }
   return sortAndDedupeIssues(issues);
 }

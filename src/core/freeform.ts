@@ -31,7 +31,7 @@ import {
   resolveTrustedJobDirectory,
 } from "./path-security.js";
 import { publishArtifacts, PublishError } from "./publish.js";
-import { validateRenderedPng } from "./raster.js";
+import { encodeFreeformArtifact, inspectRenderedArtifact, validateRenderedPng } from "./raster.js";
 import { SchemaValidators } from "./schema-validation.js";
 import {
   validateFreeformPostRender,
@@ -81,7 +81,7 @@ export type FreeformRenderRequest = Readonly<{
   output?: Readonly<{
     mimeType?: "image/png" | "image/jpeg";
     format?: OutputFormat;
-    quality?: number;
+    quality?: number | "AUTO_FIT";
     directory?: string;
     baseName?: string;
     overwrite?: boolean;
@@ -110,6 +110,10 @@ export type FreeformRenderResult = Readonly<{
   pixelFingerprint: string | null;
   requestFingerprint: string | null;
   renderFingerprint: string | null;
+  artifactFormat: "PNG" | "JPEG" | null;
+  artifactDigest: string | null;
+  artifactPath: string | null;
+  outputEncoding: NonNullable<RenderManifest["outputEncoding"]> | null;
   appliedElements: FreeformAppliedElement[];
   errors: ValidationIssue[];
   warnings: ValidationIssue[];
@@ -170,6 +174,10 @@ function emptyResult(
     pixelFingerprint: details.pixelFingerprint ?? null,
     requestFingerprint: details.requestFingerprint ?? null,
     renderFingerprint: details.pixelFingerprint ?? null,
+    artifactFormat: null,
+    artifactDigest: null,
+    artifactPath: null,
+    outputEncoding: null,
     appliedElements: [],
     errors: errorIssues,
     warnings,
@@ -874,6 +882,57 @@ function defaultOutput(request: FreeformRenderRequest): { directory: string; bas
   };
 }
 
+function requestedFreeformOutputFormat(request: FreeformRenderRequest): "PNG" | "JPEG" {
+  const output = request.output;
+  if (output?.format === "JPEG" || output?.format === "JPG" || output?.mimeType === "image/jpeg") return "JPEG";
+  return "PNG";
+}
+
+function freeformArtifactFileName(format: "PNG" | "JPEG"): string {
+  return format === "JPEG" ? "output.jpg" : "output.png";
+}
+
+async function validateFreeformArtifact(
+  artifact: Buffer,
+  format: "PNG" | "JPEG",
+  profile: FormatProfile,
+  contracts: ContractBundle,
+): Promise<ValidationIssue[]> {
+  const issues: ValidationIssue[] = [];
+  const inspected = await inspectRenderedArtifact(artifact, format, profile.canvas);
+  const pathValue = format === "JPEG" ? "/output.jpg" : "/output.png";
+  if (!inspected.metadata || inspected.width !== profile.canvas.width || inspected.height !== profile.canvas.height || inspected.metadata.format !== (format === "JPEG" ? "jpeg" : "png")) {
+    issues.push(issue(contracts, "KBR-OUTPUT-003", pathValue, {
+      expected: { format, width: profile.canvas.width, height: profile.canvas.height },
+      actual: { format: inspected.metadata?.format, width: inspected.width, height: inspected.height },
+      stage: "POST_RENDER",
+    }));
+  }
+  const constraints = profile.outputConstraints;
+  if (constraints?.maximumBytes !== undefined) {
+    const withinLimit = constraints.maximumBytesComparator === "LT"
+      ? artifact.byteLength < constraints.maximumBytes
+      : artifact.byteLength <= constraints.maximumBytes;
+    if (!withinLimit) {
+      issues.push(issue(contracts, "KBR-FREEFORM-FILE-SIZE-EXCEEDED", pathValue, {
+        expected: { maximumBytes: constraints.maximumBytes, comparator: constraints.maximumBytesComparator ?? "LTE" },
+        actual: { bytes: artifact.byteLength },
+        formatProfileId: profile.formatProfileId,
+        stage: "POST_RENDER",
+      }));
+    }
+  }
+  if (constraints?.requiresOpaqueOutput === true && !inspected.opaque) {
+    issues.push(issue(contracts, "KBR-FREEFORM-OPAQUE-OUTPUT-REQUIRED", pathValue, {
+      expected: "all final pixels alpha=255",
+      actual: { hasAlpha: inspected.hasAlpha, opaque: inspected.opaque },
+      formatProfileId: profile.formatProfileId,
+      stage: "POST_RENDER",
+    }));
+  }
+  return issues;
+}
+
 function freeformResponseFromResult(result: FreeformRenderResult): RenderResponse {
   return {
     schemaVersion: "1.0.0",
@@ -890,6 +949,10 @@ function freeformResponseFromResult(result: FreeformRenderResult): RenderRespons
     ...(result.pixelFingerprint ? { pixelFingerprint: result.pixelFingerprint } : {}),
     ...(result.requestFingerprint ? { requestFingerprint: result.requestFingerprint } : {}),
     ...(result.renderFingerprint ? { renderFingerprint: result.renderFingerprint } : {}),
+    ...(result.artifactFormat ? { artifactFormat: result.artifactFormat } : {}),
+    artifactDigest: result.artifactDigest,
+    artifactPath: result.artifactPath,
+    ...(result.outputEncoding ? { outputEncoding: result.outputEncoding } : {}),
     appliedElements: result.appliedElements,
   };
 }
@@ -959,22 +1022,27 @@ export async function renderFreeform(
   }
   const assetDigests: Record<string, string> = { ...runtimeAssets.fontDigests };
   for (const asset of resolvedAssetsResult.assets.values()) assetDigests[asset.assetId] = asset.digest;
+  const requestedFormat = requestedFreeformOutputFormat(request);
+  const requestProvenance = {
+    ...(request.provenance ?? {}),
+    outputEncodingRequest: {
+      format: requestedFormat,
+      quality: request.output?.quality ?? (requestedFormat === "JPEG" ? "AUTO_FIT" : null),
+    },
+    assetReferences: assetEntries(request)
+      .sort((left, right) => left.assetId.localeCompare(right.assetId, "en"))
+      .map(({ assetId, value }) => ({
+        assetId,
+        ...(value.path ? { path: value.path.replaceAll("\\", "/") } : {}),
+        ...(value.assetRef ? { assetRef: value.assetRef } : {}),
+        ...(value.mimeType ? { mimeType: value.mimeType } : {}),
+        ...(value.checksumSha256 ? { checksumSha256: value.checksumSha256 } : {}),
+        ...(value.expectedSha256 ? { expectedSha256: value.expectedSha256 } : {}),
+      })),
+    assetDigests,
+  };
   let fingerprints: { pixelFingerprint: string; requestFingerprint: string } | undefined;
   try {
-    const requestProvenance = {
-      ...(request.provenance ?? {}),
-      assetReferences: assetEntries(request)
-        .sort((left, right) => left.assetId.localeCompare(right.assetId, "en"))
-        .map(({ assetId, value }) => ({
-          assetId,
-          ...(value.path ? { path: value.path.replaceAll("\\", "/") } : {}),
-          ...(value.assetRef ? { assetRef: value.assetRef } : {}),
-          ...(value.mimeType ? { mimeType: value.mimeType } : {}),
-          ...(value.checksumSha256 ? { checksumSha256: value.checksumSha256 } : {}),
-          ...(value.expectedSha256 ? { expectedSha256: value.expectedSha256 } : {}),
-        })),
-      assetDigests,
-    };
     fingerprints = await computeFreeformFingerprints(defaults, assetDigests, profile, requestProvenance);
   } catch {
     // If canonicalization cannot run, the plan is already invalid and remains fail-closed.
@@ -1038,8 +1106,35 @@ export async function renderFreeform(
       ...(fingerprints ? { pixelFingerprint: fingerprints.pixelFingerprint, requestFingerprint: fingerprints.requestFingerprint } : {}),
     });
   }
-  const png = canvas.toBuffer("image/png");
-  const outputIssues = await validateRenderedPng(png, contracts, profile.canvas, "POST_RENDER");
+  const rgbaPng = canvas.toBuffer("image/png");
+  const outputQuality = request.output?.quality ?? (requestedFormat === "JPEG" ? "AUTO_FIT" : undefined);
+  const encoded = await encodeFreeformArtifact(rgbaPng, requestedFormat, {
+    ...(outputQuality !== undefined ? { quality: outputQuality } : {}),
+    ...(profile.outputConstraints?.maximumBytes !== undefined ? { maximumBytes: profile.outputConstraints.maximumBytes } : {}),
+    ...(profile.outputConstraints?.maximumBytesComparator ? { maximumBytesComparator: profile.outputConstraints.maximumBytesComparator } : {}),
+  });
+  const encoding = encoded?.jpeg ?? { format: "PNG" as const };
+  const artifact = encoded?.bytes ?? null;
+  const outputIssues: ValidationIssue[] = encoded === null
+    ? [issue(contracts, requestedFormat === "JPEG" ? "KBR-FREEFORM-JPEG-TARGET-SIZE-NOT-ACHIEVABLE" : "KBR-FREEFORM-FILE-SIZE-EXCEEDED", requestedFormat === "JPEG" ? "/output.jpg" : "/output.png", {
+      expected: profile.outputConstraints?.maximumBytes,
+      actual: { format: requestedFormat },
+      formatProfileId: profile.formatProfileId,
+      stage: "POST_RENDER",
+    })]
+    : profile.outputConstraints
+      ? await validateFreeformArtifact(encoded.bytes, requestedFormat, profile, contracts)
+      : await validateRenderedPng(encoded.bytes, contracts, profile.canvas, "POST_RENDER");
+  if (artifact && encoded?.jpeg) {
+    try {
+      fingerprints = await computeFreeformFingerprints(defaults, assetDigests, profile, {
+        ...requestProvenance,
+        outputEncoding: encoded.jpeg,
+      });
+    } catch {
+      // Keep the deterministic pre-encode fingerprints if the optional encoding material cannot serialize.
+    }
+  }
   const postRenderIssues = await validateFreeformPostRender({
     contracts,
     profile,
@@ -1047,8 +1142,10 @@ export async function renderFreeform(
     appliedElements,
     resolvedAssets: assetValidationMetadata,
     fontDigests: runtimeAssets.fontDigests,
-    png,
-    expectedArtifactChecksumSha256: sha256Bytes(png),
+    png: artifact,
+    artifact,
+    artifactFormat: requestedFormat,
+    ...(artifact ? { expectedArtifactChecksumSha256: sha256Bytes(artifact) } : {}),
   });
   const finalIssues = sortAndDedupeIssues([...sortedRenderIssues, ...outputIssues, ...postRenderIssues]);
   if (finalIssues.some((entry) => entry.severity === "ERROR")) {
@@ -1057,7 +1154,13 @@ export async function renderFreeform(
       ...(fingerprints ? { pixelFingerprint: fingerprints.pixelFingerprint, requestFingerprint: fingerprints.requestFingerprint } : {}),
     });
   }
-  const pngDigest = sha256Bytes(png);
+  if (!artifact) {
+    return emptyResult(finalIssues, {
+      formatProfileId,
+      ...(fingerprints ? { pixelFingerprint: fingerprints.pixelFingerprint, requestFingerprint: fingerprints.requestFingerprint } : {}),
+    });
+  }
+  const pngDigest = sha256Bytes(artifact);
   const imageAssetDigests = [...resolvedAssetsResult.assets.values()]
     .sort((left, right) => left.assetId.localeCompare(right.assetId, "en"))
     .map((asset) => ({ id: asset.assetId, sha256: asset.digest }));
@@ -1066,6 +1169,9 @@ export async function renderFreeform(
     canonicalInputDigest: fingerprints?.requestFingerprint ?? sha256Bytes(Buffer.from(canonicalJson(defaults), "utf8")),
     normalizedInputDigest: fingerprints?.pixelFingerprint ?? sha256Bytes(Buffer.from(canonicalJson(defaults), "utf8")),
     outputPngDigest: pngDigest,
+    outputArtifactDigest: pngDigest,
+    outputFileName: freeformArtifactFileName(requestedFormat),
+    outputEncoding: encoding,
     templateContractVersion: "1.6.0",
     inputSchemaVersion: "1.2.0",
     outputSchemaVersion: "2.0.0",
@@ -1107,13 +1213,14 @@ export async function renderFreeform(
       const published = await publishArtifacts({
         outputRoot: options.outputRoot,
         jobDirectory,
-        png,
+        artifact,
+        artifactFileName: freeformArtifactFileName(requestedFormat),
         manifest: manifestText,
         overwrite: finalOutput.overwrite,
       });
       return {
         status: "PASS",
-        png,
+        png: artifact,
         pngDigest,
         manifestDigest,
         manifestPath: published.manifestPath,
@@ -1121,6 +1228,10 @@ export async function renderFreeform(
         downloadAllowed: true,
         formatProfileId: formatProfileId ?? null,
         artifactChecksumSha256: pngDigest,
+        artifactFormat: requestedFormat,
+        artifactDigest: pngDigest,
+        artifactPath: published.artifactPath,
+        outputEncoding: encoding,
         pixelFingerprint: fingerprints?.pixelFingerprint ?? null,
         requestFingerprint: fingerprints?.requestFingerprint ?? null,
         renderFingerprint: fingerprints?.pixelFingerprint ?? null,
@@ -1138,7 +1249,7 @@ export async function renderFreeform(
   }
   return {
     status: "PASS",
-    png,
+    png: artifact,
     pngDigest,
     manifestDigest,
     manifestPath: null,
@@ -1146,6 +1257,10 @@ export async function renderFreeform(
     downloadAllowed: false,
     formatProfileId: formatProfileId ?? null,
     artifactChecksumSha256: pngDigest,
+    artifactFormat: requestedFormat,
+    artifactDigest: pngDigest,
+    artifactPath: null,
+    outputEncoding: encoding,
     pixelFingerprint: fingerprints?.pixelFingerprint ?? null,
     requestFingerprint: fingerprints?.requestFingerprint ?? null,
     renderFingerprint: fingerprints?.pixelFingerprint ?? null,

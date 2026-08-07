@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.1.0",
+  "registryVersion": "1.2.0",
   "messageContract": "messageKey is stable; localized or AJV-native prose is not part of the external contract",
   "codes": [
     { "code": "KBR-INPUT-001", "severity": "ERROR", "messageKey": "input.json_parse_failed", "condition": "Raw JSON cannot be parsed" },
@@ -140,6 +140,15 @@
     { "code": "KBR-FREEFORM-VALIDATION-INTERNAL-MISMATCH", "severity": "ERROR", "messageKey": "freeform.validation_internal_mismatch", "condition": "Post-render checksum or validator evidence is internally inconsistent" },
     { "code": "KBR-LOGO-ALPHA-REQUIRED", "severity": "ERROR", "messageKey": "asset.logo_alpha_required", "condition": "A FREEFORM LOGO is not a PNG with an alpha channel" },
     { "code": "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "severity": "ERROR", "messageKey": "asset.logo_transparent_background_required", "condition": "A FREEFORM LOGO has a suspected opaque background" },
-    { "code": "KBR-LOGO-EMPTY", "severity": "ERROR", "messageKey": "asset.logo_empty", "condition": "A FREEFORM LOGO has no layout-visible alpha pixels" }
+    { "code": "KBR-LOGO-EMPTY", "severity": "ERROR", "messageKey": "asset.logo_empty", "condition": "A FREEFORM LOGO has no layout-visible alpha pixels" },
+    { "code": "KBR-FREEFORM-FILE-SIZE-EXCEEDED", "severity": "ERROR", "messageKey": "freeform.file_size_exceeded", "condition": "Encoded FREEFORM artifact exceeds the loaded profile maximum byte limit" },
+    { "code": "KBR-FREEFORM-OPAQUE-OUTPUT-REQUIRED", "severity": "ERROR", "messageKey": "freeform.opaque_output_required", "condition": "The final artifact contains transparent pixels while the FormatProfile requires an opaque output" },
+    { "code": "KBR-FREEFORM-SAFE-ZONE-VIOLATION", "severity": "ERROR", "messageKey": "freeform.safe_zone_violation", "condition": "A renderer-managed TEXT or LOGO intersects a required or reserved safe-zone exclusion" },
+    { "code": "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", "severity": "WARNING", "messageKey": "freeform.safe_zone_recommended", "condition": "A renderer-managed TEXT or LOGO intersects a recommended safe-zone exclusion" },
+    { "code": "KBR-FREEFORM-ELEMENT-NOT-ALLOWED-FOR-PROFILE", "severity": "ERROR", "messageKey": "freeform.element_not_allowed_for_profile", "condition": "A CreativeLayoutPlan element type is disallowed by the selected channel FormatProfile" },
+    { "code": "KBR-FREEFORM-JPEG-TRANSPARENT-BACKGROUND-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.jpeg_transparent_background_not_supported", "condition": "JPEG output was requested for a FREEFORM plan with a transparent background" },
+    { "code": "KBR-FREEFORM-JPEG-TARGET-SIZE-NOT-ACHIEVABLE", "severity": "ERROR", "messageKey": "freeform.jpeg_target_size_not_achievable", "condition": "The deterministic JPEG quality ladder cannot satisfy the selected profile byte limit" },
+    { "code": "KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED", "severity": "ERROR", "messageKey": "freeform.format_not_implemented", "condition": "The selected FREEFORM catalog entry is catalog-only or blocked by an unsupported canvas contract" },
+    { "code": "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "severity": "WARNING", "messageKey": "freeform.manual_review_required", "condition": "A catalog rule requires human review because baked image semantics or an unlocated safe-zone geometry cannot be inferred" }
   ]
 }

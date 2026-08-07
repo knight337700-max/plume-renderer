@@ -86,11 +86,11 @@ if (inputValidator?.(freeformInput)) pass("integration_freeform_optional_extensi
 else fail("integration_freeform_optional_extension", JSON.stringify(inputValidator?.errors ?? []));
 
 const integrationSchemas = schemas.slice(0, 5).map((schema) => JSON.stringify(schema)).join("\n");
-if (integrationSchemas.includes("1.5.0")) pass("integration_version_alignment", "Integration schemas align to v1.5.0");
-else fail("integration_version_alignment", "v1.5.0 is absent from Integration schemas");
+if (integrationSchemas.includes("1.6.0")) pass("integration_version_alignment", "Integration schemas align to v1.6.0");
+else fail("integration_version_alignment", "v1.6.0 is absent from Integration schemas");
 
 const versions = await readJson("contracts/contract-versions.json");
-if (versions.documentVersion?.current === "1.10.0" && versions.integrationContract?.current === "1.5.0" && versions.templateContractVersion === "1.6.0" && versions.desktopAppVersion === "0.7.1") pass("version_policy", "Canonical 1.10.0 / Integration 1.5.0 / Template 1.6.0 / Desktop 0.7.1");
+if (versions.documentVersion?.current === "1.11.0" && versions.integrationContract?.current === "1.6.0" && versions.templateContractVersion === "1.6.0" && versions.desktopAppVersion === "0.7.1") pass("version_policy", "Canonical 1.11.0 / Integration 1.6.0 / Template 1.6.0 / Desktop 0.7.1");
 else fail("version_policy", JSON.stringify({ document: versions.documentVersion, integration: versions.integrationContract, template: versions.templateContractVersion, desktop: versions.desktopAppVersion }));
 if (versions.creativeLayoutPlan?.schemaVersion === "1.0.0" && versions.creativeLayoutPlan?.implementationStatus === "NOT_IMPLEMENTED") pass("implementation_boundary", "FREEFORM schema remains frozen; raster implementation is additive");
 else fail("implementation_boundary", "FREEFORM implementation status is not NOT_IMPLEMENTED");
@@ -98,13 +98,26 @@ if (versions.canonicalPhaseF1?.freeformRasterImplementationStarted === true && v
 else fail("raster_implementation_status", "F1 FREEFORM Core Raster status is missing");
 
 const formatProfiles = await readJson("contracts/freeform-format-profiles.json");
-if (formatProfiles.catalogStatus === "CATALOG_NOT_READY" && formatProfiles.native1200?.dimensions === null && formatProfiles.native1200?.implementationStatus === "NOT_IMPLEMENTED") pass("format_profile_catalog", "native 1200 remains CATALOG_NOT_READY without inferred dimensions");
+if (formatProfiles.registryVersion === "1.1.0" && formatProfiles.catalogStatus === "READY") pass("format_profile_registry_version", "FREEFORM FormatProfile registry is v1.1.0 and catalog READY");
+else fail("format_profile_registry_version", JSON.stringify({ registryVersion: formatProfiles.registryVersion, catalogStatus: formatProfiles.catalogStatus }));
+if (formatProfiles.native1200?.dimensions === null && formatProfiles.native1200?.implementationStatus === "NOT_IMPLEMENTED") pass("format_profile_catalog", "native 1200 remains CATALOG_NOT_READY without inferred dimensions");
 else fail("format_profile_catalog", "native 1200 was inferred or marked implemented");
-if (formatProfiles.outputFormats?.PNG?.implementationStatus === "IMPLEMENTED_EXISTING_ENCODER" && formatProfiles.outputFormats?.JPG?.implementationStatus === "NOT_IMPLEMENTED_FREEFORM_V1") pass("output_format_boundary", "FREEFORM PNG reuses existing encoder; JPG remains NOT_IMPLEMENTED");
+if (formatProfiles.outputFormats?.PNG?.implementationStatus === "IMPLEMENTED_EXISTING_ENCODER" && formatProfiles.outputFormats?.JPEG?.implementationStatus === "IMPLEMENTED_SHARP_LIBVIPS_DETERMINISTIC") pass("output_format_boundary", "FREEFORM PNG and deterministic JPEG encoders are registered");
 else fail("output_format_boundary", "FREEFORM output format status mismatch");
 const testProfile = formatProfiles.profiles?.find((profile) => profile.formatProfileId === "KBR_FREEFORM_CONTRACT_TEST_1029X258");
 if (testProfile?.canvas?.width === 1029 && testProfile?.canvas?.height === 258 && testProfile.layoutMode === "FREEFORM" && JSON.stringify(testProfile.allowedOutputFormats) === JSON.stringify(["PNG"])) pass("format_profile_identity", "internal test FormatProfile owns canvas and PNG capability");
 else fail("format_profile_identity", "internal test FormatProfile mismatch");
+const f3aIds = [
+  "KAKAO_DISPLAY_NATIVE_2_1", "KAKAO_DISPLAY_NATIVE_1_1", "KAKAO_DISPLAY_NATIVE_9_16", "KAKAO_DISPLAY_NATIVE_4_5",
+  "KAKAO_DISPLAY_CATALOG_SLIDE_1_1", "KAKAO_VIDEO_NATIVE_THUMBNAIL_16_9", "KAKAO_VIDEO_NATIVE_THUMBNAIL_9_16",
+  "KAKAO_VIDEO_NATIVE_SLIDE_1_1", "KAKAO_BIZBOARD_EXPANDABLE_IMAGE_2_1", "KAKAO_BIZBOARD_EXPANDABLE_MULTI_1_1",
+  "KAKAO_ADVIEW_FULL_IMAGE", "KAKAO_ADVIEW_COMPACT_IMAGE", "KAKAO_ADVIEW_CAROUSEL_IMAGE", "KAKAO_ADVIEW_SHARE_BUBBLE_IMAGE",
+];
+const f3aProfiles = new Map((formatProfiles.profiles ?? []).map((profile) => [profile.formatProfileId, profile]));
+if (f3aIds.every((id) => f3aProfiles.get(id)?.implementationStatus === "IMPLEMENTED" && JSON.stringify(f3aProfiles.get(id)?.outputConstraints?.allowedFormats) === JSON.stringify(["PNG", "JPEG"]))) pass("f3a_profile_catalog", `${f3aIds.length} fixed Kakao Profiles are IMPLEMENTED with PNG/JPEG output`);
+else fail("f3a_profile_catalog", "one or more fixed Kakao Profile entries are missing or not implemented");
+if (f3aProfiles.get("KAKAO_ADVIEW_SCROLL_IMAGE")?.implementationStatus === "CONTRACT_BLOCKED_VARIABLE_CANVAS" && f3aProfiles.get("KAKAO_ADVIEW_SCROLL_IMAGE")?.canvasSpec?.kind === "VARIABLE_HEIGHT") pass("variable_canvas_catalog", "AdView Scroll is catalog-only and does not alter fixed Canvas execution");
+else fail("variable_canvas_catalog", "AdView Scroll variable Canvas catalog entry is missing");
 
 const fontRegistry = await readJson("contracts/freeform-font-registry.json");
 if (fontRegistry.fallbackAllowed === false && fontRegistry.entries?.length === 2 && fontRegistry.entries.every((entry) => entry.status === "RESOLVED_ASSET" && /^[a-f0-9]{64}$/iu.test(entry.sha256))) pass("font_registry", "two deterministic Spoqa entries resolved; system fallback prohibited");
@@ -119,7 +132,7 @@ for (const entry of fontRegistry.entries ?? []) {
 
 const integrationErrors = await readJson("contracts/integration-error-registry.json");
 const requiredCodes = [
-  "KBR-FREEFORM-PLAN-MISSING", "KBR-FREEFORM-PLAN-SCHEMA-INVALID", "KBR-FREEFORM-FORMAT-PROFILE-MISMATCH", "KBR-FREEFORM-FORMAT-PROFILE-NOT-FOUND", "KBR-FREEFORM-LAYOUT-MODE-MISMATCH", "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "KBR-FREEFORM-ELEMENT-ID-DUPLICATE", "KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED", "KBR-FREEFORM-BOUNDS-OUT-OF-RANGE", "KBR-FREEFORM-ZINDEX-INVALID", "KBR-FREEFORM-TEXT-COLOR-INVALID", "KBR-FREEFORM-TEXT-WRAP-NOT-SUPPORTED", "KBR-FREEFORM-TEXT-OVERFLOW", "KBR-FONT-NOT-REGISTERED", "KBR-FONT-ASSET-MISSING", "KBR-FONT-ASSET-DIGEST-MISMATCH", "KBR-FREEFORM-IMAGE-ASSET-NOT-FOUND", "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", "KBR-FREEFORM-BACKGROUND-COLOR-INVALID", "KBR-FREEFORM-BACKGROUND-TYPE-NOT-SUPPORTED", "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "KBR-FREEFORM-APPLIED-RECT-MISMATCH", "KBR-FREEFORM-APPLIED-ELEMENT-MISMATCH", "KBR-FREEFORM-VALIDATION-INTERNAL-MISMATCH", "KBR-LOGO-ALPHA-REQUIRED", "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "KBR-LOGO-EMPTY",
+  "KBR-FREEFORM-PLAN-MISSING", "KBR-FREEFORM-PLAN-SCHEMA-INVALID", "KBR-FREEFORM-FORMAT-PROFILE-MISMATCH", "KBR-FREEFORM-FORMAT-PROFILE-NOT-FOUND", "KBR-FREEFORM-LAYOUT-MODE-MISMATCH", "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "KBR-FREEFORM-ELEMENT-ID-DUPLICATE", "KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED", "KBR-FREEFORM-BOUNDS-OUT-OF-RANGE", "KBR-FREEFORM-ZINDEX-INVALID", "KBR-FREEFORM-TEXT-COLOR-INVALID", "KBR-FREEFORM-TEXT-WRAP-NOT-SUPPORTED", "KBR-FREEFORM-TEXT-OVERFLOW", "KBR-FONT-NOT-REGISTERED", "KBR-FONT-ASSET-MISSING", "KBR-FONT-ASSET-DIGEST-MISMATCH", "KBR-FREEFORM-IMAGE-ASSET-NOT-FOUND", "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", "KBR-FREEFORM-BACKGROUND-COLOR-INVALID", "KBR-FREEFORM-BACKGROUND-TYPE-NOT-SUPPORTED", "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "KBR-FREEFORM-APPLIED-RECT-MISMATCH", "KBR-FREEFORM-APPLIED-ELEMENT-MISMATCH", "KBR-FREEFORM-VALIDATION-INTERNAL-MISMATCH", "KBR-LOGO-ALPHA-REQUIRED", "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "KBR-LOGO-EMPTY", "KBR-FREEFORM-FILE-SIZE-EXCEEDED", "KBR-FREEFORM-OPAQUE-OUTPUT-REQUIRED", "KBR-FREEFORM-SAFE-ZONE-VIOLATION", "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", "KBR-FREEFORM-ELEMENT-NOT-ALLOWED-FOR-PROFILE", "KBR-FREEFORM-JPEG-TRANSPARENT-BACKGROUND-NOT-SUPPORTED", "KBR-FREEFORM-JPEG-TARGET-SIZE-NOT-ACHIEVABLE", "KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED", "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED",
 ];
 const codes = new Set(integrationErrors.codes.map((entry) => entry.code));
 if (requiredCodes.every((code) => codes.has(code))) pass("error_registry", `${requiredCodes.length} FREEFORM codes registered`);
