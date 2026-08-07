@@ -1,0 +1,17 @@
+{
+  "fixtureId": "FREEFORM_F1_BASIC_1029X258",
+  "formatProfileId": "KBR_FREEFORM_CONTRACT_TEST_1029X258",
+  "png": {
+    "width": 1029,
+    "height": 258,
+    "format": "PNG",
+    "colorType": "RGBA",
+    "bitDepth": 8
+  },
+  "assetReferences": [
+    "fixtures/valid/object-right__product__basic__pass.png",
+    "fixtures/valid/mask-semicircle-right__logo__colored__pass.png"
+  ],
+  "expectedArtifactChecksumSha256": "569df2962ee6281b4da3c84b45fb3a873a2129e091fc342bbf0c0deea9cfa52e",
+  "determinismRuns": 3
+}

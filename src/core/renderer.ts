@@ -17,6 +17,13 @@ import { sha256Bytes } from "./hash.js";
 import { calculateLayout } from "./layout.js";
 import { applyDefaults, normalizeInput } from "./normalize.js";
 import {
+  freeformResponseFromResult,
+  isFreeformRenderRequest,
+  renderFreeform,
+  type FreeformRenderRequest,
+  type FreeformRenderResult,
+} from "./freeform.js";
+import {
   PathSecurityError,
   resolveTrustedInputFile,
   resolveTrustedJobDirectory,
@@ -126,6 +133,7 @@ function previewFailure(failure: PreparedFailure): InternalPreviewResult {
 export type KakaoBizboardRenderer = {
   render(request: unknown): Promise<RenderResponse>;
   renderJson(json: string): Promise<RenderResponse>;
+  renderFreeform(request: FreeformRenderRequest): Promise<FreeformRenderResult>;
   /** @internal Used only by the local Desktop Main Process. Never publishes files. */
   previewInternal(request: unknown): Promise<InternalPreviewResult>;
 };
@@ -333,6 +341,39 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
 
   async function previewInternal(request: unknown): Promise<InternalPreviewResult> {
     try {
+      if (isFreeformRenderRequest(request)) {
+        const freeform = await renderFreeform(request, {
+          projectRoot,
+          inputRoot,
+          outputRoot,
+          contracts,
+          publish: false,
+        });
+        return {
+          canonicalInputDigest: freeform.requestFingerprint,
+          normalizedInputDigest: freeform.pixelFingerprint,
+          productAssetDigest: null,
+          previewPngDigest: freeform.pngDigest,
+          png: freeform.png,
+          pngMetadata: freeform.png
+            ? {
+                format: "PNG",
+                colorType: "RGBA",
+                bitDepth: 8,
+                hasAlpha: true,
+                width: 1029,
+                height: 258,
+                bytes: freeform.png.byteLength,
+              }
+            : null,
+          measurements: null,
+          validationStatus: freeform.status === "PASS"
+            ? freeform.warnings.length > 0 ? "WARNING" : "PASS"
+            : "ERROR",
+          errors: freeform.errors,
+          warnings: freeform.warnings,
+        };
+      }
       const prepared = await prepare(request);
       if (!prepared.ok) return previewFailure(prepared);
       const { warnings } = splitIssues(prepared.issues);
@@ -368,6 +409,18 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
 
   async function renderSafe(request: unknown): Promise<RenderResponse> {
     try {
+      if (isFreeformRenderRequest(request)) {
+        const result = await renderFreeform(request, {
+          projectRoot,
+          inputRoot,
+          outputRoot,
+          contracts,
+          publish: true,
+        });
+        const response = freeformResponseFromResult(result);
+        schemas.assertResponse(response);
+        return response;
+      }
       return await render(request);
     } catch (error) {
       if (process.env.KBR_DEBUG === "1") {
@@ -379,6 +432,15 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
 
   return {
     render: renderSafe,
+    async renderFreeform(request: FreeformRenderRequest): Promise<FreeformRenderResult> {
+      return renderFreeform(request, {
+        projectRoot,
+        inputRoot,
+        outputRoot,
+        contracts,
+        publish: true,
+      });
+    },
     async renderJson(json: string): Promise<RenderResponse> {
       const parsed = parseJsonInput(json, contracts);
       return parsed.valid ? renderSafe(parsed.value) : failureResponse(parsed.issues);

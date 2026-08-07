@@ -108,11 +108,16 @@
       }
     },
     "templateId": { "type": "string", "minLength": 1 },
+    "formatProfileId": { "type": "string", "minLength": 1 },
     "pixelFingerprint": { "$ref": "#/$defs/sha256" },
     "requestFingerprint": { "$ref": "#/$defs/sha256" },
     "appliedImagePlacements": {
       "type": "array",
       "items": {}
+    },
+    "appliedElements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/freeformAppliedElement" }
     },
     "manualAcceptanceStatus": {
       "type": "object",
@@ -191,6 +196,48 @@
         }
       }
     },
+    "freeformAppliedElement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["elementId", "elementType", "normalizedBounds", "destinationPixelRect", "zIndex", "originalArrayIndex", "opacity"],
+      "properties": {
+        "elementId": { "type": "string", "minLength": 1 },
+        "elementType": { "enum": ["IMAGE", "TEXT", "LOGO"] },
+        "normalizedBounds": { "$ref": "#/$defs/normalizedRect" },
+        "destinationPixelRect": { "$ref": "#/$defs/pixelRect" },
+        "zIndex": { "type": "integer" },
+        "originalArrayIndex": { "type": "integer", "minimum": 0 },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "assetId": { "type": "string", "minLength": 1 },
+        "assetDigest": { "$ref": "#/$defs/sha256" },
+        "requestedCropRect": { "$ref": "#/$defs/normalizedRect" },
+        "resolvedSourceCropPixels": { "$ref": "#/$defs/pixelRect" },
+        "fontId": { "type": "string", "minLength": 1 },
+        "fontAssetDigest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "normalizedRect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 },
+        "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+      }
+    },
+    "pixelRect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
     "validationIssue": {
       "type": "object",
       "additionalProperties": false,
@@ -220,6 +267,7 @@
         "imageSlotId": { "type": "string" },
         "slotRole": { "enum": ["IMAGE", "LOGO"] },
         "assetId": { "type": "string" },
+        "elementId": { "type": "string" },
         "expected": true,
         "actual": true,
         "bbox": {

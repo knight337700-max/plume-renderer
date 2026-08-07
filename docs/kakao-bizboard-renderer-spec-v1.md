@@ -2,7 +2,7 @@
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
 - **Document version:** 1.10.0
-- **Status:** Frozen Implementation Contract — Phase F0 FREEFORM contract frozen; raster implementation not started
+- **Status:** Frozen Implementation Contract — Phase F1 FREEFORM Core Raster implemented for the internal test Profile only
 - **Checked date:** 2026-08-07 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, THUMBNAIL_MULTI_RIGHT, and MASK_SEMICIRCLE_RIGHT / 1029×258`
@@ -2693,8 +2693,9 @@ byte-equal이어야 한다. 다른 OS의 pixel tolerance는 v1 Acceptance에 포
 
 F0는 아직 Template에 고정되지 않은 지면을 위한 실행 경계만 동결한다. 이 절은
 카카오의 공식 FREEFORM 광고 규격을 주장하지 않으며, Agent/User가 생성한 Plan을
-독립적으로 검증할 수 있게 하는 본 프로젝트의 `[PROJECT]` 계약이다. 이번 Phase의
-상태는 `CONTRACT_FROZEN / IMPLEMENTATION_NOT_STARTED`다.
+독립적으로 검증할 수 있게 하는 본 프로젝트의 `[PROJECT]` 계약이다. F0의 계약
+상태는 `CONTRACT_FROZEN`이며, F1은 그 의미를 변경하지 않고 내부
+테스트 Profile에 한해 Core Raster를 추가한다. **[PROJECT]**
 
 ### 26.1 LayoutMode와 Integration alignment [PROJECT]
 
@@ -2821,3 +2822,36 @@ Font/FormatProfile Registry는 `contracts/freeform-font-registry.json`과
 `contracts/freeform-format-profiles.json`이다. Contract 검증은
 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`로 수행하고, 기존
 Template Golden SHA는 변경되지 않아야 한다. **[PROJECT]**
+
+## 27. Phase F1 — FREEFORM Core Raster v1 [PROJECT]
+
+F1은 `KBR_FREEFORM_CONTRACT_TEST_1029X258` FormatProfile(1029×258, PNG)에서만
+FREEFORM Core 실행을 활성화한다. Renderer entry는 `layoutMode`를 먼저 해석한다.
+생략된 `layoutMode`는 기존 `TEMPLATE_LOCKED` 경로를 그대로 사용하고, `FREEFORM`은
+Plan 존재·Profile exact equality·Schema·asset/font digest를 검증한 뒤 별도 Raster
+경로를 실행한다. Template 좌표와 기존 Golden은 변경하지 않는다. **[PROJECT]**
+
+실행 가능한 Element는 `IMAGE`, `TEXT`, `LOGO`다. Image/Logo는
+`ALPHA_TRIM_CONTAIN`, `CENTER_CONTAIN`, `SEMANTIC_CROP_COVER`, `MANUAL_CROP`을
+사용하며, normalized bounds는 `floor(left/top)`, `ceil(right/bottom)`의 exclusive
+pixel rect로 변환한다. `zIndex` ascending과 원래 배열 순서를 안정적으로 보존한다.
+배경은 deterministic RGBA transparent/solid다. Text는 등록된 Spoqa font만 사용하고
+`NO_WRAP`, `EXPLICIT_NEWLINES`, `ERROR`/`CLIP`만 실행한다. `WORD_WRAP`은
+`KBR-FREEFORM-TEXT-WRAP-NOT-SUPPORTED`, `SHAPE`는
+`KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED`, JPG는
+`KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED` ERROR로 fail closed한다. 자동 Layout,
+font shrink, crop candidate 생성, rotation/skew/effect, Native 1200은 F1 범위가 아니다.
+**[PROJECT]**
+
+출력은 기존 RGBA PNG encoder와 atomic staging publisher를 재사용한다. ERROR가 있으면
+최종 manifest/PNG를 만들지 않으며, ERROR 0일 때만 manifest와 PNG를 publish한다.
+Persisted manifest에는 `formatProfileId`, `appliedElements`, `pixelFingerprint`,
+`requestFingerprint`를 기록할 수 있지만 자신의 digest는 기록하지 않는다.
+`artifactChecksumSha256`은 최종 PNG bytes digest다. `pixelFingerprint`는 source,
+rationale, confidence를 제외하고 `requestFingerprint`만 provenance를 포함한다.
+**[PROJECT] [DERIVED]**
+
+F1의 상세 실행 계약과 Acceptance mapping은
+`docs/implementation/freeform-core-raster-v1.md` 및
+`tests/freeform-core/freeform-core.test.ts`에 고정한다. 이 구현은 카카오의 공식
+FREEFORM 업로드 승인이나 Native 1200 규격을 보장하지 않는다. **[PROJECT]**

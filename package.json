@@ -33,6 +33,7 @@
     "test:integration": "pnpm build && vitest run tests/integration",
     "test:integration-contract": "pnpm verify:integration-contract && pnpm build:contract && vitest run tests/integration-contract",
     "test:freeform-contract": "pnpm verify:freeform-contract && pnpm build:contract && vitest run tests/freeform-contract",
+    "test:freeform-core": "pnpm build && vitest run tests/freeform-core",
     "test:golden": "vitest run tests/golden",
     "test:security": "vitest run tests/desktop/security",
     "test:desktop": "vitest run tests/desktop",

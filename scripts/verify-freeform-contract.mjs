@@ -92,8 +92,10 @@ else fail("integration_version_alignment", "v1.5.0 is absent from Integration sc
 const versions = await readJson("contracts/contract-versions.json");
 if (versions.documentVersion?.current === "1.10.0" && versions.integrationContract?.current === "1.5.0" && versions.templateContractVersion === "1.6.0" && versions.desktopAppVersion === "0.7.1") pass("version_policy", "Canonical 1.10.0 / Integration 1.5.0 / Template 1.6.0 / Desktop 0.7.1");
 else fail("version_policy", JSON.stringify({ document: versions.documentVersion, integration: versions.integrationContract, template: versions.templateContractVersion, desktop: versions.desktopAppVersion }));
-if (versions.creativeLayoutPlan?.schemaVersion === "1.0.0" && versions.creativeLayoutPlan?.implementationStatus === "NOT_IMPLEMENTED") pass("implementation_boundary", "FREEFORM schema is frozen and raster implementation is not started");
+if (versions.creativeLayoutPlan?.schemaVersion === "1.0.0" && versions.creativeLayoutPlan?.implementationStatus === "NOT_IMPLEMENTED") pass("implementation_boundary", "FREEFORM schema remains frozen; raster implementation is additive");
 else fail("implementation_boundary", "FREEFORM implementation status is not NOT_IMPLEMENTED");
+if (versions.canonicalPhaseF1?.freeformRasterImplementationStarted === true && versions.canonicalPhaseF1?.freeformRasterImplementationStatus === "IMPLEMENTED_TEST_PROFILE_ONLY") pass("raster_implementation_status", "F1 FREEFORM Core Raster is implemented for the internal 1029x258 test profile");
+else fail("raster_implementation_status", "F1 FREEFORM Core Raster status is missing");
 
 const formatProfiles = await readJson("contracts/freeform-format-profiles.json");
 if (formatProfiles.catalogStatus === "CATALOG_NOT_READY" && formatProfiles.native1200?.dimensions === null && formatProfiles.native1200?.implementationStatus === "NOT_IMPLEMENTED") pass("format_profile_catalog", "native 1200 remains CATALOG_NOT_READY without inferred dimensions");

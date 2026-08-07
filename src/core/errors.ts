@@ -14,6 +14,8 @@ export function createIssue(
     expected?: unknown;
     actual?: unknown;
     bbox?: ValidationIssue["bbox"];
+    elementId?: string;
+    assetId?: string;
   } = {},
 ): ValidationIssue {
   const entry = registry.get(code);
@@ -27,6 +29,8 @@ export function createIssue(
   if (detail.expected !== undefined) issue.expected = detail.expected;
   if (detail.actual !== undefined) issue.actual = detail.actual;
   if (detail.bbox !== undefined) issue.bbox = detail.bbox;
+  if (detail.elementId !== undefined) issue.elementId = detail.elementId;
+  if (detail.assetId !== undefined) issue.assetId = detail.assetId;
   return issue;
 }
 

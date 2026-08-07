@@ -96,7 +96,13 @@
           }
         ]
       }
-    }
+    },
+    "formatProfileId": { "type": "string", "minLength": 1 },
+    "artifactChecksumSha256": { "$ref": "#/$defs/sha256" },
+    "pixelFingerprint": { "$ref": "#/$defs/sha256" },
+    "requestFingerprint": { "$ref": "#/$defs/sha256" },
+    "renderFingerprint": { "$ref": "#/$defs/sha256" },
+    "appliedElements": { "type": "array", "items": { "type": "object" } }
   },
   "allOf": [
     {
@@ -189,6 +195,18 @@
           "type": "string"
         },
         "messageKey": {
+          "type": "string"
+        },
+        "imageSlotId": {
+          "type": "string"
+        },
+        "slotRole": {
+          "enum": ["IMAGE", "LOGO"]
+        },
+        "assetId": {
+          "type": "string"
+        },
+        "elementId": {
           "type": "string"
         },
         "expected": true,

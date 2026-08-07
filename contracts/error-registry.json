@@ -119,7 +119,7 @@
     { "code": "KBR-FREEFORM-FORMAT-PROFILE-MISMATCH", "severity": "ERROR", "messageKey": "freeform.format_profile_mismatch", "condition": "Input, CreativeLayoutPlan, and loaded FormatProfile IDs are not exactly equal" },
     { "code": "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "severity": "ERROR", "messageKey": "freeform.canvas_profile_missing", "condition": "A FREEFORM request references no loaded FormatProfile canvas" },
     { "code": "KBR-FREEFORM-ELEMENT-ID-DUPLICATE", "severity": "ERROR", "messageKey": "freeform.element_id_duplicate", "condition": "Two CreativeLayoutPlan elements share an id" },
-    { "code": "KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.element_type_not_supported", "condition": "An element type is outside IMAGE, TEXT, LOGO, and SHAPE" },
+    { "code": "KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.element_type_not_supported", "condition": "An element type is outside implemented IMAGE, TEXT, and LOGO raster; SHAPE is contract-only in FREEFORM v1" },
     { "code": "KBR-FREEFORM-BOUNDS-OUT-OF-RANGE", "severity": "ERROR", "messageKey": "freeform.bounds_out_of_range", "condition": "An element bounds rectangle is not finite or is outside normalized 0..1" },
     { "code": "KBR-FREEFORM-ZINDEX-INVALID", "severity": "ERROR", "messageKey": "freeform.zindex_invalid", "condition": "A FREEFORM element zIndex is not an integer" },
     { "code": "KBR-FREEFORM-TEXT-COLOR-INVALID", "severity": "ERROR", "messageKey": "freeform.text_color_invalid", "condition": "Text color is not canonical #RRGGBB or #RRGGBBAA" },

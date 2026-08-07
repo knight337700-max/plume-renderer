@@ -232,5 +232,26 @@
     "desktopBump": "none",
     "desktopReason": "F0 does not implement FREEFORM UI or raster execution",
     "freeformRasterImplementationStarted": false
+  },
+  "canonicalPhaseF1": {
+    "documentPrevious": "1.10.0",
+    "documentCurrent": "1.10.0",
+    "documentBump": "none",
+    "documentReason": "FREEFORM Core Raster implementation uses the frozen F0 contract without changing its meaning",
+    "templateContractVersion": "1.6.0",
+    "templateCoordinatesChanged": false,
+    "integrationContractPrevious": "1.5.0",
+    "integrationContractCurrent": "1.5.0",
+    "integrationContractBump": "none",
+    "integrationContractReason": "FREEFORM execution is an additive Core dispatch; Integration Schema semantics remain unchanged",
+    "creativeLayoutPlanVersion": "1.0.0",
+    "desktopPrevious": "0.7.1",
+    "desktopCurrent": "0.7.1",
+    "desktopBump": "none",
+    "desktopReason": "F1 does not change the Desktop UI",
+    "freeformRasterImplementationStarted": true,
+    "freeformRasterImplementationStatus": "IMPLEMENTED_TEST_PROFILE_ONLY",
+    "native1200Status": "CATALOG_NOT_READY",
+    "deferred": ["WORD_WRAP", "SHAPE_RASTER", "JPG_OUTPUT"]
   }
 }

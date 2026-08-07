@@ -18,6 +18,33 @@ export type ValidationIssue = {
   imageSlotId?: string;
   slotRole?: "IMAGE" | "LOGO";
   assetId?: string;
+  elementId?: string;
+};
+
+export type FreeformAppliedElement = {
+  elementId: string;
+  elementType: "IMAGE" | "TEXT" | "LOGO";
+  normalizedBounds: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  destinationPixelRect: BBox;
+  zIndex: number;
+  originalArrayIndex: number;
+  opacity: number;
+  assetId?: string;
+  assetDigest?: string;
+  requestedCropRect?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  resolvedSourceCropPixels?: BBox;
+  fontId?: string;
+  fontAssetDigest?: string;
 };
 
 export type TextLimitStatus = "PASS" | "WARNING" | "ERROR";
@@ -196,7 +223,9 @@ export type RenderManifest = {
     mask?: AssetDigest;
   };
   templateId?: string;
+  formatProfileId?: string;
   appliedImagePlacements?: unknown[];
+  appliedElements?: FreeformAppliedElement[];
   pixelFingerprint?: string;
   requestFingerprint?: string;
   manualAcceptanceStatus: {
@@ -220,6 +249,12 @@ export type RenderResponse = {
   status: "PASS" | "FAIL";
   errors: ValidationIssue[];
   warnings: ValidationIssue[];
+  formatProfileId?: string;
+  artifactChecksumSha256?: string;
+  pixelFingerprint?: string;
+  requestFingerprint?: string;
+  renderFingerprint?: string;
+  appliedElements?: FreeformAppliedElement[];
 };
 
 /** @internal Desktop preview result. This is not part of the public JSON Input contract. */

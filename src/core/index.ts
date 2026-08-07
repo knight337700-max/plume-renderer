@@ -4,6 +4,13 @@ export {
   readRenderedManifest,
   rendererVersion,
 } from "./renderer.js";
+export {
+  freeformResponseFromResult,
+  isFreeformRenderRequest,
+  normalizedRectToPixelRect,
+  renderFreeform,
+  toFreeformRenderResponse,
+} from "./freeform.js";
 export { applyDefaults, normalizeInput } from "./normalize.js";
 export { canonicalDigest, canonicalJson } from "./canonical.js";
 export { calculateLayout } from "./layout.js";
@@ -55,6 +62,7 @@ export { resolveTrustedInputFile, resolveTrustedJobDirectory, resolveTrustedRoot
 export type {
   BBox,
   CanonicalInput,
+  FreeformAppliedElement,
   KakaoBizboardInputV1,
   LayoutMeasurements,
   RenderManifest,
@@ -65,3 +73,9 @@ export type {
   TextMeasurement,
   ValidationIssue,
 } from "./types.js";
+export type {
+  FreeformAssetInput,
+  FreeformRenderOptions,
+  FreeformRenderRequest,
+  FreeformRenderResult,
+} from "./freeform.js";

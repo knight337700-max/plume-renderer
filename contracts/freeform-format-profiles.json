@@ -13,7 +13,7 @@
       "canvas": { "width": 1029, "height": 258 },
       "layoutMode": "FREEFORM",
       "allowedOutputFormats": ["PNG"],
-      "implementationStatus": "NOT_IMPLEMENTED",
+      "implementationStatus": "IMPLEMENTED",
       "catalogStatus": "INTERNAL_TEST_ONLY",
       "classification": "PROJECT_TEST_ONLY"
     }
