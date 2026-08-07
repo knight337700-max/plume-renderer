@@ -14,7 +14,7 @@ import {
   WARNING_THRESHOLD_BYTES,
 } from "./constants.js";
 import { createIssue, sortAndDedupeIssues } from "./errors.js";
-import type { CanonicalInput, ProductAnalysis, ValidationIssue } from "./types.js";
+import type { CanonicalInput, ProductAnalysis, ValidationIssue, ValidationStage } from "./types.js";
 
 export type PngIhdr = {
   width: number;
@@ -61,17 +61,20 @@ export function renderRgbaPng(input: CanonicalInput, product: ProductAnalysis): 
 export async function validateRenderedPng(
   png: Buffer,
   contracts: ContractBundle,
+  expectedCanvas: Readonly<{ width: number; height: number }> = { width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
+  stage?: ValidationStage,
 ): Promise<ValidationIssue[]> {
   const issues: ValidationIssue[] = [];
   const ihdr = inspectPngIhdr(png);
   if (!ihdr) {
-    return [createIssue(contracts.errorRegistry, "KBR-OUTPUT-003", "/output.png")];
+    return [createIssue(contracts.errorRegistry, "KBR-OUTPUT-003", "/output.png", stage ? { stage } : {})];
   }
-  if (ihdr.width !== CANVAS_WIDTH || ihdr.height !== CANVAS_HEIGHT) {
-    issues.push(
+  if (ihdr.width !== expectedCanvas.width || ihdr.height !== expectedCanvas.height) {
+      issues.push(
       createIssue(contracts.errorRegistry, "KBR-OUTPUT-002", "/output.png", {
-        expected: { width: CANVAS_WIDTH, height: CANVAS_HEIGHT },
+        expected: expectedCanvas,
         actual: { width: ihdr.width, height: ihdr.height },
+        ...(stage ? { stage } : {}),
       }),
     );
   }
@@ -80,6 +83,7 @@ export async function validateRenderedPng(
       createIssue(contracts.errorRegistry, "KBR-OUTPUT-003", "/output.png", {
         expected: { colorType: 6, bitDepth: 8 },
         actual: { colorType: ihdr.colorType, bitDepth: ihdr.bitDepth },
+        ...(stage ? { stage } : {}),
       }),
     );
   }
@@ -87,15 +91,16 @@ export async function validateRenderedPng(
   try {
     metadata = await sharp(png).metadata();
   } catch {
-    issues.push(createIssue(contracts.errorRegistry, "KBR-OUTPUT-003", "/output.png"));
+    issues.push(createIssue(contracts.errorRegistry, "KBR-OUTPUT-003", "/output.png", stage ? { stage } : {}));
     return sortAndDedupeIssues(issues);
   }
-  if (!metadata.hasAlpha) issues.push(createIssue(contracts.errorRegistry, "KBR-OUTPUT-004", "/output.png"));
+  if (!metadata.hasAlpha) issues.push(createIssue(contracts.errorRegistry, "KBR-OUTPUT-004", "/output.png", stage ? { stage } : {}));
   if (png.byteLength >= HARD_LIMIT_BYTES + 1) {
     issues.push(
       createIssue(contracts.errorRegistry, "KBR-OUTPUT-005", "/output.png", {
         expected: { maximumBytes: HARD_LIMIT_BYTES },
         actual: { bytes: png.byteLength },
+        ...(stage ? { stage } : {}),
       }),
     );
   } else if (png.byteLength >= WARNING_THRESHOLD_BYTES + 1) {
@@ -103,6 +108,7 @@ export async function validateRenderedPng(
       createIssue(contracts.errorRegistry, "KBR-OUTPUT-009", "/output.png", {
         expected: { warningThresholdBytes: WARNING_THRESHOLD_BYTES, hardLimitBytes: HARD_LIMIT_BYTES },
         actual: { bytes: png.byteLength },
+        ...(stage ? { stage } : {}),
       }),
     );
   }

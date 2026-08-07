@@ -131,6 +131,15 @@
     { "code": "KBR-FREEFORM-IMAGE-ASSET-NOT-FOUND", "severity": "ERROR", "messageKey": "freeform.image_asset_not_found", "condition": "IMAGE or LOGO element references an unavailable asset" },
     { "code": "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", "severity": "ERROR", "messageKey": "freeform.image_placement_invalid", "condition": "FREEFORM image placement is incomplete, contains a slot field, or violates normalized placement rules" },
     { "code": "KBR-FREEFORM-BACKGROUND-COLOR-INVALID", "severity": "ERROR", "messageKey": "freeform.background_color_invalid", "condition": "SOLID background color is not canonical #RRGGBB or #RRGGBBAA" },
-    { "code": "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.output_format_not_supported", "condition": "Requested output format is not allowed by the loaded FREEFORM FormatProfile" }
+    { "code": "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.output_format_not_supported", "condition": "Requested output format is not allowed by the loaded FREEFORM FormatProfile" },
+    { "code": "KBR-FREEFORM-FORMAT-PROFILE-NOT-FOUND", "severity": "ERROR", "messageKey": "freeform.format_profile_not_found", "condition": "A FREEFORM request references a FormatProfile ID absent from the registry" },
+    { "code": "KBR-FREEFORM-LAYOUT-MODE-MISMATCH", "severity": "ERROR", "messageKey": "freeform.layout_mode_mismatch", "condition": "The FREEFORM request or loaded FormatProfile does not declare layoutMode FREEFORM" },
+    { "code": "KBR-FREEFORM-BACKGROUND-TYPE-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.background_type_not_supported", "condition": "A background type outside TRANSPARENT or SOLID is supplied" },
+    { "code": "KBR-FREEFORM-APPLIED-RECT-MISMATCH", "severity": "ERROR", "messageKey": "freeform.applied_rect_mismatch", "condition": "Applied destination or source pixel rect differs from the deterministic plan result" },
+    { "code": "KBR-FREEFORM-APPLIED-ELEMENT-MISMATCH", "severity": "ERROR", "messageKey": "freeform.applied_element_mismatch", "condition": "appliedElements differs from the values actually required by the validated plan" },
+    { "code": "KBR-FREEFORM-VALIDATION-INTERNAL-MISMATCH", "severity": "ERROR", "messageKey": "freeform.validation_internal_mismatch", "condition": "Post-render checksum or validator evidence is internally inconsistent" },
+    { "code": "KBR-LOGO-ALPHA-REQUIRED", "severity": "ERROR", "messageKey": "asset.logo_alpha_required", "condition": "A FREEFORM LOGO is not a PNG with an alpha channel" },
+    { "code": "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "severity": "ERROR", "messageKey": "asset.logo_transparent_background_required", "condition": "A FREEFORM LOGO has a suspected opaque background" },
+    { "code": "KBR-LOGO-EMPTY", "severity": "ERROR", "messageKey": "asset.logo_empty", "condition": "A FREEFORM LOGO has no layout-visible alpha pixels" }
   ]
 }

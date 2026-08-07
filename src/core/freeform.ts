@@ -6,9 +6,7 @@ import {
   applyCreativeLayoutPlanDefaults,
   computeFreeformFingerprints,
   stableSortCreativeElements,
-  validateCreativeLayoutPlan,
   validateFontReference,
-  validateFreeformOutputFormat,
   type CreativeElement,
   type CreativeLayoutPlan,
   type FormatProfile,
@@ -25,7 +23,7 @@ import { loadContracts } from "./contracts.js";
 import { canonicalJson } from "./canonical.js";
 import { createIssue, sortAndDedupeIssues, splitIssues } from "./errors.js";
 import { sha256Bytes, sha256File } from "./hash.js";
-import { inspectImageBytes } from "./image-input.js";
+import { ImageInputError, inspectImageBytes } from "./image-input.js";
 import {
   PathSecurityError,
   assertSafeRelativeReference,
@@ -35,7 +33,12 @@ import {
 import { publishArtifacts, PublishError } from "./publish.js";
 import { validateRenderedPng } from "./raster.js";
 import { SchemaValidators } from "./schema-validation.js";
-import type { FreeformAppliedElement, RenderManifest, RenderResponse, ValidationIssue } from "./types.js";
+import {
+  validateFreeformPostRender,
+  validateFreeformPreRender,
+  type FreeformAssetValidationMetadata,
+} from "./freeform-validator.js";
+import type { FreeformAppliedElement, RenderManifest, RenderResponse, ValidationIssue, ValidationStage } from "./types.js";
 
 const FREEFORM_FONT_ALIAS_PREFIX = "KBR FREEFORM ";
 const REGISTERED_FONTS = new Set<string>();
@@ -46,10 +49,13 @@ type FormatProfileRegistry = Readonly<{
 }>;
 
 type FreeformAssetValue = Readonly<{
+  assetId?: string;
   path?: string;
   bytes?: Uint8Array;
   assetRef?: Readonly<{ type?: string; value?: string }>;
   mimeType?: string;
+  declaredWidth?: number;
+  declaredHeight?: number;
   checksumSha256?: string;
   expectedSha256?: string;
 }>;
@@ -115,6 +121,7 @@ type RgbaImage = {
   width: number;
   height: number;
   hasAlpha: boolean;
+  opaqueBackgroundSuspected: boolean;
 };
 type ResolvedAsset = {
   assetId: string;
@@ -122,6 +129,9 @@ type ResolvedAsset = {
   digest: string;
   mimeType: "image/png" | "image/jpeg";
   image: RgbaImage;
+  hasAlpha: boolean;
+  visibleAlpha: boolean;
+  opaqueBackgroundSuspected: boolean;
 };
 type RuntimeFreeformAssets = {
   fontRegistry: FreeformFontRegistry;
@@ -139,7 +149,11 @@ class FreeformAssetNotFoundError extends Error {
 
 function emptyResult(
   errors: readonly ValidationIssue[],
-  details: Partial<Pick<FreeformRenderResult, "formatProfileId" | "pixelFingerprint" | "requestFingerprint">> = {},
+  details: {
+    formatProfileId?: string | null | undefined;
+    pixelFingerprint?: string | null | undefined;
+    requestFingerprint?: string | null | undefined;
+  } = {},
 ): FreeformRenderResult {
   const sorted = sortAndDedupeIssues(errors);
   const { errors: errorIssues, warnings } = splitIssues(sorted);
@@ -162,6 +176,12 @@ function emptyResult(
   };
 }
 
+function publicOutputFailure(error: unknown): string {
+  if (error instanceof PathSecurityError) return "path_security_violation";
+  if (error instanceof PublishError) return error.code;
+  return "publish_failed";
+}
+
 function issue(
   contracts: ContractBundle,
   code: string,
@@ -169,14 +189,20 @@ function issue(
   details: {
     expected?: unknown;
     actual?: unknown;
-    elementId?: string;
-    assetId?: string;
+    elementId?: string | undefined;
+    assetId?: string | undefined;
     bbox?: ValidationIssue["bbox"];
+    stage?: ValidationStage;
+    formatProfileId?: string | undefined;
   } = {},
 ): ValidationIssue {
-  const created = createIssue(contracts.errorRegistry, code, pathValue, details);
+  const created = createIssue(contracts.errorRegistry, code, pathValue, {
+    ...details,
+    ...(details.stage ? { stage: details.stage } : { stage: "PRE_RENDER" }),
+  });
   if (details.elementId !== undefined) created.elementId = details.elementId;
   if (details.assetId !== undefined) created.assetId = details.assetId;
+  if (details.formatProfileId !== undefined) created.formatProfileId = details.formatProfileId;
   return created;
 }
 
@@ -258,6 +284,17 @@ function alphaBox(data: AlphaData, width: number, height: number, threshold: num
     }
   }
   return maxX < 0 ? null : { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
+}
+
+function opaqueBackgroundSuspected(data: AlphaData, width: number, height: number): boolean {
+  if (width <= 0 || height <= 0) return false;
+  const corners = [0, width - 1, (height - 1) * width, height * width - 1];
+  if (!corners.every((index) => alphaAt(data, index) === 255)) return false;
+  let solid = 0;
+  for (let index = 0; index < width * height; index += 1) {
+    if (alphaAt(data, index) >= 250) solid += 1;
+  }
+  return solid / (width * height) >= 0.95;
 }
 
 type Component = PixelRect & { count: number };
@@ -407,7 +444,8 @@ async function decodeRgba(bytes: Buffer): Promise<RgbaImage> {
     bytes: raw.data,
     width: raw.info.width,
     height: raw.info.height,
-    hasAlpha: Boolean(metadata.hasAlpha) || raw.info.channels === 4,
+    hasAlpha: Boolean(metadata.hasAlpha),
+    opaqueBackgroundSuspected: opaqueBackgroundSuspected(raw.data, raw.info.width, raw.info.height),
   };
 }
 
@@ -418,11 +456,6 @@ async function resizeCrop(image: RgbaImage, crop: PixelRect, width: number, heig
     .raw()
     .toBuffer();
   return extracted;
-}
-
-function outputFormat(request: FreeformRenderRequest): OutputFormat {
-  if (request.output?.format) return request.output.format;
-  return request.output?.mimeType === "image/jpeg" ? "JPG" : "PNG";
 }
 
 function assetEntries(request: FreeformRenderRequest): Array<{ assetId: string; value: FreeformAssetValue }> {
@@ -503,20 +536,41 @@ async function resolveAssets(
         }));
         continue;
       }
+      const decoded = await decodeRgba(bytes);
+      if (value.declaredWidth !== undefined && value.declaredWidth !== decoded.width || value.declaredHeight !== undefined && value.declaredHeight !== decoded.height) {
+        issues.push(issue(contracts, "KBR-ASSET-DIMENSION-MISMATCH", `/assets/${entry.assetId}`, {
+          actual: { width: decoded.width, height: decoded.height },
+          expected: { width: value.declaredWidth, height: value.declaredHeight },
+          assetId: entry.assetId,
+        }));
+        continue;
+      }
       assets.set(entry.assetId, {
         assetId: entry.assetId,
         bytes,
         digest,
         mimeType: detectedMime,
-        image: await decodeRgba(bytes),
+        image: decoded,
+        hasAlpha: inspected.hasAlpha,
+        visibleAlpha: alphaBox(decoded.bytes, decoded.width, decoded.height, 8) !== null,
+        opaqueBackgroundSuspected: decoded.opaqueBackgroundSuspected,
       });
     } catch (error) {
       const code = error instanceof PathSecurityError
         ? "KBR-INPUT-009"
         : error instanceof FreeformAssetNotFoundError
           ? "KBR-FREEFORM-IMAGE-ASSET-NOT-FOUND"
-          : "KBR-IMAGE-DECODE-FAILED";
-      issues.push(issue(contracts, code, `/assets/${entry.assetId}`, { assetId: entry.assetId, actual: error instanceof Error ? error.message : String(error) }));
+          : error instanceof ImageInputError
+            ? error.code
+            : "KBR-IMAGE-DECODE-FAILED";
+      const actual = error instanceof PathSecurityError
+        ? "path_security_violation"
+        : error instanceof FreeformAssetNotFoundError
+          ? "asset_unavailable"
+          : error instanceof ImageInputError
+            ? "asset_input_invalid"
+          : "image_decode_failed";
+      issues.push(issue(contracts, code, `/assets/${entry.assetId}`, { assetId: entry.assetId, actual }));
     }
   }
   return { assets, issues };
@@ -598,7 +652,7 @@ function applyPlacementCrop(
   if (placement.policy === "ALPHA_TRIM_CONTAIN") {
     const meaningful = meaningfulAlphaBox(image.bytes, image.width, image.height);
     if (!meaningful) {
-      errors.push(issue(contracts, "KBR-ASSET-005", `/elements/${elementId}/placement`, { elementId }));
+      errors.push(issue(contracts, "KBR-ASSET-005", `/elements/${elementId}/placement`, { elementId, stage: "POST_RENDER" }));
       return { crop: { x: 0, y: 0, width: 1, height: 1 }, alphaTrimApplied: true, errors };
     }
     return { crop: meaningful, alphaTrimApplied: true, errors };
@@ -607,11 +661,11 @@ function applyPlacementCrop(
   if (placement.cropRect !== undefined) {
     requestedCrop = placement.cropRect;
     const crop = cropRectToPixels(placement.cropRect, image.width, image.height);
-    if (!crop) errors.push(issue(contracts, "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", `/elements/${elementId}/placement/cropRect`, { elementId }));
+    if (!crop) errors.push(issue(contracts, "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", `/elements/${elementId}/placement/cropRect`, { elementId, stage: "POST_RENDER" }));
     return { crop: crop ?? { x: 0, y: 0, width: 1, height: 1 }, alphaTrimApplied: false, errors, ...(requestedCrop ? { requestedCrop } : {}) };
   }
   if (placement.policy === "MANUAL_CROP") {
-    errors.push(issue(contracts, "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", `/elements/${elementId}/placement/cropRect`, { elementId, expected: "cropRect" }));
+    errors.push(issue(contracts, "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", `/elements/${elementId}/placement/cropRect`, { elementId, expected: "cropRect", stage: "POST_RENDER" }));
     return { crop: { x: 0, y: 0, width: 1, height: 1 }, alphaTrimApplied: false, errors };
   }
   if (placement.policy === "SEMANTIC_CROP_COVER" && placement.focalPoint !== undefined) {
@@ -624,10 +678,10 @@ function applyPlacementCrop(
     const top = Math.min(1 - cropHeight, Math.max(0, placement.focalPoint.y - cropHeight / 2));
     const derived: NormalizedRect = { x: left, y: top, width: cropWidth, height: cropHeight };
     const crop = cropRectToPixels(derived, image.width, image.height);
-    if (!crop) errors.push(issue(contracts, "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", `/elements/${elementId}/placement/focalPoint`, { elementId }));
+    if (!crop) errors.push(issue(contracts, "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", `/elements/${elementId}/placement/focalPoint`, { elementId, stage: "POST_RENDER" }));
     return { crop: crop ?? { x: 0, y: 0, width: 1, height: 1 }, alphaTrimApplied: false, errors };
   }
-  errors.push(issue(contracts, "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", `/elements/${elementId}/placement/cropRect`, { elementId, expected: "cropRect or focalPoint" }));
+  errors.push(issue(contracts, "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", `/elements/${elementId}/placement/cropRect`, { elementId, expected: "cropRect or focalPoint", stage: "POST_RENDER" }));
   return { crop: { x: 0, y: 0, width: 1, height: 1 }, alphaTrimApplied: false, errors };
 }
 
@@ -678,6 +732,8 @@ async function renderImageElement(
       opacity: element.opacity ?? 1,
       assetId: element.assetId,
       assetDigest: asset.digest,
+      placementPolicy: element.placement.policy,
+      fitMode: element.placement.fitMode,
       ...(placement.requestedCrop ? { requestedCropRect: placement.requestedCrop } : {}),
       ...(placement.alphaTrimApplied || element.placement.policy !== "CENTER_CONTAIN" ? { resolvedSourceCropPixels: crop } : {}),
     },
@@ -755,12 +811,16 @@ function renderTextElement(
   });
   const visible = scanVisibleCanvas(isolated, canvasSize.width, canvasSize.height);
   const errors: ValidationIssue[] = [];
-  if (!visible) errors.push(issue(contracts, "KBR-FREEFORM-TEXT-OVERFLOW", `/elements/${element.id}`, { elementId: element.id, expected: "visible glyphs", actual: "none" }));
+  let overflowDetected = false;
+  let clipped = false;
+  if (!visible) errors.push(issue(contracts, "KBR-FREEFORM-TEXT-OVERFLOW", `/elements/${element.id}`, { elementId: element.id, expected: "visible glyphs", actual: "none", stage: "POST_RENDER" }));
   else {
     const outside = visible.x < slot.x || visible.y < slot.y || visible.x + visible.width > slot.x + slot.width || visible.y + visible.height > slot.y + slot.height;
+    overflowDetected = outside;
     if (outside && element.overflowMode === "ERROR") {
-      errors.push(issue(contracts, "KBR-FREEFORM-TEXT-OVERFLOW", `/elements/${element.id}/bounds`, { elementId: element.id, bbox: visible, expected: slot }));
+      errors.push(issue(contracts, "KBR-FREEFORM-TEXT-OVERFLOW", `/elements/${element.id}/bounds`, { elementId: element.id, bbox: visible, expected: slot, stage: "POST_RENDER" }));
     }
+    clipped = outside && element.overflowMode === "CLIP";
   }
   if (errors.length > 0) return { errors };
   mainContext.save();
@@ -782,6 +842,13 @@ function renderTextElement(
       originalArrayIndex: elementIndex,
       opacity: element.opacity ?? 1,
       fontId: element.fontId,
+      fontSizePx: element.fontSizePx,
+      lineHeightPx: element.lineHeightPx,
+      color: element.color,
+      wrapMode: element.wrapMode,
+      overflowMode: element.overflowMode,
+      overflowDetected,
+      clipped,
     },
     errors,
   };
@@ -834,50 +901,62 @@ export async function renderFreeform(
   options: FreeformRenderOptions,
 ): Promise<FreeformRenderResult> {
   const contracts = options.contracts ?? await loadContracts(options.projectRoot);
-  const formatProfileId = request.formatProfileId;
-  if (request.layoutMode !== "FREEFORM") {
-    return emptyResult([issue(contracts, "KBR-FREEFORM-PLAN-SCHEMA-INVALID", "/layoutMode", { actual: request.layoutMode, expected: "FREEFORM" })], { formatProfileId });
-  }
-  if (request.creativeLayoutPlan === undefined) {
-    return emptyResult([issue(contracts, "KBR-FREEFORM-PLAN-MISSING", "/creativeLayoutPlan")], { formatProfileId });
-  }
+  const rawRequest: unknown = request;
+  const formatProfileId = isRecord(rawRequest) && typeof rawRequest.formatProfileId === "string" ? rawRequest.formatProfileId : undefined;
   const profileRegistryPath = path.join(options.projectRoot, "contracts", "freeform-format-profiles.json");
   let profileRegistry: FormatProfileRegistry;
   try {
     profileRegistry = JSON.parse(await readFile(profileRegistryPath, "utf8")) as FormatProfileRegistry;
   } catch {
-    return emptyResult([issue(contracts, "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "/formatProfileId", { actual: formatProfileId })], { formatProfileId });
+    return emptyResult([issue(contracts, "KBR-FREEFORM-FORMAT-PROFILE-NOT-FOUND", "/formatProfileId", { actual: formatProfileId, formatProfileId })], { formatProfileId });
   }
   const profile = profileRegistry.profiles?.find((candidate) => candidate.formatProfileId === formatProfileId);
-  const profileIssues: ValidationIssue[] = [];
-  if (!profile || profile.layoutMode !== "FREEFORM" || profile.canvas.width < 1 || profile.canvas.height < 1) {
-    profileIssues.push(issue(contracts, "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "/formatProfileId", { actual: formatProfileId }));
-  }
-  if (profile && profile.implementationStatus !== "IMPLEMENTED") {
-    profileIssues.push(issue(contracts, "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "/formatProfileId", { actual: profile.implementationStatus, expected: "IMPLEMENTED" }));
-  }
-  if (profile && profile.formatProfileId !== request.creativeLayoutPlan.formatProfileId) {
-    profileIssues.push(issue(contracts, "KBR-FREEFORM-FORMAT-PROFILE-MISMATCH", "/creativeLayoutPlan/formatProfileId", { actual: request.creativeLayoutPlan.formatProfileId, expected: profile.formatProfileId }));
-  }
-  const output = outputFormat(request);
-  if (profile) profileIssues.push(...freeformIssuesToCore(contracts, validateFreeformOutputFormat(output, profile)));
-  const planIssues = freeformIssuesToCore(contracts, validateCreativeLayoutPlan(request.creativeLayoutPlan, {
-    formatProfileId,
-    ...(profile ? { profile } : {}),
-    requireProfile: true,
-  }));
-  const defaults = normalizeNfc(applyCreativeLayoutPlanDefaults(request.creativeLayoutPlan)) as CreativeLayoutPlan;
   const runtimeResult = await loadRuntimeFreeformAssets(options.projectRoot, contracts);
+  const preValidationIssues = validateFreeformPreRender(rawRequest, {
+    contracts,
+    ...(profile ? { formatProfile: profile } : {}),
+    ...(runtimeResult.runtime ? { fontRegistry: runtimeResult.runtime.fontRegistry } : {}),
+  });
+  const initialIssues = sortAndDedupeIssues([...preValidationIssues, ...runtimeResult.issues]);
   const runtimeAssets = runtimeResult.runtime;
-  const issues = sortAndDedupeIssues([...profileIssues, ...planIssues, ...runtimeResult.issues]);
-  const errorIssues = issues.filter((entry) => entry.severity === "ERROR");
-  if (errorIssues.length > 0 || !profile || !runtimeAssets) {
-    return emptyResult(issues.length > 0 ? issues : [issue(contracts, "KBR-SYSTEM-001", "/assets")], {
+  if (initialIssues.some((entry) => entry.severity === "ERROR") || !profile || !runtimeAssets) {
+    return emptyResult(initialIssues.length > 0 ? initialIssues : [issue(contracts, "KBR-SYSTEM-001", "/assets")], {
       formatProfileId,
     });
   }
+  const creativeLayoutPlan = isRecord(rawRequest) && rawRequest.creativeLayoutPlan !== undefined
+    ? rawRequest.creativeLayoutPlan as CreativeLayoutPlan
+    : undefined;
+  if (!creativeLayoutPlan) return emptyResult([issue(contracts, "KBR-FREEFORM-PLAN-MISSING", "/creativeLayoutPlan")], { formatProfileId: formatProfileId ?? null });
+  const defaults = normalizeNfc(applyCreativeLayoutPlanDefaults(creativeLayoutPlan)) as CreativeLayoutPlan;
   const resolvedAssetsResult = await resolveAssets(request, options, contracts);
-  const allIssues = sortAndDedupeIssues([...issues, ...resolvedAssetsResult.issues]);
+  const assetValidationMetadata = new Map<string, FreeformAssetValidationMetadata>(
+    [...resolvedAssetsResult.assets.values()].map((asset) => [asset.assetId, {
+      assetId: asset.assetId,
+      digest: asset.digest,
+      mimeType: asset.mimeType,
+      width: asset.image.width,
+      height: asset.image.height,
+      bytes: asset.bytes.byteLength,
+      hasAlpha: asset.hasAlpha,
+      visibleAlpha: asset.visibleAlpha,
+      opaqueBackgroundSuspected: asset.opaqueBackgroundSuspected,
+    }]),
+  );
+  const resolvedValidationIssues = validateFreeformPreRender(rawRequest, {
+    contracts,
+    formatProfile: profile,
+    fontRegistry: runtimeAssets.fontRegistry,
+    resolvedAssets: assetValidationMetadata,
+  });
+  const allIssues = sortAndDedupeIssues([
+    ...initialIssues,
+    ...resolvedAssetsResult.issues,
+    ...resolvedValidationIssues,
+  ]);
+  if (allIssues.some((entry) => entry.severity === "ERROR")) {
+    return emptyResult(allIssues, { formatProfileId });
+  }
   const assetDigests: Record<string, string> = { ...runtimeAssets.fontDigests };
   for (const asset of resolvedAssetsResult.assets.values()) assetDigests[asset.assetId] = asset.digest;
   let fingerprints: { pixelFingerprint: string; requestFingerprint: string } | undefined;
@@ -960,8 +1039,18 @@ export async function renderFreeform(
     });
   }
   const png = canvas.toBuffer("image/png");
-  const outputIssues = await validateRenderedPng(png, contracts);
-  const finalIssues = sortAndDedupeIssues([...sortedRenderIssues, ...outputIssues]);
+  const outputIssues = await validateRenderedPng(png, contracts, profile.canvas, "POST_RENDER");
+  const postRenderIssues = await validateFreeformPostRender({
+    contracts,
+    profile,
+    plan: defaults,
+    appliedElements,
+    resolvedAssets: assetValidationMetadata,
+    fontDigests: runtimeAssets.fontDigests,
+    png,
+    expectedArtifactChecksumSha256: sha256Bytes(png),
+  });
+  const finalIssues = sortAndDedupeIssues([...sortedRenderIssues, ...outputIssues, ...postRenderIssues]);
   if (finalIssues.some((entry) => entry.severity === "ERROR")) {
     return emptyResult(finalIssues, {
       formatProfileId,
@@ -993,7 +1082,7 @@ export async function renderFreeform(
       referenceFixture: runtimeAssets.referenceDigest,
       images: imageAssetDigests,
     },
-    formatProfileId,
+    ...(formatProfileId ? { formatProfileId } : {}),
     appliedElements,
     ...(fingerprints?.pixelFingerprint ? { pixelFingerprint: fingerprints.pixelFingerprint } : {}),
     ...(fingerprints?.requestFingerprint ? { requestFingerprint: fingerprints.requestFingerprint } : {}),
@@ -1009,8 +1098,8 @@ export async function renderFreeform(
     try {
       jobDirectory = await resolveTrustedJobDirectory(options.outputRoot, finalOutput.directory, finalOutput.baseName);
     } catch (error) {
-      return emptyResult([issue(contracts, "KBR-INPUT-009", "/output", { actual: error instanceof Error ? error.message : String(error) })], {
-        formatProfileId,
+      return emptyResult([issue(contracts, "KBR-INPUT-009", "/output", { actual: publicOutputFailure(error) })], {
+        formatProfileId: formatProfileId ?? null,
         ...(fingerprints ? { pixelFingerprint: fingerprints.pixelFingerprint, requestFingerprint: fingerprints.requestFingerprint } : {}),
       });
     }
@@ -1030,7 +1119,7 @@ export async function renderFreeform(
         manifestPath: published.manifestPath,
         pngPath: published.pngPath,
         downloadAllowed: true,
-        formatProfileId,
+        formatProfileId: formatProfileId ?? null,
         artifactChecksumSha256: pngDigest,
         pixelFingerprint: fingerprints?.pixelFingerprint ?? null,
         requestFingerprint: fingerprints?.requestFingerprint ?? null,
@@ -1041,7 +1130,7 @@ export async function renderFreeform(
       };
     } catch (error) {
       const code = error instanceof PublishError ? error.code : "KBR-SYSTEM-004";
-      return emptyResult([issue(contracts, code, "/output", { actual: error instanceof Error ? error.message : String(error) })], {
+      return emptyResult([issue(contracts, code, "/output", { actual: publicOutputFailure(error) })], {
         formatProfileId,
         ...(fingerprints ? { pixelFingerprint: fingerprints.pixelFingerprint, requestFingerprint: fingerprints.requestFingerprint } : {}),
       });
@@ -1055,7 +1144,7 @@ export async function renderFreeform(
     manifestPath: null,
     pngPath: null,
     downloadAllowed: false,
-    formatProfileId,
+    formatProfileId: formatProfileId ?? null,
     artifactChecksumSha256: pngDigest,
     pixelFingerprint: fingerprints?.pixelFingerprint ?? null,
     requestFingerprint: fingerprints?.requestFingerprint ?? null,

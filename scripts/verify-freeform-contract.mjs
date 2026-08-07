@@ -119,13 +119,18 @@ for (const entry of fontRegistry.entries ?? []) {
 
 const integrationErrors = await readJson("contracts/integration-error-registry.json");
 const requiredCodes = [
-  "KBR-FREEFORM-PLAN-MISSING", "KBR-FREEFORM-PLAN-SCHEMA-INVALID", "KBR-FREEFORM-FORMAT-PROFILE-MISMATCH", "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "KBR-FREEFORM-ELEMENT-ID-DUPLICATE", "KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED", "KBR-FREEFORM-BOUNDS-OUT-OF-RANGE", "KBR-FREEFORM-ZINDEX-INVALID", "KBR-FREEFORM-TEXT-COLOR-INVALID", "KBR-FREEFORM-TEXT-WRAP-NOT-SUPPORTED", "KBR-FREEFORM-TEXT-OVERFLOW", "KBR-FONT-NOT-REGISTERED", "KBR-FONT-ASSET-MISSING", "KBR-FONT-ASSET-DIGEST-MISMATCH", "KBR-FREEFORM-IMAGE-ASSET-NOT-FOUND", "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", "KBR-FREEFORM-BACKGROUND-COLOR-INVALID", "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED",
+  "KBR-FREEFORM-PLAN-MISSING", "KBR-FREEFORM-PLAN-SCHEMA-INVALID", "KBR-FREEFORM-FORMAT-PROFILE-MISMATCH", "KBR-FREEFORM-FORMAT-PROFILE-NOT-FOUND", "KBR-FREEFORM-LAYOUT-MODE-MISMATCH", "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "KBR-FREEFORM-ELEMENT-ID-DUPLICATE", "KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED", "KBR-FREEFORM-BOUNDS-OUT-OF-RANGE", "KBR-FREEFORM-ZINDEX-INVALID", "KBR-FREEFORM-TEXT-COLOR-INVALID", "KBR-FREEFORM-TEXT-WRAP-NOT-SUPPORTED", "KBR-FREEFORM-TEXT-OVERFLOW", "KBR-FONT-NOT-REGISTERED", "KBR-FONT-ASSET-MISSING", "KBR-FONT-ASSET-DIGEST-MISMATCH", "KBR-FREEFORM-IMAGE-ASSET-NOT-FOUND", "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", "KBR-FREEFORM-BACKGROUND-COLOR-INVALID", "KBR-FREEFORM-BACKGROUND-TYPE-NOT-SUPPORTED", "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "KBR-FREEFORM-APPLIED-RECT-MISMATCH", "KBR-FREEFORM-APPLIED-ELEMENT-MISMATCH", "KBR-FREEFORM-VALIDATION-INTERNAL-MISMATCH", "KBR-LOGO-ALPHA-REQUIRED", "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "KBR-LOGO-EMPTY",
 ];
 const codes = new Set(integrationErrors.codes.map((entry) => entry.code));
 if (requiredCodes.every((code) => codes.has(code))) pass("error_registry", `${requiredCodes.length} FREEFORM codes registered`);
 else fail("error_registry", requiredCodes.filter((code) => !codes.has(code)).join(", "));
 if (codes.size === integrationErrors.codes.length) pass("error_code_uniqueness", `${codes.size}/${codes.size} integration codes unique`);
 else fail("error_code_uniqueness", "duplicate integration code found");
+
+const coreErrors = await readJson("contracts/error-registry.json");
+const coreCodes = new Set(coreErrors.codes.map((entry) => entry.code));
+if (requiredCodes.every((code) => coreCodes.has(code))) pass("core_error_registry", `${requiredCodes.length} FREEFORM codes mirrored in Core Error Registry`);
+else fail("core_error_registry", requiredCodes.filter((code) => !coreCodes.has(code)).join(", "));
 
 const canonicalization = JSON.stringify(await readJson("fixtures/freeform/creative-layout-plan-v1/agent.json"));
 if (!canonicalization.includes("imageSlotId")) pass("freeform_no_template_slot", "FREEFORM fixtures contain no imageSlotId");

@@ -2855,3 +2855,73 @@ F1의 상세 실행 계약과 Acceptance mapping은
 `docs/implementation/freeform-core-raster-v1.md` 및
 `tests/freeform-core/freeform-core.test.ts`에 고정한다. 이 구현은 카카오의 공식
 FREEFORM 업로드 승인이나 Native 1200 규격을 보장하지 않는다. **[PROJECT]**
+
+## 28. Phase F2 — FREEFORM Validator & Compliance Hardening [PROJECT]
+
+F2는 F0/F1의 FREEFORM 의미와 버전을 변경하지 않고 검증 경계를 명시한다. Validator는
+매체·FormatProfile·Input/Plan·Asset·Raster artifact의 계약 준수만 검사하며 디자인 평가기,
+자동 Layout 생성기, 미적 QA가 아니다. 제품이 충분히 커 보이는지, 카피가 예쁜지, 로고가
+눈에 띄는지, 구도가 좋은지와 같은 판단은 검증하지 않는다. **[PROJECT]**
+
+### 28.1 Staged validation and fail-closed gate [PROJECT]
+
+공개 FREEFORM 실행 순서는 다음으로 고정한다.
+
+```text
+Input shape/schema → FormatProfile/LayoutMode → Plan/elements → assets/fonts
+→ PRE_RENDER gate → raster → PNG/appliedElements/checksum POST_RENDER
+→ atomic publish
+```
+
+모든 FREEFORM Issue에는 실행 결과에서 `stage: PRE_RENDER` 또는
+`stage: POST_RENDER`가 부여된다. PRE_RENDER `ERROR`가 하나라도 있으면 raster 호출,
+PNG encode, staging artifact, publish, download를 실행하지 않는다. POST_RENDER `ERROR`도
+동일하게 publish/download를 차단한다. Issue는 severity, stage, input path, code,
+message key와 식별자 기준으로 deterministic sort/dedupe하며 AJV 원문 메시지를 외부
+계약으로 노출하지 않는다. **[PROJECT]**
+
+### 28.2 Plan, profile, asset, and unsupported features [PROJECT]
+
+FormatProfile ID는 request, CreativeLayoutPlan, loaded registry에서 exact equality여야
+하고 `layoutMode`는 FREEFORM, canvas와 PNG capability가 구현 상태여야 한다. Plan의
+schemaVersion, unknown property, unique element ID, normalized bounds, integer zIndex,
+background(`TRANSPARENT`/`SOLID`와 `#RRGGBB`/`#RRGGBBAA`)를 검증한다. MIME signature,
+decode, dimensions, declared checksum/dimensions, trusted asset resolution을 검증하며
+absolute path는 Issue payload에 넣지 않는다. IMAGE placement는 정책과 fit/crop 관계를
+그대로 검사하고 crop/focal/candidate를 자동 생성·보정하지 않는다. ALPHA_TRIM_CONTAIN은
+alpha channel이 없는 자산을 거부한다. **[PROJECT]**
+
+LOGO는 alpha PNG, layout-visible pixel, 투명 배경 조건을 요구하지만 색상은 제한하지
+않는다. 등록된 Font ID와 SHA-256이 일치하는 asset만 사용하며 system/remote fallback은
+금지한다. `NO_WRAP`과 `EXPLICIT_NEWLINES`만 실행하고 `WORD_WRAP`, `SHAPE` raster,
+`JPG` output은 PRE_RENDER에서 명시적 ERROR로 fail closed한다. Text `ERROR` overflow는
+raster ink 기준 POST_RENDER ERROR, `CLIP` overflow는 deterministic clip과
+`overflowDetected`/`clipped` evidence로 기록한다. **[PROJECT]**
+
+### 28.3 Applied evidence and artifact integrity [PROJECT] [DERIVED]
+
+`appliedElements`는 raster path가 실제 적용한 단일 값의 source of truth다. Element ID/type,
+normalized bounds, zIndex/order, opacity, destination pixel rect, asset/font digest,
+placement/crop, text metrics/color/wrap/overflow evidence를 검증한다. Pixel rect는
+canvas 안의 양의 정수 rect이고 normalized 변환 및 실제 crop 결과와 일치해야 한다.
+PNG signature/decode, FormatProfile canvas dimensions, RGBA 8-bit IHDR, non-zero bytes와
+artifact checksum을 POST_RENDER에서 재검증한다. 기존 `validateRenderedPng`와 atomic
+staging publisher는 Template 경로의 의미와 Golden bytes를 변경하지 않는다. **[PROJECT]
+[DERIVED]**
+
+### 28.4 Version and boundary record [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.10.0 | 1.10.0 | F2는 frozen contract의 검증 구현만 추가 |
+| Integration Contract | 1.5.0 | 1.5.0 | stage/applied evidence는 additive runtime metadata |
+| CreativeLayoutPlan | 1.0.0 | 1.0.0 | Plan 의미 불변 |
+| Template Contract | 1.6.0 | 1.6.0 | Template 좌표·Golden 불변 |
+| Desktop | 0.7.1 | 0.7.1 | UI와 FREEFORM Lab 제외 |
+
+F2의 구현 상세와 acceptance는
+`docs/implementation/freeform-validator-v1.md`,
+`tests/freeform-validator/freeform-validator.test.ts`,
+`contracts/contract-versions.json`의 `canonicalPhaseF2`에 기록한다. 이 단계는 공식
+카카오 FREEFORM 업로드 승인, Native 1200 dimensions, 또는 디자인 적합성을 보장하지
+않는다. **[PROJECT]**

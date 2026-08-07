@@ -197,6 +197,9 @@
         "messageKey": {
           "type": "string"
         },
+        "stage": {
+          "enum": ["PRE_RENDER", "POST_RENDER"]
+        },
         "imageSlotId": {
           "type": "string"
         },
@@ -207,6 +210,9 @@
           "type": "string"
         },
         "elementId": {
+          "type": "string"
+        },
+        "formatProfileId": {
           "type": "string"
         },
         "expected": true,

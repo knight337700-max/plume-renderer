@@ -26,6 +26,17 @@ export {
 export type { ImageInputErrorCode, ImageInputMetadata, InspectedImage, SupportedInputMimeType } from "./image-input.js";
 export { inspectPngIhdr, renderRgbaPng, validateRenderedPng } from "./raster.js";
 export {
+  validateFreeformAppliedElements,
+  validateFreeformPostRender,
+  validateFreeformPreRender,
+  validationIssuesHaveStage,
+} from "./freeform-validator.js";
+export type {
+  FreeformAssetValidationMetadata,
+  FreeformPostRenderValidationOptions,
+  FreeformPreRenderValidationOptions,
+} from "./freeform-validator.js";
+export {
   renderThumbnailBoxRight,
   THUMBNAIL_BOX_RIGHT_RADIUS,
   THUMBNAIL_BOX_RIGHT_SLOT,
@@ -63,6 +74,7 @@ export type {
   BBox,
   CanonicalInput,
   FreeformAppliedElement,
+  FreeformValidationIssue,
   KakaoBizboardInputV1,
   LayoutMeasurements,
   RenderManifest,
@@ -72,6 +84,7 @@ export type {
   TextLimitStatus,
   TextMeasurement,
   ValidationIssue,
+  ValidationStage,
 } from "./types.js";
 export type {
   FreeformAssetInput,

@@ -210,10 +210,19 @@
         "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
         "assetId": { "type": "string", "minLength": 1 },
         "assetDigest": { "$ref": "#/$defs/sha256" },
+        "placementPolicy": { "enum": ["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"] },
+        "fitMode": { "enum": ["CONTAIN", "COVER"] },
         "requestedCropRect": { "$ref": "#/$defs/normalizedRect" },
         "resolvedSourceCropPixels": { "$ref": "#/$defs/pixelRect" },
         "fontId": { "type": "string", "minLength": 1 },
-        "fontAssetDigest": { "$ref": "#/$defs/sha256" }
+        "fontAssetDigest": { "$ref": "#/$defs/sha256" },
+        "fontSizePx": { "type": "number", "exclusiveMinimum": 0 },
+        "lineHeightPx": { "type": "number", "exclusiveMinimum": 0 },
+        "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$" },
+        "wrapMode": { "enum": ["NO_WRAP", "EXPLICIT_NEWLINES", "WORD_WRAP"] },
+        "overflowMode": { "enum": ["ERROR", "CLIP"] },
+        "overflowDetected": { "type": "boolean" },
+        "clipped": { "type": "boolean" }
       }
     },
     "normalizedRect": {
@@ -264,10 +273,14 @@
         "messageKey": {
           "type": "string"
         },
+        "stage": {
+          "enum": ["PRE_RENDER", "POST_RENDER"]
+        },
         "imageSlotId": { "type": "string" },
         "slotRole": { "enum": ["IMAGE", "LOGO"] },
         "assetId": { "type": "string" },
         "elementId": { "type": "string" },
+        "formatProfileId": { "type": "string" },
         "expected": true,
         "actual": true,
         "bbox": {

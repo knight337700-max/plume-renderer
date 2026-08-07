@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.10.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.5.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0` 계약을 동결했다. F1에서 FREEFORM Core Raster는 내부 `KBR_FREEFORM_CONTRACT_TEST_1029X258` Profile에 한해 PNG 실행을 지원하며, Native 1200·JPG·Shape Raster·WORD_WRAP·UI 편집은 구현하지 않는다.
+Canonical 계약 `1.10.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.5.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0` 계약을 동결했다. F1에서 FREEFORM Core Raster는 내부 `KBR_FREEFORM_CONTRACT_TEST_1029X258` Profile에 한해 PNG 실행을 지원하고, F2에서 PRE_RENDER/POST_RENDER Validator와 applied-element 무결성을 하드닝했다. Native 1200·JPG·Shape Raster·WORD_WRAP·UI 편집은 구현하지 않는다.
 
 ## 요구 환경
 
@@ -20,6 +20,10 @@ pnpm check
 `pnpm check`는 기존 계약과 Integration Contract 무결성, TypeScript, lint, Core·Desktop build, 단위·통합·보안·Golden·Electron E2E 테스트를 순서대로 실행한다. Integration 전용 검증은 `pnpm test:integration-contract`다.
 
 FREEFORM Contract 전용 검증은 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`다. F1 Core Raster 검증은 `pnpm test:freeform-core`이며 기존 Template Golden 회귀와 함께 실행한다.
+
+F2 Validator 검증은 `pnpm test:freeform-validator`다. PRE_RENDER ERROR는 raster/PNG/publish를
+실행하지 않고, POST_RENDER ERROR는 publish/download를 차단한다. Validator는 계약·매체
+artifact만 검사하며 미적 평가나 자동 보정을 하지 않는다.
 
 ## Desktop 실행
 
@@ -91,7 +95,9 @@ Template `imageSlotId` 없이 `CreativeLayoutPlan`의 normalized Element bounds�
 dimensions가 확정될 때까지 `CATALOG_NOT_READY`다. F1은 내부 테스트 Profile에서만
 normalized bounds, stable zIndex, IMAGE/TEXT/LOGO Raster, appliedElements, fingerprints,
 atomic PNG publish를 실행한다. FREEFORM JPG/Shape raster/WORD_WRAP/Drag UI는 후속
-Phase다.
+Phase다. F2는 `src/core/freeform-validator.ts`에서 staged validation, asset/logo/text
+compliance, PNG/appliedElements/checksum integrity를 추가했으며 버전과 F1/Template
+Golden bytes는 유지한다.
 - 동일 output root의 staging을 통한 manifest-first / PNG-last publish
 
 ## Integration Contract

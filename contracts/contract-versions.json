@@ -253,5 +253,26 @@
     "freeformRasterImplementationStatus": "IMPLEMENTED_TEST_PROFILE_ONLY",
     "native1200Status": "CATALOG_NOT_READY",
     "deferred": ["WORD_WRAP", "SHAPE_RASTER", "JPG_OUTPUT"]
+  },
+  "canonicalPhaseF2": {
+    "documentPrevious": "1.10.0",
+    "documentCurrent": "1.10.0",
+    "documentBump": "none",
+    "documentReason": "FREEFORM Validator and Compliance Hardening preserves the frozen F0/F1 contract and adds runtime stage and integrity checks",
+    "templateContractVersion": "1.6.0",
+    "templateCoordinatesChanged": false,
+    "integrationContractPrevious": "1.5.0",
+    "integrationContractCurrent": "1.5.0",
+    "integrationContractBump": "none",
+    "integrationContractReason": "Validator-stage metadata and applied-element evidence remain additive and do not change the public input/output meaning",
+    "creativeLayoutPlanVersion": "1.0.0",
+    "desktopPrevious": "0.7.1",
+    "desktopCurrent": "0.7.1",
+    "desktopBump": "none",
+    "desktopReason": "F2 does not implement Desktop UI changes",
+    "freeformRasterImplementationStarted": true,
+    "freeformValidatorImplementationStatus": "HARDENED_PRE_RENDER_POST_RENDER",
+    "native1200Status": "CATALOG_NOT_READY",
+    "deferred": ["WORD_WRAP", "SHAPE_RASTER", "JPG_OUTPUT", "FREEFORM_LAB_UI"]
   }
 }

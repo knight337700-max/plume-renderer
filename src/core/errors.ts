@@ -1,9 +1,14 @@
-import type { ErrorRegistryEntry, Severity, ValidationIssue } from "./types.js";
+import type { ErrorRegistryEntry, Severity, ValidationIssue, ValidationStage } from "./types.js";
 
 const severityRank: Readonly<Record<Severity, number>> = {
   ERROR: 0,
   WARNING: 1,
   INFO: 2,
+};
+
+const stageRank: Readonly<Record<ValidationStage, number>> = {
+  PRE_RENDER: 0,
+  POST_RENDER: 1,
 };
 
 export function createIssue(
@@ -14,8 +19,10 @@ export function createIssue(
     expected?: unknown;
     actual?: unknown;
     bbox?: ValidationIssue["bbox"];
-    elementId?: string;
-    assetId?: string;
+    elementId?: string | undefined;
+    assetId?: string | undefined;
+    formatProfileId?: string | undefined;
+    stage?: ValidationStage;
   } = {},
 ): ValidationIssue {
   const entry = registry.get(code);
@@ -31,19 +38,22 @@ export function createIssue(
   if (detail.bbox !== undefined) issue.bbox = detail.bbox;
   if (detail.elementId !== undefined) issue.elementId = detail.elementId;
   if (detail.assetId !== undefined) issue.assetId = detail.assetId;
+  if (detail.formatProfileId !== undefined) issue.formatProfileId = detail.formatProfileId;
+  if (detail.stage !== undefined) issue.stage = detail.stage;
   return issue;
 }
 
 export function sortAndDedupeIssues(issues: readonly ValidationIssue[]): ValidationIssue[] {
   const sorted = [...issues].sort((left, right) =>
     severityRank[left.severity] - severityRank[right.severity] ||
+    (left.stage && right.stage ? stageRank[left.stage] - stageRank[right.stage] : left.stage ? -1 : right.stage ? 1 : 0) ||
     left.path.localeCompare(right.path, "en") ||
     left.code.localeCompare(right.code, "en") ||
     left.messageKey.localeCompare(right.messageKey, "en"),
   );
   const seen = new Set<string>();
   return sorted.filter((issue) => {
-    const key = `${issue.severity}\u0000${issue.path}\u0000${issue.code}\u0000${issue.messageKey}`;
+    const key = `${issue.severity}\u0000${issue.stage ?? ""}\u0000${issue.path}\u0000${issue.code}\u0000${issue.messageKey}\u0000${issue.elementId ?? ""}\u0000${issue.assetId ?? ""}\u0000${issue.formatProfileId ?? ""}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;

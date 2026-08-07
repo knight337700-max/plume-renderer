@@ -61,3 +61,21 @@ F1 uses the existing RGBA PNG encoder and atomic staging publisher. It writes a 
 only after validation has zero errors; the manifest contains `appliedElements`,
 `pixelFingerprint`, and `requestFingerprint`, but never a digest of itself. Any validation
 error returns a blocked response and leaves no final PNG or manifest.
+
+## F2 validator and evidence boundary
+
+```text
+FREEFORM request
+  ├─ PRE_RENDER: shape/profile/plan/assets/fonts/unsupported features
+  │    └─ ERROR → no raster, no PNG, no staging/publish/download
+  ├─ raster (F1 path)
+  └─ POST_RENDER: PNG IHDR/decode/appliedElements/pixel rect/checksum
+       └─ ERROR → no publish/download
+```
+
+`src/core/freeform-validator.ts` owns the staged validation primitives. The raster path
+creates `appliedElements` and the POST_RENDER validator checks that same evidence; it does not
+reconstruct a second layout. All FREEFORM issues carry a stage and stable KBR code. Absolute
+filesystem paths, AJV-native prose, aesthetic warnings, auto layout, clamp, crop inference,
+font fallback and auto-shrink are outside the boundary. Legacy TEMPLATE_LOCKED dispatch and
+Golden bytes are not routed through the new stage metadata by default.

@@ -1,5 +1,7 @@
 export type Severity = "ERROR" | "WARNING" | "INFO";
 
+export type ValidationStage = "PRE_RENDER" | "POST_RENDER";
+
 export type BBox = {
   x: number;
   y: number;
@@ -12,6 +14,7 @@ export type ValidationIssue = {
   severity: Severity;
   path: string;
   messageKey: string;
+  stage?: ValidationStage;
   expected?: unknown;
   actual?: unknown;
   bbox?: BBox | null;
@@ -19,6 +22,11 @@ export type ValidationIssue = {
   slotRole?: "IMAGE" | "LOGO";
   assetId?: string;
   elementId?: string;
+  formatProfileId?: string;
+};
+
+export type FreeformValidationIssue = Omit<ValidationIssue, "stage"> & {
+  stage: ValidationStage;
 };
 
 export type FreeformAppliedElement = {
@@ -45,6 +53,15 @@ export type FreeformAppliedElement = {
   resolvedSourceCropPixels?: BBox;
   fontId?: string;
   fontAssetDigest?: string;
+  placementPolicy?: "ALPHA_TRIM_CONTAIN" | "CENTER_CONTAIN" | "SEMANTIC_CROP_COVER" | "MANUAL_CROP";
+  fitMode?: "CONTAIN" | "COVER";
+  fontSizePx?: number;
+  lineHeightPx?: number;
+  color?: string;
+  wrapMode?: "NO_WRAP" | "EXPLICIT_NEWLINES" | "WORD_WRAP";
+  overflowMode?: "ERROR" | "CLIP";
+  overflowDetected?: boolean;
+  clipped?: boolean;
 };
 
 export type TextLimitStatus = "PASS" | "WARNING" | "ERROR";
