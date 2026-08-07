@@ -53,7 +53,7 @@ async function execute(input: RendererIntegrationInputV1, logoPath = validLogo) 
 }
 
 describe("MASK_SEMICIRCLE_RIGHT integration execution", () => {
-  it("renders the analytic mask with ordered image and black logo placements", async () => {
+  it("renders the restored semicircle with ordered image and color-unrestricted logo overlay", async () => {
     const result = await execute(await loadInput());
     expect(result.status).toBe("PASS");
     expect(result.appliedImagePlacements.map((placement) => placement.imageSlotId)).toEqual(["IMAGE_PRIMARY", "LOGO_PRIMARY"]);
@@ -65,7 +65,6 @@ describe("MASK_SEMICIRCLE_RIGHT integration execution", () => {
     expect(logoPlacement.destinationRect.y).toBeGreaterThanOrEqual(24);
     expect(logoPlacement.destinationRect.x + logoPlacement.destinationRect.width).toBeLessThanOrEqual(973);
     expect(logoPlacement.destinationRect.y + logoPlacement.destinationRect.height).toBeLessThanOrEqual(68);
-    expect(logoPlacement.blackValidation).toBe("PASS");
     expect(result.appliedImagePlacements[0]?.maskAssetId).toBe(MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID);
     expect(result.artifact?.mimeType).toBe("image/png");
     expect(result.artifact?.width).toBe(1029);
@@ -84,8 +83,15 @@ describe("MASK_SEMICIRCLE_RIGHT integration execution", () => {
   });
 
   it.each([
-    ["colored", "fixtures/invalid/mask-semicircle-right__logo__colored__error.png", "KBR-LOGO-COLOR-NOT-BLACK"],
-    ["white", "fixtures/invalid/mask-semicircle-right__logo__white__error.png", "KBR-LOGO-COLOR-NOT-BLACK"],
+    ["colored", "fixtures/valid/mask-semicircle-right__logo__colored__pass.png"],
+    ["white", "fixtures/valid/mask-semicircle-right__logo__white__pass.png"],
+  ] as const)("accepts %s transparent logo colors without recoloring", async (_name, relativePath) => {
+    const result = await execute(await loadInput(), path.join(root, relativePath));
+    expect(result.status).toBe("PASS");
+    expect(result.appliedImagePlacements.map((placement) => placement.imageSlotId)).toEqual(["IMAGE_PRIMARY", "LOGO_PRIMARY"]);
+  });
+
+  it.each([
     ["opaque", "fixtures/invalid/mask-semicircle-right__logo__opaque-background__error.png", "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED"],
     ["empty", "fixtures/invalid/mask-semicircle-right__logo__empty__error.png", "KBR-LOGO-EMPTY"],
   ] as const)("blocks %s logos deterministically", async (_name, relativePath, code) => {
@@ -93,6 +99,18 @@ describe("MASK_SEMICIRCLE_RIGHT integration execution", () => {
     expect(result.status).toBe("BLOCKED");
     expect(result.artifact).toBeUndefined();
     expect(result.validation.errors.map((entry) => entry.code)).toContain(code);
+  });
+
+  it("blocks crop rect and crop candidate fields on the logo plan", async () => {
+    const input = await loadInput();
+    const logoPlan = input.imagePlacementPlans.find((plan) => plan.imageSlotId === "LOGO_PRIMARY");
+    if (!logoPlan) throw new Error("Logo plan is missing");
+    const cropRectResult = await execute({ ...input, imagePlacementPlans: input.imagePlacementPlans.map((plan) => plan.imageSlotId === "LOGO_PRIMARY" ? { ...plan, cropRect: { x: 0, y: 0, width: 1, height: 1 } } : plan) });
+    expect(cropRectResult.status).toBe("BLOCKED");
+    expect(cropRectResult.validation.errors.map((entry) => entry.code)).toContain("KBR-CROP-RECT-FORBIDDEN");
+    const candidateResult = await execute({ ...input, cropCandidates: [{ schemaVersion: input.schemaVersion, candidateId: "logo-candidate", assetId: "mask-logo", imageSlotId: "LOGO_PRIMARY", cropRect: { x: 0, y: 0, width: 1, height: 1 }, preservedSubjectIds: [], clippedSubjectIds: [], fillRatio: 1, subjectCoverageRatio: 1, warnings: [] }], imagePlacementPlans: input.imagePlacementPlans.map((plan) => plan.imageSlotId === "LOGO_PRIMARY" ? { ...plan, cropCandidateId: "logo-candidate" } : plan) });
+    expect(candidateResult.status).toBe("BLOCKED");
+    expect(candidateResult.validation.errors.map((entry) => entry.code)).toContain("KBR-CROP-CANDIDATE-MISMATCH");
   });
 
   it("allows a missing optional logo plan when no second asset is supplied", async () => {

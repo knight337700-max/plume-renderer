@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { GlobalFonts } from "@napi-rs/canvas";
+import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
 import { MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID, MASK_SEMICIRCLE_RIGHT_MASK_ASSET_SHA256, renderWithIntegrationAdapter, type RendererIntegrationInputV1 } from "../../packages/renderer-contract/src/index.js";
@@ -14,7 +15,7 @@ GlobalFonts.registerFromPath(path.join(root, "assets/fonts/SpoqaHanSansBold.ttf"
 GlobalFonts.registerFromPath(path.join(root, "assets/fonts/SpoqaHanSansRegular.ttf"), "KBR Spoqa Han Sans Regular");
 const inputPath = path.join(root, "fixtures/integration/mask-semicircle-right/valid-black-logo-pass/input.json");
 const goldenPath = path.join(root, "fixtures/golden/mask-semicircle-right__valid__golden.png");
-const expectedHash = "dca6aa2db0c6593fcedb23dfee5a4d625356c3e8d75083e604c9866f45f530d2";
+const expectedHash = "ad5448b368badcf1e5c304dadb8a93d3cbf4fab6f2e4d7d90334a44628d7d145";
 
 async function renderOnce(input: RendererIntegrationInputV1): Promise<Buffer> {
   const files = new Map<string, string>([
@@ -43,6 +44,13 @@ async function renderOnce(input: RendererIntegrationInputV1): Promise<Buffer> {
 }
 
 describe("MASK_SEMICIRCLE_RIGHT Windows x64 golden", () => {
+  it("uses the restored circle arc without a logo cutout", async () => {
+    const raw = await sharp(path.join(root, "assets/masks/kakao-bizboard-mask-semicircle-right-v1.png")).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const alpha = (x: number, y: number) => raw.data[(y * raw.info.width + x) * raw.info.channels + raw.info.channels - 1] ?? 0;
+    expect(alpha(850, 60)).toBeGreaterThan(0);
+    expect(alpha(981, 200)).toBe(0);
+  });
+
   it("produces byte-equal PNG across three executions", async () => {
     const input = JSON.parse(await readFile(inputPath, "utf8")) as RendererIntegrationInputV1;
     const [one, two, three] = await Promise.all([renderOnce(input), renderOnce(input), renderOnce(input)]);

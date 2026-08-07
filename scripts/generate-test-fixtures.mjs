@@ -13,8 +13,8 @@ await Promise.all([
 
 const maskImage = path.join(validDirectory, "mask-semicircle-right__image__basic__pass.png");
 const maskLogo = path.join(validDirectory, "mask-semicircle-right__logo__black__pass.png");
-const maskLogoWhite = path.join(invalidDirectory, "mask-semicircle-right__logo__white__error.png");
-const maskLogoColored = path.join(invalidDirectory, "mask-semicircle-right__logo__colored__error.png");
+const maskLogoWhite = path.join(validDirectory, "mask-semicircle-right__logo__white__pass.png");
+const maskLogoColored = path.join(validDirectory, "mask-semicircle-right__logo__colored__pass.png");
 const maskLogoOpaque = path.join(invalidDirectory, "mask-semicircle-right__logo__opaque-background__error.png");
 const maskLogoEmpty = path.join(invalidDirectory, "mask-semicircle-right__logo__empty__error.png");
 

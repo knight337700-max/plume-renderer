@@ -52,8 +52,8 @@ for (const schema of schemas) {
 if (missingAdditional.length === 0) pass("additional_properties", "all object schemas explicitly reject unknown fields");
 else fail("additional_properties", missingAdditional.join(", "));
 
-if (schemas.every((schema) => JSON.stringify(schema).includes("1.3.0"))) pass("schema_versioning", "all Integration Contract schemas declare v1.3.0");
-else fail("schema_versioning", "one or more schemas do not declare v1.3.0");
+if (schemas.every((schema) => JSON.stringify(schema).includes("1.4.0"))) pass("schema_versioning", "all Integration Contract schemas declare v1.4.0");
+else fail("schema_versioning", "one or more schemas do not declare v1.4.0");
 
 const registry = await readJson(path.join(root, "contracts", "integration-error-registry.json"));
 const registryCodes = registry.codes.map((entry) => entry.code);
@@ -62,14 +62,14 @@ else fail("error_code_uniqueness", "duplicate integration error code found");
 
 const requiredCodes = [
   "KBR-PLACEMENT-PLAN-MISSING", "KBR-PLACEMENT-POLICY-NOT-ALLOWED", "KBR-PLACEMENT-PLAN-DUPLICATE", "KBR-ASSET-NOT-FOUND", "KBR-ASSET-UNUSED", "KBR-ASSET-CHECKSUM-MISMATCH", "KBR-ASSET-DIMENSION-MISMATCH", "KBR-ASSET-MIME-NOT-ALLOWED", "KBR-ASSET-MIME-EXTENSION-MISMATCH", "KBR-IMAGE-SLOT-NOT-FOUND", "KBR-IMAGE-SLOT-ASSET-COUNT", "KBR-CROP-RECT-REQUIRED", "KBR-CROP-RECT-FORBIDDEN", "KBR-CROP-RECT-OUT-OF-BOUNDS", "KBR-CROP-CANDIDATE-NOT-FOUND", "KBR-CROP-CANDIDATE-MISMATCH", "KBR-FOCAL-POINT-OUT-OF-BOUNDS", "KBR-PROTECTED-SUBJECT-CLIPPED", "KBR-PROTECTED-SUBJECT-DATA-MISSING", "KBR-ALPHA-CHANNEL-REQUIRED", "KBR-ALPHA-TRIM-FAILED", "KBR-IMAGE-DECODE-FAILED", "KBR-IMAGE-DIMENSION-INVALID", "KBR-EXIF-ORIENTATION-INVALID", "KBR-IMAGE-SLOT-OVERFLOW", "KBR-TEMPLATE-CONSTRAINT-VIOLATION", "KBR-TEXT-COUNT-HEADLINE-001", "KBR-TEXT-COUNT-SUBCOPY-001", "KBR-TEXT-004", "KBR-TEXT-005", "KBR-TEXT-WIDTH-HEADLINE-W001", "KBR-TEXT-WIDTH-SUBCOPY-W001", "KBR-SEMANTIC-PLACEMENT-REQUIRED", "KBR-OUTPUT-INVALID", "KBR-ASSET-REF-UNRESOLVED",
-  "KBR-LOGO-ASSET-MISSING", "KBR-LOGO-PLAN-MISSING", "KBR-LOGO-ALPHA-REQUIRED", "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "KBR-LOGO-COLOR-NOT-BLACK", "KBR-LOGO-EMPTY", "KBR-LOGO-SLOT-OVERFLOW", "KBR-LOGO-UPSCALE-LIMIT", "KBR-LOGO-ASSET-DUPLICATE", "KBR-MASK-ASSET-MISSING", "KBR-MASK-ASSET-DIGEST-MISMATCH",
+  "KBR-LOGO-ASSET-MISSING", "KBR-LOGO-PLAN-MISSING", "KBR-LOGO-ALPHA-REQUIRED", "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "KBR-LOGO-EMPTY", "KBR-LOGO-SLOT-OVERFLOW", "KBR-LOGO-UPSCALE-LIMIT", "KBR-LOGO-ASSET-DUPLICATE", "KBR-MASK-ASSET-MISSING", "KBR-MASK-ASSET-DIGEST-MISMATCH",
 ];
 if (requiredCodes.every((code) => registryCodes.includes(code))) pass("required_error_codes", `${requiredCodes.length}/${requiredCodes.length} required integration codes registered`);
 else fail("required_error_codes", "one or more required integration codes missing");
 
 const contract = await readJson(path.join(root, "contracts", "contract-versions.json"));
-if (contract.templateContractVersion === "1.5.0") pass("template_contract", "templateContractVersion is 1.5.0");
-else fail("template_contract", `expected 1.5.0, got ${contract.templateContractVersion}`);
+if (contract.templateContractVersion === "1.6.0") pass("template_contract", "templateContractVersion is 1.6.0");
+else fail("template_contract", `expected 1.6.0, got ${contract.templateContractVersion}`);
 
 const capabilities = await readJson(path.join(root, "contracts", "template-capabilities.json"));
 const enabled = capabilities.capabilities.filter((entry) => entry.implementationStatus === "IMPLEMENTED").map((entry) => entry.formatProfileId);
@@ -83,7 +83,7 @@ const multiCapability = capabilities.capabilities.find((entry) => entry.formatPr
 if (multiCapability?.implementationStatus === "IMPLEMENTED" && JSON.stringify(multiCapability.imageSlotIds) === JSON.stringify(["IMAGE_PRIMARY", "IMAGE_SECONDARY"]) && JSON.stringify(multiCapability.allowedInputMimeTypes) === JSON.stringify(["image/png", "image/jpeg"]) && multiCapability.minimumAssets === 1 && multiCapability.maximumAssets === 2 && multiCapability.requiredPlacementPlans === 2) pass("multi_slot_capability", "THUMBNAIL_MULTI_RIGHT has two required slots and PNG/JPEG 1..2 asset range");
 else fail("multi_slot_capability", "THUMBNAIL_MULTI_RIGHT capability metadata mismatch");
 const maskCapability = capabilities.capabilities.find((entry) => entry.formatProfileId === "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT");
-if (maskCapability?.implementationStatus === "IMPLEMENTED" && JSON.stringify(maskCapability.imageSlotIds) === JSON.stringify(["IMAGE_PRIMARY", "LOGO_PRIMARY"]) && maskCapability.minimumAssets === 1 && maskCapability.maximumAssets === 2 && maskCapability.requiredPlacementPlans === 1 && maskCapability.slotCapabilities?.find((entry) => entry.slotId === "IMAGE_PRIMARY")?.required === true && maskCapability.slotCapabilities?.find((entry) => entry.slotId === "LOGO_PRIMARY")?.required === false && maskCapability.slotCapabilities?.find((entry) => entry.slotId === "LOGO_PRIMARY")?.blackMonochromeRequired === true) pass("mask_slot_capability", "MASK_SEMICIRCLE_RIGHT has required image and optional black logo capability");
+if (maskCapability?.implementationStatus === "IMPLEMENTED" && JSON.stringify(maskCapability.imageSlotIds) === JSON.stringify(["IMAGE_PRIMARY", "LOGO_PRIMARY"]) && maskCapability.minimumAssets === 1 && maskCapability.maximumAssets === 2 && maskCapability.requiredPlacementPlans === 1 && maskCapability.slotCapabilities?.find((entry) => entry.slotId === "IMAGE_PRIMARY")?.required === true && maskCapability.slotCapabilities?.find((entry) => entry.slotId === "LOGO_PRIMARY")?.required === false && maskCapability.slotCapabilities?.find((entry) => entry.slotId === "LOGO_PRIMARY")?.colorRestriction === "NONE" && !Object.prototype.hasOwnProperty.call(maskCapability.slotCapabilities?.find((entry) => entry.slotId === "LOGO_PRIMARY") ?? {}, "blackMonochromeRequired")) pass("mask_slot_capability", "MASK_SEMICIRCLE_RIGHT has required image and optional color-unrestricted overlay logo capability");
 else fail("mask_slot_capability", "MASK_SEMICIRCLE_RIGHT capability metadata mismatch");
 
 const fixtureDirectories = [
@@ -127,7 +127,7 @@ for (const directory of multiFixtureDirectories) {
 }
 if (missingMultiFixtures.length === 0) pass("thumbnail_multi_fixture_layout", `${multiFixtureDirectories.length}/${multiFixtureDirectories.length} THUMBNAIL_MULTI_RIGHT fixture directories present`);
 else fail("thumbnail_multi_fixture_layout", missingMultiFixtures.join(", "));
-const maskFixtureDirectories = ["valid-black-logo-pass", "jpeg-image-no-logo-pass", "jpeg-image-black-logo-pass", "logo-missing-plan-error", "logo-plan-missing-asset-error", "colored-logo-error", "white-logo-error", "opaque-logo-error", "empty-logo-error", "logo-crop-forbidden-error", "logo-upscale-error", "image-missing-error", "required-subject-clipped-error", "mask-digest-error", "plan-order-equivalence", "manual-agent-equivalence"];
+const maskFixtureDirectories = ["valid-black-logo-pass", "jpeg-image-no-logo-pass", "jpeg-image-black-logo-pass", "logo-missing-plan-error", "logo-plan-missing-asset-error", "colored-logo-pass", "white-logo-pass", "opaque-logo-error", "empty-logo-error", "logo-crop-forbidden-error", "logo-upscale-error", "image-missing-error", "required-subject-clipped-error", "mask-digest-error", "plan-order-equivalence", "manual-agent-equivalence"];
 const missingMaskFixtures = [];
 for (const directory of maskFixtureDirectories) {
   try { await access(path.join(root, "fixtures", "integration", "mask-semicircle-right", directory)); } catch { missingMaskFixtures.push(directory); }

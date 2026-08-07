@@ -1,0 +1,1 @@
+{ "extends": "../valid-black-logo-pass/input.json", "logoAssetFixture": "mask-semicircle-right__logo__colored__pass.png", "expected": "PASS" }

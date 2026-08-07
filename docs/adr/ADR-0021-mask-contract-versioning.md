@@ -1,6 +1,6 @@
-# ADR-0021: Additive mask capability versioning
+# ADR-0021: Additive mask capability versioning (historical C6/C6 v2)
 
-- Status: Accepted
+- Status: Superseded for current C6b details by ADR-0019-mask-semicircle-right-analytic-mask.md and ADR-0020-logo-overlay-slot-contract.md
 - Date: 2026-08-06
 - Scope: Phase C6
 

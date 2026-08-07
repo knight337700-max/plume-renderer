@@ -33,8 +33,6 @@ export const MASK_SEMICIRCLE_RIGHT_LOGO_SAFE_BOX = Object.freeze({ x: 847, y: 24
 export const MASK_SEMICIRCLE_RIGHT_TEXT_HARD_RIGHT_EDGE = 588;
 export const MASK_SEMICIRCLE_RIGHT_TEXT_MAX_WIDTH = 540;
 export const MASK_SEMICIRCLE_RIGHT_TEXT_WARNING_WIDTH = Math.floor(MASK_SEMICIRCLE_RIGHT_TEXT_MAX_WIDTH * 0.9);
-export const MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD = 32;
-export const MASK_SEMICIRCLE_RIGHT_LOGO_VISIBLE_THRESHOLD = 8;
 export const MASK_SEMICIRCLE_RIGHT_LOGO_TRIM_THRESHOLD = 1;
 export const MASK_SEMICIRCLE_RIGHT_MAX_UPSCALE = 1.5;
 
@@ -226,7 +224,7 @@ function alphaBoundsNormalized(bbox: BBox, width: number, height: number): Norma
 }
 
 function buildLogoPlacement(asset: RendererAssetDescriptor, plan: ImagePlacementPlan, bbox: BBox, sourceWidth: number, sourceHeight: number, scale: number, destination: { x: number; y: number; width: number; height: number }): AppliedImagePlacement {
-  return { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: asset.assetId, policy: plan.policy, source: plan.source, destinationRect: destination, appliedScale: scale, appliedAnchor: "CENTER", alphaTrimApplied: true, alphaBounds: alphaBoundsNormalized(bbox, sourceWidth, sourceHeight), blackValidation: "PASS", changedFromRequestedPlan: false };
+  return { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: asset.assetId, policy: plan.policy, source: plan.source, destinationRect: destination, appliedScale: scale, appliedAnchor: "CENTER", alphaTrimApplied: true, alphaBounds: alphaBoundsNormalized(bbox, sourceWidth, sourceHeight), changedFromRequestedPlan: false };
 }
 
 export async function renderMaskSemicircleRight(request: MaskSemicircleRenderRequest): Promise<LegacyRenderResult> {
@@ -255,13 +253,6 @@ export async function renderMaskSemicircleRight(request: MaskSemicircleRenderReq
     const logoVisible = meaningfulVisibleBBox(logo.data, logo.width, logo.height);
     if (!logoVisible) issues.push(issue("KBR-LOGO-EMPTY", "asset.logo_empty", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId }));
     if (opaqueBackgroundSuspected(logo.data, logo.width, logo.height)) issues.push(issue("KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "asset.logo_transparent_background_required", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId }));
-    let nonBlack = false;
-    for (let index = 0; index < logo.width * logo.height; index += 1) {
-      if (alphaAt(logo.data, index) < MASK_SEMICIRCLE_RIGHT_LOGO_VISIBLE_THRESHOLD) continue;
-      const offset = index * 4;
-      if (channelAt(logo.data, offset) > MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD || channelAt(logo.data, offset + 1) > MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD || channelAt(logo.data, offset + 2) > MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD) { nonBlack = true; break; }
-    }
-    if (nonBlack) issues.push(issue("KBR-LOGO-COLOR-NOT-BLACK", "asset.logo_color_not_black", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId, actual: { blackRgbThreshold: MASK_SEMICIRCLE_RIGHT_LOGO_BLACK_THRESHOLD }, expected: "black" }));
     logoTrim = logoVisible ? alphaBBoxWithin(logo.data, logo.width, logo.height, MASK_SEMICIRCLE_RIGHT_LOGO_TRIM_THRESHOLD, logoVisible) : null;
     if (!logoTrim) issues.push(issue("KBR-LOGO-EMPTY", "asset.logo_empty", "/imagePlacementPlans/LOGO_PRIMARY/assetId", { imageSlotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO", assetId: request.logo.asset.assetId }));
     if (logoTrim) {

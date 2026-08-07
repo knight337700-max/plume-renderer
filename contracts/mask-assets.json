@@ -4,7 +4,7 @@
     {
       "id": "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT_V1",
       "path": "assets/masks/kakao-bizboard-mask-semicircle-right-v1.png",
-      "sha256": "6b4d6f9a30fe29faf46f94c000d9436bee0cbf384c9204bf45b1ce3ef35d51eb",
+      "sha256": "eb9ea4859e2b75384ac814add59ce9636ce865ad5bae5a33f76d46210bfa6027",
       "width": 1029,
       "height": 258,
       "format": "PNG",
@@ -12,7 +12,7 @@
       "bitDepth": 8,
       "alphaMeaning": "analytic semicircle image mask; alpha is multiplied into IMAGE_PRIMARY",
       "generation": {
-        "method": "analytic circle minus logo cutout",
+        "method": "analytic circle with logo cutout removed; LOGO_PRIMARY is composited as an overlay",
         "supersample": 8,
         "metadata": "none"
       },

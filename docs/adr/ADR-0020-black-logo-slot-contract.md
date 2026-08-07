@@ -1,6 +1,6 @@
-# ADR-0020: Optional black LOGO_PRIMARY slot
+# ADR-0020: Optional black LOGO_PRIMARY slot (superseded)
 
-- Status: Accepted
+- Status: Superseded by ADR-0020-logo-overlay-slot-contract.md
 - Date: 2026-08-06
 - Scope: Phase C6 v2
 

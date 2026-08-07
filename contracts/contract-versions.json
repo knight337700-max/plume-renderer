@@ -1,14 +1,14 @@
 {
-  "contractFreezePhase": "C6-v2",
+  "contractFreezePhase": "C6b",
   "freezeStatus": "FROZEN",
   "documentVersion": {
-    "previous": "1.7.0",
-    "current": "1.8.0",
+    "previous": "1.8.0",
+    "current": "1.9.0",
     "bump": "minor",
-    "reason": "C6 v2 changes MASK_SEMICIRCLE_RIGHT to an optional black LOGO_PRIMARY slot without changing existing template coordinates"
+    "reason": "C6b restores the semicircle arc by removing the logo cutout and changes LOGO_PRIMARY to a color-unrestricted transparent overlay"
   },
-  "templateContractVersion": "1.5.0",
-  "desktopAppVersion": "0.7.0",
+  "templateContractVersion": "1.6.0",
+  "desktopAppVersion": "0.7.1",
   "coordinatesChanged": false,
   "xCoordinatesChanged": false,
   "baselineChanged": true,
@@ -60,11 +60,11 @@
     "textStartX": 48
   },
   "integrationContract": {
-    "schemaVersion": "1.3.0",
-    "previous": "1.2.0",
-    "current": "1.3.0",
+    "schemaVersion": "1.4.0",
+    "previous": "1.3.0",
+    "current": "1.4.0",
     "bump": "minor",
-    "reason": "C6 v2 makes LOGO_PRIMARY optional and adds black-logo validation metadata while preserving the serializable slot boundary"
+    "reason": "C6b removes black-logo validation metadata, pins the restored circle-only mask, and defines LOGO_PRIMARY as a color-unrestricted transparent overlay"
   },
   "canonicalPhaseC3": {
     "documentPrevious": "1.3.0",
@@ -189,5 +189,22 @@
     "integrationContractCurrent": "1.3.0",
     "integrationContractBump": "minor",
     "integrationContractReason": "Optional LOGO_PRIMARY capability and blackValidation output metadata"
+  },
+  "canonicalPhaseC6B": {
+    "documentPrevious": "1.8.0",
+    "documentCurrent": "1.9.0",
+    "documentBump": "minor",
+    "documentReason": "Restore the original semicircle arc by removing the logo cutout and define LOGO_PRIMARY as an optional overlay",
+    "templateContractVersionPrevious": "1.5.0",
+    "templateContractVersion": "1.6.0",
+    "templateCoordinatesChangedInC6B": false,
+    "desktopPrevious": "0.7.0",
+    "desktopCurrent": "0.7.1",
+    "desktopBump": "patch",
+    "desktopReason": "Renderer Lab logo copy and diagnostics now describe transparent color-unrestricted overlays",
+    "integrationContractPrevious": "1.3.0",
+    "integrationContractCurrent": "1.4.0",
+    "integrationContractBump": "minor",
+    "integrationContractReason": "Remove blackValidation/blackMonochromeRequired and expose colorRestriction NONE with a new restored mask digest"
   }
 }

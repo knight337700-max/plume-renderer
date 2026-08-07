@@ -10,7 +10,7 @@ import { projectRoot } from "../helpers.js";
 
 const GOLDEN_SHA256 = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
 const THUMBNAIL_GOLDEN_SHA256 = "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996";
-const MASK_GOLDEN_SHA256 = "dca6aa2db0c6593fcedb23dfee5a4d625356c3e8d75083e604c9866f45f530d2";
+const MASK_COLORED_LOGO_SHA256 = "38c2e4d5dacdb2e7e246a6d72eb49bd6865521b4db202b8d12b1fadf019b371a";
 
 type Launched = {
   app: ElectronApplication;
@@ -358,10 +358,10 @@ test("MASK_SEMICIRCLE_RIGHT exports without an optional logo", async () => {
   }
 });
 
-test("MASK_SEMICIRCLE_RIGHT renders the analytic mask with an optional black logo slot", async () => {
+test("MASK_SEMICIRCLE_RIGHT restores the arc and overlays an optional color logo", async () => {
   const launched = await launch(
     path.join(projectRoot, "fixtures", "valid", "mask-semicircle-right__image__basic__pass.png"),
-    path.join(projectRoot, "fixtures", "valid", "mask-semicircle-right__logo__black__pass.png"),
+    path.join(projectRoot, "fixtures", "valid", "mask-semicircle-right__logo__colored__pass.png"),
   );
   try {
     await launched.page.getByTestId("template-select").selectOption("MASK_SEMICIRCLE_RIGHT");
@@ -372,13 +372,13 @@ test("MASK_SEMICIRCLE_RIGHT renders the analytic mask with an optional black log
     await launched.page.getByTestId("request-preview").click();
     await expect(launched.page.getByTestId("workflow-status")).toHaveText("VALID_WARNING");
     await expect(launched.page.getByTestId("preview-image")).toBeVisible();
-    await expect(launched.page.getByTestId("mask-logo-validation")).toContainText("blackValidation=PASS");
+    await expect(launched.page.getByTestId("mask-logo-validation")).toContainText("overlay=PASS");
     await launched.page.getByTestId("select-output").click();
     await expect(launched.page.getByTestId("export-render")).toBeEnabled();
     await launched.page.getByTestId("export-render").click();
     await expect(launched.page.getByTestId("workflow-status")).toHaveText("EXPORTED");
-    await expect(launched.page.getByTestId("export-result")).toContainText(MASK_GOLDEN_SHA256);
-    await expect.poll(async () => sha256File(path.join(launched.outputRoot, "mask-semicircle-e2e", "output.png"))).toBe(MASK_GOLDEN_SHA256);
+    await expect(launched.page.getByTestId("export-result")).toContainText(MASK_COLORED_LOGO_SHA256);
+    await expect.poll(async () => sha256File(path.join(launched.outputRoot, "mask-semicircle-e2e", "output.png"))).toBe(MASK_COLORED_LOGO_SHA256);
   } finally {
     await close(launched);
   }

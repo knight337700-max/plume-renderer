@@ -1,4 +1,7 @@
-# MASK_SEMICIRCLE_RIGHT Contract Clarification
+# MASK_SEMICIRCLE_RIGHT Contract Clarification (historical C6/C6 v2)
+
+> Superseded by `mask-semicircle-right-template-contract-v2.md` for C6b. This file is
+> retained only as version history and is not current implementation authority.
 
 Status: FROZEN for Phase C6 v2 · Canonical document 1.8.0
 

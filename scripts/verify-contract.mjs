@@ -121,7 +121,7 @@ check(
 const versions = contracts.get("contract-versions.json");
 check(
   "template_contract_version",
-  versions?.templateContractVersion === "1.5.0" &&
+  versions?.templateContractVersion === "1.6.0" &&
     versions?.coordinatesChanged === false &&
     versions?.xCoordinatesChanged === false &&
     versions?.baselineDeltaPx === 4,
@@ -257,10 +257,10 @@ check(
   "mask_geometry",
   maskFixture?.png?.width === 1029 && maskFixture?.png?.height === 258 &&
     mask?.circle?.centerX === 801 && mask?.circle?.centerY === 225 && mask?.circle?.radius === 180 &&
-    mask?.cutout?.x === 839 && mask?.cutout?.y === 16 && mask?.cutout?.width === 142 && mask?.cutout?.height === 60 &&
     mask?.imageDestination?.x === 621 && mask?.imageDestination?.y === 45 && mask?.imageDestination?.width === 360 && mask?.imageDestination?.height === 213 &&
     mask?.rightExclusive === 981 && mask?.bottomExclusive === 258 &&
-    maskFixture?.logoSlot?.id === "LOGO_PRIMARY" && maskFixture?.logoSlot?.required === false && maskFixture?.logoSlot?.container?.x === 839 && maskFixture?.logoSlot?.safeBox?.x === 847 && maskFixture?.logoSlot?.blackRgbThreshold === 32,
+    mask?.restoredRegionStrategy === "circle-arc-without-logo-cutout" &&
+    maskFixture?.logoSlot?.id === "LOGO_PRIMARY" && maskFixture?.logoSlot?.required === false && maskFixture?.logoSlot?.container?.x === 839 && maskFixture?.logoSlot?.safeBox?.x === 847 && maskFixture?.logoSlot?.colorRestriction === "NONE",
   JSON.stringify(maskFixture),
 );
 
@@ -307,7 +307,7 @@ check(
   "mask_asset_registry",
   maskAsset?.path === "assets/masks/kakao-bizboard-mask-semicircle-right-v1.png" &&
     actualMaskAssetHash === maskAsset?.sha256 &&
-    maskAsset?.sha256 === "6b4d6f9a30fe29faf46f94c000d9436bee0cbf384c9204bf45b1ce3ef35d51eb" &&
+    maskAsset?.sha256 === "eb9ea4859e2b75384ac814add59ce9636ce865ad5bae5a33f76d46210bfa6027" &&
     maskAssetIhdr?.width === 1029 && maskAssetIhdr?.height === 258 && maskAssetIhdr?.channels === 4 &&
     maskAlphaBbox?.minX === 621 && maskAlphaBbox?.minY === 45 && maskAlphaBbox?.maxX === 980 && maskAlphaBbox?.maxY === 257 &&
     maskMetadataFree,
@@ -355,7 +355,7 @@ check(
 const textContract = contracts.get("text-contract.json");
 check(
   "text_contract",
-  textContract?.templateContractVersion === "1.5.0" &&
+  textContract?.templateContractVersion === "1.6.0" &&
     textContract?.headlineBaselineY === 120 &&
     textContract?.subcopyBaselineY === 178 &&
     textContract?.textStartX === 48 &&
@@ -418,12 +418,12 @@ check(
 );
 check(
   "integration_contract_version",
-  versions?.integrationContract?.current === "1.3.0" && versions?.canonicalPhaseC4JpegSupport?.documentCurrent === "1.5.1" && versions?.canonicalPhaseC4JpegSupport?.templateContractVersion === "1.3.0",
+  versions?.integrationContract?.current === "1.4.0" && versions?.canonicalPhaseC4JpegSupport?.documentCurrent === "1.5.1" && versions?.canonicalPhaseC4JpegSupport?.templateContractVersion === "1.3.0",
   JSON.stringify(versions?.integrationContract),
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.current === "1.8.0" && versions?.templateContractVersion === "1.5.0",
+  versions?.documentVersion?.current === "1.9.0" && versions?.templateContractVersion === "1.6.0",
   `document=${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

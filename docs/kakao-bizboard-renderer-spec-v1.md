@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.8.0
-- **Status:** Frozen Implementation Contract — Phase C6 v2 MASK_SEMICIRCLE_RIGHT analytic mask and optional black logo slot
+- **Document version:** 1.9.0
+- **Status:** Frozen Implementation Contract — Phase C6b restored MASK_SEMICIRCLE_RIGHT arc and optional logo overlay
 - **Checked date:** 2026-08-06 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, THUMBNAIL_MULTI_RIGHT, and MASK_SEMICIRCLE_RIGHT / 1029×258`
@@ -2567,7 +2567,10 @@ byte-equal이어야 하며, C6 Golden은
 `b9daf8cb11c386c06864e50494b14cc331a284919380fbc548c6a05420f486ac`다. macOS/Linux
 pixel tolerance는 v1 범위가 아니다.
 
-## 24. Phase C6 v2 — Optional Black LOGO_PRIMARY [PROJECT]
+## 24. Phase C6 v2 — Optional Black LOGO_PRIMARY (historical snapshot) [PROJECT]
+
+> C6b supersedes this section. It is retained to preserve the versioned decision history;
+> the current contract is §25 and has no logo cutout or color restriction.
 
 C6 v2는 동일한 analytic mask와 좌표를 유지하면서 `LOGO_PRIMARY`를 선택형으로
 변경한다. `IMAGE_PRIMARY`만 있으면 로고 없는 결과물을 정상적으로 Preview·Export할 수
@@ -2613,3 +2616,75 @@ Alpha Trim bbox, contain destination, upscale 경고를 표시하고, 토글을 
 검정 로고를 포함한 현재 MASK Golden은
 `dca6aa2db0c6593fcedb23dfee5a4d625356c3e8d75083e604c9866f45f530d2`이며 동일한 Windows
 10/11 x64 환경의 3회 실행에서 byte-equal이어야 한다.
+
+## 25. Phase C6b — Restored semicircle and LOGO_PRIMARY overlay [PROJECT]
+
+C6b는 기존 반원 위치와 좌표를 유지하면서 v2 구현의 잘못된 logo cutout만 제거한다.
+기준 PNG의 `logo` 표시는 shape cutout이 아니라 overlay 위치 가이드로 해석한다. 최종
+PNG에는 guide 또는 검정 backing block을 그리지 않으며, 투명 RGBA canvas에서 image와
+선택형 logo를 합성한다.
+
+### 25.1 Restored mask geometry [TOOL_OUTPUT] [DERIVED] [PROJECT]
+
+복원 원호는 center `(801,225)`, radius `180`, bbox `(621,45,360,360)`을 사용한다.
+`IMAGE_PRIMARY` destination은 `(621,45,360,213)`으로 유지하고 right margin
+`x=981..1028`은 투명해야 한다. runtime mask는 circle-only analytic alpha이며 logo
+cutout을 포함하지 않는다. 내부 asset `assets/masks/kakao-bizboard-mask-semicircle-right-v1.png`
+의 SHA-256은 `eb9ea4859e2b75384ac814add59ce9636ce865ad5bae5a33f76d46210bfa6027`이다.
+reference fixture `MASK_SEMICIRCLE_RIGHT.png`의 SHA-256
+`90a2e948d979b204867c837485ca0d4b391de4ca44c22ca36e9f3f53862ac75e`는 불변으로
+유지하며 수정·재저장·최적화하지 않는다.
+
+### 25.2 IMAGE_PRIMARY and composition [PROJECT]
+
+`IMAGE_PRIMARY`는 PNG/JPEG와 `SEMANTIC_CROP_COVER` 또는 `MANUAL_CROP`/`COVER`를
+사용한다. 고정 순서는 투명 canvas → copy raster → crop resolve → circle-only mask
+적용 → image composite → 선택된 logo overlay composite → Validator다. 기존 EXIF
+orientation, cropRect, anchor, no-clamp 규칙과 `preview/export` byte equality를
+유지한다. cutout 복원은 새 도형 재배치가 아니라 기존 shape의 사라진 영역을 동일
+원호로 메우는 구현이다.
+
+### 25.3 LOGO_PRIMARY overlay contract [PROJECT]
+
+`LOGO_PRIMARY`는 `required: false`인 별도 overlay slot이다. PNG와 alpha channel,
+transparent background가 필수이며 색상 제한은 **없음**이다. black/white/brand-color
+원본을 그대로 허용하고 recolor 또는 grayscale 변환을 하지 않는다. plan은
+`ALPHA_TRIM_CONTAIN`, `CONTAIN`, `CENTER`, `DETERMINISTIC`으로 고정하고 cropRect,
+cropCandidate, focalPoint, 임의 위치·회전은 금지한다. container는
+`(839,16,142,60)`, safe content box는 `(847,24,126,44)`이며 alpha trim threshold는
+`1`, visible threshold는 `8`, 최대 upscale은 `1.5×`다. 1× 초과 1.5× 이하는 WARNING,
+초과는 `KBR-LOGO-UPSCALE-LIMIT` ERROR다. `KBR-LOGO-COLOR-NOT-BLACK`과
+`blackMonochromeRequired`/`whiteMonochromeRequired`는 현재 계약에 존재하지 않는다.
+
+로고 없이 `IMAGE_PRIMARY`만 제출하면 applied placement 1개로 PASS한다. 두 Asset을
+제출하면 LOGO plan도 반드시 있어야 하며, Asset만 있으면 `KBR-LOGO-PLAN-MISSING`,
+Plan만 있으면 `KBR-LOGO-ASSET-MISSING`으로 artifact/publish/download를 차단한다.
+opaque background와 empty transparent PNG는 각각 `KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED`
+와 `KBR-LOGO-EMPTY` ERROR다.
+
+### 25.4 Renderer Lab [PROJECT]
+
+MASK Lab은 IMAGE_PRIMARY PNG/JPG/JPEG panel과 LOGO_PRIMARY PNG panel을 제공한다.
+logo panel은 `로고 사용` toggle, alpha 여부, transparent background 결과, alpha trim
+bbox, applied destinationRect, upscale ratio, validation message를 표시한다. 안내는
+“투명 배경 PNG 로고를 업로드하세요. 로고는 반원 위에 오버레이로 배치됩니다. 로고
+색상은 자동으로 변경되지 않습니다. 로고 없이도 저장할 수 있습니다.”로 고정한다.
+white backdrop/checkerboard와 reference guide는 Preview DOM에서만 허용하고 export에
+포함하지 않는다.
+
+### 25.5 Version, Golden, and acceptance [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.8.0 | 1.9.0 | 반원 cutout 제거·원호 복원 및 logo overlay 계약 |
+| Template Contract | 1.5.0 | 1.6.0 | 좌표 불변, circle-only mask와 optional overlay 명확화 |
+| Integration Contract | 1.3.0 | 1.4.0 | black validation 필드 제거, colorRestriction NONE 및 mask digest 갱신 |
+| Desktop | 0.7.0 | 0.7.1 | Lab logo 안내·진단을 투명 색상 무제한 overlay로 갱신 |
+
+기존 OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, THUMBNAIL_MULTI_RIGHT Golden은 각각
+`20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1`,
+`f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996`,
+`ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55`로 유지한다.
+C6b MASK Golden은 `ad5448b368badcf1e5c304dadb8a93d3cbf4fab6f2e4d7d90334a44628d7d145`이며
+동일 Windows 10/11 x64 환경에서 동일 입력·asset·dependency·runtime을 3회 실행해
+byte-equal이어야 한다. 다른 OS의 pixel tolerance는 v1 Acceptance에 포함하지 않는다.

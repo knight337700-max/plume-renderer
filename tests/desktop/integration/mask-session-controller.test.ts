@@ -15,7 +15,7 @@ async function setup() {
   const root = await createTempRoot("desktop-mask");
   const session = new DesktopSessionManager(path.join(root, "sessions"));
   await session.initialize();
-  const controller = new DesktopController({ projectRoot, session, appVersion: "0.7.0-test", blockedNetworkRequestCount: () => 0 });
+  const controller = new DesktopController({ projectRoot, session, appVersion: "0.7.1-test", blockedNetworkRequestCount: () => 0 });
   const context = { root, session, controller };
   contexts.push(context);
   return context;
@@ -29,7 +29,7 @@ afterEach(async () => {
 });
 
 describe("MASK_SEMICIRCLE_RIGHT desktop controller", () => {
-  it("selects a PNG black logo, previews the two slots, and atomically exports a manifest", async () => {
+  it("selects a transparent PNG logo overlay, previews the two slots, and atomically exports a manifest", async () => {
     const context = await setup();
     const image = await context.controller.selectProductFromPath(path.join(projectRoot, "fixtures/valid/mask-semicircle-right__image__basic__pass.png"));
     const logo = await context.controller.selectLogoFromPath(path.join(projectRoot, "fixtures/valid/mask-semicircle-right__logo__black__pass.png"));
@@ -65,8 +65,8 @@ describe("MASK_SEMICIRCLE_RIGHT desktop controller", () => {
     await expect(access(paths.pngPath)).resolves.toBeUndefined();
     const manifest = JSON.parse(await readFile(paths.manifestPath, "utf8")) as Record<string, unknown>;
     expect(manifest.templateId).toBe("KAKAO_MOMENT_BIZBOARD_MASK_SEMICIRCLE_RIGHT");
-    expect(manifest.templateContractVersion).toBe("1.5.0");
-    expect((manifest.assetDigests as Record<string, unknown>).mask).toEqual({ id: "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT_V1", sha256: "6b4d6f9a30fe29faf46f94c000d9436bee0cbf384c9204bf45b1ce3ef35d51eb" });
+    expect(manifest.templateContractVersion).toBe("1.6.0");
+    expect((manifest.assetDigests as Record<string, unknown>).mask).toEqual({ id: "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT_V1", sha256: "eb9ea4859e2b75384ac814add59ce9636ce865ad5bae5a33f76d46210bfa6027" });
   });
 
   it("previews and exports with no LOGO_PRIMARY asset or plan", async () => {

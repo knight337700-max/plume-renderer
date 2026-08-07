@@ -1,25 +1,27 @@
-# ADR-0019: MASK_SEMICIRCLE_RIGHT analytic mask
+# ADR-0019: MASK_SEMICIRCLE_RIGHT restored analytic mask
 
-- Status: Accepted
-- Date: 2026-08-06
-- Scope: Phase C6
+- Status: Accepted; supersedes the C6 cutout implementation
+- Date: 2026-08-07
+- Scope: Phase C6b
 
 ## Context
 
-The reference output contains a circular image with a rectangular logo cutout, but the
-reference PNG is a tool output rather than a runtime editing surface. A hand-authored
-pixel copy would be difficult to audit and could drift from the frozen geometry.
+The immutable reference image includes a `logo` guide at the upper right. The prior C6
+implementation treated that guide as a rectangular mask cutout, which broke the visible
+semicircle when no logo was supplied. The guide is not a shape instruction and is not an
+approved Kakao asset.
 
 ## Decision
 
-Generate a deterministic RGBA mask from the frozen circle/cutout geometry with a fixed
-supersampling method, store it under `assets/masks/`, and pin its SHA-256 in
-`contracts/mask-assets.json`. Multiply mask alpha by image alpha; preserve non-binary
-alpha and never modify the reference fixture.
+Generate a deterministic RGBA mask from the frozen circle `(801,225,r=180)` only, using
+the existing 8x supersampling pass and metadata stripping. The mask is applied to
+`IMAGE_PRIMARY` at `(621,45,360,213)`. The logo guide is never subtracted from the mask;
+the restored region is the same analytic arc that continues the existing shape. Pin the
+runtime mask SHA-256 and validate it before rendering.
 
 ## Consequences
 
-The renderer has a reproducible mask asset and can reject missing/tampered bytes before
-publish. The generated mask is a project implementation asset, not a claim that Kakao
-publishes the same internal algorithm. Any geometry change requires a new Template
-Contract version and Golden review.
+The runtime mask digest changes, and the C6b MASK Golden changes accordingly. A malformed
+or tampered mask blocks Preview and Export. The immutable guide PNG remains read-only and
+is not used as a runtime mask. LOGO_PRIMARY is composited later as an independent overlay
+so its presence cannot alter the semicircle alpha.

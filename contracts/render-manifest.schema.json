@@ -31,7 +31,7 @@
       "$ref": "#/$defs/sha256"
     },
     "templateContractVersion": {
-      "const": "1.5.0"
+      "const": "1.6.0"
     },
     "inputSchemaVersion": {
       "const": "1.2.0"

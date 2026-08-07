@@ -6,7 +6,6 @@ import sharp from "sharp";
 export const MASK_WIDTH = 1029;
 export const MASK_HEIGHT = 258;
 export const MASK_CIRCLE = Object.freeze({ centerX: 801, centerY: 225, radius: 180 });
-export const MASK_LOGO_CUTOUT = Object.freeze({ x: 839, y: 16, width: 142, height: 60 });
 export const MASK_SUPERSAMPLE = 8;
 
 const root = process.cwd();
@@ -16,10 +15,6 @@ function sampleInsideCircle(x, y) {
   const dx = x - MASK_CIRCLE.centerX;
   const dy = y - MASK_CIRCLE.centerY;
   return dx * dx + dy * dy <= MASK_CIRCLE.radius * MASK_CIRCLE.radius;
-}
-
-function sampleInsideCutout(x, y) {
-  return x >= MASK_LOGO_CUTOUT.x && x < MASK_LOGO_CUTOUT.x + MASK_LOGO_CUTOUT.width && y >= MASK_LOGO_CUTOUT.y && y < MASK_LOGO_CUTOUT.y + MASK_LOGO_CUTOUT.height;
 }
 
 function stripMetadataChunks(png) {
@@ -46,7 +41,7 @@ export async function generateMask() {
         for (let sx = 0; sx < MASK_SUPERSAMPLE; sx += 1) {
           const sampleX = x + (sx + 0.5) / MASK_SUPERSAMPLE;
           const sampleY = y + (sy + 0.5) / MASK_SUPERSAMPLE;
-          if (sampleInsideCircle(sampleX, sampleY) && !sampleInsideCutout(sampleX, sampleY)) covered += 1;
+          if (sampleInsideCircle(sampleX, sampleY)) covered += 1;
         }
       }
       const offset = (y * MASK_WIDTH + x) * 4;

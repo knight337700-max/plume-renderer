@@ -1,6 +1,6 @@
 {
   "registryVersion": "1.0.0",
-  "templateContractVersion": "1.5.0",
+  "templateContractVersion": "1.6.0",
   "fixture": {
     "id": "KAKAO_TOOL_OBJECT_RIGHT_1029X258",
     "path": "reference/kakao-tool/OBJECT_RIGHT.png",
@@ -120,10 +120,10 @@
       },
       "mask": {
         "circle": { "centerX": 801, "centerY": 225, "radius": 180 },
-        "cutout": { "x": 839, "y": 16, "width": 142, "height": 60 },
         "imageDestination": { "x": 621, "y": 45, "width": 360, "height": 213 },
         "rightExclusive": 981,
-        "bottomExclusive": 258
+        "bottomExclusive": 258,
+        "restoredRegionStrategy": "circle-arc-without-logo-cutout"
       },
       "logoSlot": {
         "id": "LOGO_PRIMARY",
@@ -131,7 +131,9 @@
         "safeBox": { "x": 847, "y": 24, "width": 126, "height": 44 },
         "required": false,
         "format": "PNG",
-        "blackRgbThreshold": 32
+        "alphaRequired": true,
+        "transparentBackgroundRequired": true,
+        "colorRestriction": "NONE"
       }
     }
   }

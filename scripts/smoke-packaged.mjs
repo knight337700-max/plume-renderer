@@ -11,7 +11,7 @@ const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "
 const expectedPngDigest = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
 const expectedThumbnailPngDigest = "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996";
 const expectedMultiPngDigest = "ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55";
-const expectedMaskPngDigest = "dca6aa2db0c6593fcedb23dfee5a4d625356c3e8d75083e604c9866f45f530d2";
+const expectedMaskPngDigest = "ad5448b368badcf1e5c304dadb8a93d3cbf4fab6f2e4d7d90334a44628d7d145";
 const executables = [
   path.join(root, "release", "win-unpacked", "Kakao-Bizboard-Local-Renderer.exe"),
   path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`),

@@ -1,6 +1,6 @@
 # Renderer Integration Contract v1
 
-Status: Accepted project contract · schemaVersion `1.0.0`
+Status: Historical C3 snapshot · superseded by the current independent Integration Contract v1.4.0
 
 This document defines an agent-independent boundary around the local Renderer. The Renderer consumes a serializable JSON request and a runtime `RendererAssetResolver`; it does not import or call Plume, OpenAI, a queue, a database, Railway, or a remote service. A Lab-authored plan and a future Agent-authored plan are equivalent inputs when their pixel-affecting placement values are equivalent.
 
@@ -26,7 +26,10 @@ Protected subjects are checked against the applied crop: REQUIRED clipping block
 
 ## Current capability
 
-The current `IMPLEMENTED` production capabilities are `KAKAO_BIZBOARD_OBJECT_RIGHT`, `KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT`, and `KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT`. The first remains alpha-trim-only on slot `OBJECT_RIGHT_PRODUCT`; the thumbnail profiles use their registered image slots and PNG/JPEG capability metadata. `THUMBNAIL_MULTI_RIGHT` requires exactly one plan for each of `IMAGE_PRIMARY` and `IMAGE_SECONDARY`, while one Asset may be reused by both plans. `MASK_SEMICIRCLE_RIGHT`, native, and Naver profiles remain explicitly `NOT_IMPLEMENTED`; their generic policy vocabulary is not an implementation claim.
+At the time of this historical snapshot, the `IMPLEMENTED` production capabilities were
+limited to OBJECT_RIGHT and the two thumbnail profiles. The current independent contract
+also implements `KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT`; consult the Canonical document and
+`contracts/template-capabilities.json` rather than this archived C3 status paragraph.
 
 The integration adapter keeps the legacy C2a Renderer Input and its output untouched. It supplies normalized placement metadata and the actual output checksum in the integration response. Existing Core/CLI Input Schema versions remain unchanged.
 

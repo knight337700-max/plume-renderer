@@ -10,7 +10,7 @@
     { "if": { "properties": { "status": { "const": "BLOCKED" } } }, "then": { "not": { "required": ["artifact"] } } }
   ],
   "properties": {
-    "schemaVersion": { "const": "1.3.0" },
+    "schemaVersion": { "const": "1.4.0" },
     "status": { "enum": ["PASS", "BLOCKED"] },
     "artifact": {
       "type": "object", "additionalProperties": false,
@@ -33,7 +33,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["imageSlotId", "assetId", "policy", "source", "destinationRect", "appliedScale", "appliedAnchor", "alphaTrimApplied", "changedFromRequestedPlan"],
       "properties": {
-        "imageSlotId": { "type": "string", "minLength": 1 }, "slotRole": { "enum": ["IMAGE", "LOGO"] }, "assetId": { "type": "string", "minLength": 1 }, "policy": { "enum": ["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"] }, "source": { "enum": ["DETERMINISTIC", "MANUAL", "AGENT", "SAVED_CREATIVE"] }, "requestedCropRect": { "$ref": "#/$defs/normalizedRect" }, "resolvedSourceCropRect": { "$ref": "#/$defs/normalizedRect" }, "resolvedSourceCropPixels": { "$ref": "#/$defs/rect" }, "destinationRect": { "$ref": "#/$defs/rect" }, "appliedScale": { "type": "number", "exclusiveMinimum": 0 }, "appliedAnchor": { "enum": ["CENTER", "CENTER_LEFT", "CENTER_RIGHT", "TOP_CENTER", "TOP_LEFT", "TOP_RIGHT", "BOTTOM_CENTER", "BOTTOM_LEFT", "BOTTOM_RIGHT"] }, "alphaTrimApplied": { "type": "boolean" }, "alphaBounds": { "$ref": "#/$defs/normalizedRect" }, "maskAssetId": { "type": "string", "minLength": 1 }, "maskDigest": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }, "blackValidation": { "const": "PASS" }, "cropCandidateId": { "type": "string", "minLength": 1 }, "changedFromRequestedPlan": { "const": false }
+        "imageSlotId": { "type": "string", "minLength": 1 }, "slotRole": { "enum": ["IMAGE", "LOGO"] }, "assetId": { "type": "string", "minLength": 1 }, "policy": { "enum": ["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"] }, "source": { "enum": ["DETERMINISTIC", "MANUAL", "AGENT", "SAVED_CREATIVE"] }, "requestedCropRect": { "$ref": "#/$defs/normalizedRect" }, "resolvedSourceCropRect": { "$ref": "#/$defs/normalizedRect" }, "resolvedSourceCropPixels": { "$ref": "#/$defs/rect" }, "destinationRect": { "$ref": "#/$defs/rect" }, "appliedScale": { "type": "number", "exclusiveMinimum": 0 }, "appliedAnchor": { "enum": ["CENTER", "CENTER_LEFT", "CENTER_RIGHT", "TOP_CENTER", "TOP_LEFT", "TOP_RIGHT", "BOTTOM_CENTER", "BOTTOM_LEFT", "BOTTOM_RIGHT"] }, "alphaTrimApplied": { "type": "boolean" }, "alphaBounds": { "$ref": "#/$defs/normalizedRect" }, "maskAssetId": { "type": "string", "minLength": 1 }, "maskDigest": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }, "cropCandidateId": { "type": "string", "minLength": 1 }, "changedFromRequestedPlan": { "const": false }
       }
     },
     "issue": {

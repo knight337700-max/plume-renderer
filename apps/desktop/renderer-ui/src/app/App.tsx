@@ -291,7 +291,7 @@ export function App() {
       setPlacementPlanText(JSON.stringify(plan, null, 2));
       setBoxCropDraft(cropRectToDraft(plan.cropRect));
       setCropRectText("0,0,1,1");
-      setPlacementPlanMessage("PASS · MASK_SEMICIRCLE_RIGHT 이미지 Plan을 사용합니다. LOGO_PRIMARY는 선택형 검정 PNG입니다.");
+      setPlacementPlanMessage("PASS · MASK_SEMICIRCLE_RIGHT 이미지 Plan을 사용합니다. LOGO_PRIMARY는 선택형 투명 PNG overlay입니다.");
       return;
     }
     setPolicy("SEMANTIC_CROP_COVER");
@@ -684,16 +684,16 @@ export function App() {
                   <span>{state.product ? formatProductMetadata(state.product) : "Asset 없음"}</span>
                 </div>
                 <div className="slot-asset-panel" data-testid="slot-panel-LOGO_PRIMARY">
-                  <strong>LOGO_PRIMARY · 검정 PNG (선택)</strong>
+                  <strong>LOGO_PRIMARY · 투명 PNG overlay (선택)</strong>
                   <span>{logoProduct ? formatProductMetadata(logoProduct) : "선택하지 않음 · 로고 없이 저장 가능"}</span>
                   <div className="button-row">
-                    <button type="button" onClick={() => void selectLogo()} data-testid="select-logo">검정 로고 PNG 선택</button>
+                    <button type="button" onClick={() => void selectLogo()} data-testid="select-logo">투명 로고 PNG 선택</button>
                     {logoProduct ? <button type="button" className="secondary" onClick={() => void clearLogo()} data-testid="clear-logo">지우기</button> : null}
                   </div>
                   <label className="guide-toggle"><input type="checkbox" data-testid="mask-logo-toggle" checked={maskLogoEnabled} disabled={!logoProduct} onChange={(event) => setMaskLogoEnabled(event.target.checked)} /> 로고 사용</label>
-                  <small className="hint">선택 시 투명 배경 · visible RGB ≤ 32 · ALPHA_TRIM_CONTAIN · CENTER · 자동 색상 변환 없음</small>
+                  <small className="hint">선택 시 PNG · 투명 배경 · 색상 제한 없음 · ALPHA_TRIM_CONTAIN · CENTER · 자동 색상 변환 없음</small>
                   <small className="hint" data-testid="mask-logo-details">
-                    Alpha {logoProduct ? (logoProduct.hasAlpha ? "있음" : "없음") : "—"} · Black validation {maskLogoPlacement?.blackValidation ?? "대기"}<br />
+                    Alpha {logoProduct ? (logoProduct.hasAlpha ? "있음" : "없음") : "—"} · Transparent background {maskLogoPlacement ? "PASS" : "대기"}<br />
                     Alpha Trim bbox {maskLogoPlacement?.alphaBounds ? `${maskLogoPlacement.alphaBounds.x.toFixed(3)},${maskLogoPlacement.alphaBounds.y.toFixed(3)},${maskLogoPlacement.alphaBounds.width.toFixed(3)},${maskLogoPlacement.alphaBounds.height.toFixed(3)}` : "—"}<br />
                     Applied destinationRect {maskLogoPlacement ? `${maskLogoPlacement.destinationRect.x},${maskLogoPlacement.destinationRect.y},${maskLogoPlacement.destinationRect.width},${maskLogoPlacement.destinationRect.height}` : "—"} · upscale {maskLogoPlacement ? `${maskLogoPlacement.appliedScale.toFixed(3)}×` : "—"}
                   </small>
@@ -789,9 +789,9 @@ export function App() {
             {template === "MASK_SEMICIRCLE_RIGHT" ? (
               <div className="placement-disabled-field" data-testid="mask-placement-contract">
                 <p className="hint">IMAGE_PRIMARY · MANUAL_CROP/COVER · CENTER · crop 0,0,1,1</p>
-                <p className="hint">Mask circle center (801,225), r180 · image destination x621 y45 w360 h213 · cutout x839 y16 w142 h60</p>
-                <p className="hint">LOGO_PRIMARY optional · safe box x847 y24 w126 h44 · max upscale 1.5× · candidate/focal/crop 금지</p>
-                <small className="placement-plan-status status-pass" data-testid="mask-logo-validation">{maskLogoPlacement?.blackValidation === "PASS" ? "PASS · blackValidation=PASS" : !maskLogoEnabled ? "PASS · 로고 없이 렌더링" : "대기 · 검정 로고 선택 후 Core Validator 실행"}</small>
+                <p className="hint">Mask circle center (801,225), r180 · image destination x621 y45 w360 h213 · logo cutout 없음</p>
+                <p className="hint">LOGO_PRIMARY optional overlay · container x839 y16 w142 h60 · safe box x847 y24 w126 h44 · max upscale 1.5× · candidate/focal/crop 금지</p>
+                <small className="placement-plan-status status-pass" data-testid="mask-logo-validation">{maskLogoPlacement ? "PASS · overlay=PASS" : !maskLogoEnabled ? "PASS · 로고 없이 렌더링" : "대기 · 투명 PNG 로고 선택 후 Core Validator 실행"}</small>
               </div>
             ) : null}
             {template === "THUMBNAIL_MULTI_RIGHT" ? (

@@ -1,6 +1,6 @@
 import canonicalize from "canonicalize";
 
-export const INTEGRATION_SCHEMA_VERSION = "1.3.0" as const;
+export const INTEGRATION_SCHEMA_VERSION = "1.4.0" as const;
 export const LEGACY_INTEGRATION_SCHEMA_VERSION = "1.2.0" as const;
 export const EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION = "1.1.0" as const;
 export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
@@ -26,7 +26,7 @@ export const MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID = "LOGO_PRIMARY" as const;
 export const MASK_SEMICIRCLE_RIGHT_SLOT_IDS = [MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID] as const;
 export const MASK_SEMICIRCLE_RIGHT_MASK_ASSET_ID = "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT_V1" as const;
 export const MASK_SEMICIRCLE_RIGHT_MASK_ASSET_PATH = "assets/masks/kakao-bizboard-mask-semicircle-right-v1.png" as const;
-export const MASK_SEMICIRCLE_RIGHT_MASK_ASSET_SHA256 = "6b4d6f9a30fe29faf46f94c000d9436bee0cbf384c9204bf45b1ce3ef35d51eb" as const;
+export const MASK_SEMICIRCLE_RIGHT_MASK_ASSET_SHA256 = "eb9ea4859e2b75384ac814add59ce9636ce865ad5bae5a33f76d46210bfa6027" as const;
 
 export type SupportedInputMimeType = "image/png" | "image/jpeg";
 export type RendererImageMimeType = SupportedInputMimeType;
@@ -160,7 +160,6 @@ export type AppliedImagePlacement = Readonly<{
   alphaBounds?: NormalizedRect;
   maskAssetId?: string;
   maskDigest?: string;
-  blackValidation?: "PASS";
   cropCandidateId?: string;
   changedFromRequestedPlan: false;
 }>;
@@ -212,7 +211,7 @@ export type SlotCapability = Readonly<{
   allowedInputMimeTypes: readonly SupportedInputMimeType[];
   allowedPolicies: readonly ImagePlacementPolicy[];
   alphaChannelRequired: boolean;
-  blackMonochromeRequired?: boolean;
+  colorRestriction?: "NONE";
   supportsManualCrop: boolean;
   supportsAgentPlacement: boolean;
 }>;
@@ -520,7 +519,7 @@ export const CAPABILITIES: Readonly<Record<string, ImagePlacementCapability>> = 
     requiredPlacementPlans: 1,
     slotCapabilities: [
       { slotId: MASK_SEMICIRCLE_RIGHT_IMAGE_SLOT_ID, slotRole: "IMAGE" as const, required: true, allowedInputMimeTypes: ["image/png", "image/jpeg"] as const, allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, alphaChannelRequired: false, supportsManualCrop: true, supportsAgentPlacement: true },
-      { slotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO" as const, required: false, allowedInputMimeTypes: ["image/png"] as const, allowedPolicies: ["ALPHA_TRIM_CONTAIN"] as const, alphaChannelRequired: true, blackMonochromeRequired: true, supportsManualCrop: false, supportsAgentPlacement: false },
+      { slotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO" as const, required: false, allowedInputMimeTypes: ["image/png"] as const, allowedPolicies: ["ALPHA_TRIM_CONTAIN"] as const, alphaChannelRequired: true, colorRestriction: "NONE" as const, supportsManualCrop: false, supportsAgentPlacement: false },
     ],
   }),
   KAKAO_NATIVE_1200: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "NOT_IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: false, supportsAgentPlacement: false, allowedInputMimeTypes: [] as const, alphaChannelRequired: false }),
@@ -553,7 +552,7 @@ export async function computeFingerprints(input: RendererIntegrationInputV1, ass
     assets: input.assets.map((asset) => ({ assetId: asset.assetId, mimeType: asset.mimeType, digest: assetDigests[asset.assetId] ?? "" })),
     imagePlacementPlans: pixelPlans.map((plan) => ({ imageSlotId: plan.imageSlotId, assetId: plan.assetId, policy: plan.policy, fitMode: plan.fitMode, cropRect: plan.cropRect, anchor: plan.anchor, subjectProtection: plan.subjectProtection })),
     output: input.output,
-    templateContractVersion: "1.5.0",
+    templateContractVersion: "1.6.0",
   };
   const pixelFingerprint = await sha256Hex(canonicalJson(pixelInput));
   return { requestFingerprint, pixelFingerprint };

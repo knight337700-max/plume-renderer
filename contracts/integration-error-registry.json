@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.3.0",
+  "registryVersion": "1.4.0",
   "namespace": "renderer-integration",
   "codes": [
     { "code": "KBR-PLACEMENT-PLAN-MISSING", "severity": "ERROR", "messageKey": "placement.plan_missing", "condition": "A required image slot has no placement plan" },
@@ -41,7 +41,6 @@
     { "code": "KBR-LOGO-PLAN-MISSING", "severity": "ERROR", "messageKey": "placement.logo_plan_missing", "condition": "A MASK_SEMICIRCLE_RIGHT logo asset is supplied without a LOGO_PRIMARY placement plan", "behavior": "Block the entire MASK_SEMICIRCLE_RIGHT artifact" },
     { "code": "KBR-LOGO-ALPHA-REQUIRED", "severity": "ERROR", "messageKey": "asset.logo_alpha_required", "condition": "LOGO_PRIMARY is not an alpha PNG", "behavior": "Do not synthesize transparency" },
     { "code": "KBR-LOGO-TRANSPARENT-BACKGROUND-REQUIRED", "severity": "ERROR", "messageKey": "asset.logo_transparent_background_required", "condition": "LOGO_PRIMARY has an opaque background", "behavior": "Reject the logo" },
-    { "code": "KBR-LOGO-COLOR-NOT-BLACK", "severity": "ERROR", "messageKey": "asset.logo_color_not_black", "condition": "A visible LOGO_PRIMARY pixel has any RGB channel above 32", "behavior": "Do not recolor automatically" },
     { "code": "KBR-LOGO-EMPTY", "severity": "ERROR", "messageKey": "asset.logo_empty", "condition": "LOGO_PRIMARY has no alpha-visible pixels", "behavior": "Reject the empty logo" },
     { "code": "KBR-LOGO-SLOT-OVERFLOW", "severity": "ERROR", "messageKey": "placement.logo_slot_overflow", "condition": "Trimmed logo cannot fit inside the safe content box", "behavior": "Block the artifact" },
     { "code": "KBR-LOGO-UPSCALE-LIMIT", "severity": "ERROR", "messageKey": "asset.logo_upscale_limit", "condition": "LOGO_PRIMARY requires more than 1.5x upscaling", "behavior": "Block the artifact" },
