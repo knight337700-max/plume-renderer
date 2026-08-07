@@ -22,6 +22,7 @@
   "scripts": {
     "verify:contract": "node scripts/verify-contract.mjs",
     "verify:integration-contract": "node scripts/verify-integration-contract.mjs",
+    "verify:freeform-contract": "node scripts/verify-freeform-contract.mjs",
     "build": "tsc -p tsconfig.build.json",
     "build:contract": "tsc -p packages/renderer-contract/tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -31,6 +32,7 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "pnpm build && vitest run tests/integration",
     "test:integration-contract": "pnpm verify:integration-contract && pnpm build:contract && vitest run tests/integration-contract",
+    "test:freeform-contract": "pnpm verify:freeform-contract && pnpm build:contract && vitest run tests/freeform-contract",
     "test:golden": "vitest run tests/golden",
     "test:security": "vitest run tests/desktop/security",
     "test:desktop": "vitest run tests/desktop",
@@ -40,11 +42,11 @@
     "package:windows": "pnpm build:desktop && node scripts/package-windows.mjs",
     "smoke:package": "node scripts/smoke-packaged.mjs",
     "evidence:package": "node scripts/capture-packaged-evidence.mjs",
-    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
+    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
     "render": "node dist/cli/index.js"
   },
   "dependencies": {
-    "@kbr/renderer-contract": "workspace:1.4.0",
+    "@kbr/renderer-contract": "workspace:1.5.0",
     "@napi-rs/canvas": "1.0.3",
     "ajv": "8.20.0",
     "canonicalize": "3.0.0",

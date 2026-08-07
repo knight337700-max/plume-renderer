@@ -44,6 +44,17 @@ describe("Integration Contract schemas", () => {
       "packages/renderer-contract/schema/template-capability-v1.schema.json",
     ];
     const ajv = new Ajv2020({ allErrors: true, strict: true });
+    for (const file of [
+      "packages/renderer-contract/schema/image-placement-spec-v1.schema.json",
+      "packages/renderer-contract/schema/freeform-text-element-v1.schema.json",
+      "packages/renderer-contract/schema/freeform-image-element-v1.schema.json",
+      "packages/renderer-contract/schema/freeform-logo-element-v1.schema.json",
+      "packages/renderer-contract/schema/freeform-shape-element-v1.schema.json",
+      "packages/renderer-contract/schema/creative-element-v1.schema.json",
+      "packages/renderer-contract/schema/creative-layout-plan-v1.schema.json",
+    ]) {
+      ajv.addSchema(await readJson(file) as object);
+    }
     for (const file of files) {
       const schema = await readJson(file) as object;
       expect(() => ajv.compile(schema)).not.toThrow();

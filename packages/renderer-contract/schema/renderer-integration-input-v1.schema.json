@@ -4,9 +4,22 @@
   "title": "Renderer Integration Input v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "formatProfileId", "templateId", "copy", "assets", "imagePlacementPlans", "output"],
+  "required": ["schemaVersion", "formatProfileId", "output"],
+  "allOf": [
+    {
+      "if": { "properties": { "layoutMode": { "const": "FREEFORM" } }, "required": ["layoutMode"] },
+      "then": {
+        "properties": { "creativeLayoutPlan": {} },
+        "required": ["creativeLayoutPlan"],
+        "not": { "anyOf": [{ "properties": { "templateId": {} }, "required": ["templateId"] }, { "properties": { "imagePlacementPlans": {} }, "required": ["imagePlacementPlans"] }, { "properties": { "cropCandidates": {} }, "required": ["cropCandidates"] }] }
+      },
+      "else": { "properties": { "templateId": {}, "copy": {}, "assets": {}, "imagePlacementPlans": {} }, "required": ["templateId", "copy", "assets", "imagePlacementPlans"] }
+    }
+  ],
   "properties": {
-    "schemaVersion": { "enum": ["1.1.0", "1.2.0", "1.3.0", "1.4.0"] },
+    "schemaVersion": { "enum": ["1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0"] },
+    "layoutMode": { "enum": ["TEMPLATE_LOCKED", "FREEFORM"], "default": "TEMPLATE_LOCKED" },
+    "creativeLayoutPlan": { "$ref": "https://kbr.local/schema/creative-layout-plan-v1.schema.json" },
     "formatProfileId": { "type": "string", "minLength": 1 },
     "templateId": { "type": "string", "minLength": 1 },
     "copy": {
@@ -48,7 +61,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["schemaVersion", "imageSlotId", "assetId", "policy", "source", "fitMode", "anchor", "subjectProtection"],
       "properties": {
-        "schemaVersion": { "enum": ["1.1.0", "1.2.0", "1.3.0", "1.4.0"] },
+        "schemaVersion": { "enum": ["1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0"] },
         "imageSlotId": { "type": "string", "minLength": 1 },
         "assetId": { "type": "string", "minLength": 1 },
         "policy": { "enum": ["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"] },
@@ -68,7 +81,7 @@
       "type": "object", "additionalProperties": false,
       "required": ["schemaVersion", "candidateId", "assetId", "imageSlotId", "cropRect", "preservedSubjectIds", "clippedSubjectIds", "fillRatio", "subjectCoverageRatio", "warnings"],
       "properties": {
-        "schemaVersion": { "enum": ["1.1.0", "1.2.0", "1.3.0", "1.4.0"] },
+        "schemaVersion": { "enum": ["1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0"] },
         "candidateId": { "type": "string", "minLength": 1 }, "assetId": { "type": "string", "minLength": 1 }, "imageSlotId": { "type": "string", "minLength": 1 },
         "cropRect": { "$ref": "#/$defs/rect" }, "focalPoint": { "$ref": "#/$defs/point" },
         "preservedSubjectIds": { "type": "array", "items": { "type": "string", "minLength": 1 } }, "clippedSubjectIds": { "type": "array", "items": { "type": "string", "minLength": 1 } },

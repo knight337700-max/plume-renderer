@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/schema/format-profile-v1.schema.json",
+  "title": "FREEFORM FormatProfile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["formatProfileId", "canvas", "layoutMode", "allowedOutputFormats", "implementationStatus"],
+  "properties": {
+    "formatProfileId": { "type": "string", "minLength": 1 },
+    "canvas": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 } } },
+    "layoutMode": { "enum": ["TEMPLATE_LOCKED", "FREEFORM"] },
+    "allowedOutputFormats": { "type": "array", "items": { "enum": ["PNG", "JPG"] } },
+    "implementationStatus": { "enum": ["NOT_IMPLEMENTED", "PARTIAL", "IMPLEMENTED"] },
+    "catalogStatus": { "enum": ["READY", "CATALOG_NOT_READY", "INTERNAL_TEST_ONLY"] },
+    "classification": { "type": "string", "minLength": 1 }
+  }
+}

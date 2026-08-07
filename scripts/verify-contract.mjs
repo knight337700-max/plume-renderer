@@ -418,12 +418,12 @@ check(
 );
 check(
   "integration_contract_version",
-  versions?.integrationContract?.current === "1.4.0" && versions?.canonicalPhaseC4JpegSupport?.documentCurrent === "1.5.1" && versions?.canonicalPhaseC4JpegSupport?.templateContractVersion === "1.3.0",
+  versions?.integrationContract?.current === "1.5.0" && versions?.canonicalPhaseC4JpegSupport?.documentCurrent === "1.5.1" && versions?.canonicalPhaseC4JpegSupport?.templateContractVersion === "1.3.0",
   JSON.stringify(versions?.integrationContract),
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.current === "1.9.0" && versions?.templateContractVersion === "1.6.0",
+  versions?.documentVersion?.current === "1.10.0" && versions?.templateContractVersion === "1.6.0",
   `document=${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

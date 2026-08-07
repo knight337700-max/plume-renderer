@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@kbr/renderer-contract':
-        specifier: workspace:1.4.0
+        specifier: workspace:1.5.0
         version: link:packages/renderer-contract
       '@napi-rs/canvas':
         specifier: 1.0.3

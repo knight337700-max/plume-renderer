@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "formatProfileId": "KBR_FREEFORM_CONTRACT_TEST_1029X258",
+  "source": "MANUAL",
+  "background": { "type": "TRANSPARENT" },
+  "elements": [
+    { "id": "duplicate", "type": "SHAPE", "bounds": { "x": 0, "y": 0, "width": 0.2, "height": 0.2 }, "zIndex": 0, "shape": "RECTANGLE", "fillColor": "#000000" },
+    { "id": "duplicate", "type": "SHAPE", "bounds": { "x": 0.2, "y": 0.2, "width": 0.2, "height": 0.2 }, "zIndex": 1, "shape": "ELLIPSE", "fillColor": "#FFFFFF" }
+  ]
+}

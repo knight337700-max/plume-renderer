@@ -1,9 +1,18 @@
 import canonicalize from "canonicalize";
 
-export const INTEGRATION_SCHEMA_VERSION = "1.4.0" as const;
+import {
+  validateCreativeLayoutPlan,
+  type CreativeLayoutPlan,
+  type LayoutMode,
+} from "./freeform.js";
+
+export * from "./freeform.js";
+
+export const INTEGRATION_SCHEMA_VERSION = "1.5.0" as const;
+export const PREVIOUS_INTEGRATION_SCHEMA_VERSION = "1.4.0" as const;
 export const LEGACY_INTEGRATION_SCHEMA_VERSION = "1.2.0" as const;
 export const EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION = "1.1.0" as const;
-export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
+export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof PREVIOUS_INTEGRATION_SCHEMA_VERSION | "1.3.0" | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
 export const NORMALIZED_EPSILON = 1e-9;
 export const OBJECT_RIGHT_FORMAT_PROFILE_ID = "KAKAO_BIZBOARD_OBJECT_RIGHT" as const;
 export const OBJECT_RIGHT_TEMPLATE_ID = "KAKAO_MOMENT_BIZBOARD_OBJECT_RIGHT_1029X258_V1" as const;
@@ -127,6 +136,16 @@ export type RendererIntegrationInputV1 = Readonly<{
   assets: readonly RendererAssetDescriptor[];
   imagePlacementPlans: readonly ImagePlacementPlan[];
   cropCandidates?: readonly CropCandidate[];
+  output: RendererOutputRequest;
+  layoutMode?: LayoutMode;
+  creativeLayoutPlan?: CreativeLayoutPlan;
+}>;
+
+export type RendererFreeformIntegrationInputV1 = Readonly<{
+  schemaVersion: IntegrationSchemaVersion;
+  formatProfileId: string;
+  layoutMode: "FREEFORM";
+  creativeLayoutPlan: CreativeLayoutPlan;
   output: RendererOutputRequest;
 }>;
 
@@ -278,7 +297,7 @@ function isFiniteNumber(value: unknown): value is number {
 }
 
 function isSupportedIntegrationSchemaVersion(value: unknown): value is IntegrationSchemaVersion {
-  return value === INTEGRATION_SCHEMA_VERSION || value === LEGACY_INTEGRATION_SCHEMA_VERSION || value === EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
+  return value === INTEGRATION_SCHEMA_VERSION || value === PREVIOUS_INTEGRATION_SCHEMA_VERSION || value === "1.3.0" || value === LEGACY_INTEGRATION_SCHEMA_VERSION || value === EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
 }
 
 export function validateNormalizedPoint(value: unknown, path = ""): RendererValidationIssue[] {
@@ -402,6 +421,12 @@ export function resolveCropRect(plan: ImagePlacementPlan, candidates: ReadonlyMa
 
 export function validateIntegrationInput(input: RendererIntegrationInputV1, context: ContractValidationContext = {}): RendererValidationIssue[] {
   const errors: RendererValidationIssue[] = [];
+  const layoutMode = input.layoutMode ?? "TEMPLATE_LOCKED";
+  if (layoutMode === "FREEFORM") {
+    if (!input.creativeLayoutPlan) return [issue("KBR-FREEFORM-PLAN-MISSING", "ERROR", "freeform.plan_missing", { path: "/creativeLayoutPlan" })];
+    return sortIssues(validateCreativeLayoutPlan(input.creativeLayoutPlan, { formatProfileId: input.formatProfileId }));
+  }
+  if (input.creativeLayoutPlan !== undefined) errors.push(issue("KBR-FREEFORM-PLAN-SCHEMA-INVALID", "ERROR", "freeform.plan_requires_freeform_mode", { path: "/creativeLayoutPlan", expected: "layoutMode=FREEFORM" }));
   if (!isSupportedIntegrationSchemaVersion(input.schemaVersion)) errors.push(issue("KBR-INPUT-002", "ERROR", "input.schema_version_invalid", { path: "/schemaVersion", expected: INTEGRATION_SCHEMA_VERSION, actual: input.schemaVersion }));
   if (!input.formatProfileId) errors.push(issue("KBR-INPUT-002", "ERROR", "input.format_profile_missing", { path: "/formatProfileId" }));
   if (!input.templateId) errors.push(issue("KBR-INPUT-002", "ERROR", "input.template_id_missing", { path: "/templateId" }));

@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.4.0",
+  "registryVersion": "1.5.0",
   "namespace": "renderer-integration",
   "codes": [
     { "code": "KBR-PLACEMENT-PLAN-MISSING", "severity": "ERROR", "messageKey": "placement.plan_missing", "condition": "A required image slot has no placement plan" },
@@ -46,6 +46,24 @@
     { "code": "KBR-LOGO-UPSCALE-LIMIT", "severity": "ERROR", "messageKey": "asset.logo_upscale_limit", "condition": "LOGO_PRIMARY requires more than 1.5x upscaling", "behavior": "Block the artifact" },
     { "code": "KBR-LOGO-ASSET-DUPLICATE", "severity": "ERROR", "messageKey": "asset.logo_asset_duplicate", "condition": "IMAGE_PRIMARY and LOGO_PRIMARY use the same asset ID", "behavior": "Block the artifact" },
     { "code": "KBR-MASK-ASSET-MISSING", "severity": "ERROR", "messageKey": "mask.asset_missing", "condition": "The canonical runtime mask asset is unavailable", "behavior": "Block Preview and Export" },
-    { "code": "KBR-MASK-ASSET-DIGEST-MISMATCH", "severity": "ERROR", "messageKey": "mask.asset_digest_mismatch", "condition": "The runtime mask bytes do not match the pinned SHA-256", "behavior": "Block Preview and Export" }
+    { "code": "KBR-MASK-ASSET-DIGEST-MISMATCH", "severity": "ERROR", "messageKey": "mask.asset_digest_mismatch", "condition": "The runtime mask bytes do not match the pinned SHA-256", "behavior": "Block Preview and Export" },
+    { "code": "KBR-FREEFORM-PLAN-MISSING", "severity": "ERROR", "messageKey": "freeform.plan_missing", "condition": "layoutMode is FREEFORM but creativeLayoutPlan is absent" },
+    { "code": "KBR-FREEFORM-PLAN-SCHEMA-INVALID", "severity": "ERROR", "messageKey": "freeform.plan_schema_invalid", "condition": "CreativeLayoutPlan or an element violates the frozen FREEFORM schema" },
+    { "code": "KBR-FREEFORM-FORMAT-PROFILE-MISMATCH", "severity": "ERROR", "messageKey": "freeform.format_profile_mismatch", "condition": "Input, CreativeLayoutPlan, and loaded FormatProfile IDs are not exactly equal" },
+    { "code": "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "severity": "ERROR", "messageKey": "freeform.canvas_profile_missing", "condition": "A FREEFORM request references no loaded FormatProfile canvas" },
+    { "code": "KBR-FREEFORM-ELEMENT-ID-DUPLICATE", "severity": "ERROR", "messageKey": "freeform.element_id_duplicate", "condition": "Two CreativeLayoutPlan elements share an id" },
+    { "code": "KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.element_type_not_supported", "condition": "An element type is outside IMAGE, TEXT, LOGO, and SHAPE" },
+    { "code": "KBR-FREEFORM-BOUNDS-OUT-OF-RANGE", "severity": "ERROR", "messageKey": "freeform.bounds_out_of_range", "condition": "An element bounds rectangle is not finite or is outside normalized 0..1" },
+    { "code": "KBR-FREEFORM-ZINDEX-INVALID", "severity": "ERROR", "messageKey": "freeform.zindex_invalid", "condition": "A FREEFORM element zIndex is not an integer" },
+    { "code": "KBR-FREEFORM-TEXT-COLOR-INVALID", "severity": "ERROR", "messageKey": "freeform.text_color_invalid", "condition": "Text color is not canonical #RRGGBB or #RRGGBBAA" },
+    { "code": "KBR-FREEFORM-TEXT-WRAP-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.text_wrap_not_supported", "condition": "A wrap mode is not implemented by FREEFORM v1" },
+    { "code": "KBR-FREEFORM-TEXT-OVERFLOW", "severity": "ERROR", "messageKey": "freeform.text_overflow", "condition": "ERROR overflow mode detects visible text outside element bounds during raster execution" },
+    { "code": "KBR-FONT-NOT-REGISTERED", "severity": "ERROR", "messageKey": "font.not_registered", "condition": "Text references a fontId absent from the deterministic Font Registry" },
+    { "code": "KBR-FONT-ASSET-MISSING", "severity": "ERROR", "messageKey": "font.asset_missing", "condition": "A registered font asset is unavailable or unresolved" },
+    { "code": "KBR-FONT-ASSET-DIGEST-MISMATCH", "severity": "ERROR", "messageKey": "font.asset_digest_mismatch", "condition": "Resolved font bytes do not match the registered SHA-256" },
+    { "code": "KBR-FREEFORM-IMAGE-ASSET-NOT-FOUND", "severity": "ERROR", "messageKey": "freeform.image_asset_not_found", "condition": "IMAGE or LOGO element references an unavailable asset" },
+    { "code": "KBR-FREEFORM-IMAGE-PLACEMENT-INVALID", "severity": "ERROR", "messageKey": "freeform.image_placement_invalid", "condition": "FREEFORM image placement is incomplete, contains a slot field, or violates normalized placement rules" },
+    { "code": "KBR-FREEFORM-BACKGROUND-COLOR-INVALID", "severity": "ERROR", "messageKey": "freeform.background_color_invalid", "condition": "SOLID background color is not canonical #RRGGBB or #RRGGBBAA" },
+    { "code": "KBR-FREEFORM-OUTPUT-FORMAT-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.output_format_not_supported", "condition": "Requested output format is not allowed by the loaded FREEFORM FormatProfile" }
   ]
 }

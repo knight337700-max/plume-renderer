@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0.0",
+  "formatProfileId": "KBR_FREEFORM_CONTRACT_TEST_1029X258",
+  "source": "MANUAL",
+  "background": { "type": "SOLID", "color": "#FFFFFF00" },
+  "elements": [
+    {
+      "id": "headline",
+      "type": "TEXT",
+      "bounds": { "x": 0.04, "y": 0.1, "width": 0.5, "height": 0.2 },
+      "zIndex": 10,
+      "text": "FREEFORM 계약 테스트",
+      "fontId": "SPOQA_HAN_SANS_BOLD",
+      "fontSizePx": 42,
+      "color": "#202020",
+      "lineHeightPx": 50,
+      "textAlign": "LEFT",
+      "verticalAlign": "TOP",
+      "wrapMode": "EXPLICIT_NEWLINES",
+      "overflowMode": "ERROR"
+    },
+    {
+      "id": "primary-image",
+      "type": "IMAGE",
+      "bounds": { "x": 0.58, "y": 0.08, "width": 0.36, "height": 0.84 },
+      "zIndex": 0,
+      "assetId": "freeform-image-01",
+      "placement": {
+        "policy": "CENTER_CONTAIN",
+        "source": "MANUAL",
+        "fitMode": "CONTAIN",
+        "anchor": "CENTER",
+        "subjectProtection": "NONE",
+        "rationale": "manual provenance",
+        "confidence": 0.5
+      }
+    }
+  ]
+}

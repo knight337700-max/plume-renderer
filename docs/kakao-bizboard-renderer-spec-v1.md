@@ -1,9 +1,9 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.9.0
-- **Status:** Frozen Implementation Contract — Phase C6b restored MASK_SEMICIRCLE_RIGHT arc and optional logo overlay
-- **Checked date:** 2026-08-06 (KST)
+- **Document version:** 1.10.0
+- **Status:** Frozen Implementation Contract — Phase F0 FREEFORM contract frozen; raster implementation not started
+- **Checked date:** 2026-08-07 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD / OBJECT_RIGHT, THUMBNAIL_BOX_RIGHT, THUMBNAIL_MULTI_RIGHT, and MASK_SEMICIRCLE_RIGHT / 1029×258`
 
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase C2a 이후 계약 우선순위는 이 문서의 **14. Phase C2a Text Baseline and Copy Limit**, `contracts/`의 machine-readable contract, Phase C0 freeze, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 **26. Phase F0 FREEFORM Renderer Contract Freeze**, `contracts/`의 machine-readable contract, 최신 Phase freeze, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -2688,3 +2688,136 @@ white backdrop/checkerboard와 reference guide는 Preview DOM에서만 허용하
 C6b MASK Golden은 `ad5448b368badcf1e5c304dadb8a93d3cbf4fab6f2e4d7d90334a44628d7d145`이며
 동일 Windows 10/11 x64 환경에서 동일 입력·asset·dependency·runtime을 3회 실행해
 byte-equal이어야 한다. 다른 OS의 pixel tolerance는 v1 Acceptance에 포함하지 않는다.
+
+## 26. Phase F0 — FREEFORM Renderer Contract Freeze [PROJECT]
+
+F0는 아직 Template에 고정되지 않은 지면을 위한 실행 경계만 동결한다. 이 절은
+카카오의 공식 FREEFORM 광고 규격을 주장하지 않으며, Agent/User가 생성한 Plan을
+독립적으로 검증할 수 있게 하는 본 프로젝트의 `[PROJECT]` 계약이다. 이번 Phase의
+상태는 `CONTRACT_FROZEN / IMPLEMENTATION_NOT_STARTED`다.
+
+### 26.1 LayoutMode와 Integration alignment [PROJECT]
+
+`LayoutMode`는 `TEMPLATE_LOCKED | FREEFORM`이다. `layoutMode`가 생략된 기존 JSON은
+`TEMPLATE_LOCKED`로 처리한다. Template mode는 `templateId`, 기존 Template Input,
+Template Registry Slot 좌표를 유지한다. FREEFORM은 `CreativeLayoutPlan v1.0.0`을
+필수로 하며 Plan에 없는 Layout을 생성하지 않는다. FREEFORM branch에서는
+`templateId`, `imagePlacementPlans`, `cropCandidates`를 사용하지 않고, 가짜
+`imageSlotId`를 만들지 않는다. 공개 Integration Contract는 기존 fields를 제거하지
+않고 `layoutMode`와 `creativeLayoutPlan`을 optional additive로 추가하여 v1.5.0으로
+minor bump한다. **[PROJECT]**
+
+### 26.2 CreativeLayoutPlan과 Element [PROJECT]
+
+```typescript
+type CreativePlanSource = "MANUAL" | "AGENT" | "SAVED_CREATIVE";
+
+interface CreativeLayoutPlan {
+  schemaVersion: "1.0.0";
+  formatProfileId: string;
+  source: CreativePlanSource;
+  background: CanvasBackground;
+  elements: readonly CreativeElement[];
+}
+```
+
+Plan은 Canvas width/height를 중복 저장하지 않는다. Element는 `IMAGE`, `TEXT`,
+`LOGO`, `SHAPE` 중 하나이며 `id`는 Plan 안에서 unique, bounds는 normalized 0..1,
+opacity는 0..1(생략 시 1), zIndex는 integer다. composite 순서는 zIndex ascending 후
+원래 elements 배열 순서다. rotation, skew, arbitrary transform, blur, shadow,
+blend mode, gradient, arbitrary mask, vector path와 auto-layout은 거부 대상이며
+무시하지 않는다. **[PROJECT]**
+
+`SHAPE`의 RECTANGLE/ELLIPSE와 fillColor는 계약만 정의하며 F0에서 Raster하지 않는다.
+**[PROJECT]**
+
+### 26.3 ImagePlacementSpec [PROJECT]
+
+FREEFORM IMAGE와 LOGO는 `assetId`, bounds, zIndex와 다음 공통 placement를 사용한다.
+
+```typescript
+interface ImagePlacementSpec {
+  policy: ImagePlacementPolicy;
+  source: PlacementPlanSource;
+  fitMode: "CONTAIN" | "COVER";
+  cropRect?: NormalizedRect;
+  focalPoint?: NormalizedPoint;
+  anchor: ImageAnchor;
+  subjectProtection: SubjectProtection;
+  cropCandidateId?: string;
+  confidence?: number;
+  protectedSubjects?: readonly ProtectedSubject[];
+  rationale?: string;
+}
+```
+
+`imageSlotId`는 FREEFORM Element와 PlacementSpec에 존재하지 않는다. 기존 public
+`ImagePlacementPlan`은 Template adapter를 위해 유지한다. **[PROJECT]**
+
+### 26.4 Text, Font, Wrap/Overflow [PROJECT]
+
+Text color는 `#RRGGBB` 또는 `#RRGGBBAA`만 허용하며 canonical 비교 시 대문자로
+정규화한다. Text는 `fontId`만 사용하고 `fontFamily` 문자열, OS fallback, CSS generic
+fallback, remote font loading은 금지한다. 현재 Registry에는 SHA-256이 검증된
+`SPOQA_HAN_SANS_REGULAR`와 `SPOQA_HAN_SANS_BOLD`만 있다. 미등록, missing, digest
+mismatch는 각각 `KBR-FONT-NOT-REGISTERED`, `KBR-FONT-ASSET-MISSING`,
+`KBR-FONT-ASSET-DIGEST-MISMATCH`다. **[PROJECT]**
+
+`wrapMode`는 `NO_WRAP`, `EXPLICIT_NEWLINES`, `WORD_WRAP`, `overflowMode`는 `ERROR`,
+`CLIP`으로 정의한다. F0의 실행 가능 wrap은 `NO_WRAP`과 `EXPLICIT_NEWLINES`뿐이며
+WORD_WRAP은 Unicode segmentation 버전이 고정될 때까지 `KBR-FREEFORM-TEXT-WRAP-NOT-SUPPORTED`
+ERROR다. NO_WRAP은 newline을 금지하고 EXPLICIT_NEWLINES는 입력 `\n`만 사용한다.
+자동 font shrink, letter-spacing 축소, bounds 확대, ellipsis는 금지한다. 단위는 px,
+fontSizePx와 lineHeightPx는 양수, letterSpacingPx는 finite, opacity 기본값은 1,
+letterSpacingPx 기본값은 0이다. 실제 ERROR overflow pixel 판정은 Raster Phase에서
+구현한다. **[PROJECT]**
+
+### 26.5 Canvas / FormatProfile identity [PROJECT]
+
+```typescript
+interface FormatProfile {
+  formatProfileId: string;
+  canvas: { width: number; height: number };
+  layoutMode: LayoutMode;
+  allowedOutputFormats: readonly ("PNG" | "JPG")[];
+  implementationStatus: "NOT_IMPLEMENTED" | "PARTIAL" | "IMPLEMENTED";
+}
+```
+
+실행 시 `RendererInput.formatProfileId === CreativeLayoutPlan.formatProfileId ===
+Loaded FormatProfile.formatProfileId`를 exact equality로 검증한다. 불일치는
+`KBR-FREEFORM-FORMAT-PROFILE-MISMATCH`, loaded canvas가 없으면
+`KBR-FREEFORM-CANVAS-PROFILE-MISSING`이다. 현재 내부 contract test profile만 기존
+1029×258을 사용하며 `PROJECT_TEST_ONLY`다. Native 1200은 공식 dimensions/file size가
+확정되지 않았으므로 `CATALOG_NOT_READY`이고 숫자를 추측하지 않는다. PNG는 기존
+encoder를 재사용할 수 있는 계약 상태, JPG는 `NOT_IMPLEMENTED`다. **[PROJECT]**
+
+### 26.6 Fingerprint policy [PROJECT] [DERIVED]
+
+`artifactChecksumSha256`은 최종 bytes, `pixelFingerprint`는 pixel-affecting
+material, `requestFingerprint`는 전체 Canonical Request와 provenance다. Pixel material은
+FormatProfile ID와 Canvas, background, stable element order, bounds/zIndex, text
+content/font asset digest/metrics/color, image asset digest/placement/crop, opacity와
+encoding을 포함한다. source, rationale, confidence, timestamp, absolute path, UI state와
+Agent metadata는 pixel material에서 제외한다. 동일 Layout의 MANUAL과 AGENT는 같은
+pixelFingerprint/artifact를 만들 수 있고 requestFingerprint만 달라질 수 있다.
+기존 `renderFingerprint` alias 의미는 pixelFingerprint로 유지한다. Canonical JSON은
+UTF-8, BOM 없음, NFC, JCS key/number canonicalization, array order 보존과 project-relative
+asset reference를 사용한다. **[PROJECT] [DERIVED]**
+
+### 26.7 Version, files, and acceptance [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.9.0 | 1.10.0 | FREEFORM 실행 모델과 7개 핵심 경계 추가 |
+| Integration Contract | 1.4.0 | 1.5.0 | optional layoutMode/CreativeLayoutPlan additive extension |
+| CreativeLayoutPlan | — | 1.0.0 | 신규 FREEFORM plan 계약 |
+| Template Contract | 1.6.0 | 1.6.0 | 기존 좌표·Template 동작 불변 |
+| Desktop | 0.7.1 | 0.7.1 | UI/raster 구현 제외 |
+
+Machine-readable Schema는 `packages/renderer-contract/schema/creative-*`와
+`image-placement-spec-v1.schema.json`, `format-profile-v1.schema.json`에 있다.
+Font/FormatProfile Registry는 `contracts/freeform-font-registry.json`과
+`contracts/freeform-format-profiles.json`이다. Contract 검증은
+`pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`로 수행하고, 기존
+Template Golden SHA는 변경되지 않아야 한다. **[PROJECT]**

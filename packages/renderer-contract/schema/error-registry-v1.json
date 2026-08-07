@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["registryVersion", "codes"],
   "properties": {
-    "registryVersion": { "const": "1.1.0" },
+    "registryVersion": { "const": "1.5.0" },
     "codes": {
       "type": "array",
       "items": {

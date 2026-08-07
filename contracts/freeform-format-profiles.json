@@ -1,0 +1,29 @@
+{
+  "registryVersion": "1.0.0",
+  "layoutMode": "FREEFORM",
+  "catalogStatus": "CATALOG_NOT_READY",
+  "outputFormats": {
+    "PNG": { "implementationStatus": "IMPLEMENTED_EXISTING_ENCODER" },
+    "JPG": { "implementationStatus": "NOT_IMPLEMENTED_FREEFORM_V1" }
+  },
+  "officialProfiles": [],
+  "profiles": [
+    {
+      "formatProfileId": "KBR_FREEFORM_CONTRACT_TEST_1029X258",
+      "canvas": { "width": 1029, "height": 258 },
+      "layoutMode": "FREEFORM",
+      "allowedOutputFormats": ["PNG"],
+      "implementationStatus": "NOT_IMPLEMENTED",
+      "catalogStatus": "INTERNAL_TEST_ONLY",
+      "classification": "PROJECT_TEST_ONLY"
+    }
+  ],
+  "native1200": {
+    "formatProfileId": "KAKAO_NATIVE_1200",
+    "layoutMode": "FREEFORM",
+    "implementationStatus": "NOT_IMPLEMENTED",
+    "catalogStatus": "CATALOG_NOT_READY",
+    "dimensions": null,
+    "allowedOutputFormats": []
+  }
+}

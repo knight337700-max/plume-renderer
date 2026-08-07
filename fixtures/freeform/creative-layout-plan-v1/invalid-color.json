@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "formatProfileId": "KBR_FREEFORM_CONTRACT_TEST_1029X258",
+  "source": "MANUAL",
+  "background": { "type": "TRANSPARENT" },
+  "elements": [
+    {
+      "id": "text",
+      "type": "TEXT",
+      "bounds": { "x": 0, "y": 0, "width": 0.5, "height": 0.2 },
+      "zIndex": 0,
+      "text": "bad color",
+      "fontId": "SPOQA_HAN_SANS_REGULAR",
+      "fontSizePx": 16,
+      "color": "red",
+      "lineHeightPx": 20,
+      "textAlign": "LEFT",
+      "verticalAlign": "TOP",
+      "wrapMode": "EXPLICIT_NEWLINES",
+      "overflowMode": "ERROR"
+    }
+  ]
+}

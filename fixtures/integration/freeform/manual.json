@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.5.0",
+  "formatProfileId": "KBR_FREEFORM_CONTRACT_TEST_1029X258",
+  "layoutMode": "FREEFORM",
+  "creativeLayoutPlan": {
+    "schemaVersion": "1.0.0",
+    "formatProfileId": "KBR_FREEFORM_CONTRACT_TEST_1029X258",
+    "source": "MANUAL",
+    "background": { "type": "TRANSPARENT" },
+    "elements": []
+  },
+  "output": { "mimeType": "image/png" }
+}

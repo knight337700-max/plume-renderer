@@ -1,6 +1,6 @@
 # Kakao Bizboard OBJECT_RIGHT local renderer
 
-Canonical 계약 `1.9.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.4.0`은 bytes 기반 PNG/JPEG MIME 검증, EXIF Orientation metadata, Agent-independent JSON boundary와 Runtime Asset Resolver, ordered image/logo slots를 제공하지만 Agent/OpenAI/Plume client를 포함하지 않는다.
+Canonical 계약 `1.10.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.5.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0` 계약을 동결했다. FREEFORM의 실제 Raster/UI는 아직 구현하지 않으며 Agent/OpenAI/Plume client를 포함하지 않는다.
 
 ## 요구 환경
 
@@ -18,6 +18,8 @@ pnpm check
 ```
 
 `pnpm check`는 기존 계약과 Integration Contract 무결성, TypeScript, lint, Core·Desktop build, 단위·통합·보안·Golden·Electron E2E 테스트를 순서대로 실행한다. Integration 전용 검증은 `pnpm test:integration-contract`다.
+
+FREEFORM Contract 전용 검증은 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`다. 이 단계는 Schema, Registry, fingerprint 의미와 기존 Golden 회귀만 검증하며 FREEFORM Raster를 시작하지 않는다.
 
 ## Desktop 실행
 
@@ -78,6 +80,16 @@ node dist/cli/index.js render `
 - Spoqa Han Sans Bold/Regular 고정 파일 및 SHA-256 검증
 - Alpha Trim, 8-neighbor 노이즈 분리, 1.5× 최대 업스케일
 - RGBA PNG-32, 300000 decimal-byte hard limit
+
+## FREEFORM Contract Freeze
+
+`LayoutMode`는 `TEMPLATE_LOCKED | FREEFORM`이다. 기존 입력에서 생략하면
+`TEMPLATE_LOCKED`이며 기존 Template Slot/Golden은 그대로 사용한다. FREEFORM은
+Template `imageSlotId` 없이 `CreativeLayoutPlan`의 normalized Element bounds와
+`ImagePlacementSpec`을 검증한다. Text는 canonical Hex color와 deterministic
+`fontId` Registry를 사용하고 OS/remote font fallback은 금지한다. Native 1200은 공식
+dimensions가 확정될 때까지 `CATALOG_NOT_READY`, FREEFORM JPG/Shape raster/Drag UI는
+후속 Phase다.
 - 동일 output root의 staging을 통한 manifest-first / PNG-last publish
 
 ## Integration Contract
