@@ -8,6 +8,9 @@ export type {
   OutputDirectoryResult,
   PreviewResult,
   ProductSelectionResult,
+  UiFreeformRequest,
+  UiFreeformOutputFormat,
+  UiLayoutMode,
   UiRenderInput,
   UiTemplate,
 } from "./types.js";

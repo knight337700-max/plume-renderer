@@ -114,6 +114,8 @@ export type CreativeLayoutPlan = Readonly<{
 
 export type FormatProfile = Readonly<{
   formatProfileId: string;
+  /** Registry-provided human label for Renderer Lab selectors. */
+  displayName?: string;
   channel?: string;
   canvas: Readonly<{ width: number; height: number }>;
   canvasSpec?: Readonly<{ kind: "FIXED" | "VARIABLE_HEIGHT"; width: number; minimumHeight?: number; maximumHeight?: number }>;

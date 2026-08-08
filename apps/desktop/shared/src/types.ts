@@ -1,7 +1,23 @@
-import type { LayoutMeasurements, ValidationIssue } from "../../../../src/core/types.js";
-import type { AppliedImagePlacement, CropCandidate, ImagePlacementPlan, SupportedInputMimeType } from "@kbr/renderer-contract";
+import type { FreeformAppliedElement, LayoutMeasurements, ValidationIssue } from "../../../../src/core/types.js";
+import type {
+  AppliedImagePlacement,
+  CreativeLayoutPlan,
+  CropCandidate,
+  ImagePlacementPlan,
+  SupportedInputMimeType,
+} from "@kbr/renderer-contract";
 
 export type UiTemplate = "OBJECT_RIGHT" | "THUMBNAIL_BOX_RIGHT" | "THUMBNAIL_MULTI_RIGHT" | "MASK_SEMICIRCLE_RIGHT";
+export type UiLayoutMode = "TEMPLATE_LOCKED" | "FREEFORM";
+export type UiFreeformOutputFormat = "PNG" | "JPEG";
+
+export type UiFreeformRequest = {
+  formatProfileId: string;
+  creativeLayoutPlan: CreativeLayoutPlan;
+  assetTokens: Readonly<Record<string, string>>;
+  outputFormat: UiFreeformOutputFormat;
+  outputQuality?: number | "AUTO_FIT";
+};
 
 export type UiRenderInput = {
   assetToken: string;
@@ -13,6 +29,8 @@ export type UiRenderInput = {
   jobName: string;
   requestSequence: number;
   template?: UiTemplate;
+  layoutMode?: UiLayoutMode;
+  freeform?: UiFreeformRequest;
   placementPlan?: ImagePlacementPlan;
   placementPlans?: readonly ImagePlacementPlan[];
   cropCandidates?: readonly CropCandidate[];
@@ -42,12 +60,12 @@ export type PreviewResult = {
   logoAssetDigest?: string | null;
   previewPngDigest: string | null;
   pngMetadata: {
-    format: "PNG";
-    colorType: "RGBA";
+    format: "PNG" | "JPEG";
+    colorType: "RGBA" | "RGB";
     bitDepth: 8;
-    hasAlpha: true;
-    width: 1029;
-    height: 258;
+    hasAlpha: boolean;
+    width: number;
+    height: number;
     bytes: number;
   } | null;
   measurements: LayoutMeasurements | null;
@@ -59,6 +77,11 @@ export type PreviewResult = {
   appliedImagePlacement?: AppliedImagePlacement | null;
   appliedImagePlacements?: readonly AppliedImagePlacement[];
   productAssetDigests?: Readonly<Record<string, string>>;
+  formatProfileId?: string | null;
+  artifactFormat?: UiFreeformOutputFormat | null;
+  artifactDigest?: string | null;
+  outputEncoding?: Readonly<Record<string, unknown>> | null;
+  appliedElements?: readonly FreeformAppliedElement[];
 };
 
 export type OutputDirectoryResult =
@@ -76,12 +99,15 @@ export type ExportResult =
       status: "EXPORTED";
       exportToken: string;
       jobName: string;
-      pngFileName: "output.png";
+      pngFileName: string;
       manifestFileName: "render-manifest.json";
       pngDigest: string;
       manifestDigest: string;
       bytes: number;
       warnings: ValidationIssue[];
+      artifactFileName?: string;
+      artifactFormat?: UiFreeformOutputFormat;
+      artifactDigest?: string;
     }
   | {
       status: "BLOCKED" | "ERROR";

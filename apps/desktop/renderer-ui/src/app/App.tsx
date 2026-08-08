@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useReducer, useState, type KeyboardEvent, type WheelEvent } from "react";
 
-import type { AppInfo, ExportRequest, ProductSelectionResult, UiRenderInput, UiTemplate } from "../../../shared/src/index.js";
+import type { AppInfo, ExportRequest, ProductSelectionResult, UiLayoutMode, UiRenderInput, UiTemplate } from "../../../shared/src/index.js";
 import type { TextMeasurement } from "../../../../../src/core/types.js";
 import {
   INTEGRATION_SCHEMA_VERSION,
@@ -30,6 +30,7 @@ import {
   type CropRectField,
 } from "../features/placement/crop-rect.js";
 import { fieldHasError, issueMessage } from "../features/validation/messages.js";
+import { FreeformEditor } from "../features/freeform/FreeformEditor.js";
 import { canExport, canRequestPreview, initialUiState, uiReducer, type UiField } from "./state.js";
 
 const fieldConfig: Array<{ id: UiField; label: string; pointer: string; multiline?: boolean }> = [
@@ -72,6 +73,7 @@ function defaultMultiPlan(imageSlotId: string, assetId: string): ImagePlacementP
 export function App() {
   const [state, dispatch] = useReducer(uiReducer, initialUiState);
   const [appInfo, setAppInfo] = useState<AppInfo | null>(null);
+  const [layoutMode, setLayoutMode] = useState<UiLayoutMode>("TEMPLATE_LOCKED");
   const [template, setTemplate] = useState<UiTemplate>("OBJECT_RIGHT");
   const [secondaryProduct, setSecondaryProduct] = useState<SelectedProduct | null>(null);
   const [logoProduct, setLogoProduct] = useState<SelectedProduct | null>(null);
@@ -620,12 +622,16 @@ export function App() {
         <div>
           <p className="eyebrow">비공식 내부 제작 도구</p>
           <h1>카카오 비즈보드 로컬 Renderer</h1>
-          <p>{template} · 1029×258 · CTA 없음 · Runtime network 0</p>
+          <p>{layoutMode === "TEMPLATE_LOCKED" ? `${template} · 1029×258 · CTA 없음` : "FREEFORM · Registry Format Catalog · Core Validator"} · Runtime network 0</p>
+          <div className="mode-selector" role="group" aria-label="Renderer Mode">
+            <button type="button" className={layoutMode === "TEMPLATE_LOCKED" ? "mode-active" : ""} onClick={() => setLayoutMode("TEMPLATE_LOCKED")} data-testid="mode-template-locked">Template Locked</button>
+            <button type="button" className={layoutMode === "FREEFORM" ? "mode-active" : ""} onClick={() => setLayoutMode("FREEFORM")} data-testid="mode-freeform">Freeform</button>
+          </div>
         </div>
         <div className="app-version">v{appInfo?.version ?? "…"}</div>
       </header>
 
-      <section className="workspace">
+      {layoutMode === "FREEFORM" ? <FreeformEditor /> : <section className="workspace">
         <aside className="input-panel" aria-label="입력 패널">
           <div className="section-heading">
             <h2>입력</h2>
@@ -936,9 +942,9 @@ export function App() {
             {state.internalError ? <article className="issue issue-error"><strong>INTERNAL_ERROR</strong><p>{state.internalError}</p></article> : null}
           </div>
         </section>
-      </section>
+      </section>}
 
-      <footer className="export-bar">
+      {layoutMode === "TEMPLATE_LOCKED" ? <footer className="export-bar">
         <div>
           <strong>출력 폴더</strong>
           <span>{state.output?.displayName ?? "선택하지 않음"}</span>
@@ -961,7 +967,7 @@ export function App() {
           </div>
         ) : null}
         <p className="legal-note">카카오 공식 제작툴이 아니며 실제 광고 심사 승인을 보장하지 않습니다. 코드 서명이 없어 SmartScreen 경고가 표시될 수 있습니다.</p>
-      </footer>
+      </footer> : null}
     </main>
   );
 }

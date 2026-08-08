@@ -90,7 +90,7 @@ if (integrationSchemas.includes("1.6.0")) pass("integration_version_alignment", 
 else fail("integration_version_alignment", "v1.6.0 is absent from Integration schemas");
 
 const versions = await readJson("contracts/contract-versions.json");
-if (versions.documentVersion?.current === "1.11.0" && versions.integrationContract?.current === "1.6.0" && versions.templateContractVersion === "1.6.0" && versions.desktopAppVersion === "0.7.1") pass("version_policy", "Canonical 1.11.0 / Integration 1.6.0 / Template 1.6.0 / Desktop 0.7.1");
+if (versions.documentVersion?.current === "1.11.0" && versions.integrationContract?.current === "1.6.0" && versions.templateContractVersion === "1.6.0" && versions.desktopAppVersion === "0.8.0") pass("version_policy", "Canonical 1.11.0 / Integration 1.6.0 / Template 1.6.0 / Desktop 0.8.0");
 else fail("version_policy", JSON.stringify({ document: versions.documentVersion, integration: versions.integrationContract, template: versions.templateContractVersion, desktop: versions.desktopAppVersion }));
 if (versions.creativeLayoutPlan?.schemaVersion === "1.0.0" && versions.creativeLayoutPlan?.implementationStatus === "NOT_IMPLEMENTED") pass("implementation_boundary", "FREEFORM schema remains frozen; raster implementation is additive");
 else fail("implementation_boundary", "FREEFORM implementation status is not NOT_IMPLEMENTED");

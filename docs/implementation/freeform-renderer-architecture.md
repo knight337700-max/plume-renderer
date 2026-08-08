@@ -1,8 +1,8 @@
 # FREEFORM Renderer Architecture
 
-상태: `CONTRACT_FROZEN`, F3A에서 Kakao Moment fixed FREEFORM catalog Profile과
-deterministic PNG/JPEG Core Raster가 구현되었다. 이 상태는 카카오의 공식 업로드
-승인이나 디자인 의미 적합성 보장을 의미하지 않는다.
+상태: `CONTRACT_FROZEN`, F4에서 Registry-driven multi-profile FREEFORM Renderer
+Lab UI와 Desktop Core bridge가 구현되었다. 이 상태는 카카오의 공식 업로드 승인이나
+디자인 의미 적합성 보장을 의미하지 않는다.
 
 ```text
 Agent/User
@@ -28,6 +28,14 @@ Renderer boundary
        ├─ deterministic JPEG encode (sRGB, 4:2:0, no metadata, non-progressive)
        ├─ Channel Compliance safe-zone / allowlist / opacity / byte gates
        └─ appliedElements + fingerprints + atomic publish
+
+Desktop Renderer Lab boundary (F4)
+  ├─ Layout Mode: TEMPLATE_LOCKED | FREEFORM
+  ├─ Registry-driven 14-profile selector; Scroll disabled
+  ├─ CreativeLayoutPlan editor: background, IMAGE/TEXT/LOGO, normalized geometry
+  ├─ Safe Zone metadata overlay (UI-only) + Core issue/manual-review panels
+  ├─ strict IPC: asset tokens, plan, output format/quality; no absolute paths
+  └─ fresh Preview gate → Core revalidation → PNG/JPEG + manifest atomic publish
 ```
 
 ## Adapter boundary
@@ -39,14 +47,15 @@ automatic crop inference, OpenAI/Plume/Queue/DB/remote call은 수행하지 않�
 
 ## Current capability status
 
-| 기능 | F3A 상태 |
+| 기능 | F4 상태 |
 |---|---|
 | CreativeLayoutPlan schema/types/validation | FROZEN; runtime validation active |
 | PNG output profile | IMPLEMENTED for internal + fixed catalog Profiles |
 | JPEG output | IMPLEMENTED; explicit Sharp/libvips quality ladder |
 | Shape raster | CONTRACT_ONLY; explicit NOT_SUPPORTED error |
 | Kakao fixed Format Catalog | 14 IMPLEMENTED Profiles; Scroll catalog-only |
-| Drag/resize Renderer Lab | EXCLUDED |
+| Desktop multi-profile FREEFORM Lab | IMPLEMENTED; plan editor and Core bridge |
+| Drag/resize Renderer Lab | EXCLUDED; direct normalized decimal editing only |
 | WORD_WRAP | NOT_IMPLEMENTED; explicit NOT_SUPPORTED error |
 | IMAGE / LOGO raster | ALPHA_TRIM_CONTAIN, CENTER_CONTAIN, SEMANTIC_CROP_COVER, MANUAL_CROP |
 | TEXT raster | NO_WRAP, EXPLICIT_NEWLINES; ERROR/CLIP overflow |
@@ -84,3 +93,13 @@ filesystem paths, AJV-native prose, aesthetic warnings, auto layout, clamp, crop
 font fallback and auto-shrink are outside the boundary. Legacy TEMPLATE_LOCKED dispatch and
 Golden bytes are not routed through the new stage metadata by default. Baked IMAGE semantics
 remain manual review; no OCR/CV/LLM inference is performed.
+
+## F4 UI/IPC invariants
+
+The renderer UI imports the same `contracts/freeform-format-profiles.json` metadata used
+by Core; it does not maintain a second list of official formats. The public Desktop IPC
+schema is strict at the envelope and allows only UUID asset tokens, a serializable
+`CreativeLayoutPlan`, profile ID, and explicit PNG/JPEG output settings. Controller code
+resolves those tokens to session-relative files before calling `renderFreeform`, so no
+absolute path crosses the UI boundary. The existing Template Locked selectors and IPC
+payloads remain untouched by the Freeform branch.

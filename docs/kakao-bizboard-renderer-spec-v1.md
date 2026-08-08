@@ -2,10 +2,10 @@
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
 - **Document version:** 1.11.0
-- **Status:** Frozen Implementation Contract — Phase F3A Kakao Moment FREEFORM fixed-format catalog and deterministic JPEG output implemented
-- **Checked date:** 2026-08-07 (KST)
+- **Status:** Frozen Implementation Contract — Phase F4 multi-profile FREEFORM Renderer Lab UI implemented; Core and schema meaning remain frozen
+- **Checked date:** 2026-08-08 (KST)
 - **Owner:** Local Renderer Project
-- **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates plus F3A FREEFORM Format Catalog`
+- **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates plus F3A catalog and F4 Desktop FREEFORM Lab`
 
 ---
 
@@ -3043,3 +3043,66 @@ F3A의 상세 registry는 `contracts/freeform-format-profiles.json`, 구현은
 `docs/catalog/kakao-moment-freeform-format-catalog-v1.md`, ADR은
 `docs/adr/ADR-0032`–`ADR-0036`에 둔다. 이 계약은 카카오 공식 업로드 승인이나
 이미지 내부 의미 적합성을 보장하지 않는다.
+
+## 30. Phase F4 — Multi-profile FREEFORM Renderer Lab UI [PROJECT]
+
+F4는 동결된 `CreativeLayoutPlan 1.0.0`, F2 Validator, F3A FormatProfile 및 Core
+Raster를 Desktop Renderer Lab에 연결한다. `TEMPLATE_LOCKED`와 `FREEFORM`은 상단
+Layout Mode로 분리되고, 기존 네 가지 Template workflow는 동일한 IPC payload와
+Golden 경로를 계속 사용한다. **[PROJECT]**
+
+### 30.1 Thin-client boundary [PROJECT]
+
+- Format selector와 human display name은 `contracts/freeform-format-profiles.json`
+  metadata에서 생성한다. 14개 `IMPLEMENTED` profile만 선택 가능하며
+  `KAKAO_ADVIEW_SCROLL_IMAGE`는 `CATALOG_ONLY` disabled option이다.
+- UI는 `CreativeLayoutPlan`을 편집하고 asset token과 output encoding만 IPC로
+  전달한다. absolute path, local path, UI zoom, Safe Zone toggle은 public plan에
+  들어가지 않는다.
+- Preview와 Export는 동일한 Core `renderFreeform` → F2 Validator → artifact
+  경로를 사용한다. UI에 별도 raster, auto-crop, auto-layout, font fallback,
+  clamp 또는 auto-shrink를 두지 않는다.
+- Registry `elementConstraints`는 add controls의 capability hint일 뿐이며,
+  JSON Import를 포함한 최종 판정은 Core Validator가 수행한다. Shape와 WORD_WRAP은
+  disabled/unsupported 상태를 유지한다.
+
+### 30.2 Editor and compliance surface [PROJECT]
+
+모든 element bounds는 `0..1` normalized JSON number다. X/Y/Width/Height는 직접
+소수 입력을 받고 C5B keyboard steps (`0.1`, `0.01`, `0.001`)을 사용한다. ID는
+`type prefix + smallest available positive integer`로 시작하며 사용자가 바꿀 수
+있고 duplicate는 Core ERROR다. zIndex와 array order는 Core의 stable render order를
+그대로 따른다.
+
+Safe Zone overlay는 Profile metadata에 숫자 geometry가 있을 때만 그린다. `REQUIRED`,
+`RECOMMENDED`, geometry unknown을 UI에서 구분하며 UNKNOWN 영역을 추측하지 않는다.
+Guide는 artifact에 포함되지 않는다. F3A baked-image/manual-review warning은
+Core issue와 별도 Manual Review panel에 표시한다. **[PROJECT] [MANUAL]**
+
+### 30.3 Output and stale gate [PROJECT]
+
+Profile이 허용하는 PNG/JPEG만 선택할 수 있다. Transparent + opaque-required
+profile 또는 Transparent + JPEG는 UI에서 보정하지 않고 Core Validator ERROR로
+표시한다. Preview가 fresh이고 Core ERROR가 0일 때만 download/export가 활성화되며,
+profile/background/element/asset/text/font/crop/zIndex/opacity/output 변경은 stale로
+만든다. Safe Zone toggle과 UI zoom은 stale 원인이 아니다.
+
+Plan JSON Import/Export/Copy는 `CreativeLayoutPlan`과 token 참조만 포함한다. Export는
+Core의 기존 atomic staging publisher를 통해 `output.png` 또는 `output.jpg`와
+`render-manifest.json`을 함께 publish한다. 다중 item Profile도 F4에서는 단일
+image artifact 하나만 생성하고 collection orchestration은 후속 단계다.
+
+### 30.4 Version and acceptance boundary [PROJECT]
+
+| 계약 | 이전 | 현재 | 사유 |
+|---|---:|---:|---|
+| Canonical 문서 | 1.11.0 | 1.11.0 | UI-only integration; frozen Core contract meaning unchanged |
+| Integration Contract | 1.6.0 | 1.6.0 | Existing CreativeLayoutPlan/output fields reused |
+| CreativeLayoutPlan | 1.0.0 | 1.0.0 | Plan shape and fingerprint semantics unchanged |
+| Template Contract | 1.6.0 | 1.6.0 | Coordinates and existing Goldens unchanged |
+| Desktop | 0.7.1 | 0.8.0 | Registry-driven FREEFORM Lab editor and Core bridge |
+
+F4 구현 상세는 `docs/implementation/freeform-renderer-lab-v1.md`, mode/IPC 결정은
+`docs/adr/ADR-0037-freeform-lab-mode-separation.md`와
+`docs/adr/ADR-0038-freeform-lab-registry-driven-format-selector.md`에 기록한다.
+이 단계는 카카오 공식 업로드 승인이나 디자인 의미 적합성을 보장하지 않는다.

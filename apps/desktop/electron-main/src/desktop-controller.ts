@@ -23,9 +23,11 @@ import {
   assertDownloadAllowed,
   createKakaoBizboardRenderer,
   loadContracts,
+  renderFreeform,
   renderThumbnailMultiRight,
   renderThumbnailBoxRight,
   renderMaskSemicircleRight,
+  type FreeformRenderRequest,
 } from "../../../../src/core/index.js";
 import { verifyRuntimeAssets } from "../../../../src/core/assets.js";
 import { canonicalJson } from "../../../../src/core/canonical.js";
@@ -104,6 +106,22 @@ function thumbnailManualAcceptanceStatus(): {
       reviewedAt: null,
     })),
   };
+}
+
+type FreeformProfileSummary = Readonly<{
+  formatProfileId: string;
+  canvas: { width: number; height: number };
+}>;
+
+async function readFreeformProfile(projectRoot: string, formatProfileId: string): Promise<FreeformProfileSummary | null> {
+  try {
+    const registry = JSON.parse(await readFile(path.join(projectRoot, "contracts", "freeform-format-profiles.json"), "utf8")) as {
+      profiles?: readonly FreeformProfileSummary[];
+    };
+    return registry.profiles?.find((profile) => profile.formatProfileId === formatProfileId) ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export type DesktopControllerConfig = {
@@ -629,10 +647,220 @@ export class DesktopController {
     }
   }
 
+  async #buildFreeformRequest(
+    input: UiRenderInput | ExportRequest,
+    options: { outputRoot?: string; publish?: boolean } = {},
+  ): Promise<{ request: FreeformRenderRequest; assets: ReadonlyMap<string, SessionAsset>; profile: FreeformProfileSummary | null }> {
+    const freeform = input.freeform;
+    if (!freeform) throw new DesktopSecurityError("DESKTOP-IPC-001", "FREEFORM payload is required");
+    const assets = new Map<string, SessionAsset>();
+    for (const [assetId, token] of Object.entries(freeform.assetTokens)) {
+      if (assets.has(assetId)) continue;
+      assets.set(assetId, this.#session.getAsset(token));
+    }
+    const output: NonNullable<FreeformRenderRequest["output"]> = {
+      format: freeform.outputFormat,
+      mimeType: freeform.outputFormat === "JPEG" ? "image/jpeg" : "image/png",
+      ...(freeform.outputQuality !== undefined ? { quality: freeform.outputQuality } : {}),
+      ...(options.publish ? { directory: ".", baseName: input.jobName, overwrite: false } : {}),
+    };
+    const request: FreeformRenderRequest = {
+      layoutMode: "FREEFORM",
+      formatProfileId: freeform.formatProfileId,
+      creativeLayoutPlan: freeform.creativeLayoutPlan,
+      assets: [...assets.entries()].map(([assetId, asset]) => ({
+        assetId,
+        path: asset.relativePath,
+        mimeType: asset.detectedMimeType,
+        checksumSha256: asset.sha256,
+      })),
+      output,
+      provenance: { source: "DESKTOP_RENDERER_LAB" },
+    };
+    return {
+      request,
+      assets,
+      profile: await readFreeformProfile(this.#projectRoot, freeform.formatProfileId),
+    };
+  }
+
+  #freeformPreviewMetadata(
+    format: "PNG" | "JPEG",
+    bytes: number,
+    profile: FreeformProfileSummary | null,
+  ): NonNullable<PreviewResult["pngMetadata"]> {
+    return {
+      format,
+      colorType: format === "PNG" ? "RGBA" : "RGB",
+      bitDepth: 8,
+      hasAlpha: format === "PNG",
+      width: profile?.canvas.width ?? 0,
+      height: profile?.canvas.height ?? 0,
+      bytes,
+    };
+  }
+
+  async #freeformPreview(input: UiRenderInput): Promise<PreviewResult> {
+    const generatedAt = new Date().toISOString();
+    const empty = (details: {
+      errors?: ValidationIssue[];
+      warnings?: ValidationIssue[];
+      formatProfileId?: string | null;
+      artifactFormat?: "PNG" | "JPEG" | null;
+      requestFingerprint?: string | null;
+      profile?: FreeformProfileSummary | null;
+    } = {}): PreviewResult => ({
+      requestSequence: input.requestSequence,
+      previewToken: null,
+      previewUrl: null,
+      canonicalInputDigest: details.requestFingerprint ?? null,
+      productAssetDigest: null,
+      previewPngDigest: null,
+      pngMetadata: null,
+      measurements: null,
+      validationStatus: "ERROR",
+      errors: details.errors ?? [],
+      warnings: details.warnings ?? [],
+      generatedAt,
+      formatProfileId: details.formatProfileId ?? input.freeform?.formatProfileId ?? null,
+      artifactFormat: details.artifactFormat ?? input.freeform?.outputFormat ?? null,
+      artifactDigest: null,
+      outputEncoding: null,
+      appliedElements: [],
+    });
+    try {
+      const built = await this.#buildFreeformRequest(input);
+      const result = await renderFreeform(built.request, {
+        projectRoot: this.#projectRoot,
+        inputRoot: this.#session.inputRoot,
+        outputRoot: this.#session.previewRoot,
+        publish: false,
+      });
+      const assetDigests = Object.fromEntries([...built.assets.entries()].map(([assetId, asset]) => [assetId, asset.sha256]));
+      const primaryAsset = [...built.assets.values()][0];
+      if (result.status !== "PASS" || !result.png || !result.requestFingerprint || !result.artifactDigest || !result.artifactFormat) {
+        await this.#session.invalidatePreview();
+        return empty({
+          errors: result.errors,
+          warnings: result.warnings,
+          formatProfileId: result.formatProfileId,
+          artifactFormat: result.artifactFormat,
+          requestFingerprint: result.requestFingerprint,
+          profile: built.profile,
+        });
+      }
+      const stored = await this.#session.storePreview(
+        result.png,
+        result.requestFingerprint,
+        primaryAsset?.sha256 ?? sha256Bytes(Buffer.alloc(0)),
+        result.artifactDigest,
+        assetDigests,
+      );
+      const mimeType = result.artifactFormat === "JPEG" ? "image/jpeg" : "image/png";
+      return {
+        requestSequence: input.requestSequence,
+        previewToken: stored.token,
+        previewUrl: `data:${mimeType};base64,${result.png.toString("base64")}`,
+        canonicalInputDigest: result.requestFingerprint,
+        productAssetDigest: primaryAsset?.sha256 ?? null,
+        previewPngDigest: result.artifactDigest,
+        pngMetadata: this.#freeformPreviewMetadata(result.artifactFormat, result.png.byteLength, built.profile),
+        measurements: null,
+        validationStatus: result.warnings.length > 0 ? "WARNING" : "PASS",
+        errors: result.errors,
+        warnings: result.warnings,
+        generatedAt,
+        formatProfileId: result.formatProfileId,
+        artifactFormat: result.artifactFormat,
+        artifactDigest: result.artifactDigest,
+        outputEncoding: result.outputEncoding,
+        appliedElements: result.appliedElements,
+        productAssetDigests: assetDigests,
+      };
+    } catch (error) {
+      await this.#session.invalidatePreview();
+      return empty({ errors: [{ code: error instanceof DesktopSecurityError ? error.code : "DESKTOP-FREEFORM-999", severity: "ERROR", messageKey: "desktop.freeform_internal_error", path: "/freeform", actual: error instanceof Error ? error.message : String(error) }] });
+    }
+  }
+
+  async #exportFreeform(
+    request: ExportRequest,
+    previewRecord: Awaited<ReturnType<DesktopSessionManager["getPreview"]>>,
+    output: Awaited<ReturnType<DesktopSessionManager["getOutputDirectory"]>>,
+  ): Promise<ExportResult> {
+    let artifactPath: string | null = null;
+    let manifestPath: string | null = null;
+    try {
+      const built = await this.#buildFreeformRequest(request, { outputRoot: output.root, publish: true });
+      const expectedDigests = previewRecord.assetDigests ?? {};
+      for (const [assetId, asset] of built.assets) {
+        const currentDigest = await sha256File(asset.absolutePath);
+        if (currentDigest !== asset.sha256 || (expectedDigests[assetId] !== undefined && expectedDigests[assetId] !== currentDigest)) {
+          return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", `${assetId} Asset이 Preview 이후 변경되었습니다.`);
+        }
+      }
+      const result = await renderFreeform(built.request, {
+        projectRoot: this.#projectRoot,
+        inputRoot: this.#session.inputRoot,
+        outputRoot: output.root,
+        publish: true,
+      });
+      const errors = result.errors;
+      const warnings = result.warnings;
+      if (result.status !== "PASS" || !result.downloadAllowed || !result.artifactPath || !result.manifestPath || !result.artifactDigest || !result.manifestDigest || errors.length > 0) {
+        return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "최종 재검증에 실패하여 Export가 차단되었습니다.", errors, warnings);
+      }
+      artifactPath = result.artifactPath;
+      manifestPath = result.manifestPath;
+      if (result.requestFingerprint !== previewRecord.inputDigest || result.artifactDigest !== previewRecord.pngDigest) {
+        await Promise.allSettled([rm(artifactPath, { force: true }), rm(manifestPath, { force: true })]);
+        return desktopFailure("BLOCKED", "DESKTOP-EXPORT-003", "Preview가 현재 입력과 일치하지 않습니다.", errors, warnings);
+      }
+      const [actualArtifactDigest, actualManifestDigest, artifactStat] = await Promise.all([
+        sha256File(artifactPath),
+        sha256File(manifestPath),
+        stat(artifactPath),
+      ]);
+      if (actualArtifactDigest !== result.artifactDigest || actualManifestDigest !== result.manifestDigest) {
+        await Promise.allSettled([rm(artifactPath, { force: true }), rm(manifestPath, { force: true })]);
+        return desktopFailure("ERROR", "DESKTOP-EXPORT-004", "저장된 산출물 digest 검증에 실패했습니다.", errors, warnings);
+      }
+      const exportToken = this.#session.registerExport(artifactPath, manifestPath);
+      const artifactFileName = path.basename(artifactPath);
+      return {
+        status: "EXPORTED",
+        exportToken,
+        jobName: request.jobName,
+        pngFileName: artifactFileName,
+        manifestFileName: "render-manifest.json",
+        pngDigest: actualArtifactDigest,
+        manifestDigest: actualManifestDigest,
+        bytes: artifactStat.size,
+        warnings,
+        artifactFileName,
+        artifactFormat: result.artifactFormat ?? "PNG",
+        artifactDigest: actualArtifactDigest,
+      };
+    } catch (error) {
+      if (artifactPath || manifestPath) {
+        await Promise.allSettled([
+          artifactPath ? rm(artifactPath, { force: true }) : Promise.resolve(),
+          manifestPath ? rm(manifestPath, { force: true }) : Promise.resolve(),
+        ]);
+      }
+      return desktopFailure(
+        "ERROR",
+        error instanceof DesktopSecurityError ? error.code : "DESKTOP-EXPORT-999",
+        error instanceof Error ? error.message : "FREEFORM Export 중 내부 오류가 발생했습니다.",
+      );
+    }
+  }
+
 
   async requestPreview(input: UiRenderInput): Promise<PreviewResult> {
     const generatedAt = new Date().toISOString();
     try {
+      if (input.layoutMode === "FREEFORM" || input.freeform) return this.#freeformPreview(input);
       const asset = this.#session.getAsset(input.assetToken);
       if (input.template === "THUMBNAIL_BOX_RIGHT") return this.#thumbnailPreview(input, asset);
       if (input.template === "THUMBNAIL_MULTI_RIGHT") return this.#thumbnailMultiPreview(input, asset);
@@ -946,6 +1174,11 @@ export class DesktopController {
     let publishedPng: string | null = null;
     let publishedManifest: string | null = null;
     try {
+      if (request.layoutMode === "FREEFORM" || request.freeform) {
+        const previewRecord = this.#session.getPreview(request.previewToken);
+        const output = this.#session.getOutputDirectory(request.outputDirectoryToken);
+        return this.#exportFreeform(request, previewRecord, output);
+      }
       const asset = this.#session.getAsset(request.assetToken);
       const previewRecord = this.#session.getPreview(request.previewToken);
       const output = this.#session.getOutputDirectory(request.outputDirectoryToken);

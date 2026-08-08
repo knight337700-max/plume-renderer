@@ -21,6 +21,9 @@ button.full { width: 100%; margin-top: 8px; padding: 12px; }
 .app-header p { margin: 0; color: #cdd2d7; font-size: 13px; }
 .app-header .eyebrow { color: #ffdb45; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; }
 .app-version { padding: 6px 9px; border: 1px solid #616872; border-radius: 6px; font-size: 12px; }
+.mode-selector { display: flex; gap: 6px; margin-top: 10px; }
+.mode-selector button { border-color: #68717c; background: transparent; color: #cdd2d7; padding: 6px 10px; font-size: 11px; }
+.mode-selector button.mode-active { border-color: #ffdb45; background: #ffdb45; color: #20262d; font-weight: 700; }
 
 .workspace { display: grid; grid-template-columns: 360px minmax(650px, 1fr); gap: 18px; padding: 18px 24px; min-height: 0; }
 .input-panel, .preview-panel { border: 1px solid #d9dde2; border-radius: 10px; background: #fff; padding: 18px; box-shadow: 0 2px 10px rgba(22, 29, 37, 0.04); }
@@ -105,6 +108,47 @@ button.full { width: 100%; margin-top: 8px; padding: 12px; }
 .slot-asset-panel, .slot-placement-panel { display: grid; gap: 6px; border: 1px solid #d9dde5; border-radius: 8px; background: #fafbfc; padding: 9px; }
 .slot-asset-panel span { color: #667085; font-size: 11px; }
 .slot-placement-panel legend { padding: 0 4px; color: #344054; font-size: 12px; font-weight: 700; }
+
+.freeform-lab { display: grid; grid-template-columns: minmax(390px, 440px) minmax(650px, 1fr); gap: 18px; padding: 18px 24px; min-height: 0; }
+.freeform-sidebar, .freeform-preview-panel { min-width: 0; border: 1px solid #d9dde2; border-radius: 10px; background: #fff; padding: 18px; box-shadow: 0 2px 10px rgba(22, 29, 37, 0.04); }
+.freeform-sidebar { overflow: auto; }
+.freeform-preview-panel { display: flex; flex-direction: column; gap: 14px; overflow: auto; }
+.freeform-summary { display: grid; gap: 5px; margin-top: 10px; border: 1px solid #e0e3e7; border-radius: 8px; background: #fafbfc; padding: 10px; font-size: 11px; }
+.freeform-summary span { color: #626a73; }
+.freeform-elements, .freeform-element-editor { margin-top: 18px; border-top: 1px solid #eceef1; padding-top: 14px; }
+.freeform-elements h3, .freeform-element-editor h3, .freeform-issues h3, .freeform-manual-review h3 { margin: 0; font-size: 15px; }
+.freeform-element-list { display: grid; gap: 6px; margin-top: 10px; }
+.freeform-element-row { display: grid; grid-template-columns: 70px 1fr auto auto; align-items: center; gap: 8px; text-align: left; padding: 8px 9px; font-size: 11px; }
+.freeform-element-row span { color: #697079; font-size: 10px; }
+.freeform-element-row small, .freeform-element-row em { color: #697079; font-size: 10px; font-style: normal; }
+.freeform-element-row.selected { border-color: #537aa9; background: #edf4ff; }
+.freeform-sub-editor { display: grid; gap: 10px; margin-top: 12px; }
+.freeform-sub-editor label, .freeform-sub-editor select, .freeform-sub-editor input, .freeform-sub-editor textarea { min-width: 0; }
+.freeform-sub-editor select, .freeform-sub-editor input, .freeform-sub-editor textarea, .freeform-sidebar select, .freeform-sidebar > textarea, .freeform-sidebar > .field-group > input { width: 100%; border: 1px solid #cbd0d6; border-radius: 7px; padding: 8px; font-size: 11px; }
+.freeform-sub-editor textarea, .freeform-sidebar textarea { resize: vertical; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; line-height: 1.35; }
+.freeform-geometry { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 12px; }
+.freeform-geometry label, .freeform-crop-fields label { min-width: 0; color: #697079; font-size: 10px; font-weight: 700; }
+.freeform-geometry input, .freeform-crop-fields input { width: 100%; margin-top: 3px; border: 1px solid #cbd0d6; border-radius: 6px; padding: 7px 5px; font-size: 11px; }
+.freeform-crop-fields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.freeform-crop-fields > .field-label { grid-column: 1 / -1; }
+.freeform-plan-json { min-height: 160px; margin-top: 10px; background: #fbfcfd; color: #252a30; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.freeform-preview-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.freeform-canvas { position: relative; width: 100%; overflow: hidden; border: 1px solid #c7ccd2; background-color: #f5f6f8; background-image: linear-gradient(45deg, #e5e7ea 25%, transparent 25%), linear-gradient(-45deg, #e5e7ea 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e5e7ea 75%), linear-gradient(-45deg, transparent 75%, #e5e7ea 75%); background-position: 0 0, 0 8px, 8px -8px, -8px 0; background-size: 16px 16px; }
+.freeform-canvas > img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+.freeform-canvas-label { position: absolute; z-index: 2; top: 6px; left: 6px; border-radius: 4px; background: rgba(255,255,255,.86); padding: 3px 5px; color: #697079; font-size: 10px; }
+.freeform-safe-zone { position: absolute; z-index: 3; border: 2px dashed #d5a000; background: rgba(255, 216, 70, .09); pointer-events: none; }
+.safe-zone-required { border-color: #c64444; background: rgba(198, 68, 68, .08); }
+.freeform-safe-zone-unknown { position: absolute; z-index: 3; top: 8px; right: 8px; border-radius: 4px; background: rgba(255,248,210,.9); padding: 4px 6px; color: #765b00; font-size: 10px; pointer-events: none; }
+.freeform-output-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #e0e3e7; border-radius: 8px; overflow: hidden; }
+.freeform-output-summary > span, .freeform-output-summary > strong { padding: 9px; border-right: 1px solid #e0e3e7; font-size: 11px; }
+.freeform-output-summary > span { color: #747b84; }
+.freeform-issues, .freeform-manual-review { display: grid; gap: 8px; border-top: 1px solid #eceef1; padding-top: 14px; }
+.freeform-manual-review p { margin: 0; border-left: 4px solid #d5a000; border-radius: 5px; background: #fff9e7; padding: 9px 11px; color: #705a00; font-size: 11px; }
+.status-error { color: #a22d2d; }
+
+@media (max-width: 1180px) {
+  .freeform-lab { grid-template-columns: minmax(340px, 390px) minmax(580px, 1fr); padding-left: 14px; padding-right: 14px; }
+}
 
 @media (max-height: 800px) {
   .workspace { padding-top: 12px; padding-bottom: 12px; }

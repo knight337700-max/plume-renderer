@@ -8,7 +8,7 @@
     "reason": "F3A adds the Kakao Moment FREEFORM fixed-format catalog, channel compliance metadata, and deterministic JPEG output"
   },
   "templateContractVersion": "1.6.0",
-  "desktopAppVersion": "0.7.1",
+  "desktopAppVersion": "0.8.0",
   "errorRegistryVersion": "1.2.0",
   "integrationErrorRegistryVersion": "1.6.0",
   "coordinatesChanged": false,
@@ -298,5 +298,26 @@
     "collectionStatus": "SINGLE_ITEM_RENDER_COLLECTION_METADATA_ONLY",
     "officialPlatform": "Windows 10/11 x64",
     "runtimeNetworkAccess": "PROHIBITED"
+  },
+  "canonicalPhaseF4": {
+    "documentPrevious": "1.11.0",
+    "documentCurrent": "1.11.0",
+    "documentBump": "none",
+    "documentReason": "Desktop-only multi-profile FREEFORM Renderer Lab UI; frozen Core and schema meaning are unchanged",
+    "templateContractVersion": "1.6.0",
+    "templateCoordinatesChanged": false,
+    "integrationContractPrevious": "1.6.0",
+    "integrationContractCurrent": "1.6.0",
+    "integrationContractBump": "none",
+    "integrationContractReason": "UI sends the existing CreativeLayoutPlan and output metadata through a strict Desktop IPC envelope",
+    "creativeLayoutPlanVersion": "1.0.0",
+    "creativeLayoutPlanChanged": false,
+    "desktopPrevious": "0.7.1",
+    "desktopCurrent": "0.8.0",
+    "desktopBump": "minor",
+    "desktopReason": "Registry-driven FREEFORM multi-profile editor, Core Preview/Export bridge, stale/download gate, and plan JSON controls",
+    "freeformUiStatus": "IMPLEMENTED",
+    "runtimeNetworkAccess": "PROHIBITED",
+    "officialPlatform": "Windows 10/11 x64"
   }
 }
