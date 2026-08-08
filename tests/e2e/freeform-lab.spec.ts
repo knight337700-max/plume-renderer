@@ -194,3 +194,112 @@ test("FREEFORM profile allowlist disables unsupported add controls and portrait 
     await close(launched);
   }
 });
+
+test("FREEFORM IMAGE starts neutral and explicit presets write deterministic placement values", async () => {
+  const launched = await launch();
+  try {
+    const page = launched.page;
+    await page.getByTestId("mode-freeform").click();
+    await page.getByTestId("freeform-select-image").click();
+    await expect(page.getByTestId("freeform-geometry-image-1-x")).toHaveValue("0");
+    await expect(page.getByTestId("freeform-geometry-image-1-y")).toHaveValue("0");
+    await expect(page.getByTestId("freeform-geometry-image-1-width")).toHaveValue("1");
+    await expect(page.getByTestId("freeform-geometry-image-1-height")).toHaveValue("1");
+    await expect(page.getByTestId("freeform-geometry-image-1-z-index")).toHaveValue("0");
+    await expect(page.getByTestId("freeform-geometry-image-1-opacity")).toHaveValue("1");
+    await expect(page.getByTestId("freeform-image-policy")).toHaveValue("CENTER_CONTAIN");
+    await expect(page.getByTestId("freeform-fit-destination")).toContainText("destination 975×600 @ 112,0");
+    await expect(page.getByTestId("freeform-preset-fit-canvas")).toHaveAttribute("title", /이미지 전체/u);
+    await expect(page.getByTestId("freeform-preset-fill-canvas")).toHaveAttribute("title", /중앙 기준/u);
+
+    await page.getByTestId("freeform-render-preview").click();
+    await expect(page.getByTestId("freeform-preview-image")).toBeVisible();
+    await page.getByTestId("freeform-preset-fill-canvas").click();
+    await expect(page.getByTestId("freeform-preview-image")).toHaveCount(0);
+    await expect(page.getByTestId("freeform-export")).toBeDisabled();
+    await expect(page.getByTestId("freeform-image-policy")).toHaveValue("MANUAL_CROP");
+    await expect(page.getByTestId("freeform-crop-x")).toHaveValue("0");
+    await expect(page.getByTestId("freeform-crop-y")).toHaveValue("0.09375");
+    await expect(page.getByTestId("freeform-crop-width")).toHaveValue("1");
+    await expect(page.getByTestId("freeform-crop-height")).toHaveValue("0.8125");
+
+    await page.getByTestId("freeform-geometry-image-1-z-index").fill("37");
+    await page.getByTestId("freeform-geometry-image-1-opacity").fill("0.42");
+    await page.getByTestId("freeform-preset-reset-placement").click();
+    await expect(page.getByTestId("freeform-image-policy")).toHaveValue("CENTER_CONTAIN");
+    await expect(page.getByTestId("freeform-crop-x")).toHaveCount(0);
+    await expect(page.getByTestId("freeform-geometry-image-1-z-index")).toHaveValue("37");
+    await expect(page.getByTestId("freeform-geometry-image-1-opacity")).toHaveValue("0.42");
+
+    await page.getByTestId("freeform-geometry-image-1-width").fill("0.8");
+    await expect(page.getByTestId("freeform-geometry-image-1-width")).toHaveValue("0.8");
+    await page.getByTestId("freeform-preset-fit-canvas").click();
+    await expect(page.getByTestId("freeform-geometry-image-1-width")).toHaveValue("1");
+    await page.getByTestId("freeform-plan-export").click();
+    const exported = JSON.parse(await page.getByTestId("freeform-plan-json").inputValue()) as {
+      elements: Array<{ bounds: unknown; zIndex: number; opacity: number; placement: Record<string, unknown> }>;
+    };
+    expect(exported.elements[0]).toMatchObject({
+      bounds: { x: 0, y: 0, width: 1, height: 1 },
+      zIndex: 37,
+      opacity: 0.42,
+      placement: { policy: "CENTER_CONTAIN", source: "MANUAL", fitMode: "CONTAIN" },
+    });
+    expect(exported.elements[0]?.placement).not.toHaveProperty("cropRect");
+    expect(exported.elements[0]?.placement).not.toHaveProperty("cropCandidateId");
+    expect(exported.elements[0]?.placement).not.toHaveProperty("focalPoint");
+  } finally {
+    await close(launched);
+  }
+});
+
+test("FREEFORM import preserves MANUAL and AGENT geometry until a preset is clicked", async () => {
+  const launched = await launch();
+  try {
+    const page = launched.page;
+    await page.getByTestId("mode-freeform").click();
+    const importedPlan = {
+      schemaVersion: "1.0.0",
+      formatProfileId: "KAKAO_DISPLAY_NATIVE_2_1",
+      source: "AGENT",
+      background: { type: "SOLID", color: "#FFFFFF" },
+      elements: [{
+        id: "agent-image",
+        type: "IMAGE",
+        assetId: "agent-asset",
+        bounds: { x: 0.52, y: 0.05, width: 0.43, height: 0.9 },
+        zIndex: 23,
+        opacity: 0.8,
+        placement: {
+          policy: "CENTER_CONTAIN",
+          source: "AGENT",
+          fitMode: "CONTAIN",
+          anchor: "CENTER_RIGHT",
+          subjectProtection: "PREFERRED",
+        },
+      }],
+    };
+    await page.getByTestId("freeform-plan-json").fill(JSON.stringify(importedPlan));
+    await page.getByTestId("freeform-plan-import").click();
+
+    await expect(page.getByTestId("freeform-geometry-agent-image-x")).toHaveValue("0.52");
+    await expect(page.getByTestId("freeform-geometry-agent-image-y")).toHaveValue("0.05");
+    await expect(page.getByTestId("freeform-geometry-agent-image-width")).toHaveValue("0.43");
+    await expect(page.getByTestId("freeform-geometry-agent-image-height")).toHaveValue("0.9");
+    await expect(page.getByTestId("freeform-geometry-agent-image-z-index")).toHaveValue("23");
+    await expect(page.getByTestId("freeform-preset-fill-canvas")).toBeDisabled();
+
+    await page.getByTestId("freeform-plan-export").click();
+    const preserved = JSON.parse(await page.getByTestId("freeform-plan-json").inputValue()) as typeof importedPlan;
+    expect(preserved).toEqual(importedPlan);
+
+    await page.getByTestId("freeform-preset-fit-canvas").click();
+    await expect(page.getByTestId("freeform-geometry-agent-image-x")).toHaveValue("0");
+    await expect(page.getByTestId("freeform-geometry-agent-image-y")).toHaveValue("0");
+    await expect(page.getByTestId("freeform-geometry-agent-image-width")).toHaveValue("1");
+    await expect(page.getByTestId("freeform-geometry-agent-image-height")).toHaveValue("1");
+    await expect(page.getByTestId("freeform-geometry-agent-image-z-index")).toHaveValue("23");
+  } finally {
+    await close(launched);
+  }
+});

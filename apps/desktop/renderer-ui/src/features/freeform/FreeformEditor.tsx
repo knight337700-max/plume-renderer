@@ -6,7 +6,6 @@ import type {
   FormatProfile,
   FreeformFontRegistry,
   ImagePlacementSpec,
-  NormalizedRect,
 } from "../../../../../../packages/renderer-contract/src/index.js";
 import { CROP_KEYBOARD_STEPS } from "../placement/crop-rect.js";
 import type {
@@ -20,6 +19,13 @@ import formatCatalogJson from "../../../../../../contracts/freeform-format-profi
 import fontRegistryJson from "../../../../../../contracts/freeform-font-registry.json" with { type: "json" };
 import { formatProductMetadata } from "../product-file/format.js";
 import { issueMessage } from "../validation/messages.js";
+import {
+  applyImagePlacementPreset,
+  calculateContainedDestination,
+  createNeutralImageElement,
+  type ImagePlacementPreset,
+  type RasterDimensions,
+} from "./image-placement-presets.js";
 
 type SelectedProduct = Extract<ProductSelectionResult, { status: "SELECTED" }>;
 type EditableElement = CreativeLayoutPlan["elements"][number];
@@ -33,10 +39,6 @@ const profiles = formatCatalog.profiles.filter((profile) => profile.implementati
 const catalogOnlyProfiles = formatCatalog.profiles.filter((profile) => profile.implementationStatus !== "IMPLEMENTED" || profile.catalogStatus === "INTERNAL_TEST_ONLY").filter((profile) => profile.catalogStatus !== "INTERNAL_TEST_ONLY");
 const defaultProfile = profiles[0];
 
-function emptyRect(): NormalizedRect {
-  return { x: 0.05, y: 0.05, width: 0.9, height: 0.9 };
-}
-
 function placementFor(type: "IMAGE" | "LOGO", policy: ImagePlacementSpec["policy"] = type === "LOGO" ? "ALPHA_TRIM_CONTAIN" : "CENTER_CONTAIN"): ImagePlacementSpec {
   const cover = policy === "MANUAL_CROP" || policy === "SEMANTIC_CROP_COVER";
   return {
@@ -49,18 +51,18 @@ function placementFor(type: "IMAGE" | "LOGO", policy: ImagePlacementSpec["policy
   };
 }
 
-function makeElement(type: ElementType, id: string, zIndex: number, assetId: string): EditableElement {
+function makeElement(type: ElementType, id: string, assetId: string): EditableElement {
   if (type === "IMAGE") {
-    return { id, type, assetId, bounds: { ...emptyRect(), x: 0.52, width: 0.43 }, zIndex, placement: placementFor(type) };
+    return createNeutralImageElement(id, assetId);
   }
   if (type === "LOGO") {
-    return { id, type, assetId, bounds: { x: 0.76, y: 0.06, width: 0.18, height: 0.14 }, zIndex, placement: placementFor(type) };
+    return { id, type, assetId, bounds: { x: 0.76, y: 0.06, width: 0.18, height: 0.14 }, zIndex: 0, placement: placementFor(type) };
   }
   return {
     id,
     type,
     bounds: { x: 0.06, y: 0.12, width: 0.62, height: 0.24 },
-    zIndex,
+    zIndex: 0,
     text: "새 텍스트",
     fontId: "SPOQA_HAN_SANS_REGULAR",
     fontSizePx: 48,
@@ -140,14 +142,15 @@ function GeometryEditor({ element, onChange }: { element: EditableElement; onCha
           <input
             type="number"
             step="any"
+            data-testid={`freeform-geometry-${element.id}-${field}`}
             value={String(element.bounds[field])}
             onChange={(event) => updateBounds(field, event.currentTarget.value)}
             onKeyDown={(event) => adjust(field, event)}
           />
         </label>
       ))}
-      <label><span>Z</span><input type="number" step="1" value={String(element.zIndex)} onChange={(event) => { const value = Number(event.currentTarget.value); if (Number.isFinite(value)) onChange({ zIndex: value }); }} /></label>
-      <label><span>Opacity</span><input type="number" step="any" value={String(element.opacity ?? 1)} onChange={(event) => { const value = Number(event.currentTarget.value); if (Number.isFinite(value)) onChange({ opacity: value }); }} /></label>
+      <label><span>Z</span><input type="number" step="1" data-testid={`freeform-geometry-${element.id}-z-index`} value={String(element.zIndex)} onChange={(event) => { const value = Number(event.currentTarget.value); if (Number.isFinite(value)) onChange({ zIndex: value }); }} /></label>
+      <label><span>Opacity</span><input type="number" step="any" data-testid={`freeform-geometry-${element.id}-opacity`} value={String(element.opacity ?? 1)} onChange={(event) => { const value = Number(event.currentTarget.value); if (Number.isFinite(value)) onChange({ opacity: value }); }} /></label>
     </div>
   );
 }
@@ -214,7 +217,7 @@ export function FreeformEditor() {
     if (!formatSupports(type)) return;
     const id = nextId(plan.elements, type);
     const assetId = nextAssetId(type, id, assetTokens);
-    const element = makeElement(type, id, (plan.elements.length + 1) * 10, assetId);
+    const element = makeElement(type, id, assetId);
     updatePlan((current) => ({ ...current, elements: [...current.elements, element] }));
     setSelectedId(id);
   };
@@ -236,7 +239,7 @@ export function FreeformEditor() {
     if (image) selectAssetFor(image.id, assetId);
     else {
       const id = nextId(plan.elements, "IMAGE");
-      updatePlan((current) => ({ ...current, elements: [...current.elements, makeElement("IMAGE", id, (current.elements.length + 1) * 10, assetId)] }));
+      updatePlan((current) => ({ ...current, elements: [...current.elements, makeElement("IMAGE", id, assetId)] }));
       setSelectedId(id);
     }
     setNotice(`${result.displayName} · ${formatProductMetadata(result)}`);
@@ -252,7 +255,7 @@ export function FreeformEditor() {
     if (logo) selectAssetFor(logo.id, assetId);
     else {
       const id = nextId(plan.elements, "LOGO");
-      updatePlan((current) => ({ ...current, elements: [...current.elements, makeElement("LOGO", id, (current.elements.length + 1) * 10, assetId)] }));
+      updatePlan((current) => ({ ...current, elements: [...current.elements, makeElement("LOGO", id, assetId)] }));
       setSelectedId(id);
     }
     setNotice(`${result.displayName} · 투명 PNG 로고`);
@@ -345,6 +348,33 @@ export function FreeformEditor() {
     return <GeometryEditor element={element} onChange={(patch) => updateElement(element.id, patch)} />;
   }
 
+  function applyPreset(
+    element: Extract<EditableElement, { type: "IMAGE" }>,
+    preset: ImagePlacementPreset,
+  ): void {
+    const selectedAsset = assetSelections[element.assetId];
+    const selectedCanvas = profile?.formatProfileId === plan.formatProfileId ? profile.canvas : undefined;
+    let next: Extract<EditableElement, { type: "IMAGE" }>;
+    if (preset === "FILL_CANVAS") {
+      if (!selectedAsset || !selectedCanvas) {
+        setNotice("캔버스 채우기는 선택된 이미지의 실제 크기와 현재 고정 Canvas Profile이 필요합니다.");
+        return;
+      }
+      next = applyImagePlacementPreset(element, preset, {
+          source: { width: selectedAsset.width, height: selectedAsset.height },
+          canvas: selectedCanvas,
+        });
+    } else {
+      next = applyImagePlacementPreset(element, preset);
+    }
+    updateElement(element.id, { bounds: next.bounds, placement: next.placement });
+    setNotice(preset === "FILL_CANVAS"
+      ? "캔버스 채우기 배치를 Plan에 적용했습니다. Preview를 다시 실행하세요."
+      : preset === "RESET_PLACEMENT"
+        ? "이미지 배치를 전체 캔버스 맞춤 상태로 초기화했습니다."
+        : "캔버스에 맞춤 배치를 Plan에 적용했습니다. Preview를 다시 실행하세요.");
+  }
+
   return (
     <section className="freeform-lab" data-testid="freeform-editor">
       <aside className="freeform-sidebar" aria-label="FREEFORM editor">
@@ -375,7 +405,13 @@ export function FreeformEditor() {
           <div className="freeform-element-list">{plan.elements.map((element) => <button type="button" key={element.id} className={`freeform-element-row${selectedId === element.id ? " selected" : ""}`} onClick={() => setSelectedId(element.id)} data-testid={`freeform-element-${element.id}`}><span>{element.type}</span><strong>{element.id}</strong><small>z{element.zIndex}</small><em>{element.opacity ?? 1}</em></button>)}</div>
         </section>
 
-        {selectedElement ? <section className="freeform-element-editor" aria-label={`${selectedElement.type} editor`} data-testid="freeform-element-editor"><div className="section-heading"><h3>{selectedElement.type} Editor</h3><button type="button" className="secondary" onClick={() => deleteElement(selectedElement.id)}>삭제</button></div><label className="field-group"><span className="field-label">Element ID</span><input value={selectedElement.id} onChange={(event) => renameElement(selectedElement.id, event.currentTarget.value)} /></label>{geometryFor(selectedElement)}
+        {selectedElement ? <section className="freeform-element-editor" aria-label={`${selectedElement.type} editor`} data-testid="freeform-element-editor"><div className="section-heading"><h3>{selectedElement.type} Editor</h3><button type="button" className="secondary" onClick={() => deleteElement(selectedElement.id)}>삭제</button></div><label className="field-group"><span className="field-label">Element ID</span><input value={selectedElement.id} onChange={(event) => renameElement(selectedElement.id, event.currentTarget.value)} /></label>
+          {selectedElement.type === "IMAGE" ? <ImagePresetEditor
+            sourceDimensions={assetSelections[selectedElement.assetId]}
+            canvasDimensions={profile?.formatProfileId === plan.formatProfileId ? profile.canvas : undefined}
+            onApply={(preset) => applyPreset(selectedElement, preset)}
+          /> : null}
+          {geometryFor(selectedElement)}
           {selectedElement.type === "IMAGE" ? <ImageEditor element={selectedElement} assetTokens={assetTokens} onChange={(patch) => updateElement(selectedElement.id, patch)} /> : null}
           {selectedElement.type === "LOGO" ? <LogoEditor element={selectedElement} assetTokens={assetTokens} onChange={(patch) => updateElement(selectedElement.id, patch)} /> : null}
           {selectedElement.type === "TEXT" ? <TextEditor element={selectedElement} onChange={(patch) => updateElement(selectedElement.id, patch)} /> : null}
@@ -404,6 +440,57 @@ export function FreeformEditor() {
   );
 }
 
+function ImagePresetEditor({
+  sourceDimensions,
+  canvasDimensions,
+  onApply,
+}: {
+  sourceDimensions: RasterDimensions | undefined;
+  canvasDimensions: RasterDimensions | undefined;
+  onApply: (preset: ImagePlacementPreset) => void;
+}) {
+  const fitDestination = sourceDimensions && canvasDimensions
+    ? calculateContainedDestination(sourceDimensions, canvasDimensions)
+    : null;
+  const fillAvailable = Boolean(sourceDimensions && canvasDimensions);
+  return (
+    <div className="freeform-image-presets" data-testid="freeform-image-presets">
+      <div className="section-heading">
+        <h4>Image Preset</h4>
+        <span className="hint">one-shot Plan edit</span>
+      </div>
+      <div className="button-row">
+        <button
+          type="button"
+          className="secondary"
+          title="이미지 전체를 유지합니다. 원본과 캔버스 비율이 다르면 여백이 생길 수 있습니다."
+          onClick={() => onApply("FIT_CANVAS")}
+          data-testid="freeform-preset-fit-canvas"
+        >캔버스에 맞춤</button>
+        <button
+          type="button"
+          className="secondary"
+          title="캔버스를 빈 공간 없이 채웁니다. 원본 비율을 유지하기 위해 일부 영역이 중앙 기준으로 잘릴 수 있습니다."
+          disabled={!fillAvailable}
+          onClick={() => onApply("FILL_CANVAS")}
+          data-testid="freeform-preset-fill-canvas"
+        >캔버스 채우기</button>
+        <button
+          type="button"
+          className="secondary"
+          title="이미지 배치를 전체 캔버스 맞춤 상태로 되돌립니다. zIndex와 opacity는 유지합니다."
+          onClick={() => onApply("RESET_PLACEMENT")}
+          data-testid="freeform-preset-reset-placement"
+        >배치 초기화</button>
+      </div>
+      <small className="hint">맞춤은 원본 전체를 보존하고, 채우기는 실제 이미지 크기로 중앙 Crop을 Plan에 기록합니다.</small>
+      {fitDestination && sourceDimensions && canvasDimensions ? <small className="hint" data-testid="freeform-fit-destination">
+        맞춤 예상 · source {sourceDimensions.width}×{sourceDimensions.height} → destination {fitDestination.width}×{fitDestination.height} @ {fitDestination.x},{fitDestination.y} / canvas {canvasDimensions.width}×{canvasDimensions.height}
+      </small> : <small className="hint">채우기를 사용하려면 먼저 IMAGE Asset을 선택하세요.</small>}
+    </div>
+  );
+}
+
 function ImageEditor({ element, assetTokens, onChange }: { element: Extract<EditableElement, { type: "IMAGE" }>; assetTokens: Readonly<Record<string, string>>; onChange: (patch: Partial<EditableElement>) => void }) {
   const placement = element.placement;
   const updatePlacement = (patch: Partial<ImagePlacementSpec>) => onChange({ placement: { ...placement, ...patch } });
@@ -421,7 +508,7 @@ function ImageEditor({ element, assetTokens, onChange }: { element: Extract<Edit
     const cropRect = placement.cropRect ?? { x: 0, y: 0, width: 1, height: 1 };
     updatePlacement({ cropRect: { ...cropRect, [field]: Number(cropRect[field]) + delta } });
   };
-  return <div className="freeform-sub-editor"><label><span className="field-label">Asset</span><select value={element.assetId} onChange={(event) => onChange({ assetId: event.currentTarget.value })}><option value={element.assetId}>{assetTokens[element.assetId] ? `${element.assetId} · selected` : `${element.assetId} · missing`}</option>{Object.keys(assetTokens).filter((assetId) => assetId !== element.assetId).map((assetId) => <option key={assetId} value={assetId}>{assetId}</option>)}</select></label><label><span className="field-label">Policy</span><select value={placement.policy} onChange={(event) => { const policy = event.currentTarget.value as ImagePlacementSpec["policy"]; updatePlacement({ policy, fitMode: policy === "MANUAL_CROP" || policy === "SEMANTIC_CROP_COVER" ? "COVER" : "CONTAIN", source: "MANUAL", ...(policy === "MANUAL_CROP" ? { cropRect: placement.cropRect ?? { x: 0, y: 0, width: 1, height: 1 } } : {}) }); }}><option value="CENTER_CONTAIN">CENTER_CONTAIN</option><option value="ALPHA_TRIM_CONTAIN">ALPHA_TRIM_CONTAIN</option><option value="MANUAL_CROP">MANUAL_CROP</option><option value="SEMANTIC_CROP_COVER">SEMANTIC_CROP_COVER</option></select></label><label><span className="field-label">Anchor</span><select value={placement.anchor} onChange={(event) => updatePlacement({ anchor: event.currentTarget.value as ImagePlacementSpec["anchor"] })}><option value="CENTER">CENTER</option><option value="CENTER_LEFT">CENTER_LEFT</option><option value="CENTER_RIGHT">CENTER_RIGHT</option><option value="TOP_CENTER">TOP_CENTER</option><option value="BOTTOM_CENTER">BOTTOM_CENTER</option></select></label><label><span className="field-label">Subject Protection</span><select value={placement.subjectProtection} onChange={(event) => updatePlacement({ subjectProtection: event.currentTarget.value as ImagePlacementSpec["subjectProtection"] })}><option value="NONE">NONE</option><option value="PREFERRED">PREFERRED</option><option value="REQUIRED">REQUIRED</option></select></label>{placement.policy === "MANUAL_CROP" ? <div className="freeform-crop-fields"><span className="field-label">Crop Rect · decimal</span>{(["x", "y", "width", "height"] as const).map((field) => <label key={field}><span>{field}</span><input type="number" step="any" value={String(placement.cropRect?.[field] ?? (field === "width" || field === "height" ? 1 : 0))} onChange={(event) => updateCrop(field, event.currentTarget.value)} onKeyDown={(event) => adjustCrop(field, event)} /></label>)}</div> : <small className="hint">Crop Rect는 {placement.policy}에서 사용하지 않습니다.</small>}<label><span className="field-label">Crop Candidate</span><input value={placement.cropCandidateId ?? ""} onChange={(event) => updatePlacement({ cropCandidateId: event.currentTarget.value || undefined } as unknown as Partial<ImagePlacementSpec>)} placeholder="Core-resolved candidate id" /></label></div>;
+  return <div className="freeform-sub-editor"><label><span className="field-label">Asset</span><select value={element.assetId} onChange={(event) => onChange({ assetId: event.currentTarget.value })}><option value={element.assetId}>{assetTokens[element.assetId] ? `${element.assetId} · selected` : `${element.assetId} · missing`}</option>{Object.keys(assetTokens).filter((assetId) => assetId !== element.assetId).map((assetId) => <option key={assetId} value={assetId}>{assetId}</option>)}</select></label><label><span className="field-label">Policy</span><select data-testid="freeform-image-policy" value={placement.policy} onChange={(event) => { const policy = event.currentTarget.value as ImagePlacementSpec["policy"]; updatePlacement({ policy, fitMode: policy === "MANUAL_CROP" || policy === "SEMANTIC_CROP_COVER" ? "COVER" : "CONTAIN", source: "MANUAL", ...(policy === "MANUAL_CROP" ? { cropRect: placement.cropRect ?? { x: 0, y: 0, width: 1, height: 1 } } : {}) }); }}><option value="CENTER_CONTAIN">CENTER_CONTAIN</option><option value="ALPHA_TRIM_CONTAIN">ALPHA_TRIM_CONTAIN</option><option value="MANUAL_CROP">MANUAL_CROP</option><option value="SEMANTIC_CROP_COVER">SEMANTIC_CROP_COVER</option></select></label><label><span className="field-label">Anchor</span><select value={placement.anchor} onChange={(event) => updatePlacement({ anchor: event.currentTarget.value as ImagePlacementSpec["anchor"] })}><option value="CENTER">CENTER</option><option value="CENTER_LEFT">CENTER_LEFT</option><option value="CENTER_RIGHT">CENTER_RIGHT</option><option value="TOP_CENTER">TOP_CENTER</option><option value="BOTTOM_CENTER">BOTTOM_CENTER</option></select></label><label><span className="field-label">Subject Protection</span><select value={placement.subjectProtection} onChange={(event) => updatePlacement({ subjectProtection: event.currentTarget.value as ImagePlacementSpec["subjectProtection"] })}><option value="NONE">NONE</option><option value="PREFERRED">PREFERRED</option><option value="REQUIRED">REQUIRED</option></select></label>{placement.policy === "MANUAL_CROP" ? <div className="freeform-crop-fields"><span className="field-label">Crop Rect · decimal</span>{(["x", "y", "width", "height"] as const).map((field) => <label key={field}><span>{field}</span><input type="number" step="any" data-testid={`freeform-crop-${field}`} value={String(placement.cropRect?.[field] ?? (field === "width" || field === "height" ? 1 : 0))} onChange={(event) => updateCrop(field, event.currentTarget.value)} onKeyDown={(event) => adjustCrop(field, event)} /></label>)}</div> : <small className="hint">Crop Rect는 {placement.policy}에서 사용하지 않습니다.</small>}<label><span className="field-label">Crop Candidate</span><input value={placement.cropCandidateId ?? ""} onChange={(event) => updatePlacement({ cropCandidateId: event.currentTarget.value || undefined } as unknown as Partial<ImagePlacementSpec>)} placeholder="Core-resolved candidate id" /></label></div>;
 }
 
 function LogoEditor({ element, assetTokens, onChange }: { element: Extract<EditableElement, { type: "LOGO" }>; assetTokens: Readonly<Record<string, string>>; onChange: (patch: Partial<EditableElement>) => void }) {

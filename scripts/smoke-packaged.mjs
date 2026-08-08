@@ -61,6 +61,9 @@ async function verifyPackagedCropUi() {
   if (!source.includes("ArrowUp") || (!source.includes('step:"any"') && !source.includes("step:`any`"))) {
     throw new Error("Packaged Crop UI keyboard/step=any contract is missing");
   }
+  if (!source.includes("캔버스에 맞춤") || !source.includes("캔버스 채우기") || !source.includes("배치 초기화") || !source.includes("one-shot Plan edit")) {
+    throw new Error("Packaged FREEFORM image placement preset controls are missing");
+  }
   const mainSource = await readFile(path.join(root, "release", "win-unpacked", "resources", "app", "dist-desktop", "electron-main", "main.cjs"), "utf8");
   if (!mainSource.includes("kbr-preview://preview/")) {
     throw new Error("Packaged Electron Main does not issue the secure format-neutral Preview token URL");

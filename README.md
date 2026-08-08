@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.11.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.6.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0`과 FREEFORM profile/output metadata를 제공한다. F3A에서 카카오모먼트 fixed FREEFORM Profile 14개와 deterministic JPEG output을 추가했고, F4/F4B Desktop Renderer Lab은 PNG/JPEG Preview와 PRE_RENDER/POST_RENDER별 publish gate를 제공한다. Variable-canvas와 collection 편집은 후속 Phase다.
+Canonical 계약 `1.11.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.6.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0`과 FREEFORM profile/output metadata를 제공한다. F3A에서 카카오모먼트 fixed FREEFORM Profile 14개와 deterministic JPEG output을 추가했고, F4/F4B Desktop Renderer Lab은 PNG/JPEG Preview와 PRE_RENDER/POST_RENDER별 publish gate를 제공한다. F4C Desktop `0.8.2`는 신규 IMAGE의 중립 full-canvas 기본값과 명시적 Fit/Fill/Reset one-shot 배치 프리셋을 제공한다. Variable-canvas와 collection 편집은 후속 Phase다.
 
 ## 요구 환경
 
@@ -19,7 +19,7 @@ pnpm check
 
 `pnpm check`는 기존 계약과 Integration Contract 무결성, TypeScript, lint, Core·Desktop build, 단위·통합·보안·Golden·Electron E2E 테스트를 순서대로 실행한다. Integration 전용 검증은 `pnpm test:integration-contract`다.
 
-FREEFORM Contract 전용 검증은 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`다. F1 Core Raster 검증은 `pnpm test:freeform-core`이며 기존 Template Golden 회귀와 함께 실행한다. F3A 카탈로그/프로파일 검증은 `pnpm test:kakao-freeform-profiles`, JPEG 결정성 검증은 `pnpm test:jpeg-determinism`이다.
+FREEFORM Contract 전용 검증은 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`다. F1 Core Raster 검증은 `pnpm test:freeform-core`이며 기존 Template Golden 회귀와 함께 실행한다. F3A 카탈로그/프로파일 검증은 `pnpm test:kakao-freeform-profiles`, JPEG 결정성 검증은 `pnpm test:jpeg-determinism`, F4C Desktop 배치 검증은 `pnpm test:freeform-presets`다.
 
 F2 Validator 검증은 `pnpm test:freeform-validator`다. PRE_RENDER ERROR는 raster/Preview/publish를
 실행하지 않고, POST_RENDER ERROR는 이미 생성된 Preview artifact를 표시하되 publish/download를 차단한다. Validator는 계약·매체
@@ -57,7 +57,7 @@ pnpm smoke:package
 
 ```text
 release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
-release/Kakao-Bizboard-Local-Renderer-0.8.1-x64.exe
+release/Kakao-Bizboard-Local-Renderer-0.8.2-x64.exe
 ```
 
 Portable 앱은 설치와 관리자 권한을 요구하지 않는다. 코드 서명과 자동 업데이트가 없으므로 Windows SmartScreen 경고가 표시될 수 있다. 앱은 비공식 로컬 Renderer이며 카카오 공식 서비스가 아니고 실제 광고 심사 승인을 보장하지 않는다.
@@ -98,8 +98,8 @@ legacy entry는 그대로 `CATALOG_NOT_READY`다. F1은 내부 테스트 Profile
 normalized bounds, stable zIndex, IMAGE/TEXT/LOGO Raster, appliedElements, fingerprints,
 atomic publish를 실행하고 F3A는 명시적 PNG/JPEG와 Profile size/alpha/safe-zone/
 element constraints를 검증한다. F2는 `src/core/freeform-validator.ts`에서 staged validation,
-asset/logo/text compliance, appliedElements/checksum integrity를 유지한다. Renderer Lab
-Profile selector와 variable-canvas collection은 후속 Phase다.
+asset/logo/text compliance, appliedElements/checksum integrity를 유지한다. Renderer Lab은
+Registry-driven Profile selector와 IMAGE Fit/Fill/Reset 배치 편집을 제공한다. Preset은 사용자가 클릭할 때만 기존 Plan 필드를 편집하고 Renderer에 자동 Layout/Crop 추론을 추가하지 않는다. variable-canvas collection은 후속 Phase다.
 - 동일 output root의 staging을 통한 manifest-first / PNG-last publish
 
 ## Integration Contract

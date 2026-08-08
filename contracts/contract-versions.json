@@ -8,7 +8,7 @@
     "reason": "F3A adds the Kakao Moment FREEFORM fixed-format catalog, channel compliance metadata, and deterministic JPEG output"
   },
   "templateContractVersion": "1.6.0",
-  "desktopAppVersion": "0.8.1",
+  "desktopAppVersion": "0.8.2",
   "errorRegistryVersion": "1.2.0",
   "integrationErrorRegistryVersion": "1.6.0",
   "coordinatesChanged": false,
@@ -339,6 +339,33 @@
     "desktopReason": "Serve JPEG with its canonical MIME type and retain non-publishable POST_RENDER artifacts for Preview",
     "previewArtifactStatus": "FORMAT_NEUTRAL",
     "postRenderPreviewStatus": "VISIBLE_PUBLISH_BLOCKED",
+    "runtimeNetworkAccess": "PROHIBITED",
+    "officialPlatform": "Windows 10/11 x64"
+  },
+  "canonicalPhaseF4C": {
+    "documentPrevious": "1.11.0",
+    "documentCurrent": "1.11.0",
+    "documentBump": "none",
+    "documentReason": "Desktop-only neutral IMAGE authoring defaults and explicit one-shot placement presets; Canonical rendering meaning is unchanged",
+    "templateContractVersion": "1.6.0",
+    "templateCoordinatesChanged": false,
+    "integrationContractPrevious": "1.6.0",
+    "integrationContractCurrent": "1.6.0",
+    "integrationContractBump": "none",
+    "integrationContractReason": "Presets write an existing CreativeLayoutPlan shape and do not alter public schemas or Renderer semantics",
+    "creativeLayoutPlanVersion": "1.0.0",
+    "creativeLayoutPlanChanged": false,
+    "desktopPrevious": "0.8.1",
+    "desktopCurrent": "0.8.2",
+    "desktopBump": "patch",
+    "desktopReason": "Remove non-contractual right-side IMAGE defaults and add Fit, Fill, and Reset placement actions",
+    "newImageDefault": {
+      "bounds": { "x": 0, "y": 0, "width": 1, "height": 1 },
+      "policy": "CENTER_CONTAIN",
+      "zIndex": 0,
+      "opacity": 1
+    },
+    "rendererLayoutDecisionAdded": false,
     "runtimeNetworkAccess": "PROHIBITED",
     "officialPlatform": "Windows 10/11 x64"
   }

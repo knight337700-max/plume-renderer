@@ -1,6 +1,7 @@
 # FREEFORM Renderer Lab UI v1
 
-Status: `IMPLEMENTED` in Desktop `0.8.0`; Preview artifact hotfix applied in Desktop `0.8.1`.
+Status: `IMPLEMENTED` in Desktop `0.8.0`; Preview artifact hotfix applied in Desktop `0.8.1`;
+neutral IMAGE defaults and manual placement presets applied in Desktop `0.8.2`.
 
 The lab has two explicit modes. `Template Locked` retains the four existing Kakao
 Bizboard workflows. `Freeform` is a separate editor that produces only the frozen
@@ -25,6 +26,26 @@ the font registry and WORD_WRAP remains disabled. Shape is disabled and remains 
 unsupported element. Geometry fields are normalized numbers with direct decimal input and
 C5B keyboard increments. Element IDs are editable, with deterministic prefix/integer
 defaults.
+
+Desktop `0.8.2` creates a new IMAGE with full normalized bounds, `CENTER_CONTAIN`, zIndex
+`0`, and explicit opacity `1`. New TEXT and LOGO elements also use neutral zIndex `0`; their
+existing geometry choices are not official coordinates and F4C adds no presets for them.
+Equal zIndex remains deterministic by original Plan array order.
+
+## IMAGE placement presets
+
+The selected IMAGE editor exposes three Desktop-only, one-shot Plan edits before Geometry.
+Fit writes full bounds and a fresh `CENTER_CONTAIN` placement. Reset writes the same
+placement while preserving zIndex and opacity. Fill reads the selected asset's actual
+oriented dimensions and the selected Registry Profile canvas, calculates an exact centered
+normalized crop, and writes `MANUAL_CROP` into the Plan. It is disabled when those dimensions
+are unavailable.
+
+No preset runs during JSON Import, including plans with `source: AGENT`. No preset reads Safe
+Zone metadata, rounds with `toFixed`, adds a persistent constraint, or delegates crop
+inference to Core. A button click follows the existing pixel-edit invalidation path and a new
+Core Preview is required before export. See `freeform-image-placement-presets.md` and
+ADR-0041.
 
 ## Preview, validation, and output
 

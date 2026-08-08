@@ -122,6 +122,10 @@ button.full { width: 100%; margin-top: 8px; padding: 12px; }
 .freeform-element-row span { color: #697079; font-size: 10px; }
 .freeform-element-row small, .freeform-element-row em { color: #697079; font-size: 10px; font-style: normal; }
 .freeform-element-row.selected { border-color: #537aa9; background: #edf4ff; }
+.freeform-image-presets { display: grid; gap: 8px; margin-top: 12px; border: 1px solid #d7deea; border-radius: 8px; background: #f7faff; padding: 10px; }
+.freeform-image-presets h4 { margin: 0; font-size: 12px; }
+.freeform-image-presets .button-row { flex-wrap: wrap; }
+.freeform-image-presets button { flex: 1 1 110px; }
 .freeform-sub-editor { display: grid; gap: 10px; margin-top: 12px; }
 .freeform-sub-editor label, .freeform-sub-editor select, .freeform-sub-editor input, .freeform-sub-editor textarea { min-width: 0; }
 .freeform-sub-editor select, .freeform-sub-editor input, .freeform-sub-editor textarea, .freeform-sidebar select, .freeform-sidebar > textarea, .freeform-sidebar > .field-group > input { width: 100%; border: 1px solid #cbd0d6; border-radius: 7px; padding: 8px; font-size: 11px; }

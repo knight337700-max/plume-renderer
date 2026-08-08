@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -35,6 +35,7 @@
     "test:freeform-contract": "pnpm verify:freeform-contract && pnpm build:contract && vitest run tests/freeform-contract",
     "test:freeform-core": "pnpm build && vitest run tests/freeform-core",
     "test:freeform-validator": "pnpm build && vitest run tests/freeform-validator",
+    "test:freeform-presets": "pnpm build && vitest run tests/freeform-presets",
     "test:kakao-freeform-profiles": "pnpm build && vitest run tests/kakao-freeform-profiles",
     "test:jpeg-determinism": "pnpm build && vitest run tests/kakao-freeform-profiles -t JPEG",
     "test:golden": "vitest run tests/golden",
