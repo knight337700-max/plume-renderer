@@ -6,6 +6,8 @@ import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
 import { encodeFreeformArtifact, renderFreeform, type FreeformRenderRequest } from "../../src/core/index.js";
+import { renderFreeformPreviewArtifact } from "../../src/core/freeform.js";
+import { deterministicOversizePng } from "../fixtures/freeform-preview-fixtures.js";
 import { projectRoot } from "../helpers.js";
 
 const imagePath = "fixtures/valid/object-right__product__basic__pass.png";
@@ -154,5 +156,36 @@ describe("Kakao Moment F3A fixed FREEFORM profiles", () => {
     const second = await encodeFreeformArtifact(png, "JPEG", { maximumBytes: 1, maximumBytesComparator: "LTE" });
     expect(first).toBeNull();
     expect(second).toBeNull();
+  });
+
+  it("retains an encoded POST_RENDER failure artifact only for an explicit Preview request", async () => {
+    const png = await deterministicOversizePng();
+    const request: FreeformRenderRequest = {
+      ...requestFor("KAKAO_DISPLAY_NATIVE_2_1", "PNG"),
+      assets: [{ assetId: "image", bytes: png, mimeType: "image/png" }],
+    };
+    const defaultResult = await renderFreeform(request, {
+      projectRoot,
+      inputRoot: projectRoot,
+      outputRoot: projectRoot,
+      publish: false,
+    });
+    expect(defaultResult.status).toBe("BLOCKED");
+    expect(defaultResult.png).toBeNull();
+
+    const previewResult = await renderFreeformPreviewArtifact(request, {
+      projectRoot,
+      inputRoot: projectRoot,
+      outputRoot: projectRoot,
+      publish: false,
+    });
+    expect(previewResult.status).toBe("BLOCKED");
+    expect(previewResult.png).toBeInstanceOf(Buffer);
+    expect(previewResult.artifactFormat).toBe("PNG");
+    expect(previewResult.downloadAllowed).toBe(false);
+    expect(previewResult.errors).toContainEqual(expect.objectContaining({
+      code: "KBR-FREEFORM-FILE-SIZE-EXCEEDED",
+      stage: "POST_RENDER",
+    }));
   });
 });

@@ -16,6 +16,11 @@ import {
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 
+import {
+  previewMimeType,
+  type PreviewImageFormat,
+  type PreviewImageMimeType,
+} from "../../../shared/src/index.js";
 import { sha256File } from "../../../../../src/core/hash.js";
 import {
   ImageInputError,
@@ -58,7 +63,18 @@ export type SessionPreview = {
   assetDigest: string;
   pngDigest: string;
   assetDigests?: Readonly<Record<string, string>>;
+  artifactFormat: PreviewImageFormat;
+  mimeType: PreviewImageMimeType;
+  byteLength: number;
+  publishAllowed: boolean;
 };
+
+export type SessionPreviewArtifact = Readonly<{
+  bytes: Buffer;
+  format: PreviewImageFormat;
+  mimeType: PreviewImageMimeType;
+  byteLength: number;
+}>;
 
 type OutputDirectoryRecord = { root: string; displayName: string };
 type ExportRecord = { pngPath: string; manifestPath: string };
@@ -241,10 +257,19 @@ export class DesktopSessionManager {
     ]);
   }
 
-  async storePreview(bytes: Buffer, inputDigest: string, assetDigest: string, pngDigest: string, assetDigests?: Readonly<Record<string, string>>): Promise<SessionPreview> {
+  async storePreview(
+    bytes: Buffer,
+    inputDigest: string,
+    assetDigest: string,
+    pngDigest: string,
+    assetDigests?: Readonly<Record<string, string>>,
+    options: Readonly<{ format?: PreviewImageFormat; publishAllowed?: boolean }> = {},
+  ): Promise<SessionPreview> {
     await this.invalidatePreview();
     const token = randomUUID();
-    const target = path.join(this.previewRoot, `${token}.png`);
+    const artifactFormat = options.format ?? "PNG";
+    const mimeType = previewMimeType(artifactFormat);
+    const target = path.join(this.previewRoot, `${token}${artifactFormat === "JPEG" ? ".jpg" : ".png"}`);
     const handle = await open(target, "wx");
     try {
       await handle.writeFile(bytes);
@@ -252,7 +277,18 @@ export class DesktopSessionManager {
     } finally {
       await handle.close();
     }
-    this.#preview = { token, absolutePath: target, inputDigest, assetDigest, pngDigest, ...(assetDigests ? { assetDigests } : {}) };
+    this.#preview = {
+      token,
+      absolutePath: target,
+      inputDigest,
+      assetDigest,
+      pngDigest,
+      ...(assetDigests ? { assetDigests } : {}),
+      artifactFormat,
+      mimeType,
+      byteLength: bytes.byteLength,
+      publishAllowed: options.publishAllowed ?? true,
+    };
     return { ...this.#preview };
   }
 
@@ -265,6 +301,16 @@ export class DesktopSessionManager {
 
   async readPreview(token: string): Promise<Buffer> {
     return readFile(this.getPreview(token).absolutePath);
+  }
+
+  async readPreviewArtifact(token: string): Promise<SessionPreviewArtifact> {
+    const preview = this.getPreview(token);
+    return {
+      bytes: await readFile(preview.absolutePath),
+      format: preview.artifactFormat,
+      mimeType: preview.mimeType,
+      byteLength: preview.byteLength,
+    };
   }
 
   async invalidatePreview(): Promise<void> {

@@ -4,6 +4,10 @@ import koMessages from "../../i18n/ko-KR.json" with { type: "json" };
 
 const messages = koMessages as Record<string, string>;
 
+export function hasIssueMessageTranslation(messageKey: string): boolean {
+  return typeof messages[messageKey] === "string" && messages[messageKey].length > 0;
+}
+
 export function issueMessage(issue: ValidationIssue): string {
   const base = messages[issue.messageKey] ?? `등록된 번역이 없습니다: ${issue.messageKey}`;
   if (!issue.actual || typeof issue.actual !== "object") return base;
@@ -19,6 +23,14 @@ export function issueMessage(issue: ValidationIssue): string {
   if (issue.code === "KBR-TEXT-WIDTH-HEADLINE-W001" || issue.code === "KBR-TEXT-WIDTH-SUBCOPY-W001") {
     if (typeof actual.actualWidthPx === "number" && typeof actual.limitWidthPx === "number") {
       return `${base} 현재 ${actual.actualWidthPx}px / 최대 ${actual.limitWidthPx}px입니다.`;
+    }
+  }
+  if (issue.code === "KBR-FREEFORM-FILE-SIZE-EXCEEDED") {
+    const expected = issue.expected && typeof issue.expected === "object"
+      ? issue.expected as Record<string, unknown>
+      : {};
+    if (typeof actual.bytes === "number" && typeof expected.maximumBytes === "number") {
+      return `${base} 현재 ${actual.bytes} bytes / 최대 ${expected.maximumBytes} bytes입니다.`;
     }
   }
   return base;

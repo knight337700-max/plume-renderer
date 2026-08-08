@@ -61,6 +61,14 @@ async function verifyPackagedCropUi() {
   if (!source.includes("ArrowUp") || (!source.includes('step:"any"') && !source.includes("step:`any`"))) {
     throw new Error("Packaged Crop UI keyboard/step=any contract is missing");
   }
+  const mainSource = await readFile(path.join(root, "release", "win-unpacked", "resources", "app", "dist-desktop", "electron-main", "main.cjs"), "utf8");
+  if (!mainSource.includes("kbr-preview://preview/")) {
+    throw new Error("Packaged Electron Main does not issue the secure format-neutral Preview token URL");
+  }
+  const indexHtml = await readFile(path.join(root, "release", "win-unpacked", "resources", "app", "dist-desktop", "renderer-ui", "index.html"), "utf8");
+  if (!indexHtml.includes("img-src 'self' kbr-preview:") || indexHtml.includes("img-src 'self' data:")) {
+    throw new Error("Packaged Preview CSP does not preserve the token-only image policy");
+  }
 }
 
 await verifyPackagedCropUi();
@@ -105,6 +113,18 @@ for (const executable of executables) {
   if (result.jpegDetectedMimeType !== "image/jpeg" || result.jpegWidth < 1 || result.jpegHeight < 1) {
     throw new Error(`Packaged JPEG input support failed: ${JSON.stringify(result)}`);
   }
+  if (result.freeformJpegPreviewMimeType !== "image/jpeg" || result.freeformJpegPreviewWidth !== 1200 || result.freeformJpegPreviewHeight !== 600 || result.freeformJpegDownloadAllowed !== true) {
+    throw new Error(`Packaged FREEFORM JPEG Preview failed: ${JSON.stringify(result)}`);
+  }
+  if (result.freeformPngPostRenderErrorCode !== "KBR-FREEFORM-FILE-SIZE-EXCEEDED" || result.freeformPngPostRenderErrorStage !== "POST_RENDER" || result.freeformPngPostRenderArtifactBytes <= 500_000 || result.freeformPngPostRenderPreviewAllowed !== true || result.freeformPngPostRenderDownloadAllowed !== false || result.freeformPngPostRenderPublishStatus !== "BLOCKED") {
+    throw new Error(`Packaged FREEFORM POST_RENDER Preview failed: ${JSON.stringify(result)}`);
+  }
+  if (result.freeformPreRenderPreviewToken !== null || result.freeformPreRenderPreviewAllowed !== false) {
+    throw new Error(`Packaged FREEFORM PRE_RENDER gate failed: ${JSON.stringify(result)}`);
+  }
+  if (await exists(result.freeformPngPostRenderOutputPath)) {
+    throw new Error(`Packaged FREEFORM POST_RENDER artifact was published: ${result.freeformPngPostRenderOutputPath}`);
+  }
   if (result.blockedNetworkRequestCount !== 0) {
     throw new Error(`Packaged runtime attempted ${result.blockedNetworkRequestCount} network requests`);
   }
@@ -123,6 +143,8 @@ for (const executable of executables) {
     access(result.maskManifestPath),
     access(result.jpegThumbnailPngPath),
     access(result.jpegThumbnailManifestPath),
+    access(result.freeformJpegArtifactPath),
+    access(result.freeformJpegManifestPath),
     verifyRightMargin(result.pngPath),
     verifyRightMargin(result.thumbnailPngPath),
     verifyRightMargin(result.decimalThumbnailPngPath),

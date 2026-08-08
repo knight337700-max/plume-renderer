@@ -8,7 +8,7 @@
     "reason": "F3A adds the Kakao Moment FREEFORM fixed-format catalog, channel compliance metadata, and deterministic JPEG output"
   },
   "templateContractVersion": "1.6.0",
-  "desktopAppVersion": "0.8.0",
+  "desktopAppVersion": "0.8.1",
   "errorRegistryVersion": "1.2.0",
   "integrationErrorRegistryVersion": "1.6.0",
   "coordinatesChanged": false,
@@ -317,6 +317,28 @@
     "desktopBump": "minor",
     "desktopReason": "Registry-driven FREEFORM multi-profile editor, Core Preview/Export bridge, stale/download gate, and plan JSON controls",
     "freeformUiStatus": "IMPLEMENTED",
+    "runtimeNetworkAccess": "PROHIBITED",
+    "officialPlatform": "Windows 10/11 x64"
+  },
+  "canonicalPhaseF4B": {
+    "documentPrevious": "1.11.0",
+    "documentCurrent": "1.11.0",
+    "documentBump": "none",
+    "documentReason": "Desktop-only Preview artifact presentation and PRE_RENDER/POST_RENDER UX clarification; Canonical rendering and compliance meaning are unchanged",
+    "templateContractVersion": "1.6.0",
+    "templateCoordinatesChanged": false,
+    "integrationContractPrevious": "1.6.0",
+    "integrationContractCurrent": "1.6.0",
+    "integrationContractBump": "none",
+    "integrationContractReason": "The additive Desktop Preview descriptor and eligibility adapter do not alter the public Renderer Integration Contract",
+    "creativeLayoutPlanVersion": "1.0.0",
+    "creativeLayoutPlanChanged": false,
+    "desktopPrevious": "0.8.0",
+    "desktopCurrent": "0.8.1",
+    "desktopBump": "patch",
+    "desktopReason": "Serve JPEG with its canonical MIME type and retain non-publishable POST_RENDER artifacts for Preview",
+    "previewArtifactStatus": "FORMAT_NEUTRAL",
+    "postRenderPreviewStatus": "VISIBLE_PUBLISH_BLOCKED",
     "runtimeNetworkAccess": "PROHIBITED",
     "officialPlatform": "Windows 10/11 x64"
   }

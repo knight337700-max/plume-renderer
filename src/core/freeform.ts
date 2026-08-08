@@ -97,6 +97,10 @@ export type FreeformRenderOptions = Readonly<{
   publish?: boolean;
 }>;
 
+type InternalFreeformRenderOptions = FreeformRenderOptions & Readonly<{
+  retainArtifactOnPostRenderError?: boolean;
+}>;
+
 export type FreeformRenderResult = Readonly<{
   status: "PASS" | "BLOCKED";
   png: Buffer | null;
@@ -959,9 +963,9 @@ function freeformResponseFromResult(result: FreeformRenderResult): RenderRespons
 
 export { freeformResponseFromResult };
 
-export async function renderFreeform(
+async function renderFreeformInternal(
   request: FreeformRenderRequest,
-  options: FreeformRenderOptions,
+  options: InternalFreeformRenderOptions,
 ): Promise<FreeformRenderResult> {
   const contracts = options.contracts ?? await loadContracts(options.projectRoot);
   const rawRequest: unknown = request;
@@ -1149,6 +1153,31 @@ export async function renderFreeform(
   });
   const finalIssues = sortAndDedupeIssues([...sortedRenderIssues, ...outputIssues, ...postRenderIssues]);
   if (finalIssues.some((entry) => entry.severity === "ERROR")) {
+    if (artifact && options.publish === false && options.retainArtifactOnPostRenderError === true) {
+      const artifactDigest = sha256Bytes(artifact);
+      const split = splitIssues(finalIssues);
+      return {
+        status: "BLOCKED",
+        png: artifact,
+        pngDigest: artifactDigest,
+        manifestDigest: null,
+        manifestPath: null,
+        pngPath: null,
+        downloadAllowed: false,
+        formatProfileId: formatProfileId ?? null,
+        artifactChecksumSha256: artifactDigest,
+        artifactFormat: requestedFormat,
+        artifactDigest,
+        artifactPath: null,
+        outputEncoding: encoding,
+        pixelFingerprint: fingerprints?.pixelFingerprint ?? null,
+        requestFingerprint: fingerprints?.requestFingerprint ?? null,
+        renderFingerprint: fingerprints?.pixelFingerprint ?? null,
+        appliedElements,
+        errors: split.errors,
+        warnings: split.warnings,
+      };
+    }
     return emptyResult(finalIssues, {
       formatProfileId,
       ...(fingerprints ? { pixelFingerprint: fingerprints.pixelFingerprint, requestFingerprint: fingerprints.requestFingerprint } : {}),
@@ -1268,6 +1297,24 @@ export async function renderFreeform(
     errors: [],
     warnings: splitIssues(finalIssues).warnings,
   };
+}
+
+export async function renderFreeform(
+  request: FreeformRenderRequest,
+  options: FreeformRenderOptions,
+): Promise<FreeformRenderResult> {
+  return renderFreeformInternal(request, options);
+}
+
+export async function renderFreeformPreviewArtifact(
+  request: FreeformRenderRequest,
+  options: FreeformRenderOptions,
+): Promise<FreeformRenderResult> {
+  return renderFreeformInternal(request, {
+    ...options,
+    publish: false,
+    retainArtifactOnPostRenderError: true,
+  });
 }
 
 export { freeformResponseFromResult as toFreeformRenderResponse };

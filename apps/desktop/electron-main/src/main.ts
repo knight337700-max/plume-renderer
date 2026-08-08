@@ -12,6 +12,7 @@ import {
   session as electronSession,
   shell,
 } from "electron";
+import sharp from "sharp";
 
 import type { UiRenderInput } from "../../shared/src/index.js";
 import { INTEGRATION_SCHEMA_VERSION } from "@kbr/renderer-contract";
@@ -97,9 +98,10 @@ async function registerLocalProtocols(controller: DesktopController): Promise<vo
       return new Response(null, { status: 403 });
     }
     try {
-      return new Response(Uint8Array.from(await controller.previewBytes(token)), {
+      const artifact = await controller.previewArtifact(token);
+      return new Response(Uint8Array.from(artifact.bytes), {
         status: 200,
-        headers: { "Content-Type": "image/png", "Cache-Control": "no-store" },
+        headers: { "Content-Type": artifact.mimeType, "Cache-Control": "no-store" },
       });
     } catch {
       return new Response(null, { status: 404 });
@@ -168,6 +170,22 @@ function smokeToken(): string | null {
   if (!argument) return null;
   const token = argument.slice("--smoke-test=".length);
   return SMOKE_TOKEN_PATTERN.test(token) ? token : null;
+}
+
+async function writePackagedSmokeOversizePng(target: string): Promise<void> {
+  const width = 1200;
+  const height = 600;
+  const raw = Buffer.alloc(width * height * 3);
+  let state = 0x6d2b79f5;
+  for (let offset = 0; offset < raw.length; offset += 1) {
+    state ^= state << 13;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    raw[offset] = state & 0xff;
+  }
+  await sharp(raw, { raw: { width, height, channels: 3 } })
+    .png({ compressionLevel: 9, adaptiveFiltering: false })
+    .toFile(target);
 }
 
 async function runPackagedSmoke(
@@ -380,6 +398,110 @@ async function runPackagedSmoke(
     });
     if (jpegThumbnailExport.status !== "EXPORTED") throw new Error(`JPEG thumbnail export failed: ${jpegThumbnailExport.code}`);
     const jpegThumbnailPaths = controller.getExportPaths(jpegThumbnailExport.exportToken);
+    const freeformProduct = await controller.selectProductFromPath(productPath);
+    if (freeformProduct.status !== "SELECTED") throw new Error("FREEFORM smoke product selection failed");
+    const freeformJpegInput: UiRenderInput = {
+      assetToken: freeformProduct.assetToken,
+      advertiser: "FREEFORM",
+      headline: "FREEFORM",
+      subcopy: "FREEFORM",
+      jobName: "package-smoke-freeform-jpeg",
+      requestSequence: 9,
+      layoutMode: "FREEFORM",
+      freeform: {
+        formatProfileId: "KAKAO_DISPLAY_NATIVE_2_1",
+        creativeLayoutPlan: {
+          schemaVersion: "1.0.0",
+          formatProfileId: "KAKAO_DISPLAY_NATIVE_2_1",
+          source: "MANUAL",
+          background: { type: "SOLID", color: "#FFFFFF" },
+          elements: [{
+            id: "image-1",
+            type: "IMAGE",
+            assetId: "image",
+            bounds: { x: 0, y: 0, width: 1, height: 1 },
+            zIndex: 0,
+            placement: { policy: "CENTER_CONTAIN", source: "MANUAL", fitMode: "CONTAIN", anchor: "CENTER", subjectProtection: "NONE" },
+          }],
+        },
+        assetTokens: { image: freeformProduct.assetToken },
+        outputFormat: "JPEG",
+        outputQuality: 92,
+      },
+    };
+    const freeformJpegRequest = freeformJpegInput.freeform;
+    if (!freeformJpegRequest) throw new Error("FREEFORM JPEG smoke request missing");
+    const freeformJpegPreview = await controller.requestPreview(freeformJpegInput);
+    if (!freeformJpegPreview.previewToken || freeformJpegPreview.errors.length > 0 || !freeformJpegPreview.eligibility?.downloadAllowed) {
+      throw new Error(`FREEFORM JPEG Preview failed: ${JSON.stringify(freeformJpegPreview.errors)}`);
+    }
+    const freeformJpegArtifact = await controller.previewArtifact(freeformJpegPreview.previewToken);
+    const freeformJpegMetadata = await sharp(freeformJpegArtifact.bytes).metadata();
+    if (freeformJpegArtifact.mimeType !== "image/jpeg" || freeformJpegMetadata.width !== 1200 || freeformJpegMetadata.height !== 600) {
+      throw new Error("FREEFORM JPEG Preview artifact metadata mismatch");
+    }
+    const freeformJpegExport = await controller.exportRender({
+      ...freeformJpegInput,
+      previewToken: freeformJpegPreview.previewToken,
+      outputDirectoryToken: selectedOutput.token,
+    });
+    if (freeformJpegExport.status !== "EXPORTED") throw new Error(`FREEFORM JPEG export failed: ${freeformJpegExport.code}`);
+    const freeformJpegPaths = controller.getExportPaths(freeformJpegExport.exportToken);
+
+    const oversizeFixturePath = path.join(outputRoot, "freeform-post-render-oversize.png");
+    await writePackagedSmokeOversizePng(oversizeFixturePath);
+    const oversizeProduct = await controller.selectProductFromPath(oversizeFixturePath);
+    if (oversizeProduct.status !== "SELECTED") throw new Error("FREEFORM oversized product selection failed");
+    const freeformPngPostRenderInput: UiRenderInput = {
+      ...freeformJpegInput,
+      assetToken: oversizeProduct.assetToken,
+      jobName: "package-smoke-freeform-post-render",
+      requestSequence: 10,
+      freeform: {
+        ...freeformJpegRequest,
+        assetTokens: { image: oversizeProduct.assetToken },
+        outputFormat: "PNG",
+        outputQuality: "AUTO_FIT",
+      },
+    };
+    const freeformPngPostRenderRequest = freeformPngPostRenderInput.freeform;
+    if (!freeformPngPostRenderRequest) throw new Error("FREEFORM POST_RENDER smoke request missing");
+    const freeformPngPostRenderPreview = await controller.requestPreview(freeformPngPostRenderInput);
+    if (!freeformPngPostRenderPreview.previewToken || !freeformPngPostRenderPreview.eligibility?.previewAllowed || freeformPngPostRenderPreview.eligibility.downloadAllowed) {
+      throw new Error("FREEFORM POST_RENDER Preview eligibility mismatch");
+    }
+    const postRenderError = freeformPngPostRenderPreview.errors.find((entry) => entry.code === "KBR-FREEFORM-FILE-SIZE-EXCEEDED");
+    if (postRenderError?.stage !== "POST_RENDER") throw new Error("FREEFORM POST_RENDER file-size error missing");
+    const freeformPngPostRenderArtifact = await controller.previewArtifact(freeformPngPostRenderPreview.previewToken);
+    if (freeformPngPostRenderArtifact.mimeType !== "image/png" || freeformPngPostRenderArtifact.byteLength <= 500_000) {
+      throw new Error("FREEFORM POST_RENDER Preview artifact mismatch");
+    }
+    const freeformPngBlockedExport = await controller.exportRender({
+      ...freeformPngPostRenderInput,
+      previewToken: freeformPngPostRenderPreview.previewToken,
+      outputDirectoryToken: selectedOutput.token,
+    });
+    if (freeformPngBlockedExport.status !== "BLOCKED") throw new Error("FREEFORM POST_RENDER publish was not blocked");
+
+    const firstFreeformElement = freeformPngPostRenderRequest.creativeLayoutPlan.elements[0];
+    if (firstFreeformElement?.type !== "IMAGE") throw new Error("FREEFORM PRE_RENDER smoke Plan missing");
+    const invalidCropPlan = {
+      ...freeformPngPostRenderRequest.creativeLayoutPlan,
+      elements: [{
+        ...firstFreeformElement,
+        placement: { policy: "MANUAL_CROP" as const, source: "MANUAL" as const, fitMode: "COVER" as const, anchor: "CENTER" as const, subjectProtection: "NONE" as const },
+      }],
+    };
+    const freeformPreRenderInput: UiRenderInput = {
+      ...freeformPngPostRenderInput,
+      jobName: "package-smoke-freeform-pre-render",
+      requestSequence: 11,
+      freeform: { ...freeformPngPostRenderRequest, creativeLayoutPlan: invalidCropPlan },
+    };
+    const freeformPreRenderPreview = await controller.requestPreview(freeformPreRenderInput);
+    if (freeformPreRenderPreview.previewToken || freeformPreRenderPreview.eligibility?.previewAllowed || !freeformPreRenderPreview.errors.some((entry) => entry.stage === "PRE_RENDER")) {
+      throw new Error("FREEFORM PRE_RENDER Preview was not blocked");
+    }
     await writeFile(
       resultPath,
       JSON.stringify({
@@ -424,6 +546,21 @@ async function runPackagedSmoke(
         jpegDetectedMimeType: jpegProduct.detectedMimeType,
         jpegWidth: jpegProduct.width,
         jpegHeight: jpegProduct.height,
+        freeformJpegPreviewMimeType: freeformJpegArtifact.mimeType,
+        freeformJpegPreviewWidth: freeformJpegMetadata.width,
+        freeformJpegPreviewHeight: freeformJpegMetadata.height,
+        freeformJpegDownloadAllowed: freeformJpegPreview.eligibility.downloadAllowed,
+        freeformJpegArtifactPath: freeformJpegPaths.pngPath,
+        freeformJpegManifestPath: freeformJpegPaths.manifestPath,
+        freeformPngPostRenderErrorCode: postRenderError.code,
+        freeformPngPostRenderErrorStage: postRenderError.stage,
+        freeformPngPostRenderArtifactBytes: freeformPngPostRenderArtifact.byteLength,
+        freeformPngPostRenderPreviewAllowed: freeformPngPostRenderPreview.eligibility.previewAllowed,
+        freeformPngPostRenderDownloadAllowed: freeformPngPostRenderPreview.eligibility.downloadAllowed,
+        freeformPngPostRenderPublishStatus: freeformPngBlockedExport.status,
+        freeformPngPostRenderOutputPath: path.join(outputRoot, freeformPngPostRenderInput.jobName, "output.png"),
+        freeformPreRenderPreviewToken: freeformPreRenderPreview.previewToken,
+        freeformPreRenderPreviewAllowed: freeformPreRenderPreview.eligibility?.previewAllowed ?? false,
         blockedNetworkRequestCount,
       }),
       "utf8",

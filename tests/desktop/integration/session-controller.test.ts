@@ -1,4 +1,4 @@
-import { access, mkdir, readdir, readFile, stat } from "node:fs/promises";
+import { access, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import sharp from "sharp";
@@ -8,6 +8,7 @@ import { DesktopController } from "../../../apps/desktop/electron-main/src/deskt
 import { DesktopSessionManager } from "../../../apps/desktop/electron-main/src/session/session-manager.js";
 import type { UiRenderInput } from "../../../apps/desktop/shared/src/index.js";
 import { sha256Bytes } from "../../../src/core/hash.js";
+import { deterministicOversizePng } from "../../fixtures/freeform-preview-fixtures.js";
 import { createTempRoot, projectRoot, removeTempRoot } from "../../helpers.js";
 
 type Context = {
@@ -48,6 +49,49 @@ function uiInput(assetToken: string, jobName = "desktop-output"): UiRenderInput 
   };
 }
 
+function freeformInput(
+  assetToken: string,
+  outputFormat: "PNG" | "JPEG",
+  jobName: string,
+  placement: Readonly<Record<string, unknown>> = {
+    policy: "CENTER_CONTAIN",
+    source: "MANUAL",
+    fitMode: "CONTAIN",
+    anchor: "CENTER",
+    subjectProtection: "NONE",
+  },
+): UiRenderInput {
+  return {
+    assetToken,
+    advertiser: "FREEFORM",
+    headline: "FREEFORM",
+    subcopy: "FREEFORM",
+    jobName,
+    requestSequence: 1,
+    layoutMode: "FREEFORM",
+    freeform: {
+      formatProfileId: "KAKAO_DISPLAY_NATIVE_2_1",
+      creativeLayoutPlan: {
+        schemaVersion: "1.0.0",
+        formatProfileId: "KAKAO_DISPLAY_NATIVE_2_1",
+        source: "MANUAL",
+        background: { type: "SOLID", color: "#FFFFFF" },
+        elements: [{
+          id: "image-1",
+          type: "IMAGE",
+          assetId: "image",
+          bounds: { x: 0, y: 0, width: 1, height: 1 },
+          zIndex: 0,
+          placement: placement as never,
+        }],
+      },
+      assetTokens: { image: assetToken },
+      outputFormat,
+      ...(outputFormat === "JPEG" ? { outputQuality: 92 as const } : {}),
+    },
+  };
+}
+
 async function selectFixture(context: Context, fixture: string) {
   const result = await context.controller.selectProductFromPath(path.join(projectRoot, ...fixture.split("/")));
   expect(result.status, JSON.stringify(result)).toBe("SELECTED");
@@ -63,6 +107,80 @@ afterEach(async () => {
 });
 
 describe("Desktop session, Preview, and Export integration", () => {
+  it("serves a valid FREEFORM JPEG Preview through the format-neutral token protocol", async () => {
+    const context = await setup("freeform-jpeg-preview");
+    const selected = await selectFixture(context, "fixtures/valid/object-right__product__basic__pass.png");
+    const input = freeformInput(selected.assetToken, "JPEG", "freeform-jpeg-preview");
+    const preview = await context.controller.requestPreview(input);
+
+    expect(preview.errors).toEqual([]);
+    expect(preview.previewUrl).toMatch(/^kbr-preview:\/\/preview\//u);
+    expect(preview.previewArtifact).toMatchObject({
+      format: "JPEG",
+      mimeType: "image/jpeg",
+      width: 1200,
+      height: 600,
+    });
+    expect(preview.eligibility).toEqual({ hasRenderableArtifact: true, previewAllowed: true, publishAllowed: true, downloadAllowed: true });
+    if (!preview.previewToken) throw new Error("JPEG Preview token missing");
+    const artifact = await context.controller.previewArtifact(preview.previewToken);
+    expect(artifact.mimeType).toBe("image/jpeg");
+    expect((await sharp(artifact.bytes).metadata()).format).toBe("jpeg");
+
+    const output = await context.controller.registerOutputDirectory(context.outputRoot);
+    const exported = await context.controller.exportRender({ ...input, previewToken: preview.previewToken, outputDirectoryToken: output.token });
+    expect(exported.status).toBe("EXPORTED");
+    if (exported.status === "EXPORTED") {
+      await expect(access(path.join(context.outputRoot, input.jobName, "output.jpg"))).resolves.toBeUndefined();
+    }
+  });
+
+  it("retains a FREEFORM PNG POST_RENDER failure for Preview but blocks publish", async () => {
+    const context = await setup("freeform-post-render");
+    const fixturePath = path.join(context.root, "freeform-post-render-oversize.png");
+    await writeFile(fixturePath, await deterministicOversizePng());
+    const selected = await context.controller.selectProductFromPath(fixturePath);
+    expect(selected.status).toBe("SELECTED");
+    if (selected.status !== "SELECTED") return;
+    const input = freeformInput(selected.assetToken, "PNG", "freeform-post-render");
+    const preview = await context.controller.requestPreview(input);
+
+    expect(preview.validationStatus).toBe("ERROR");
+    expect(preview.errors).toContainEqual(expect.objectContaining({
+      code: "KBR-FREEFORM-FILE-SIZE-EXCEEDED",
+      stage: "POST_RENDER",
+    }));
+    expect(preview.previewToken).not.toBeNull();
+    expect(preview.previewArtifact).toMatchObject({ format: "PNG", mimeType: "image/png", width: 1200, height: 600 });
+    expect(preview.eligibility).toEqual({ hasRenderableArtifact: true, previewAllowed: true, publishAllowed: false, downloadAllowed: false });
+    if (!preview.previewToken) return;
+    expect((await context.controller.previewArtifact(preview.previewToken)).byteLength).toBeGreaterThan(500_000);
+
+    const output = await context.controller.registerOutputDirectory(context.outputRoot);
+    const exported = await context.controller.exportRender({ ...input, previewToken: preview.previewToken, outputDirectoryToken: output.token });
+    expect(exported.status).toBe("BLOCKED");
+    expect(await readdir(context.outputRoot)).toEqual([]);
+  });
+
+  it("does not create a Preview Artifact for a FREEFORM PRE_RENDER error", async () => {
+    const context = await setup("freeform-pre-render");
+    const selected = await selectFixture(context, "fixtures/valid/object-right__product__basic__pass.png");
+    const input = freeformInput(selected.assetToken, "PNG", "freeform-pre-render", {
+      policy: "MANUAL_CROP",
+      source: "MANUAL",
+      fitMode: "COVER",
+      anchor: "CENTER",
+      subjectProtection: "NONE",
+    });
+    const preview = await context.controller.requestPreview(input);
+
+    expect(preview.validationStatus).toBe("ERROR");
+    expect(preview.previewToken).toBeNull();
+    expect(preview.previewUrl).toBeNull();
+    expect(preview.errors.some(({ stage }) => stage === "PRE_RENDER")).toBe(true);
+    expect(preview.eligibility).toEqual({ hasRenderableArtifact: false, previewAllowed: false, publishAllowed: false, downloadAllowed: false });
+  });
+
   it("copies a selected product into the private session without exposing its absolute path", async () => {
     const context = await setup("select");
     const selected = await selectFixture(context, "fixtures/valid/object-right__product__basic__pass.png");

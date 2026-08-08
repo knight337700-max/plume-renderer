@@ -29,12 +29,14 @@ import {
   renderMaskSemicircleRight,
   type FreeformRenderRequest,
 } from "../../../../src/core/index.js";
+import { renderFreeformPreviewArtifact } from "../../../../src/core/freeform.js";
 import { verifyRuntimeAssets } from "../../../../src/core/assets.js";
 import { canonicalJson } from "../../../../src/core/canonical.js";
 import { sha256Bytes, sha256File } from "../../../../src/core/hash.js";
 import { publishArtifacts } from "../../../../src/core/publish.js";
 import { resolveTrustedJobDirectory } from "../../../../src/core/path-security.js";
 import type { KakaoBizboardInputV1, ValidationIssue } from "../../../../src/core/types.js";
+import { previewMimeType, resolvePreviewEligibility } from "../../shared/src/index.js";
 import type {
   AppInfo,
   ExportRequest,
@@ -709,28 +711,33 @@ export class DesktopController {
       artifactFormat?: "PNG" | "JPEG" | null;
       requestFingerprint?: string | null;
       profile?: FreeformProfileSummary | null;
-    } = {}): PreviewResult => ({
-      requestSequence: input.requestSequence,
-      previewToken: null,
-      previewUrl: null,
-      canonicalInputDigest: details.requestFingerprint ?? null,
-      productAssetDigest: null,
-      previewPngDigest: null,
-      pngMetadata: null,
-      measurements: null,
-      validationStatus: "ERROR",
-      errors: details.errors ?? [],
-      warnings: details.warnings ?? [],
-      generatedAt,
-      formatProfileId: details.formatProfileId ?? input.freeform?.formatProfileId ?? null,
-      artifactFormat: details.artifactFormat ?? input.freeform?.outputFormat ?? null,
-      artifactDigest: null,
-      outputEncoding: null,
-      appliedElements: [],
-    });
+    } = {}): PreviewResult => {
+      const errors = details.errors ?? [];
+      return {
+        requestSequence: input.requestSequence,
+        previewToken: null,
+        previewUrl: null,
+        canonicalInputDigest: details.requestFingerprint ?? null,
+        productAssetDigest: null,
+        previewPngDigest: null,
+        pngMetadata: null,
+        measurements: null,
+        validationStatus: "ERROR",
+        errors,
+        warnings: details.warnings ?? [],
+        generatedAt,
+        formatProfileId: details.formatProfileId ?? input.freeform?.formatProfileId ?? null,
+        artifactFormat: details.artifactFormat ?? input.freeform?.outputFormat ?? null,
+        artifactDigest: null,
+        outputEncoding: null,
+        appliedElements: [],
+        previewArtifact: null,
+        eligibility: resolvePreviewEligibility(errors, false),
+      };
+    };
     try {
       const built = await this.#buildFreeformRequest(input);
-      const result = await renderFreeform(built.request, {
+      const result = await renderFreeformPreviewArtifact(built.request, {
         projectRoot: this.#projectRoot,
         inputRoot: this.#session.inputRoot,
         outputRoot: this.#session.previewRoot,
@@ -738,7 +745,14 @@ export class DesktopController {
       });
       const assetDigests = Object.fromEntries([...built.assets.entries()].map(([assetId, asset]) => [assetId, asset.sha256]));
       const primaryAsset = [...built.assets.values()][0];
-      if (result.status !== "PASS" || !result.png || !result.requestFingerprint || !result.artifactDigest || !result.artifactFormat) {
+      const encodingFormat = result.outputEncoding?.format === "JPEG"
+        ? "JPEG"
+        : result.outputEncoding?.format === "PNG"
+          ? "PNG"
+          : result.artifactFormat;
+      const hasRenderableArtifact = Boolean(result.png && result.requestFingerprint && result.artifactDigest && encodingFormat);
+      const eligibility = resolvePreviewEligibility(result.errors, hasRenderableArtifact);
+      if (!eligibility.previewAllowed || !result.png || !result.requestFingerprint || !result.artifactDigest || !encodingFormat) {
         await this.#session.invalidatePreview();
         return empty({
           errors: result.errors,
@@ -755,27 +769,37 @@ export class DesktopController {
         primaryAsset?.sha256 ?? sha256Bytes(Buffer.alloc(0)),
         result.artifactDigest,
         assetDigests,
+        { format: encodingFormat, publishAllowed: eligibility.publishAllowed },
       );
-      const mimeType = result.artifactFormat === "JPEG" ? "image/jpeg" : "image/png";
+      const mimeType = previewMimeType(encodingFormat);
       return {
         requestSequence: input.requestSequence,
         previewToken: stored.token,
-        previewUrl: `data:${mimeType};base64,${result.png.toString("base64")}`,
+        previewUrl: `kbr-preview://preview/${stored.token}`,
         canonicalInputDigest: result.requestFingerprint,
         productAssetDigest: primaryAsset?.sha256 ?? null,
         previewPngDigest: result.artifactDigest,
-        pngMetadata: this.#freeformPreviewMetadata(result.artifactFormat, result.png.byteLength, built.profile),
+        pngMetadata: this.#freeformPreviewMetadata(encodingFormat, result.png.byteLength, built.profile),
         measurements: null,
-        validationStatus: result.warnings.length > 0 ? "WARNING" : "PASS",
+        validationStatus: result.errors.length > 0 ? "ERROR" : result.warnings.length > 0 ? "WARNING" : "PASS",
         errors: result.errors,
         warnings: result.warnings,
         generatedAt,
         formatProfileId: result.formatProfileId,
-        artifactFormat: result.artifactFormat,
+        artifactFormat: encodingFormat,
         artifactDigest: result.artifactDigest,
         outputEncoding: result.outputEncoding,
         appliedElements: result.appliedElements,
         productAssetDigests: assetDigests,
+        previewArtifact: {
+          format: encodingFormat,
+          mimeType,
+          width: built.profile?.canvas.width ?? 0,
+          height: built.profile?.canvas.height ?? 0,
+          byteLength: result.png.byteLength,
+          artifactDigest: result.artifactDigest,
+        },
+        eligibility,
       };
     } catch (error) {
       await this.#session.invalidatePreview();
@@ -791,6 +815,9 @@ export class DesktopController {
     let artifactPath: string | null = null;
     let manifestPath: string | null = null;
     try {
+      if (!previewRecord.publishAllowed) {
+        return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "Preview Artifact가 최종 매체 규격을 통과하지 못해 Export가 차단되었습니다.");
+      }
       const built = await this.#buildFreeformRequest(request, { outputRoot: output.root, publish: true });
       const expectedDigests = previewRecord.assetDigests ?? {};
       for (const [assetId, asset] of built.assets) {
@@ -1303,6 +1330,10 @@ export class DesktopController {
 
   async previewBytes(token: string): Promise<Buffer> {
     return this.#session.readPreview(token);
+  }
+
+  async previewArtifact(token: string) {
+    return this.#session.readPreviewArtifact(token);
   }
 
   async exportedManifest(token: string): Promise<unknown> {

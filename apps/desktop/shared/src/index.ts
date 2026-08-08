@@ -1,5 +1,12 @@
 export { DESKTOP_CHANNEL_ALLOWLIST, DESKTOP_CHANNELS } from "./channels.js";
 export type { DesktopChannel } from "./channels.js";
+export { previewMimeType, resolvePreviewEligibility } from "./preview-artifact.js";
+export type {
+  PreviewArtifact,
+  PreviewEligibility,
+  PreviewImageFormat,
+  PreviewImageMimeType,
+} from "./preview-artifact.js";
 export type {
   AppInfo,
   DesktopApi,

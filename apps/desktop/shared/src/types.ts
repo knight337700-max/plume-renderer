@@ -6,6 +6,7 @@ import type {
   ImagePlacementPlan,
   SupportedInputMimeType,
 } from "@kbr/renderer-contract";
+import type { PreviewArtifact, PreviewEligibility } from "./preview-artifact.js";
 
 export type UiTemplate = "OBJECT_RIGHT" | "THUMBNAIL_BOX_RIGHT" | "THUMBNAIL_MULTI_RIGHT" | "MASK_SEMICIRCLE_RIGHT";
 export type UiLayoutMode = "TEMPLATE_LOCKED" | "FREEFORM";
@@ -82,6 +83,8 @@ export type PreviewResult = {
   artifactDigest?: string | null;
   outputEncoding?: Readonly<Record<string, unknown>> | null;
   appliedElements?: readonly FreeformAppliedElement[];
+  previewArtifact?: PreviewArtifact | null;
+  eligibility?: PreviewEligibility;
 };
 
 export type OutputDirectoryResult =

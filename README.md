@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.11.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.6.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0`과 FREEFORM profile/output metadata를 제공한다. F3A에서 카카오모먼트 fixed FREEFORM Profile 14개와 deterministic JPEG output을 추가했고, F2의 PRE_RENDER/POST_RENDER Validator와 applied-element 무결성을 유지한다. Renderer Lab UI와 variable-canvas collection은 후속 Phase다.
+Canonical 계약 `1.11.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.6.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0`과 FREEFORM profile/output metadata를 제공한다. F3A에서 카카오모먼트 fixed FREEFORM Profile 14개와 deterministic JPEG output을 추가했고, F4/F4B Desktop Renderer Lab은 PNG/JPEG Preview와 PRE_RENDER/POST_RENDER별 publish gate를 제공한다. Variable-canvas와 collection 편집은 후속 Phase다.
 
 ## 요구 환경
 
@@ -21,8 +21,8 @@ pnpm check
 
 FREEFORM Contract 전용 검증은 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`다. F1 Core Raster 검증은 `pnpm test:freeform-core`이며 기존 Template Golden 회귀와 함께 실행한다. F3A 카탈로그/프로파일 검증은 `pnpm test:kakao-freeform-profiles`, JPEG 결정성 검증은 `pnpm test:jpeg-determinism`이다.
 
-F2 Validator 검증은 `pnpm test:freeform-validator`다. PRE_RENDER ERROR는 raster/PNG/publish를
-실행하지 않고, POST_RENDER ERROR는 publish/download를 차단한다. Validator는 계약·매체
+F2 Validator 검증은 `pnpm test:freeform-validator`다. PRE_RENDER ERROR는 raster/Preview/publish를
+실행하지 않고, POST_RENDER ERROR는 이미 생성된 Preview artifact를 표시하되 publish/download를 차단한다. Validator는 계약·매체
 artifact만 검사하며 미적 평가나 자동 보정을 하지 않는다.
 
 ## Desktop 실행
@@ -57,7 +57,7 @@ pnpm smoke:package
 
 ```text
 release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
-release/Kakao-Bizboard-Local-Renderer-0.8.0-x64.exe
+release/Kakao-Bizboard-Local-Renderer-0.8.1-x64.exe
 ```
 
 Portable 앱은 설치와 관리자 권한을 요구하지 않는다. 코드 서명과 자동 업데이트가 없으므로 Windows SmartScreen 경고가 표시될 수 있다. 앱은 비공식 로컬 Renderer이며 카카오 공식 서비스가 아니고 실제 광고 심사 승인을 보장하지 않는다.

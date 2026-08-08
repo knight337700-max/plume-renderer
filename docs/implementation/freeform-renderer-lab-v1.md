@@ -1,6 +1,6 @@
 # FREEFORM Renderer Lab UI v1
 
-Status: `IMPLEMENTED` in Desktop `0.8.0`.
+Status: `IMPLEMENTED` in Desktop `0.8.0`; Preview artifact hotfix applied in Desktop `0.8.1`.
 
 The lab has two explicit modes. `Template Locked` retains the four existing Kakao
 Bizboard workflows. `Freeform` is a separate editor that produces only the frozen
@@ -38,6 +38,14 @@ Any pixel-affecting edit clears the preview token and disables export. Safe Zone
 and UI scale do not alter the plan or fingerprint. A fresh preview with zero Core errors is
 the only export path; Core's existing atomic publisher writes the artifact and manifest.
 PNG/JPEG metadata and resolved AUTO_FIT JPEG quality are taken from the Core response.
+
+Desktop `0.8.1` serves both formats through the same private `kbr-preview:` token protocol.
+The session record stores the canonical artifact format and maps PNG to `image/png` and JPEG
+to `image/jpeg`; the UI never infers MIME from the compatibility field
+`outputPngDigest` or from a filename. A PRE_RENDER error has no artifact. An encoded
+POST_RENDER compliance failure retains its session Preview artifact while keeping
+publish/download ineligible. The Desktop-only internal Preview entry point forces
+`publish:false`; public Core callers and final publish retain the previous fail-closed result.
 
 Plan JSON controls round-trip the plan and asset IDs only. No local or absolute filesystem
 path is serialized. Runtime networking remains prohibited.
