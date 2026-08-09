@@ -1,6 +1,9 @@
 import canonicalize from "canonicalize";
 
 import type {
+  ArtifactCardinality,
+  ChannelId,
+  CompositionMode,
   ImageAnchor,
   ImageFitMode,
   ImagePlacementPolicy,
@@ -116,7 +119,16 @@ export type FormatProfile = Readonly<{
   formatProfileId: string;
   /** Registry-provided human label for Renderer Lab selectors. */
   displayName?: string;
+  /** Legacy catalog-family label; do not reinterpret it as the top-level channel namespace. */
   channel?: string;
+  /** Additive N1A channel namespace. Legacy profiles may omit it and hydrate as KAKAO_MOMENT. */
+  channelNamespace?: ChannelId;
+  /** Additive N1A composition axis; legacy profiles default to RENDERER_COMPOSED. */
+  compositionMode?: CompositionMode;
+  /** Additive N1A artifact axis; legacy profiles default to SINGLE. */
+  artifactCardinality?: ArtifactCardinality;
+  /** Optional channel-scoped placement key; no pixel geometry is implied by this field. */
+  placement?: string;
   canvas: Readonly<{ width: number; height: number }>;
   canvasSpec?: Readonly<{ kind: "FIXED" | "VARIABLE_HEIGHT"; width: number; minimumHeight?: number; maximumHeight?: number }>;
   layoutMode: LayoutMode;

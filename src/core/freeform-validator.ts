@@ -1,4 +1,5 @@
 import {
+  guardCompositionDispatch,
   validateCreativeLayoutPlan,
   validateFreeformOutputFormat,
   type CreativeLayoutPlan,
@@ -359,6 +360,10 @@ function validateProfileAndPlan(
   const profile = options.formatProfile;
   if (formatProfileId && !profile) issues.push(issue(contracts, "KBR-FREEFORM-FORMAT-PROFILE-NOT-FOUND", "/formatProfileId", { actual: formatProfileId, formatProfileId }));
   if (profile && profile.layoutMode !== "FREEFORM") issues.push(issue(contracts, "KBR-FREEFORM-LAYOUT-MODE-MISMATCH", "/formatProfileId", { actual: profile.layoutMode, expected: "FREEFORM", formatProfileId }));
+  if (profile) {
+    const compositionGuard = guardCompositionDispatch({ compositionMode: profile.compositionMode ?? "RENDERER_COMPOSED" });
+    if (!compositionGuard.allowed) issues.push(issue(contracts, compositionGuard.code, "/compositionMode", { actual: profile.compositionMode, formatProfileId }));
+  }
   if (profile && (!Number.isInteger(profile.canvas.width) || !Number.isInteger(profile.canvas.height) || profile.canvas.width <= 0 || profile.canvas.height <= 0)) issues.push(issue(contracts, "KBR-FREEFORM-CANVAS-PROFILE-MISSING", "/formatProfileId", { actual: profile.canvas, formatProfileId }));
   if (profile && profile.implementationStatus !== "IMPLEMENTED") issues.push(issue(contracts, "KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED", "/formatProfileId", { actual: profile.implementationStatus, expected: "IMPLEMENTED", formatProfileId }));
   if (profile && formatProfileId && profile.formatProfileId !== formatProfileId) issues.push(issue(contracts, "KBR-FREEFORM-FORMAT-PROFILE-MISMATCH", "/formatProfileId", { actual: formatProfileId, expected: profile.formatProfileId, formatProfileId }));

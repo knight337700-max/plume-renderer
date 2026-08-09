@@ -7,12 +7,13 @@ import {
 } from "./freeform.js";
 
 export * from "./freeform.js";
+export * from "./capability.js";
 
-export const INTEGRATION_SCHEMA_VERSION = "1.6.0" as const;
-export const PREVIOUS_INTEGRATION_SCHEMA_VERSION = "1.5.0" as const;
+export const INTEGRATION_SCHEMA_VERSION = "1.7.0" as const;
+export const PREVIOUS_INTEGRATION_SCHEMA_VERSION = "1.6.0" as const;
 export const LEGACY_INTEGRATION_SCHEMA_VERSION = "1.2.0" as const;
 export const EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION = "1.1.0" as const;
-export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof PREVIOUS_INTEGRATION_SCHEMA_VERSION | "1.4.0" | "1.3.0" | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
+export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof PREVIOUS_INTEGRATION_SCHEMA_VERSION | "1.5.0" | "1.4.0" | "1.3.0" | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
 export const NORMALIZED_EPSILON = 1e-9;
 export const OBJECT_RIGHT_FORMAT_PROFILE_ID = "KAKAO_BIZBOARD_OBJECT_RIGHT" as const;
 export const OBJECT_RIGHT_TEMPLATE_ID = "KAKAO_MOMENT_BIZBOARD_OBJECT_RIGHT_1029X258_V1" as const;
@@ -209,6 +210,12 @@ export type ImplementationStatus = "NOT_IMPLEMENTED" | "PARTIAL" | "IMPLEMENTED"
 export type SemanticPlacement = "NOT_REQUIRED" | "OPTIONAL" | "REQUIRED";
 export type ImagePlacementCapability = Readonly<{
   schemaVersion: typeof INTEGRATION_SCHEMA_VERSION;
+  /** Additive N1A namespace metadata; legacy capability consumers may ignore it. */
+  channelNamespace?: import("./capability.js").ChannelId;
+  placement?: string;
+  compositionMode?: import("./capability.js").CompositionMode;
+  layoutMode?: LayoutMode;
+  artifactCardinality?: import("./capability.js").ArtifactCardinality;
   implementationStatus: ImplementationStatus;
   defaultPolicy: ImagePlacementPolicy;
   semanticPlacement: SemanticPlacement;
@@ -526,11 +533,16 @@ export function parsePlacementPlan(value: unknown): { plan: ImagePlacementPlan |
 }
 
 export const CAPABILITIES: Readonly<Record<string, ImagePlacementCapability>> = Object.freeze({
-  KAKAO_BIZBOARD_OBJECT_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "IMPLEMENTED", defaultPolicy: "ALPHA_TRIM_CONTAIN", semanticPlacement: "NOT_REQUIRED", allowedPolicies: ["ALPHA_TRIM_CONTAIN"] as const, supportsManualCrop: false, supportsAgentPlacement: false, imageSlotIds: [OBJECT_RIGHT_IMAGE_SLOT_ID] as const, allowedInputMimeTypes: ["image/png"] as const, alphaChannelRequired: true }),
-  KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: true, supportsAgentPlacement: true, imageSlotIds: [THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID] as const, allowedInputMimeTypes: ["image/png", "image/jpeg"] as const, alphaChannelRequired: false }),
-  KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: true, supportsAgentPlacement: true, imageSlotIds: THUMBNAIL_MULTI_RIGHT_IMAGE_SLOT_IDS, allowedInputMimeTypes: ["image/png", "image/jpeg"] as const, alphaChannelRequired: false, minimumAssets: 1, maximumAssets: 2, requiredPlacementPlans: 2 }),
+  KAKAO_BIZBOARD_OBJECT_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, channelNamespace: "KAKAO_MOMENT", placement: "BIZBOARD_OBJECT_RIGHT", compositionMode: "RENDERER_COMPOSED", layoutMode: "TEMPLATE_LOCKED", artifactCardinality: "SINGLE", implementationStatus: "IMPLEMENTED", defaultPolicy: "ALPHA_TRIM_CONTAIN", semanticPlacement: "NOT_REQUIRED", allowedPolicies: ["ALPHA_TRIM_CONTAIN"] as const, supportsManualCrop: false, supportsAgentPlacement: false, imageSlotIds: [OBJECT_RIGHT_IMAGE_SLOT_ID] as const, allowedInputMimeTypes: ["image/png"] as const, alphaChannelRequired: true }),
+  KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, channelNamespace: "KAKAO_MOMENT", placement: "BIZBOARD_THUMBNAIL_BOX_RIGHT", compositionMode: "RENDERER_COMPOSED", layoutMode: "TEMPLATE_LOCKED", artifactCardinality: "SINGLE", implementationStatus: "IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: true, supportsAgentPlacement: true, imageSlotIds: [THUMBNAIL_BOX_RIGHT_IMAGE_SLOT_ID] as const, allowedInputMimeTypes: ["image/png", "image/jpeg"] as const, alphaChannelRequired: false }),
+  KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, channelNamespace: "KAKAO_MOMENT", placement: "BIZBOARD_THUMBNAIL_MULTI_RIGHT", compositionMode: "RENDERER_COMPOSED", layoutMode: "TEMPLATE_LOCKED", artifactCardinality: "SINGLE", implementationStatus: "IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: true, supportsAgentPlacement: true, imageSlotIds: THUMBNAIL_MULTI_RIGHT_IMAGE_SLOT_IDS, allowedInputMimeTypes: ["image/png", "image/jpeg"] as const, alphaChannelRequired: false, minimumAssets: 1, maximumAssets: 2, requiredPlacementPlans: 2 }),
   KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT: Object.freeze({
     schemaVersion: INTEGRATION_SCHEMA_VERSION,
+    channelNamespace: "KAKAO_MOMENT",
+    placement: "BIZBOARD_MASK_SEMICIRCLE_RIGHT",
+    compositionMode: "RENDERER_COMPOSED",
+    layoutMode: "TEMPLATE_LOCKED",
+    artifactCardinality: "SINGLE",
     implementationStatus: "IMPLEMENTED",
     defaultPolicy: "SEMANTIC_CROP_COVER",
     semanticPlacement: "REQUIRED",
@@ -548,7 +560,7 @@ export const CAPABILITIES: Readonly<Record<string, ImagePlacementCapability>> = 
       { slotId: MASK_SEMICIRCLE_RIGHT_LOGO_SLOT_ID, slotRole: "LOGO" as const, required: false, allowedInputMimeTypes: ["image/png"] as const, allowedPolicies: ["ALPHA_TRIM_CONTAIN"] as const, alphaChannelRequired: true, colorRestriction: "NONE" as const, supportsManualCrop: false, supportsAgentPlacement: false },
     ],
   }),
-  KAKAO_NATIVE_1200: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "NOT_IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: false, supportsAgentPlacement: false, allowedInputMimeTypes: [] as const, alphaChannelRequired: false }),
+  KAKAO_NATIVE_1200: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, channelNamespace: "KAKAO_MOMENT", placement: "NATIVE_1200", compositionMode: "RENDERER_COMPOSED", layoutMode: "FREEFORM", artifactCardinality: "SINGLE", implementationStatus: "NOT_IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: false, supportsAgentPlacement: false, allowedInputMimeTypes: [] as const, alphaChannelRequired: false }),
   NAVER_GFA_IMAGE_BANNER: Object.freeze({ schemaVersion: INTEGRATION_SCHEMA_VERSION, implementationStatus: "NOT_IMPLEMENTED", defaultPolicy: "SEMANTIC_CROP_COVER", semanticPlacement: "REQUIRED", allowedPolicies: ["SEMANTIC_CROP_COVER", "MANUAL_CROP"] as const, supportsManualCrop: false, supportsAgentPlacement: false, allowedInputMimeTypes: [] as const, alphaChannelRequired: false }),
 });
 

@@ -26,6 +26,9 @@
   "profiles": [
     {
       "formatProfileId": "KBR_FREEFORM_CONTRACT_TEST_1029X258",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "Internal contract test — 1029×258",
       "canvas": { "width": 1029, "height": 258 },
       "layoutMode": "FREEFORM",
@@ -36,6 +39,9 @@
     },
     {
       "formatProfileId": "KAKAO_DISPLAY_NATIVE_2_1",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 디스플레이 네이티브 2:1 — 1200×600",
       "channel": "DISPLAY_NATIVE",
       "canvas": { "width": 1200, "height": 600 },
@@ -52,6 +58,9 @@
     },
     {
       "formatProfileId": "KAKAO_DISPLAY_NATIVE_1_1",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 디스플레이 네이티브 1:1 — 500×500",
       "channel": "DISPLAY_NATIVE",
       "canvas": { "width": 500, "height": 500 },
@@ -67,6 +76,9 @@
     },
     {
       "formatProfileId": "KAKAO_DISPLAY_NATIVE_9_16",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 디스플레이 네이티브 9:16 — 720×1280",
       "channel": "DISPLAY_NATIVE",
       "canvas": { "width": 720, "height": 1280 },
@@ -83,6 +95,9 @@
     },
     {
       "formatProfileId": "KAKAO_DISPLAY_NATIVE_4_5",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 디스플레이 네이티브 4:5 — 800×1000",
       "channel": "DISPLAY_NATIVE",
       "canvas": { "width": 800, "height": 1000 },
@@ -99,6 +114,9 @@
     },
     {
       "formatProfileId": "KAKAO_DISPLAY_CATALOG_SLIDE_1_1",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 디스플레이 카탈로그 슬라이드 — 500×500",
       "channel": "DISPLAY_CATALOG",
       "canvas": { "width": 500, "height": 500 },
@@ -115,6 +133,9 @@
     },
     {
       "formatProfileId": "KAKAO_VIDEO_NATIVE_THUMBNAIL_16_9",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 동영상 썸네일 16:9 — 1280×720",
       "channel": "VIDEO_NATIVE",
       "canvas": { "width": 1280, "height": 720 },
@@ -130,6 +151,9 @@
     },
     {
       "formatProfileId": "KAKAO_VIDEO_NATIVE_THUMBNAIL_9_16",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 동영상 썸네일 9:16 — 720×1280",
       "channel": "VIDEO_NATIVE",
       "canvas": { "width": 720, "height": 1280 },
@@ -145,6 +169,9 @@
     },
     {
       "formatProfileId": "KAKAO_VIDEO_NATIVE_SLIDE_1_1",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 동영상 슬라이드 — 500×500",
       "channel": "VIDEO_NATIVE",
       "canvas": { "width": 500, "height": 500 },
@@ -161,6 +188,9 @@
     },
     {
       "formatProfileId": "KAKAO_BIZBOARD_EXPANDABLE_IMAGE_2_1",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 비즈보드 익스팬더블 이미지 — 1200×600",
       "channel": "BIZBOARD_EXPANDABLE",
       "canvas": { "width": 1200, "height": 600 },
@@ -177,6 +207,9 @@
     },
     {
       "formatProfileId": "KAKAO_BIZBOARD_EXPANDABLE_MULTI_1_1",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 비즈보드 익스팬더블 멀티 — 1080×1080",
       "channel": "BIZBOARD_EXPANDABLE",
       "canvas": { "width": 1080, "height": 1080 },
@@ -193,6 +226,9 @@
     },
     {
       "formatProfileId": "KAKAO_ADVIEW_FULL_IMAGE",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 애드뷰 풀뷰 — 720×1560",
       "channel": "ADVIEW",
       "canvas": { "width": 720, "height": 1560 },
@@ -208,6 +244,9 @@
     },
     {
       "formatProfileId": "KAKAO_ADVIEW_COMPACT_IMAGE",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 애드뷰 콤팩트뷰 — 1280×720",
       "channel": "ADVIEW",
       "canvas": { "width": 1280, "height": 720 },
@@ -222,6 +261,9 @@
     },
     {
       "formatProfileId": "KAKAO_ADVIEW_CAROUSEL_IMAGE",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 애드뷰 캐러셀 — 1280×720",
       "channel": "ADVIEW",
       "canvas": { "width": 1280, "height": 720 },
@@ -237,6 +279,9 @@
     },
     {
       "formatProfileId": "KAKAO_ADVIEW_SHARE_BUBBLE_IMAGE",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "카카오 애드뷰 공유 말풍선 — 1280×720",
       "channel": "ADVIEW",
       "canvas": { "width": 1280, "height": 720 },
@@ -251,6 +296,9 @@
     },
     {
       "formatProfileId": "KAKAO_ADVIEW_SCROLL_IMAGE",
+      "channelNamespace": "KAKAO_MOMENT",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
       "displayName": "애드뷰 스크롤 이미지 — 가변 캔버스 지원 예정",
       "channel": "ADVIEW",
       "canvas": { "width": 720, "height": 360 },

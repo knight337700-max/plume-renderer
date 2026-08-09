@@ -1,11 +1,11 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.11.0
-- **Status:** Frozen Implementation Contract — Phase F4 multi-profile FREEFORM Renderer Lab UI implemented; Core and schema meaning remain frozen
-- **Checked date:** 2026-08-08 (KST)
+- **Document version:** 1.12.0
+- **Status:** Frozen Implementation Contract — Phase N1A multi-channel capability axes frozen; existing Kakao Core, UI, and pixel meaning remain unchanged
+- **Checked date:** 2026-08-09 (KST)
 - **Owner:** Local Renderer Project
-- **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates plus F3A catalog and F4 Desktop FREEFORM Lab`
+- **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
 
 ---
 
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 **26. Phase F0 FREEFORM Renderer Contract Freeze**, `contracts/`의 machine-readable contract, 최신 Phase freeze, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **31. Phase N1A**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -3106,3 +3106,109 @@ F4 구현 상세는 `docs/implementation/freeform-renderer-lab-v1.md`, mode/IPC 
 `docs/adr/ADR-0037-freeform-lab-mode-separation.md`와
 `docs/adr/ADR-0038-freeform-lab-registry-driven-format-selector.md`에 기록한다.
 이 단계는 카카오 공식 업로드 승인이나 디자인 의미 적합성을 보장하지 않는다.
+
+## 31. Phase N1A — NAVER Channel Namespace / Composition Contract Freeze [PROJECT]
+
+N1A는 네이버 픽셀 렌더링 단계가 아니라, 기존 Kakao Renderer가 다채널 capability를
+안전하게 표현하기 위한 additive contract 단계다. 기존 `KAKAO_MOMENT`,
+`TEMPLATE_LOCKED`, `FREEFORM`, Template 좌표, JPEG/PNG encoder, Validator,
+fingerprint, Desktop IPC와 Golden bytes는 변경하지 않는다. Plume/원격 서비스/실행 중
+네트워크 의존성도 추가하지 않는다. **[PROJECT]**
+
+### 31.1 Channel–Placement–Format/Profile hierarchy [PROJECT]
+
+Capability의 계층은 다음과 같다.
+
+```text
+Channel
+  └─ Placement (channel-scoped identifier)
+      └─ Format/Profile (pixel contract가 확정된 경우에만)
+```
+
+Canonical channel namespace는 `KAKAO_MOMENT | NAVER_GFA`다. 기존 FormatProfile의
+legacy `channel` catalog-family 문자열은 재해석하지 않으며, additive
+`channelNamespace`가 top-level namespace를 표현한다. 따라서 `NAVER_GFA` placement를
+global enum으로 평탄화하지 않는다. Naver namespace에 등록된 placement는
+`SMARTCHANNEL`, `MOBILE_DA`, `IMAGE_BANNER_1_1`, `MOBILE_NATIVE`, `PC_NATIVE`,
+`SHOPPING_NEWS`, `COMMUNICATION_AD`, `MOBILE_DA_FEED`다. 이 목록은 namespace
+representability만 보장하며 공식 픽셀 규격을 주장하지 않는다. **[PROJECT]**
+
+### 31.2 Orthogonal axes [PROJECT]
+
+세 축은 서로 다른 질문에 답하므로 하나의 enum으로 합치지 않는다.
+
+```text
+CompositionMode
+├─ RENDERER_COMPOSED   # Renderer가 최종 raster artifact를 생성
+└─ PLATFORM_COMPOSED   # 플랫폼이 source components를 최종 UI로 조합
+
+LayoutMode
+├─ TEMPLATE_LOCKED
+└─ FREEFORM
+
+ArtifactCardinality
+├─ SINGLE
+└─ COLLECTION
+```
+
+`RENDERER_COMPOSED` capability는 `layoutMode`를 요구하며 기존 두 값만 사용할 수
+있다. `PLATFORM_COMPOSED` capability는 final raster layout을 가정하지 않으며
+`layoutMode`를 두지 않는다. `COLLECTION`은 future semantic reservation일 뿐 N1A에서
+multi-artifact runtime을 구현하지 않는다. 의미는 각각 “누가 최종 UI를 조합하는가?”,
+“Renderer가 raster element를 어떻게 배치하는가?”, “몇 개의 artifact/source가
+포함되는가?”다. **[PROJECT]**
+
+### 31.3 Existing profile mapping [PROJECT]
+
+기존 Kakao Template/FREEFORM profile은 registry hydration 시 다음 additive metadata를
+materialize한다.
+
+| 기존 경로 | channelNamespace | compositionMode | layoutMode | artifactCardinality |
+|---|---|---|---|---|
+| Kakao Template Locked | `KAKAO_MOMENT` | `RENDERER_COMPOSED` | `TEMPLATE_LOCKED` | `SINGLE` |
+| Kakao FREEFORM | `KAKAO_MOMENT` | `RENDERER_COMPOSED` | `FREEFORM` | `SINGLE` |
+
+이 metadata는 canvas, coordinates, asset placement, output bytes 또는 fingerprint
+material을 변경하지 않는다. Legacy JSON은 새 field 없이도 decode할 수 있으며, legacy
+profile의 deterministic default는 위 Kakao mapping이다. **[PROJECT]**
+
+### 31.4 Naver capability boundary [PROJECT]
+
+N1A의 machine-readable `contracts/channel-capabilities.json`에는 Naver placement
+semantic만 등록한다.
+
+| Placement | Composition | Layout | Cardinality | N1A runtime |
+|---|---|---|---|---|
+| `SMARTCHANNEL` | `RENDERER_COMPOSED` | `TEMPLATE_LOCKED` | `SINGLE` | `CONTRACT_ONLY` |
+| `MOBILE_DA` | `RENDERER_COMPOSED` | `FREEFORM` | `SINGLE` | `CONTRACT_ONLY` |
+| `IMAGE_BANNER_1_1` | `RENDERER_COMPOSED` | `FREEFORM` | `SINGLE` | `CONTRACT_ONLY` |
+| `MOBILE_NATIVE` | `PLATFORM_COMPOSED` | 없음 | `SINGLE` | `DEFERRED` |
+| `PC_NATIVE` | `PLATFORM_COMPOSED` | 없음 | `SINGLE` | `DEFERRED` |
+| `SHOPPING_NEWS` | `PLATFORM_COMPOSED` | 없음 | `SINGLE` | `DEFERRED` |
+| `COMMUNICATION_AD` | `PLATFORM_COMPOSED` | 없음 | `SINGLE` | `DEFERRED` |
+| `MOBILE_DA_FEED` | mixed/profile-dependent | profile-dependent | `SINGLE`/`COLLECTION` | `DEFERRED` |
+
+N1A는 SmartChannel 160/200/280 geometry, typography baseline, landing icon/CTA,
+disclosure, Template ID, PSD parsing, Naver font, raster output, Golden image, Feed
+wrapper, Collection rendering 또는 Desktop Naver UI를 등록하지 않는다. 특히
+`NAVER_SMARTCHANNEL_*`와 같은 가짜 pixel profile을 만들지 않는다. **[PROJECT]**
+
+### 31.5 Dispatch, serialization, and version boundary [PROJECT]
+
+`RENDERER_COMPOSED`는 기존 raster dispatch를 사용할 수 있다. `PLATFORM_COMPOSED`가
+raster entry point로 전달되면 `KBR-COMPOSITION-MODE-NOT-SUPPORTED` ERROR로
+fail-closed하며 output artifact를 만들거나 publish하지 않는다. N1A에서는 실제
+Naver platform input을 공개하지 않는다.
+
+N1A는 Canonical 문서를 `1.11.0 → 1.12.0`, Integration Contract를
+`1.6.0 → 1.7.0`으로 minor bump한다. `templateContractVersion 1.6.0`,
+`CreativeLayoutPlan 1.0.0`, Desktop `0.8.2`는 유지한다. 새 channel capability
+schema와 optional FormatProfile/capability fields는 Integration minor에 포함되는
+additive metadata로서 기존 FREEFORM registryVersion `1.1.0`의 의미를 바꾸지 않는다.
+기존 saved input,
+CreativeLayoutPlan, manifest decode와 기존 public enum 값은 유지한다. **[PROJECT]**
+
+N1A acceptance는 기존 Kakao Template/FREEFORM PNG/JPEG, Validator, legacy
+serialization, fingerprint와 Golden SHA가 byte-equal인지를 포함한다. 지원 플랫폼은
+계속 Windows 10/11 x64이며 다른 OS의 pixel tolerance는 이 계약에 추가하지 않는다.
+Naver raster runtime과 Collection runtime은 후속 N1B/N6 계약으로 이관한다. **[PROJECT]**

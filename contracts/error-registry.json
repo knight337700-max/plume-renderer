@@ -1,11 +1,11 @@
 {
-  "registryVersion": "1.2.0",
+  "registryVersion": "1.3.0",
   "messageContract": "messageKey is stable; localized or AJV-native prose is not part of the external contract",
   "codes": [
     { "code": "KBR-INPUT-001", "severity": "ERROR", "messageKey": "input.json_parse_failed", "condition": "Raw JSON cannot be parsed" },
     { "code": "KBR-INPUT-002", "severity": "ERROR", "messageKey": "input.schema_mismatch", "condition": "Input violates JSON Schema and no more specific mapping applies" },
-    { "code": "KBR-INPUT-003", "severity": "ERROR", "messageKey": "input.channel_unsupported", "condition": "channel is not KAKAO_MOMENT" },
-    { "code": "KBR-INPUT-004", "severity": "ERROR", "messageKey": "input.placement_unsupported", "condition": "placement is not BIZBOARD" },
+    { "code": "KBR-INPUT-003", "severity": "ERROR", "messageKey": "input.channel_unsupported", "condition": "channel is not supported by the selected legacy Template runtime; NAVER_GFA capability semantics are not dispatched through this input" },
+    { "code": "KBR-INPUT-004", "severity": "ERROR", "messageKey": "input.placement_unsupported", "condition": "placement is not supported by the selected legacy Template runtime; channel-scoped NAVER_GFA placement names are not flattened into this input" },
     { "code": "KBR-INPUT-005", "severity": "ERROR", "messageKey": "input.template_unsupported", "condition": "template is not OBJECT_RIGHT" },
     { "code": "KBR-INPUT-006", "severity": "ERROR", "messageKey": "input.canvas_invalid", "condition": "Materialized canvas is not 1029 by 258" },
     { "code": "KBR-INPUT-007", "severity": "ERROR", "messageKey": "input.required_string_missing", "condition": "A required user string is missing, empty, or whitespace-only" },
@@ -149,6 +149,7 @@
     { "code": "KBR-FREEFORM-JPEG-TRANSPARENT-BACKGROUND-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.jpeg_transparent_background_not_supported", "condition": "JPEG output was requested for a FREEFORM plan with a transparent background" },
     { "code": "KBR-FREEFORM-JPEG-TARGET-SIZE-NOT-ACHIEVABLE", "severity": "ERROR", "messageKey": "freeform.jpeg_target_size_not_achievable", "condition": "The deterministic JPEG quality ladder cannot satisfy the selected profile byte limit" },
     { "code": "KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED", "severity": "ERROR", "messageKey": "freeform.format_not_implemented", "condition": "The selected FREEFORM catalog entry is catalog-only or blocked by an unsupported canvas contract" },
+    { "code": "KBR-COMPOSITION-MODE-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "composition.platform_composed_not_supported", "condition": "A PLATFORM_COMPOSED capability was dispatched to the raster renderer before its platform runtime was implemented" },
     { "code": "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "severity": "WARNING", "messageKey": "freeform.manual_review_required", "condition": "A catalog rule requires human review because baked image semantics or an unlocated safe-zone geometry cannot be inferred" }
   ]
 }

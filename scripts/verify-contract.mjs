@@ -64,6 +64,11 @@ check(
   errorCodes.includes("KBR-DOWNLOAD-001"),
   "KBR-DOWNLOAD-001 is present",
 );
+check(
+  "error_registry_version",
+  errorRegistry?.registryVersion === "1.3.0",
+  `errorRegistry=${errorRegistry?.registryVersion ?? "missing"}`,
+);
 
 const ajvMapping = contracts.get("ajv-error-mapping.json");
 const requiredAjvKeywords = [
@@ -416,14 +421,44 @@ check(
     implementedCapabilities.some(({ formatProfileId }) => formatProfileId === "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT"),
   `implemented=${implementedCapabilities.map(({ formatProfileId }) => formatProfileId).join(",")}`,
 );
+const channelRegistry = contracts.get("channel-capabilities.json");
+const naverPlacements = ["SMARTCHANNEL", "MOBILE_DA", "IMAGE_BANNER_1_1", "MOBILE_NATIVE", "PC_NATIVE", "SHOPPING_NEWS", "COMMUNICATION_AD", "MOBILE_DA_FEED"];
+const channelEntries = channelRegistry?.capabilities ?? [];
+const naverEntries = channelEntries.filter(({ channel }) => channel === "NAVER_GFA");
+const existingProfileMappings = channelRegistry?.legacyProfileMappings ?? [];
+check(
+  "channel_namespace",
+  JSON.stringify(channelRegistry?.channels) === JSON.stringify(["KAKAO_MOMENT", "NAVER_GFA"]) && channelRegistry?.channels?.includes("KAKAO_MOMENT") && channelRegistry?.channels?.includes("NAVER_GFA"),
+  `channels=${channelRegistry?.channels?.join(",") ?? "missing"}`,
+);
+check(
+  "composition_cardinality_axes",
+  JSON.stringify(channelRegistry?.compositionModes) === JSON.stringify(["RENDERER_COMPOSED", "PLATFORM_COMPOSED"]) && JSON.stringify(channelRegistry?.artifactCardinalities) === JSON.stringify(["SINGLE", "COLLECTION"]),
+  `composition=${channelRegistry?.compositionModes?.join(",") ?? "missing"}; cardinality=${channelRegistry?.artifactCardinalities?.join(",") ?? "missing"}`,
+);
+check(
+  "naver_placement_namespace",
+  JSON.stringify(channelRegistry?.naverGfaPlacements) === JSON.stringify(naverPlacements) && naverPlacements.every((placement) => naverEntries.some((entry) => entry.placement === placement)),
+  `registered=${channelRegistry?.naverGfaPlacements?.length ?? 0}; capabilities=${naverEntries.length}`,
+);
+check(
+  "legacy_profile_semantics",
+  existingProfileMappings.length > 0 && existingProfileMappings.every((entry) => entry.channel === "KAKAO_MOMENT" && entry.compositionMode === "RENDERER_COMPOSED" && ["TEMPLATE_LOCKED", "FREEFORM"].includes(entry.layoutMode) && entry.artifactCardinality === "SINGLE"),
+  `${existingProfileMappings.length} existing profiles map to renderer-composed single artifacts`,
+);
+check(
+  "platform_composed_not_flattened",
+  naverEntries.filter((entry) => entry.compositionMode === "PLATFORM_COMPOSED").every((entry) => entry.layoutMode === undefined && entry.runtimeStatus === "DEFERRED") && naverEntries.some((entry) => entry.placement === "MOBILE_DA_FEED" && Array.isArray(entry.compositionModes)),
+  "platform-composed placements have no raster layout and feed remains mixed/profile-dependent",
+);
 check(
   "integration_contract_version",
-  versions?.integrationContract?.current === "1.6.0" && versions?.canonicalPhaseC4JpegSupport?.documentCurrent === "1.5.1" && versions?.canonicalPhaseC4JpegSupport?.templateContractVersion === "1.3.0",
+  versions?.integrationContract?.current === "1.7.0" && versions?.canonicalPhaseC4JpegSupport?.documentCurrent === "1.5.1" && versions?.canonicalPhaseC4JpegSupport?.templateContractVersion === "1.3.0",
   JSON.stringify(versions?.integrationContract),
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.previous === "1.10.0" && versions?.documentVersion?.current === "1.11.0" && versions?.templateContractVersion === "1.6.0",
+  versions?.documentVersion?.previous === "1.11.0" && versions?.documentVersion?.current === "1.12.0" && versions?.templateContractVersion === "1.6.0",
   `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

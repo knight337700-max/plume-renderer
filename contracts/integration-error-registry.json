@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.6.0",
+  "registryVersion": "1.7.0",
   "namespace": "renderer-integration",
   "codes": [
     { "code": "KBR-PLACEMENT-PLAN-MISSING", "severity": "ERROR", "messageKey": "placement.plan_missing", "condition": "A required image slot has no placement plan" },
@@ -79,6 +79,7 @@
     { "code": "KBR-FREEFORM-JPEG-TRANSPARENT-BACKGROUND-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "freeform.jpeg_transparent_background_not_supported", "condition": "JPEG output was requested for a FREEFORM plan with a transparent background" },
     { "code": "KBR-FREEFORM-JPEG-TARGET-SIZE-NOT-ACHIEVABLE", "severity": "ERROR", "messageKey": "freeform.jpeg_target_size_not_achievable", "condition": "The deterministic JPEG quality ladder cannot satisfy the selected profile byte limit" },
     { "code": "KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED", "severity": "ERROR", "messageKey": "freeform.format_not_implemented", "condition": "The selected FREEFORM catalog entry is catalog-only or blocked by an unsupported canvas contract" },
+    { "code": "KBR-COMPOSITION-MODE-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "composition.platform_composed_not_supported", "condition": "A PLATFORM_COMPOSED capability was dispatched to the raster renderer before its platform runtime was implemented" },
     { "code": "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "severity": "WARNING", "messageKey": "freeform.manual_review_required", "condition": "A catalog rule requires human review because baked image semantics or an unlocated safe-zone geometry cannot be inferred" }
   ]
 }

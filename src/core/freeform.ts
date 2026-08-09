@@ -5,6 +5,7 @@ import path from "node:path";
 import {
   applyCreativeLayoutPlanDefaults,
   computeFreeformFingerprints,
+  guardCompositionDispatch,
   stableSortCreativeElements,
   validateFontReference,
   type CreativeElement,
@@ -978,6 +979,12 @@ async function renderFreeformInternal(
     return emptyResult([issue(contracts, "KBR-FREEFORM-FORMAT-PROFILE-NOT-FOUND", "/formatProfileId", { actual: formatProfileId, formatProfileId })], { formatProfileId });
   }
   const profile = profileRegistry.profiles?.find((candidate) => candidate.formatProfileId === formatProfileId);
+  const compositionGuard = profile ? guardCompositionDispatch({ compositionMode: profile.compositionMode ?? "RENDERER_COMPOSED" }) : null;
+  if (compositionGuard && !compositionGuard.allowed) {
+    return emptyResult([issue(contracts, compositionGuard.code, "/compositionMode", { actual: profile?.compositionMode, formatProfileId })], {
+      formatProfileId,
+    });
+  }
   const runtimeResult = await loadRuntimeFreeformAssets(options.projectRoot, contracts);
   const preValidationIssues = validateFreeformPreRender(rawRequest, {
     contracts,

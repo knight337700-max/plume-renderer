@@ -51,7 +51,7 @@
     "render": "node dist/cli/index.js"
   },
   "dependencies": {
-    "@kbr/renderer-contract": "workspace:1.6.0",
+    "@kbr/renderer-contract": "workspace:1.7.0",
     "@napi-rs/canvas": "1.0.3",
     "ajv": "8.20.0",
     "canonicalize": "3.0.0",
