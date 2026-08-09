@@ -70,6 +70,23 @@ export {
   textWidthStatus,
 } from "./text-contract.js";
 export { resolveTrustedInputFile, resolveTrustedJobDirectory, resolveTrustedRoot } from "./path-security.js";
+export {
+  assertSmartChannelFallbackProhibited,
+  evaluateFontIdentity,
+  inspectFontIdentity,
+  isTrustedFontReference,
+  NAVER_SMARTCHANNEL_FONT_ERROR_CODES,
+  preflightExternalExactFont,
+} from "./naver-smartchannel-font-preflight.js";
+export type {
+  ExternalExactFontResource,
+  FontPreflightIssue,
+  FontPreflightResult,
+  NaverSmartChannelFontErrorCode,
+  ParsedFontIdentity,
+  SmartChannelFontRequirement,
+  SmartChannelFontResolutionMode,
+} from "./naver-smartchannel-font-preflight.js";
 export type {
   BBox,
   CanonicalInput,

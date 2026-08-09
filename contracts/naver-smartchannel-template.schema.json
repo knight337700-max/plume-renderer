@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/schema/naver-smartchannel-template-v1.1.0.schema.json",
-  "title": "NAVER SmartChannel template contract v1.1.0",
+  "$id": "https://kbr.local/schema/naver-smartchannel-template-v1.2.0.schema.json",
+  "title": "NAVER SmartChannel template contract v1.2.0",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,6 +12,8 @@
     "layoutMode",
     "compositionMode",
     "artifactCardinality",
+    "runtimeFontPolicyRef",
+    "fontResolutionPolicy",
     "canvas",
     "templates"
   ],
@@ -25,10 +27,10 @@
       "minLength": 1
     },
     "registryVersion": {
-      "const": "1.1.0"
+      "const": "1.2.0"
     },
     "templateContractVersion": {
-      "const": "1.8.0"
+      "const": "1.9.0"
     },
     "channel": {
       "const": "NAVER_GFA"
@@ -201,6 +203,39 @@
       "enum": [
         "SOURCE_RESOLVED_WITH_RUNTIME_FONT_BLOCKER"
       ]
+    },
+    "runtimeFontPolicyRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fontResolutionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fallbackAllowed",
+        "exactIdentityRequired",
+        "allowedModes",
+        "classification"
+      ],
+      "properties": {
+        "fallbackAllowed": {
+          "const": false
+        },
+        "exactIdentityRequired": {
+          "const": true
+        },
+        "allowedModes": {
+          "type": "array",
+          "const": [
+            "BUNDLED_EXACT",
+            "SYSTEM_EXACT",
+            "EXTERNAL_EXACT"
+          ]
+        },
+        "classification": {
+          "const": "SOURCE_CONFIRMED"
+        }
+      }
     }
   },
   "$defs": {

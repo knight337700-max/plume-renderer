@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.1.0.json",
-  "registryVersion": "1.1.0",
-  "templateContractVersion": "1.8.0",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.2.0.json",
+  "registryVersion": "1.2.0",
+  "templateContractVersion": "1.9.0",
   "channel": "NAVER_GFA",
   "placement": "SMARTCHANNEL",
   "layoutMode": "TEMPLATE_LOCKED",
@@ -5865,5 +5865,16 @@
     "contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/thumbnail280",
     "contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/logoVerticalMargin24"
   ],
-  "sourceResolutionStatus": "SOURCE_RESOLVED_WITH_RUNTIME_FONT_BLOCKER"
+  "sourceResolutionStatus": "SOURCE_RESOLVED_WITH_RUNTIME_FONT_BLOCKER",
+  "runtimeFontPolicyRef": "contracts/naver-smartchannel-runtime-font-policy.json",
+  "fontResolutionPolicy": {
+    "fallbackAllowed": false,
+    "exactIdentityRequired": true,
+    "allowedModes": [
+      "BUNDLED_EXACT",
+      "SYSTEM_EXACT",
+      "EXTERNAL_EXACT"
+    ],
+    "classification": "SOURCE_CONFIRMED"
+  }
 }

@@ -65,7 +65,7 @@ describe("MASK_SEMICIRCLE_RIGHT desktop controller", () => {
     await expect(access(paths.pngPath)).resolves.toBeUndefined();
     const manifest = JSON.parse(await readFile(paths.manifestPath, "utf8")) as Record<string, unknown>;
     expect(manifest.templateId).toBe("KAKAO_MOMENT_BIZBOARD_MASK_SEMICIRCLE_RIGHT");
-    expect(manifest.templateContractVersion).toBe("1.8.0");
+    expect(manifest.templateContractVersion).toBe("1.9.0");
     expect((manifest.assetDigests as Record<string, unknown>).mask).toEqual({ id: "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT_V1", sha256: "eb9ea4859e2b75384ac814add59ce9636ce865ad5bae5a33f76d46210bfa6027" });
   });
 

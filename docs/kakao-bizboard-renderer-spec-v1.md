@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.12.0
-- **Status:** Frozen Implementation Contract — Phase N1A multi-channel capability axes frozen; existing Kakao Core, UI, and pixel meaning remain unchanged
+- **Document version:** 1.15.0
+- **Status:** Frozen Implementation Contract — Phase N1D SmartChannel runtime font policy frozen fail-closed; no SmartChannel raster/UI implementation
 - **Checked date:** 2026-08-09 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **31. Phase N1A**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **34. Phase N1D**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -3444,3 +3444,108 @@ metadata extraction, zero inferred font identity, fixed component source digests
 disclosure geometry, explicit 200 one-pixel classification, current 280 200×200 match,
 non-blocking 260/export/placement deferrals, and unchanged Kakao/FREEFORM PNG/JPEG/fingerprint
 regression. It does not claim Naver upload approval or advertising review compliance.
+
+## 34. Phase N1D — SmartChannel runtime font policy [PROJECT]
+
+### 34.1 Exact source font inventory [TOOL_OUTPUT] [DERIVED]
+
+N1C PSD metadata의 distinct PostScript identity를 SmartChannel strict Template Locked의
+완전한 required set으로 동결한다. `contracts/naver-smartchannel-runtime-font-policy.json`과
+`contracts/naver-smartchannel-typography.json`이 machine-readable 기준이다.
+
+| PostScript name | Style / weight | Source PSD count | Typography tokens | Korean | Latin | Numeric |
+|---|---|---:|---:|:---:|:---:|:---:|
+| `AppleSDGothicNeo-Bold` | Bold / 700 | 120 | 14 | true | true | true |
+| `AppleSDGothicNeo-Medium` | Medium / 500 | 8 | 1 | true | false | false |
+| `AppleSDGothicNeo-Regular` | Regular / 400 | 88 | 6 | true | true | true |
+| `AppleSDGothicNeo-SemiBold` | SemiBold / 600 | 8 | 1 | true | false | false |
+| `SFProDisplay-Bold` | Bold / 700 | 56 | 2 | false | true | false |
+| `SFUIDisplay-Bold` | Bold / 700 | 64 | 1 | false | true | false |
+
+이 표는 PSD layer metadata에서 추출한 값이며 aggregate `AppleSDGothicNeo-* / SF*`만으로
+요구사항을 충족한 것으로 보지 않는다. **[TOOL_OUTPUT] [DERIVED]**
+
+### 34.2 Runtime resolution matrix [DERIVED] [PROJECT]
+
+허용 resolution class는 `EXACT_BUNDLED_LICENSED`, `EXACT_SYSTEM`,
+`EXACT_EXTERNAL_LICENSED`, `LICENSED_BUT_NOT_SOURCE_MATCH`, `MISSING`이다.
+현재 pinned Spoqa Bold/Regular은 각각 내부 PostScript `SpoqaHanSans-Bold`/
+`SpoqaHanSans-Regular`, SHA-256 `5a6b9b...4eaef`/`1f56c8...b4b1`이므로 합법적인
+Kakao/FREEFORM 자산이지만 source PSD identity와 다르다. 결과는 exact bundled 0,
+exact system 0, exact external 0(계약상 지원), licensed-but-not-source-match 2,
+missing 4이다. SmartChannel에 Spoqa alias, tracking/size 보정, glyph width 보정을
+적용하지 않는다.
+
+Windows 10/11 x64에서 관찰된 `%LOCALAPPDATA%/Microsoft/Windows/Fonts` 후보는 내부
+PostScript가 `AppleSDGothicNeoB00` 등 source exact name과 다르고 provenance가
+`UNRESOLVED`이므로 승인 자산이 아니다. 파일을 복제하거나 bundle하지 않는다. **[TOOL_OUTPUT]
+[PROJECT]**
+
+### 34.3 Apple distribution guard [OFFICIAL] [PROJECT]
+
+Apple 공식 자료만으로 다음을 확인했다.
+
+- [Apple Developer Fonts](https://developer.apple.com/fonts/index.html)는 Apple OS용
+  소프트웨어 mockup 범위를 설명하고 비-Apple OS 사용·embed·재배포를 허용하는 근거로
+  사용할 수 없다.
+- [Apple macOS included fonts](https://support.apple.com/en-us/120414)와
+  [Apple System Fonts](https://developer.apple.com/fonts/system-fonts/)는 Apple SD Gothic
+  Neo를 Apple 플랫폼/macOS system font로 열거하지만 Windows redistributable 경로를
+  제공하지 않는다.
+- SF 자료는 [Apple Design Resources license](https://developer.apple.com/support/downloads/terms/apple-design-resources/Apple-Design-Resources-License-20230621-English.pdf)
+  및 Apple Developer Fonts 조건을 따르며, 이 프로젝트의 Windows bundle 권한을 확인하지
+  못했다.
+
+따라서 `apple_sd_gothic_neo`와 `sf` 모두 `officialWindowsRedistributablePath=NOT_FOUND`,
+`bundlingAllowed=NOT_CONFIRMED`로 fail-closed한다. 이는 법률 자문이 아니며, 명시적
+권한이 확인되지 않는 한 project bundle을 허용하지 않는 제품 정책이다. **[OFFICIAL] [PROJECT]**
+
+### 34.4 Runtime Font Resolution Contract [PROJECT]
+
+SmartChannel strict Template Locked는 `BUNDLED_EXACT`, `SYSTEM_EXACT`,
+`EXTERNAL_EXACT`만 허용한다. `FALLBACK`은 계약상 금지하며 exact PostScript identity를
+필수로 한다. 선택적 external resource는 trusted root 상대 경로, expected PostScript name,
+approved SHA-256, source version(알려진 경우)을 받아 검증한다. network URL, remote fetch,
+path traversal, symlink/reparse point 경유, arbitrary fallback, UI file picker는 금지한다.
+
+Preflight 순서는 trusted path → file exists → font decode → PostScript exact → SHA-256 exact
+→ declared version exact이며, 하나라도 실패하면 `renderStartAllowed=false`이고 다음 오류 중
+하나를 결정적으로 반환한다.
+
+| Code | 의미 |
+|---|---|
+| `NAVER_SMARTCHANNEL_FONT_UNAVAILABLE` | 파일 없음, 읽기/디코드 실패, trusted path 위반 |
+| `NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH` | PostScript name 또는 SHA-256 불일치 |
+| `NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH` | 선언된 font version 불일치 |
+
+`contracts/naver-smartchannel-font-preflight.schema.json`은 이 report envelope를 검증한다.
+N1D에서는 resolver/preflight만 추가하며 SmartChannel raster, Desktop UI, Golden PNG,
+font download/install은 구현하지 않는다. **[PROJECT]**
+
+### 34.5 N2 strategy and readiness [PROJECT] [INFERRED]
+
+N2 Golden determinism과 source typography compliance를 분리한다. 동일 Windows x64
+runtime/dependency/asset/input에서 3회 SHA-256 byte equality를 목표로 하되, Photoshop PNG
+byte identity를 가정하지 않는다. representative render에서는 text origin, line break,
+occupied bounds, baseline, fixed component alignment, canvas geometry를 source metadata와
+비교한다. Exact runtime font가 해결되기 전에는 N2를 시작하지 않으며 `next_phase.ready=false`,
+blocker=`runtime_font_exact_match_to_psd`를 유지한다. 해결 후보(권리자로부터 Windows exact
+font 사용권 확보, exact font 설치 환경 한정 활성화, 공식 대체 font 확인)는 별도 제품 결정으로
+남기며 임의 선택하지 않는다.
+
+### 34.6 Version and acceptance [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.14.0 | 1.15.0 | N1D runtime font policy and fail-closed preflight |
+| Template Contract | 1.8.0 | 1.9.0 | additive SmartChannel font resolution semantics; coordinates unchanged |
+| SmartChannel template registry/schema | 1.1.0 | 1.2.0 | runtime policy references and exact modes |
+| SmartChannel typography registry | 1.1.0 | 1.2.0 | required source font inventory and runtime policy reference |
+| Error Registry | 1.3.0 | 1.4.0 | three SmartChannel font preflight codes |
+| Integration Contract | 1.8.0 | 1.8.0 | unchanged public Kakao/FREEFORM semantics |
+| Desktop | 0.8.2 | 0.8.2 | no SmartChannel UI/runtime |
+
+N1D acceptance는 six-font inventory completeness, 25-token identity mapping, Spoqa mismatch
+검출, fallback 금지, wrong PostScript/digest/version/missing/path rejection, Kakao/FREEFORM
+registry and fingerprint regression을 포함한다. N1D phase는 policy/tests가 PASS이면
+완료되지만 N2는 exact runtime font blocker가 해소될 때까지 준비되지 않는다. **[PROJECT]**

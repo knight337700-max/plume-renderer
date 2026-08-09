@@ -49,8 +49,8 @@ const cta = readJson<CtaRecord>("contracts/naver-smartchannel-cta-options.json")
 
 describe("NAVER SmartChannel N1C source-resolution contract", () => {
   it("freezes the source catalog counts and canvas headers", () => {
-    expect(contract.registryVersion).toBe("1.1.0");
-    expect(contract.templateContractVersion).toBe("1.8.0");
+    expect(contract.registryVersion).toBe("1.2.0");
+    expect(contract.templateContractVersion).toBe("1.9.0");
     expect(contract.canvas).toMatchObject({ width: 750, heights: [160, 200, 280] });
     expect(contract.sourceCatalog.sourcePsdCount).toBe(120);
     expect(contract.sourceCatalog.actualPsdCount).toBe(120);
@@ -78,7 +78,7 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
     expect(affordances.find((entry) => entry.id === "NONE")?.enabled).toBe(true);
     expect(affordances.filter((entry) => entry.enabled).map((entry) => entry.id)).toEqual(["NONE"]);
     expect(affordances.filter((entry) => entry.id !== "NONE").every((entry) => entry.enabled === false)).toBe(true);
-    expect(typography.registryVersion).toBe("1.1.0");
+    expect(typography.registryVersion).toBe("1.2.0");
     expect(typography.status).toBe("SOURCE_METADATA_FROZEN");
     expect(typography.exactSourceFontIdentity).toBe("PASS");
     expect(typography.sourceFonts.every((font) => font.classification === "SOURCE_CONFIRMED")).toBe(true);
@@ -120,6 +120,6 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
 
   it("does not expose a SmartChannel runtime implementation", () => {
     expect(contract.runtimeBoundary).toEqual({ rendererImplemented: false, rasterImplemented: false, desktopUiImplemented: false, previewDownloadImplemented: false, runtimeStatus: "CONTRACT_ONLY" });
-    expect(schema.properties.templateContractVersion.const).toBe("1.8.0");
+    expect(schema.properties.templateContractVersion.const).toBe("1.9.0");
   });
 });

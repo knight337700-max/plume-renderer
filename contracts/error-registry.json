@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.3.0",
+  "registryVersion": "1.4.0",
   "messageContract": "messageKey is stable; localized or AJV-native prose is not part of the external contract",
   "codes": [
     { "code": "KBR-INPUT-001", "severity": "ERROR", "messageKey": "input.json_parse_failed", "condition": "Raw JSON cannot be parsed" },
@@ -150,6 +150,10 @@
     { "code": "KBR-FREEFORM-JPEG-TARGET-SIZE-NOT-ACHIEVABLE", "severity": "ERROR", "messageKey": "freeform.jpeg_target_size_not_achievable", "condition": "The deterministic JPEG quality ladder cannot satisfy the selected profile byte limit" },
     { "code": "KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED", "severity": "ERROR", "messageKey": "freeform.format_not_implemented", "condition": "The selected FREEFORM catalog entry is catalog-only or blocked by an unsupported canvas contract" },
     { "code": "KBR-COMPOSITION-MODE-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "composition.platform_composed_not_supported", "condition": "A PLATFORM_COMPOSED capability was dispatched to the raster renderer before its platform runtime was implemented" },
-    { "code": "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "severity": "WARNING", "messageKey": "freeform.manual_review_required", "condition": "A catalog rule requires human review because baked image semantics or an unlocated safe-zone geometry cannot be inferred" }
+    { "code": "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "severity": "WARNING", "messageKey": "freeform.manual_review_required", "condition": "A catalog rule requires human review because baked image semantics or an unlocated safe-zone geometry cannot be inferred" },
+
+    { "code": "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", "severity": "ERROR", "messageKey": "naver_smartchannel.font_unavailable", "condition": "A required SmartChannel exact font is missing, unreadable, undecodable, or an external exact-font reference is not trusted" },
+    { "code": "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.font_identity_mismatch", "condition": "A resolved SmartChannel font PostScript identity or SHA-256 digest does not match the frozen source requirement" },
+    { "code": "NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.font_version_mismatch", "condition": "A resolved SmartChannel font version does not match the frozen source version requirement" }
   ]
 }

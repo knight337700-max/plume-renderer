@@ -708,7 +708,7 @@ def main() -> int:
         {"id": "EXPORT_BG_GUIDE", "status": "SOURCE_CONFIRMED", "sourceInstruction": "BG guide layer is off when saving PNG", "registrationStatus": "DEFERRED_NON_BLOCKING", "classification": "SOURCE_CONFIRMED"},
     ])
     typography = {
-        "registryVersion": "1.1.0",
+        "registryVersion": "1.2.0",
         "status": "SOURCE_METADATA_FROZEN",
         "classification": "SOURCE_CONFIRMED",
         "extractorRef": "contracts/naver-smartchannel-psd-metadata.json",
@@ -751,13 +751,15 @@ def main() -> int:
     for index, row in enumerate(rows):
         row["sourceMetadataRef"] = {"registry": "contracts/naver-smartchannel-psd-metadata.json", "templateId": row["templateId"], "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"}
         row["source"]["sourceRevisionRef"] = "contracts/naver-smartchannel-source-revision.json#/sourceRevision"
-    contract["$id"] = "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.1.0.json"
-    contract["registryVersion"] = "1.1.0"
-    contract["templateContractVersion"] = "1.8.0"
+    contract["$id"] = "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.2.0.json"
+    contract["registryVersion"] = "1.2.0"
+    contract["templateContractVersion"] = "1.9.0"
     contract["sourceRevisionRef"] = "contracts/naver-smartchannel-source-revision.json#/sourceRevision"
     contract["psdMetadataRef"] = "contracts/naver-smartchannel-psd-metadata.json"
     contract["fixedComponentsRef"] = "contracts/naver-smartchannel-fixed-components.json"
     contract["ctaOptionsRef"] = "contracts/naver-smartchannel-cta-options.json"
+    contract["runtimeFontPolicyRef"] = "contracts/naver-smartchannel-runtime-font-policy.json"
+    contract["fontResolutionPolicy"] = {"fallbackAllowed": False, "exactIdentityRequired": True, "allowedModes": ["BUNDLED_EXACT", "SYSTEM_EXACT", "EXTERNAL_EXACT"], "classification": "SOURCE_CONFIRMED"}
     contract["currentOfficialRuleRefs"] = ["contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/thumbnail280", "contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/logoVerticalMargin24"]
     contract["fixedComponents"] = fixed
     contract["unresolvedBlockers"] = ["runtime_font_exact_match_to_psd"]

@@ -29,3 +29,11 @@ Phase C1에서 Spoqa 공식 저장소의 legacy `Spoqa Han Sans` 원본 TTF를 �
 - License file: `LICENSE-OFL-1.1.txt`
 
 `contracts/font-asset-registry.json`이 실제 파일·weight·사용 범위·라이선스 상태의 machine-readable 기준이다. 파일을 교체하려면 Registry 버전과 Golden을 함께 갱신해야 한다.
+
+## NAVER SmartChannel runtime policy (N1D)
+
+이 저장소의 Spoqa 파일은 Kakao Bizboard와 FREEFORM의 고정 자산으로만 사용한다. SmartChannel Template Locked 원본이 요구하는 `AppleSDGothicNeo-*`, `SFProDisplay-Bold`, `SFUIDisplay-Bold`와 exact source identity가 다르므로 SmartChannel에는 사용할 수 없다. alias, 크기·tracking 보정, 조용한 fallback을 금지하며 N2 시작 전 exact identity가 확인되어야 한다.
+
+SmartChannel은 `BUNDLED_EXACT`, `SYSTEM_EXACT`, `EXTERNAL_EXACT`만 허용하고 fallback은 허용하지 않는다. 현재 Windows x64에서 exact system/bundled 자산은 승인되지 않았으며, 사용자가 적법하게 보유한 exact 파일을 trusted root 상대 경로로 제공하는 external preflight만 계약상 지원한다. 외부 파일은 PostScript name, SHA-256, 선언된 version을 모두 검증하고 네트워크 URL·traversal·symlink/reparse 경유를 거부한다. UI 선택기는 N1D 범위에 포함하지 않는다.
+
+기준: [`contracts/naver-smartchannel-runtime-font-policy.json`](../../contracts/naver-smartchannel-runtime-font-policy.json), [`contracts/naver-smartchannel-font-preflight.schema.json`](../../contracts/naver-smartchannel-font-preflight.schema.json). Apple 원본 파일을 복제·다운로드·변환하지 않는다.

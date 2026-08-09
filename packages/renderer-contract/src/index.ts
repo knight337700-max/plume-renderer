@@ -590,7 +590,7 @@ export async function computeFingerprints(input: RendererIntegrationInputV1, ass
     assets: input.assets.map((asset) => ({ assetId: asset.assetId, mimeType: asset.mimeType, digest: assetDigests[asset.assetId] ?? "" })),
     imagePlacementPlans: pixelPlans.map((plan) => ({ imageSlotId: plan.imageSlotId, assetId: plan.assetId, policy: plan.policy, fitMode: plan.fitMode, cropRect: plan.cropRect, anchor: plan.anchor, subjectProtection: plan.subjectProtection })),
     output: input.output,
-    templateContractVersion: "1.8.0",
+    templateContractVersion: "1.9.0",
   };
   const pixelFingerprint = await sha256Hex(canonicalJson(pixelInput));
   return { requestFingerprint, pixelFingerprint };

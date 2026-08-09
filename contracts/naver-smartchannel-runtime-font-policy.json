@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-runtime-font-policy-v1.0.0.json",
+  "registryVersion": "1.0.0",
+  "status": "FROZEN_FAIL_CLOSED",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "templateContractVersion": "1.9.0",
+  "sourceFontInventoryRef": "contracts/naver-smartchannel-typography.json",
+  "requiredSourceFonts": [
+    {
+      "postScriptName": "AppleSDGothicNeo-Bold",
+      "family": "AppleSDGothicNeo",
+      "style": "Bold",
+      "weight": 700,
+      "sourcePsdCount": 120,
+      "typographyTokens": [
+        "PSD_TYPE_TOKEN_2a80735e8efd6150",
+        "PSD_TYPE_TOKEN_3cb00cba41e436f4",
+        "PSD_TYPE_TOKEN_4071b2a0935f4ce9",
+        "PSD_TYPE_TOKEN_62e7d0563dd8ebf7",
+        "PSD_TYPE_TOKEN_6c383555cd6efbad",
+        "PSD_TYPE_TOKEN_73933ce581728014",
+        "PSD_TYPE_TOKEN_a5c324cc30685123",
+        "PSD_TYPE_TOKEN_bc12c494a7415a90",
+        "PSD_TYPE_TOKEN_c64ad67f1d080034",
+        "PSD_TYPE_TOKEN_ce52e7c527f0325f",
+        "PSD_TYPE_TOKEN_ced0e771e9f9ad11",
+        "PSD_TYPE_TOKEN_d13327659c99dcd2",
+        "PSD_TYPE_TOKEN_f7bcaf05f9bb0300",
+        "PSD_TYPE_TOKEN_fc75e11aad212e08"
+      ],
+      "languageUsage": {
+        "korean": true,
+        "latin": true,
+        "numeric": true
+      }
+    },
+    {
+      "postScriptName": "AppleSDGothicNeo-Medium",
+      "family": "AppleSDGothicNeo",
+      "style": "Medium",
+      "weight": 500,
+      "sourcePsdCount": 8,
+      "typographyTokens": [
+        "PSD_TYPE_TOKEN_074a21139bce706e"
+      ],
+      "languageUsage": {
+        "korean": true,
+        "latin": false,
+        "numeric": false
+      }
+    },
+    {
+      "postScriptName": "AppleSDGothicNeo-Regular",
+      "family": "AppleSDGothicNeo",
+      "style": "Regular",
+      "weight": 400,
+      "sourcePsdCount": 88,
+      "typographyTokens": [
+        "PSD_TYPE_TOKEN_0027d7d620fb7ea6",
+        "PSD_TYPE_TOKEN_22c5bf7874458168",
+        "PSD_TYPE_TOKEN_5027c9a3665891d2",
+        "PSD_TYPE_TOKEN_71ec8eca9b4b5e0e",
+        "PSD_TYPE_TOKEN_aa2a6ba41ccadb3f",
+        "PSD_TYPE_TOKEN_f18bc981c21cc3c6"
+      ],
+      "languageUsage": {
+        "korean": true,
+        "latin": true,
+        "numeric": true
+      }
+    },
+    {
+      "postScriptName": "AppleSDGothicNeo-SemiBold",
+      "family": "AppleSDGothicNeo",
+      "style": "SemiBold",
+      "weight": 600,
+      "sourcePsdCount": 8,
+      "typographyTokens": [
+        "PSD_TYPE_TOKEN_bc953c80df8e103f"
+      ],
+      "languageUsage": {
+        "korean": true,
+        "latin": false,
+        "numeric": false
+      }
+    },
+    {
+      "postScriptName": "SFProDisplay-Bold",
+      "family": "SFProDisplay",
+      "style": "Bold",
+      "weight": 700,
+      "sourcePsdCount": 56,
+      "typographyTokens": [
+        "PSD_TYPE_TOKEN_11da8bc29fd38e3c",
+        "PSD_TYPE_TOKEN_72e630a8d073c3e9"
+      ],
+      "languageUsage": {
+        "korean": false,
+        "latin": true,
+        "numeric": false
+      }
+    },
+    {
+      "postScriptName": "SFUIDisplay-Bold",
+      "family": "SFUIDisplay",
+      "style": "Bold",
+      "weight": 700,
+      "sourcePsdCount": 64,
+      "typographyTokens": [
+        "PSD_TYPE_TOKEN_79e976470940f3f4"
+      ],
+      "languageUsage": {
+        "korean": false,
+        "latin": true,
+        "numeric": false
+      }
+    }
+  ],
+  "resolutionClasses": [
+    "EXACT_BUNDLED_LICENSED",
+    "EXACT_SYSTEM",
+    "EXACT_EXTERNAL_LICENSED",
+    "LICENSED_BUT_NOT_SOURCE_MATCH",
+    "MISSING"
+  ],
+  "resolutionMatrix": [
+    {
+      "sourcePostScriptName": "AppleSDGothicNeo-Bold",
+      "runtimePostScriptName": "SpoqaHanSans-Bold",
+      "runtimeDigest": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef",
+      "resolutionClass": "LICENSED_BUT_NOT_SOURCE_MATCH",
+      "runtimeAssetId": "SPOQA_HAN_SANS_BOLD",
+      "exactIdentityRequired": true
+    },
+    {
+      "sourcePostScriptName": "AppleSDGothicNeo-Medium",
+      "runtimePostScriptName": null,
+      "runtimeDigest": null,
+      "resolutionClass": "MISSING",
+      "runtimeAssetId": null,
+      "exactIdentityRequired": true
+    },
+    {
+      "sourcePostScriptName": "AppleSDGothicNeo-Regular",
+      "runtimePostScriptName": "SpoqaHanSans-Regular",
+      "runtimeDigest": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1",
+      "resolutionClass": "LICENSED_BUT_NOT_SOURCE_MATCH",
+      "runtimeAssetId": "SPOQA_HAN_SANS_REGULAR",
+      "exactIdentityRequired": true
+    },
+    {
+      "sourcePostScriptName": "AppleSDGothicNeo-SemiBold",
+      "runtimePostScriptName": null,
+      "runtimeDigest": null,
+      "resolutionClass": "MISSING",
+      "runtimeAssetId": null,
+      "exactIdentityRequired": true
+    },
+    {
+      "sourcePostScriptName": "SFProDisplay-Bold",
+      "runtimePostScriptName": null,
+      "runtimeDigest": null,
+      "resolutionClass": "MISSING",
+      "runtimeAssetId": null,
+      "exactIdentityRequired": true
+    },
+    {
+      "sourcePostScriptName": "SFUIDisplay-Bold",
+      "runtimePostScriptName": null,
+      "runtimeDigest": null,
+      "resolutionClass": "MISSING",
+      "runtimeAssetId": null,
+      "exactIdentityRequired": true
+    }
+  ],
+  "runtimeAssets": [
+    {
+      "id": "SPOQA_HAN_SANS_BOLD",
+      "relativePath": "assets/fonts/SpoqaHanSansBold.ttf",
+      "runtimePostScriptName": "SpoqaHanSans-Bold",
+      "runtimeDigest": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef",
+      "runtimeVersion": "Version 2.000",
+      "weight": 700,
+      "licenseStatus": "VERIFIED_OFL_1.1",
+      "resolutionClass": "LICENSED_BUT_NOT_SOURCE_MATCH",
+      "smartChannelAllowed": false
+    },
+    {
+      "id": "SPOQA_HAN_SANS_REGULAR",
+      "relativePath": "assets/fonts/SpoqaHanSansRegular.ttf",
+      "runtimePostScriptName": "SpoqaHanSans-Regular",
+      "runtimeDigest": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1",
+      "runtimeVersion": "Version 2.000",
+      "weight": 400,
+      "licenseStatus": "VERIFIED_OFL_1.1",
+      "resolutionClass": "LICENSED_BUT_NOT_SOURCE_MATCH",
+      "smartChannelAllowed": false
+    }
+  ],
+  "windowsSmartChannelFontAvailability": {
+    "platform": "WINDOWS_10_11_X64",
+    "EXACT_SYSTEM": false,
+    "EXACT_BUNDLED_LICENSED": false,
+    "EXACT_EXTERNAL_LICENSED_SUPPORTED": true,
+    "observedLocalCandidates": [
+      {
+        "pathReference": "%LOCALAPPDATA%/Microsoft/Windows/Fonts/APPLESDGOTHICNEOB.TTF",
+        "fileName": "APPLESDGOTHICNEOB.TTF",
+        "postScriptNames": [
+          "AppleSDGothicNeoB00"
+        ],
+        "sha256": "a652ea0a3c4bf8658845f044b5d6f40c39ecf03207e43f325c1451127528402b",
+        "version": "Version 1.0",
+        "provenance": "UNRESOLVED",
+        "approvedForSmartChannel": false
+      },
+      {
+        "pathReference": "%LOCALAPPDATA%/Microsoft/Windows/Fonts/APPLESDGOTHICNEOEB.TTF",
+        "fileName": "APPLESDGOTHICNEOEB.TTF",
+        "postScriptNames": [
+          "AppleSDGothicNeoEB00"
+        ],
+        "sha256": "e488e243654b2b6c982e1e3493810829683cf534c5de5622f2e399142c732e41",
+        "version": "Version 1.0",
+        "provenance": "UNRESOLVED",
+        "approvedForSmartChannel": false
+      },
+      {
+        "pathReference": "%LOCALAPPDATA%/Microsoft/Windows/Fonts/APPLESDGOTHICNEOM.TTF",
+        "fileName": "APPLESDGOTHICNEOM.TTF",
+        "postScriptNames": [
+          "AppleSDGothicNeoM00"
+        ],
+        "sha256": "0ab8f4045a0c5ac30eee01da33f75998c0a8f6f3d65b0952be8dc9ece63bde29",
+        "version": "Version 1.0",
+        "provenance": "UNRESOLVED",
+        "approvedForSmartChannel": false
+      },
+      {
+        "pathReference": "%LOCALAPPDATA%/Microsoft/Windows/Fonts/APPLESDGOTHICNEOR.TTF",
+        "fileName": "APPLESDGOTHICNEOR.TTF",
+        "postScriptNames": [
+          "AppleSDGothicNeoR00"
+        ],
+        "sha256": "f44eec027992b99dc25de0229c5726fe209a6cb80761aaef98d050cdc0bc6cfe",
+        "version": "Version 1.0",
+        "provenance": "UNRESOLVED",
+        "approvedForSmartChannel": false
+      },
+      {
+        "pathReference": "%LOCALAPPDATA%/Microsoft/Windows/Fonts/APPLESDGOTHICNEOSB.TTF",
+        "fileName": "APPLESDGOTHICNEOSB.TTF",
+        "postScriptNames": [
+          "AppleSDGothicNeoSB00"
+        ],
+        "sha256": "a9c5ffb4dadce253d8748b18019954a8af19b7cfcc3b586fce64ef1f6bd71492",
+        "version": "Version 1.0",
+        "provenance": "UNRESOLVED",
+        "approvedForSmartChannel": false
+      },
+      {
+        "pathReference": "%LOCALAPPDATA%/Microsoft/Windows/Fonts/APPLESDGOTHICNEOH.TTF",
+        "fileName": "APPLESDGOTHICNEOH.TTF",
+        "postScriptNames": [
+          "AppleSDGothicNeoH00"
+        ],
+        "sha256": "bfd5e26c2a32b1c0b4a12fb69cfdb78509bbd057a1c71ece4cb0bc899b27f11a",
+        "version": "Version 1.0",
+        "provenance": "UNRESOLVED",
+        "approvedForSmartChannel": false
+      }
+    ],
+    "runtimeDecision": "BLOCKED"
+  },
+  "appleFontDistribution": {
+    "apple_sd_gothic_neo": {
+      "systemAvailability": "Apple official documentation lists Apple SD Gothic Neo on Apple platforms and macOS system fonts",
+      "standaloneOfficialDownload": "NOT_FOUND",
+      "officialWindowsRedistributablePath": "NOT_FOUND",
+      "windowsRedistributionPermission": "UNKNOWN",
+      "projectBundlingPermission": "NOT_CONFIRMED",
+      "evidence": [
+        "https://support.apple.com/en-us/120414",
+        "https://developer.apple.com/fonts/system-fonts/",
+        "https://developer.apple.com/fonts/index.html"
+      ]
+    },
+    "sf": {
+      "systemAvailability": "Apple official font resources target Apple operating systems",
+      "standaloneOfficialDownload": "FOUND_APPLE_DEVELOPER_RESOURCE",
+      "officialWindowsRedistributablePath": "NOT_FOUND",
+      "windowsRedistributionPermission": "NOT_CONFIRMED",
+      "projectBundlingPermission": "NOT_CONFIRMED",
+      "evidence": [
+        "https://developer.apple.com/fonts/index.html",
+        "https://developer.apple.com/support/downloads/terms/apple-design-resources/Apple-Design-Resources-License-20230621-English.pdf"
+      ]
+    }
+  },
+  "fontResolutionModes": [
+    "BUNDLED_EXACT",
+    "SYSTEM_EXACT",
+    "EXTERNAL_EXACT"
+  ],
+  "fallbackAllowed": false,
+  "externalExactContract": {
+    "schemaVersion": "1.0.0",
+    "pathKind": "TRUSTED_ROOT_RELATIVE",
+    "path": "<runtime-selected-local-font-file>",
+    "expectedPostScriptName": "required per source font",
+    "expectedSha256": "required approved digest",
+    "expectedVersion": "required when source version is known",
+    "approvedDigestRequired": true,
+    "networkUrlAllowed": false,
+    "pathTraversalAllowed": false,
+    "symlinkAllowed": false,
+    "windowsReparsePointAllowed": false,
+    "uiFilePickerImplemented": false
+  },
+  "preflight": {
+    "sequence": [
+      "TRUSTED_LOCAL_PATH",
+      "FILE_EXISTS",
+      "FONT_DECODE",
+      "POSTSCRIPT_EXACT",
+      "SHA256_EXACT",
+      "VERSION_EXACT_WHEN_DECLARED"
+    ],
+    "failClosed": true,
+    "renderStartAllowedOnlyWhen": "ALL_REQUIRED_SOURCE_FONTS_PASS",
+    "errors": [
+      "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE",
+      "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH",
+      "NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH"
+    ]
+  },
+  "n2": {
+    "ready": false,
+    "blockers": [
+      "runtime_font_exact_match_to_psd"
+    ]
+  }
+}

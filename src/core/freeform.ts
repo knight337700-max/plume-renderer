@@ -1208,7 +1208,7 @@ async function renderFreeformInternal(
     outputArtifactDigest: pngDigest,
     outputFileName: freeformArtifactFileName(requestedFormat),
     outputEncoding: encoding,
-    templateContractVersion: "1.8.0",
+    templateContractVersion: "1.9.0",
     inputSchemaVersion: "1.2.0",
     outputSchemaVersion: "2.0.0",
     validatorResult: {

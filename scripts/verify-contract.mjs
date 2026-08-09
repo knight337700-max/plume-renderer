@@ -59,6 +59,13 @@ check(
   new Set(errorCodes).size === errorCodes.length,
   `${new Set(errorCodes).size}/${errorCodes.length} error codes are unique`,
 );
+for (const code of [
+  "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE",
+  "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH",
+  "NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH",
+]) {
+  check(`error_code_${code}`, errorCodes.includes(code), `${code} is present`);
+}
 check(
   "download_error_registered",
   errorCodes.includes("KBR-DOWNLOAD-001"),
@@ -66,7 +73,7 @@ check(
 );
 check(
   "error_registry_version",
-  errorRegistry?.registryVersion === "1.3.0",
+  errorRegistry?.registryVersion === "1.4.0",
   `errorRegistry=${errorRegistry?.registryVersion ?? "missing"}`,
 );
 
@@ -126,7 +133,7 @@ check(
 const versions = contracts.get("contract-versions.json");
 check(
   "template_contract_version",
-  versions?.templateContractVersion === "1.8.0" &&
+  versions?.templateContractVersion === "1.9.0" &&
     versions?.coordinatesChanged === false &&
     versions?.xCoordinatesChanged === false &&
     versions?.baselineDeltaPx === 4,
@@ -360,7 +367,7 @@ check(
 const textContract = contracts.get("text-contract.json");
 check(
   "text_contract",
-  textContract?.templateContractVersion === "1.8.0" &&
+  textContract?.templateContractVersion === "1.9.0" &&
     textContract?.headlineBaselineY === 120 &&
     textContract?.subcopyBaselineY === 178 &&
     textContract?.textStartX === 48 &&
@@ -458,7 +465,7 @@ check(
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.previous === "1.13.0" && versions?.documentVersion?.current === "1.14.0" && versions?.templateContractVersion === "1.8.0",
+  versions?.documentVersion?.previous === "1.14.0" && versions?.documentVersion?.current === "1.15.0" && versions?.templateContractVersion === "1.9.0",
   `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 
