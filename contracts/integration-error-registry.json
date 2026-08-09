@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.7.0",
+  "registryVersion": "1.8.0",
   "namespace": "renderer-integration",
   "codes": [
     { "code": "KBR-PLACEMENT-PLAN-MISSING", "severity": "ERROR", "messageKey": "placement.plan_missing", "condition": "A required image slot has no placement plan" },

@@ -1,8 +1,8 @@
 {
-  "schemaVersion": "1.7.0",
+  "schemaVersion": "1.8.0",
   "capabilities": [
     {
-      "schemaVersion": "1.7.0",
+      "schemaVersion": "1.8.0",
       "formatProfileId": "KAKAO_BIZBOARD_OBJECT_RIGHT",
       "channelNamespace": "KAKAO_MOMENT",
       "placement": "BIZBOARD_OBJECT_RIGHT",
@@ -21,7 +21,7 @@
       "alphaChannelRequired": true
     },
     {
-      "schemaVersion": "1.7.0",
+      "schemaVersion": "1.8.0",
       "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_BOX_RIGHT",
       "channelNamespace": "KAKAO_MOMENT",
       "placement": "BIZBOARD_THUMBNAIL_BOX_RIGHT",
@@ -40,7 +40,7 @@
       "alphaChannelRequired": false
     },
     {
-      "schemaVersion": "1.7.0",
+      "schemaVersion": "1.8.0",
       "formatProfileId": "KAKAO_BIZBOARD_THUMBNAIL_MULTI_RIGHT",
       "channelNamespace": "KAKAO_MOMENT",
       "placement": "BIZBOARD_THUMBNAIL_MULTI_RIGHT",
@@ -62,7 +62,7 @@
       "requiredPlacementPlans": 2
     },
     {
-      "schemaVersion": "1.7.0",
+      "schemaVersion": "1.8.0",
       "formatProfileId": "KAKAO_BIZBOARD_MASK_SEMICIRCLE_RIGHT",
       "channelNamespace": "KAKAO_MOMENT",
       "placement": "BIZBOARD_MASK_SEMICIRCLE_RIGHT",
@@ -107,7 +107,7 @@
       ]
     },
     {
-      "schemaVersion": "1.7.0",
+      "schemaVersion": "1.8.0",
       "formatProfileId": "KAKAO_NATIVE_1200",
       "channelNamespace": "KAKAO_MOMENT",
       "placement": "NATIVE_1200",
@@ -125,7 +125,7 @@
       "alphaChannelRequired": false
     },
     {
-      "schemaVersion": "1.7.0",
+      "schemaVersion": "1.8.0",
       "formatProfileId": "NAVER_GFA_IMAGE_BANNER",
       "templateId": "NAVER_GFA_IMAGE_BANNER",
       "implementationStatus": "NOT_IMPLEMENTED",

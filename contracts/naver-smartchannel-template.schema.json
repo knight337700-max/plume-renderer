@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/schema/naver-smartchannel-template-v1.0.0.schema.json",
+  "title": "NAVER SmartChannel template contract v1.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registryVersion",
+    "templateContractVersion",
+    "channel",
+    "placement",
+    "layoutMode",
+    "compositionMode",
+    "artifactCardinality",
+    "canvas",
+    "templates"
+  ],
+  "properties": {
+    "registryVersion": {
+      "const": "1.0.0"
+    },
+    "templateContractVersion": {
+      "const": "1.7.0"
+    },
+    "channel": {
+      "const": "NAVER_GFA"
+    },
+    "placement": {
+      "const": "SMARTCHANNEL"
+    },
+    "layoutMode": {
+      "const": "TEMPLATE_LOCKED"
+    },
+    "compositionMode": {
+      "const": "RENDERER_COMPOSED"
+    },
+    "artifactCardinality": {
+      "const": "SINGLE"
+    },
+    "canvas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "heights"
+      ],
+      "properties": {
+        "width": {
+          "const": 750
+        },
+        "heights": {
+          "const": [
+            160,
+            200,
+            280
+          ]
+        }
+      }
+    },
+    "templates": {
+      "type": "array",
+      "minItems": 120,
+      "maxItems": 120,
+      "items": {
+        "$ref": "#/$defs/template"
+      }
+    }
+  },
+  "$defs": {
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "templateId",
+        "height",
+        "family",
+        "objectKind",
+        "side",
+        "textVariant",
+        "affordance",
+        "source"
+      ],
+      "properties": {
+        "templateId": {
+          "type": "string",
+          "pattern": "^NAVER_SMARTCHANNEL_"
+        },
+        "height": {
+          "enum": [
+            160,
+            200,
+            280
+          ]
+        },
+        "family": {
+          "enum": [
+            "BASIC",
+            "EMPHASIS",
+            "BOTTOM_DISCLOSURE"
+          ]
+        },
+        "objectKind": {
+          "enum": [
+            "STANDARD",
+            "THUMBNAIL",
+            "PERSON_MOVIE"
+          ]
+        },
+        "side": {
+          "enum": [
+            "LEFT",
+            "RIGHT"
+          ]
+        },
+        "textVariant": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceTextLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "affordance": {
+          "enum": [
+            "NONE",
+            "LANDING_ICON",
+            "APP_CTA"
+          ]
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourcePath",
+            "sourceFileName",
+            "sha256",
+            "canvas",
+            "classification"
+          ],
+          "properties": {
+            "sourcePath": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sourceFileName": {
+              "type": "string",
+              "minLength": 1
+            },
+            "catalogFileName": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "canvas": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "width",
+                "height"
+              ],
+              "properties": {
+                "width": {
+                  "const": 750
+                },
+                "height": {
+                  "enum": [
+                    160,
+                    200,
+                    280
+                  ]
+                }
+              }
+            },
+            "psdHeader": {
+              "type": "object"
+            },
+            "catalogCrossCheck": {
+              "type": "string"
+            },
+            "classification": {
+              "enum": [
+                "SOURCE_CONFIRMED",
+                "DERIVED_FROM_EXACT_SOURCE_METADATA",
+                "UNRESOLVED"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

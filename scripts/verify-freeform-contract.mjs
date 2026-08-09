@@ -87,11 +87,11 @@ if (inputValidator?.(freeformInput)) pass("integration_freeform_optional_extensi
 else fail("integration_freeform_optional_extension", JSON.stringify(inputValidator?.errors ?? []));
 
 const integrationSchemas = schemas.slice(0, 5).map((schema) => JSON.stringify(schema)).join("\n");
-if (integrationSchemas.includes("1.7.0")) pass("integration_version_alignment", "Integration schemas align to v1.7.0");
-else fail("integration_version_alignment", "v1.7.0 is absent from Integration schemas");
+if (integrationSchemas.includes("1.8.0")) pass("integration_version_alignment", "Integration schemas align to v1.8.0");
+else fail("integration_version_alignment", "v1.8.0 is absent from Integration schemas");
 
 const versions = await readJson("contracts/contract-versions.json");
-if (versions.documentVersion?.current === "1.12.0" && versions.integrationContract?.current === "1.7.0" && versions.templateContractVersion === "1.6.0" && versions.desktopAppVersion === "0.8.2") pass("version_policy", "Canonical 1.12.0 / Integration 1.7.0 / Template 1.6.0 / Desktop 0.8.2");
+if (versions.documentVersion?.current === "1.13.0" && versions.integrationContract?.current === "1.8.0" && versions.templateContractVersion === "1.7.0" && versions.desktopAppVersion === "0.8.2") pass("version_policy", "Canonical 1.13.0 / Integration 1.8.0 / Template 1.7.0 / Desktop 0.8.2");
 else fail("version_policy", JSON.stringify({ document: versions.documentVersion, integration: versions.integrationContract, template: versions.templateContractVersion, desktop: versions.desktopAppVersion }));
 if (versions.creativeLayoutPlan?.schemaVersion === "1.0.0" && versions.creativeLayoutPlan?.implementationStatus === "NOT_IMPLEMENTED") pass("implementation_boundary", "FREEFORM schema remains frozen; raster implementation is additive");
 else fail("implementation_boundary", "FREEFORM implementation status is not NOT_IMPLEMENTED");

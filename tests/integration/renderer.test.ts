@@ -77,7 +77,7 @@ describe("Core renderer publish workflow", () => {
     expect(manifest).not.toHaveProperty("sha256");
     expect(manifest).toMatchObject({
       schemaVersion: "1.0.0",
-      templateContractVersion: "1.6.0",
+      templateContractVersion: "1.7.0",
       inputSchemaVersion: "1.2.0",
       outputSchemaVersion: "2.0.0",
       outputPngDigest: response.pngDigest,

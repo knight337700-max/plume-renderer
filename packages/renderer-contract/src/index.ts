@@ -9,11 +9,11 @@ import {
 export * from "./freeform.js";
 export * from "./capability.js";
 
-export const INTEGRATION_SCHEMA_VERSION = "1.7.0" as const;
-export const PREVIOUS_INTEGRATION_SCHEMA_VERSION = "1.6.0" as const;
+export const INTEGRATION_SCHEMA_VERSION = "1.8.0" as const;
+export const PREVIOUS_INTEGRATION_SCHEMA_VERSION = "1.7.0" as const;
 export const LEGACY_INTEGRATION_SCHEMA_VERSION = "1.2.0" as const;
 export const EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION = "1.1.0" as const;
-export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof PREVIOUS_INTEGRATION_SCHEMA_VERSION | "1.5.0" | "1.4.0" | "1.3.0" | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
+export type IntegrationSchemaVersion = typeof INTEGRATION_SCHEMA_VERSION | typeof PREVIOUS_INTEGRATION_SCHEMA_VERSION | "1.6.0" | "1.5.0" | "1.4.0" | "1.3.0" | typeof LEGACY_INTEGRATION_SCHEMA_VERSION | typeof EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
 export const NORMALIZED_EPSILON = 1e-9;
 export const OBJECT_RIGHT_FORMAT_PROFILE_ID = "KAKAO_BIZBOARD_OBJECT_RIGHT" as const;
 export const OBJECT_RIGHT_TEMPLATE_ID = "KAKAO_MOMENT_BIZBOARD_OBJECT_RIGHT_1029X258_V1" as const;
@@ -305,7 +305,7 @@ function isFiniteNumber(value: unknown): value is number {
 }
 
 function isSupportedIntegrationSchemaVersion(value: unknown): value is IntegrationSchemaVersion {
-  return value === INTEGRATION_SCHEMA_VERSION || value === PREVIOUS_INTEGRATION_SCHEMA_VERSION || value === "1.4.0" || value === "1.3.0" || value === LEGACY_INTEGRATION_SCHEMA_VERSION || value === EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
+  return value === INTEGRATION_SCHEMA_VERSION || value === PREVIOUS_INTEGRATION_SCHEMA_VERSION || value === "1.6.0" || value === "1.5.0" || value === "1.4.0" || value === "1.3.0" || value === LEGACY_INTEGRATION_SCHEMA_VERSION || value === EARLY_LEGACY_INTEGRATION_SCHEMA_VERSION;
 }
 
 export function validateNormalizedPoint(value: unknown, path = ""): RendererValidationIssue[] {
@@ -590,7 +590,7 @@ export async function computeFingerprints(input: RendererIntegrationInputV1, ass
     assets: input.assets.map((asset) => ({ assetId: asset.assetId, mimeType: asset.mimeType, digest: assetDigests[asset.assetId] ?? "" })),
     imagePlacementPlans: pixelPlans.map((plan) => ({ imageSlotId: plan.imageSlotId, assetId: plan.assetId, policy: plan.policy, fitMode: plan.fitMode, cropRect: plan.cropRect, anchor: plan.anchor, subjectProtection: plan.subjectProtection })),
     output: input.output,
-    templateContractVersion: "1.6.0",
+    templateContractVersion: "1.7.0",
   };
   const pixelFingerprint = await sha256Hex(canonicalJson(pixelInput));
   return { requestFingerprint, pixelFingerprint };

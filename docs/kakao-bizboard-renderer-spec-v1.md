@@ -3212,3 +3212,111 @@ N1A acceptance는 기존 Kakao Template/FREEFORM PNG/JPEG, Validator, legacy
 serialization, fingerprint와 Golden SHA가 byte-equal인지를 포함한다. 지원 플랫폼은
 계속 Windows 10/11 x64이며 다른 OS의 pixel tolerance는 이 계약에 추가하지 않는다.
 Naver raster runtime과 Collection runtime은 후속 N1B/N6 계약으로 이관한다. **[PROJECT]**
+
+## 32. Phase N1B — NAVER SmartChannel Template Contract Freeze [PROJECT]
+
+N1B는 N1A에서 표현만 동결한 `NAVER_GFA/SMARTCHANNEL`을 **source-whitelist-only**
+Template Contract로 구체화한다. 이 절은 PSD 원본의 조합·파일 provenance·canvas header·guide
+geometry를 Registry로 고정하지만, SmartChannel 최종 raster Renderer, PSD text-layer parser,
+CTA/landing-icon asset 제작, Desktop UI, Preview/Download를 구현하지 않는다. 실행 중 네트워크와
+plume/원격 서비스 의존성도 없다. **[PROJECT]**
+
+### 32.1 Canonical source inventory [TOOL_OUTPUT] [DERIVED]
+
+공식 제공 원본은 외부 source root `SMARTCHANNEL_GUIDE 12/`에서 읽는다. 저장소에는 PSD
+바이너리를 임의로 복사하지 않으며, `contracts/naver-smartchannel-template-contract.json`에
+파일명·정규화 상대 경로·SHA-256·PSD header canvas를 기록한다.
+
+| Canvas | BASIC | EMPHASIS | BOTTOM_DISCLOSURE | Total |
+|---:|---:|---:|---:|---:|
+| 750×160 | 8 | 15 | 9 | 32 |
+| 750×200 | 8 | 15 | 9 | 32 |
+| 750×280 | 16 | 25 | 15 | 56 |
+| **Total** | **32** | **55** | **33** | **120** |
+
+실제 검증 결과는 PSD 120/120, catalog SHA-256 120/120, PSD signature `8BPS`/version 1,
+width 750 및 높이 160/200/280 일치다. 현재 source root와 기존 catalog의 basename이
+20건에서 `(1)` suffix 또는 trailing space 때문에 달라졌지만 SHA-256은 일치한다. Registry는
+현재 root의 실제 filename을 canonical filename으로 사용하고 catalog filename을 교차참조로
+보존한다. source inventory digest는
+`6c9d7da1373e7f03f25fb27b1cc6da46fac21b3b8e2e8a04d54a006302c78e4a`다. **[TOOL_OUTPUT]**
+
+### 32.2 SmartChannel identity and bijection [PROJECT]
+
+공개 capability identity는 다음 축의 곱으로 표현하되, Registry에 실제 PSD가 존재하는 행만
+등록한다.
+
+```text
+channel= NAVER_GFA
+placement= SMARTCHANNEL
+layoutMode= TEMPLATE_LOCKED
+compositionMode= RENDERER_COMPOSED
+artifactCardinality= SINGLE
+templateId = NAVER_SMARTCHANNEL_<HEIGHT>_<FAMILY>_<OBJECT_KIND>_<SIDE>_<TEXT_VARIANT>_<AFFORDANCE>
+```
+
+`BASIC`, `EMPHASIS`, `BOTTOM_DISCLOSURE` 가족, `STANDARD`, `THUMBNAIL`,
+`PERSON_MOVIE(MOVIE_ONLY)` object kind, `LEFT`/`RIGHT` side 및 `NONE`, `LANDING_ICON`,
+`APP_CTA` affordance를 보존한다. 120개 Template ID는 unique하며 각 ID는 정확히 한 PSD,
+각 PSD는 정확히 한 ID에 대응한다. 좌우 반전, 높이 scale, 누락 affordance/variant의
+Cartesian product 파생은 금지한다. **[PROJECT]**
+
+### 32.3 Source text variant naming clarification [PROJECT] [INFERRED]
+
+원본 filename과 N2 representative 후보에는 `3줄`/`THREE_LINE`이 사용되지만, 입력된
+초기 whitelist 예시에는 `THREE_LINE`이 누락되어 `MAIN2_SUB`와 명칭 충돌이 있었다. 이
+계약은 새 조합을 만들지 않고 PSD filename에 실제 존재하는 `3줄` label을 `THREE_LINE`로
+등록한다. `(메인2줄)`이 명시되거나 catalog grammar가 Main×2+Sub를 직접 확인하는 경우만
+`MAIN2_SUB`로 분류한다. 이 명칭 결정은 프로젝트 clarification이며 카카오/네이버 공식
+문구 규칙이라고 주장하지 않는다. **[PROJECT]**
+
+### 32.4 Geometry and fixed components [DERIVED] [TOOL_OUTPUT]
+
+- 각 높이는 독립 geometry다. 160/200/280을 단일 scale factor로 만들지 않는다.
+- `geometry.placementPrimitives`는 source catalog/guide에서 도출된 object/text region과
+  gap이다. observed raster bounds와 canonical placement box를 혼동하지 않는다.
+- 280 text exposure는 `y=40,height=200`; 280 main/sub guide size는 각각 32px/26px로
+  관찰되지만 PSD text-layer metadata가 없는 값은 typography token으로 승격하지 않는다.
+- `LANDING_ICON_160_200`, `LANDING_ICON_280`, `APP_CTA_160_200`, `APP_CTA_280`은
+  source PSD에 표시되지만 승인 asset digest, canonical optical bounds, label 및 landing
+  호환성이 없다. 따라서 registry에만 존재하고 runtime affordance는 disabled다.
+- `OBJECT_MAX_GUIDE_260`은 최대 guide와 실제 placement region을 분리해 기록하며 의미를
+  추정하지 않는다. `BG off + PNG`는 PSD export instruction이지 Renderer output contract가
+  아니다.
+
+### 32.5 Typography and font boundary [PROJECT] [TOOL_OUTPUT]
+
+필요한 Spoqa Han Sans Bold/Regular binary는 기존 `contracts/font-asset-registry.json`의
+합법적 OFL asset과 SHA-256으로 확인한다. 다만 120 PSD에서 Photoshop text-layer의
+family/PostScript name/weight/style/size/leading/tracking/kerning/alignment/text box/
+baseline/fill/opacity/anti-alias metadata를 현재 도구로 추출하지 못했으므로
+`contracts/naver-smartchannel-typography.json`의 token은 `UNRESOLVED`다. 문자열 길이,
+font fallback, line-height, baseline을 filename 또는 raster bounds로 역추론하지 않는다.
+이 상태는 N2의 runtime text readiness blocker이며 Spoqa asset을 Naver PSD와 동일하다고
+주장하지 않는다. **[PROJECT]**
+
+160 disclosure two-line의 exact baseline과 200 landing icon y=85/86 편차도 intentional
+authoring/raster effect인지 확정하지 않고 unresolved로 남긴다. **[TOOL_OUTPUT]**
+
+### 32.6 Version and runtime boundary [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.12.0 | 1.13.0 | additive SmartChannel source catalog/provenance contract |
+| Integration Contract | 1.7.0 | 1.8.0 | additive template registry references; legacy decode preserved |
+| Template Contract | 1.6.0 | 1.7.0 | additive Naver Template identity/registry; existing Kakao coordinates unchanged |
+| CreativeLayoutPlan | 1.0.0 | 1.0.0 | unchanged |
+| Desktop | 0.8.2 | 0.8.2 | no SmartChannel UI/runtime in N1B |
+
+N1B 공개 runtime은 `CONTRACT_ONLY`다. SmartChannel PNG/Sharp/Canvas/Golden/Preview/
+Download/직접 Naver upload는 후속 N2 범위이며, runtime network access는 계속
+`PROHIBITED`다. **[PROJECT]**
+
+### 32.7 Acceptance and next gate [PROJECT]
+
+N1B acceptance는 source count/canvas/hash, family count, Template↔PSD bijection, unique
+identity, unsupported combination fail-closed registry, typography unresolved honesty,
+fixed-component unresolved honesty, version bump 및 기존 Kakao regression을 검사한다.
+N2 representative candidates는 registry-only로 6개를 보관한다. source inventory gate는
+통과하지만 PSD text metadata와 fixed assets가 unresolved이므로 `nextPhase.ready=false`다.
+N1B는 공식 Naver 업로드 승인이나 광고 심의 적합성을 보장하지 않는다. **[PROJECT]**

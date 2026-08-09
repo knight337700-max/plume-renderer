@@ -1,0 +1,106 @@
+{
+  "classificationVocabulary": [
+    "SOURCE_CONFIRMED",
+    "DERIVED_FROM_EXACT_SOURCE_METADATA",
+    "UNRESOLVED"
+  ],
+  "components": [
+    {
+      "id": "LANDING_ICON_160_200",
+      "scope": [
+        160,
+        200
+      ],
+      "status": "UNRESOLVED",
+      "assetId": null,
+      "assetSha256": null,
+      "canonicalGeometry": null,
+      "observedRasterBounds": {
+        "160": {
+          "x": 694,
+          "y": 65,
+          "width": 16,
+          "height": 30
+        },
+        "200": {
+          "x": 694,
+          "y": 85,
+          "width": 16,
+          "height": 30
+        }
+      },
+      "disabledReason": "Canonical approved icon binary, digest, and optical bounds are not registered."
+    },
+    {
+      "id": "LANDING_ICON_280",
+      "scope": [
+        280
+      ],
+      "status": "UNRESOLVED",
+      "assetId": null,
+      "assetSha256": null,
+      "canonicalGeometry": null,
+      "observedRasterBounds": {
+        "x": 660,
+        "y": 112,
+        "width": 56,
+        "height": 59
+      },
+      "disabledReason": "Canonical approved icon binary, digest, and optical bounds are not registered."
+    },
+    {
+      "id": "APP_CTA_160_200",
+      "scope": [
+        160,
+        200
+      ],
+      "status": "UNRESOLVED",
+      "assetId": null,
+      "assetSha256": null,
+      "canonicalGeometry": null,
+      "disabledReason": "Allowed labels, landing compatibility, canonical icon/chevron assets, and exact metrics are not frozen."
+    },
+    {
+      "id": "APP_CTA_280",
+      "scope": [
+        280
+      ],
+      "status": "UNRESOLVED",
+      "assetId": null,
+      "assetSha256": null,
+      "canonicalGeometry": null,
+      "observedMetadata": {
+        "buttonY": "≈194",
+        "buttonHeight": 48,
+        "alignment": "RIGHT",
+        "composition": "background + text + chevron"
+      },
+      "disabledReason": "Canonical button background, labels, chevron asset, and exact metrics are not frozen."
+    },
+    {
+      "id": "OBJECT_MAX_GUIDE_260",
+      "scope": [
+        160,
+        200,
+        280
+      ],
+      "status": "UNRESOLVED",
+      "assetId": null,
+      "assetSha256": null,
+      "canonicalGeometry": null,
+      "disabledReason": "260 maximum guide semantics and placement region are separate and unresolved."
+    },
+    {
+      "id": "EXPORT_BG_GUIDE",
+      "scope": [
+        280
+      ],
+      "status": "SOURCE_CONFIRMED",
+      "assetId": null,
+      "assetSha256": null,
+      "canonicalGeometry": null,
+      "sourceInstruction": "BG guide layer is off when saving PNG",
+      "rendererOutput": "NOT_PART_OF_RENDERER_CONTRACT"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "registryVersion": "1.0.0",
+  "status": "UNRESOLVED_SOURCE_METADATA",
+  "classification": "UNRESOLVED",
+  "sourceMetadata": {
+    "fontLayerExtraction": "NOT_AVAILABLE_IN_CURRENT_TOOLCHAIN",
+    "requiredFields": [
+      "family",
+      "postScriptName",
+      "weight",
+      "style",
+      "sizePx",
+      "leadingPx",
+      "tracking",
+      "kerning",
+      "alignment",
+      "textBox",
+      "baseline",
+      "fill",
+      "opacity",
+      "antiAliasing"
+    ],
+    "inferredValuesForbidden": true
+  },
+  "runtimeFontAssets": [
+    {
+      "id": "SPOQA_HAN_SANS_BOLD",
+      "relativePath": "assets/fonts/SpoqaHanSansBold.ttf",
+      "sha256": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef",
+      "weight": 700,
+      "licenseStatus": "VERIFIED_OFL_1.1",
+      "sourceIdentityToPSD": "UNRESOLVED"
+    },
+    {
+      "id": "SPOQA_HAN_SANS_REGULAR",
+      "relativePath": "assets/fonts/SpoqaHanSansRegular.ttf",
+      "sha256": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1",
+      "weight": 400,
+      "licenseStatus": "VERIFIED_OFL_1.1",
+      "sourceIdentityToPSD": "UNRESOLVED"
+    }
+  ],
+  "tokens": [
+    {
+      "id": "HEADLINE",
+      "classification": "UNRESOLVED"
+    },
+    {
+      "id": "HEADLINE_LINE_2",
+      "classification": "UNRESOLVED"
+    },
+    {
+      "id": "SUBCOPY",
+      "classification": "UNRESOLVED"
+    },
+    {
+      "id": "SUBCOPY_LINE_4",
+      "classification": "UNRESOLVED"
+    },
+    {
+      "id": "DISCLOSURE",
+      "classification": "UNRESOLVED"
+    },
+    {
+      "id": "DISCLOSURE_LINE_1",
+      "classification": "UNRESOLVED"
+    },
+    {
+      "id": "DISCLOSURE_LINE_2",
+      "classification": "UNRESOLVED"
+    },
+    {
+      "id": "APP_CTA_TEXT",
+      "classification": "UNRESOLVED"
+    }
+  ],
+  "observedGuideSizes": [
+    {
+      "scope": "280 main",
+      "sizePx": 32,
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "scope": "280 subcopy",
+      "sizePx": 26,
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    }
+  ],
+  "unresolved": [
+    "all_psd_text_layer_typography_metadata",
+    "font_identity_match_to_psd",
+    "160_disclosure_two_line_exact_baselines"
+  ]
+}

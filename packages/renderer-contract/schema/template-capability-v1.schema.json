@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "formatProfileId", "implementationStatus", "defaultPolicy", "semanticPlacement", "allowedPolicies", "supportsManualCrop", "supportsAgentPlacement", "allowedInputMimeTypes", "alphaChannelRequired"],
   "properties": {
-    "schemaVersion": { "const": "1.7.0" },
+    "schemaVersion": { "const": "1.8.0" },
     "channelNamespace": { "enum": ["KAKAO_MOMENT", "NAVER_GFA"] },
     "placement": { "type": "string", "minLength": 1 },
     "compositionMode": { "enum": ["RENDERER_COMPOSED", "PLATFORM_COMPOSED"] },
