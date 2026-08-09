@@ -24,7 +24,7 @@ const required = [
 ];
 const inventory = new Map((policy.requiredSourceFonts ?? []).map((font) => [font.postScriptName, font]));
 expect(policy.registryVersion === "1.2.0", "runtime font policy registry must be v1.2.0");
-expect(policy.templateContractVersion === "1.9.0", "runtime font policy template version must be 1.9.0");
+expect(policy.templateContractVersion === "1.10.0", "runtime font policy template version must be 1.10.0");
 expect(policy.status === "FROZEN_FAIL_CLOSED", "runtime font policy must be frozen fail-closed");
 expect(policy.fallbackAllowed === false, "SmartChannel fallback must be disabled");
 expect(JSON.stringify(policy.fontResolutionModes) === JSON.stringify(["BUNDLED_EXACT", "SYSTEM_EXACT", "EXTERNAL_EXACT"]), "font resolution modes mismatch");
@@ -70,7 +70,7 @@ expect(metricFixtures.status === "PROJECT_COMPATIBILITY_VERIFIED" && metricFixtu
 try {
   const validate = new Ajv2020({ strict: false, allErrors: true }).compile(schema);
   const blockedFixture = {
-    templateContractVersion: "1.9.0",
+    templateContractVersion: "1.10.0",
     fallbackAllowed: false,
     fontRequirements: [{ requiredPostScriptName: "AppleSDGothicNeo-Bold", resolutionMode: ["EXTERNAL_EXACT"], fallbackAllowed: false }],
     status: "BLOCKED",

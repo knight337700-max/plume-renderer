@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.3.0.json",
-  "registryVersion": "1.3.0",
-  "templateContractVersion": "1.9.0",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.4.0.json",
+  "registryVersion": "1.4.0",
+  "templateContractVersion": "1.10.0",
   "channel": "NAVER_GFA",
   "placement": "SMARTCHANNEL",
   "layoutMode": "TEMPLATE_LOCKED",
@@ -263,7 +263,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BASIC_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
@@ -299,7 +300,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BASIC_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
@@ -335,7 +337,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BASIC_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_LANDING_ICON",
@@ -371,7 +374,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BASIC_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_APP_CTA",
@@ -407,7 +411,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BASIC_STANDARD_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_APP_CTA",
@@ -443,7 +448,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BASIC_STANDARD_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_RIGHT_ONE_LINE_NONE",
@@ -479,7 +485,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_RIGHT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BASIC_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_RIGHT_MAIN_SUB_NONE",
@@ -515,7 +522,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_RIGHT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BASIC_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_NONE",
@@ -551,7 +559,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_NONE",
@@ -587,7 +596,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_NONE",
@@ -623,7 +633,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_LANDING_ICON",
@@ -659,7 +670,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_LANDING_ICON",
@@ -695,7 +707,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_LANDING_ICON",
@@ -731,7 +744,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_NONE",
@@ -767,7 +781,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_SUB_DISCLOSURE_NONE",
@@ -803,7 +818,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_SUB_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_2LINE_NONE",
@@ -839,7 +855,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_2LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_NONE",
@@ -875,7 +892,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_NONE",
@@ -911,7 +929,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_NONE",
@@ -947,7 +966,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_LANDING_ICON",
@@ -983,7 +1003,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_LANDING_ICON",
@@ -1019,7 +1040,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_LANDING_ICON",
@@ -1055,7 +1077,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_APP_CTA",
@@ -1091,7 +1114,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_APP_CTA",
@@ -1127,7 +1151,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_PERSON_MOVIE_LEFT_MAIN_SUB_NONE",
@@ -1163,7 +1188,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_PERSON_MOVIE_LEFT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_PERSON_MOVIE_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_PERSON_MOVIE_LEFT_THREE_LINE_NONE",
@@ -1199,7 +1225,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_PERSON_MOVIE_LEFT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_PERSON_MOVIE_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_RIGHT_ONE_LINE_NONE",
@@ -1235,7 +1262,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_RIGHT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_RIGHT_MAIN_SUB_NONE",
@@ -1271,7 +1299,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_RIGHT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
@@ -1307,7 +1336,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_PERSON_MOVIE_RIGHT_MAIN_SUB_NONE",
@@ -1343,7 +1373,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_PERSON_MOVIE_RIGHT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_PERSON_MOVIE_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_PERSON_MOVIE_RIGHT_THREE_LINE_NONE",
@@ -1379,7 +1410,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_160_EMPHASIS_PERSON_MOVIE_RIGHT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_160_EMPHASIS_PERSON_MOVIE_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_RIGHT_ONE_LINE_NONE",
@@ -1415,7 +1447,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_RIGHT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BASIC_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_RIGHT_MAIN_SUB_NONE",
@@ -1451,7 +1484,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_RIGHT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BASIC_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_ONE_LINE_NONE",
@@ -1487,7 +1521,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BASIC_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
@@ -1523,7 +1558,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BASIC_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
@@ -1559,7 +1595,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BASIC_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_MAIN_SUB_LANDING_ICON",
@@ -1595,7 +1632,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_MAIN_SUB_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BASIC_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_ONE_LINE_APP_CTA",
@@ -1631,7 +1669,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_ONE_LINE_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BASIC_STANDARD_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_MAIN_SUB_APP_CTA",
@@ -1667,7 +1706,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BASIC_STANDARD_LEFT_MAIN_SUB_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BASIC_STANDARD_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_NONE",
@@ -1703,7 +1743,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_NONE",
@@ -1739,7 +1780,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_NONE",
@@ -1775,7 +1817,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_LANDING_ICON",
@@ -1811,7 +1854,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_LANDING_ICON",
@@ -1847,7 +1891,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_LANDING_ICON",
@@ -1883,7 +1928,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_NONE",
@@ -1919,7 +1965,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_SUB_DISCLOSURE_NONE",
@@ -1955,7 +2002,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_SUB_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_2LINE_NONE",
@@ -1991,7 +2039,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_2LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_NONE",
@@ -2027,7 +2076,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_NONE",
@@ -2063,7 +2113,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_NONE",
@@ -2099,7 +2150,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_LANDING_ICON",
@@ -2135,7 +2187,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_LANDING_ICON",
@@ -2171,7 +2224,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_LANDING_ICON",
@@ -2207,7 +2261,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_APP_CTA",
@@ -2243,7 +2298,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_APP_CTA",
@@ -2279,7 +2335,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_PERSON_MOVIE_LEFT_MAIN_SUB_NONE",
@@ -2315,7 +2372,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_PERSON_MOVIE_LEFT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_PERSON_MOVIE_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_PERSON_MOVIE_LEFT_THREE_LINE_NONE",
@@ -2351,7 +2409,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_PERSON_MOVIE_LEFT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_PERSON_MOVIE_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_RIGHT_ONE_LINE_NONE",
@@ -2387,7 +2446,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_RIGHT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_RIGHT_MAIN_SUB_NONE",
@@ -2423,7 +2483,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_RIGHT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
@@ -2459,7 +2520,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_PERSON_MOVIE_RIGHT_MAIN_SUB_NONE",
@@ -2495,7 +2557,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_PERSON_MOVIE_RIGHT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_PERSON_MOVIE_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_PERSON_MOVIE_RIGHT_THREE_LINE_NONE",
@@ -2531,7 +2594,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_PERSON_MOVIE_RIGHT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_PERSON_MOVIE_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_NONE",
@@ -2567,7 +2631,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
@@ -2603,7 +2668,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_NONE",
@@ -2639,7 +2705,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE",
@@ -2675,7 +2742,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
@@ -2711,7 +2779,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_LANDING_ICON",
@@ -2747,7 +2816,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_LANDING_ICON",
@@ -2783,7 +2853,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_LANDING_ICON",
@@ -2819,7 +2890,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_APP_CTA",
@@ -2855,7 +2927,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_APP_CTA",
@@ -2891,7 +2964,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_APP_CTA",
@@ -2927,7 +3001,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_APP_CTA",
@@ -2963,7 +3038,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_ONE_LINE_NONE",
@@ -2999,7 +3075,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN_SUB_NONE",
@@ -3035,7 +3112,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN_TWO_LINES_NONE",
@@ -3071,7 +3149,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN_TWO_LINES_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN2_SUB_NONE",
@@ -3107,7 +3186,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN2_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_NONE",
@@ -3143,7 +3223,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_NONE",
@@ -3179,7 +3260,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_NONE",
@@ -3215,7 +3297,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_NONE",
@@ -3251,7 +3334,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_2LINE_NONE",
@@ -3287,7 +3371,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_2LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_2LINE_NONE",
@@ -3323,7 +3408,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_2LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_LANDING_ICON",
@@ -3359,7 +3445,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_LANDING_ICON",
@@ -3395,7 +3482,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_SUB_LANDING_ICON",
@@ -3431,7 +3519,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_SUB_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_FOUR_LINE_LANDING_ICON",
@@ -3467,7 +3556,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_FOUR_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_NONE",
@@ -3503,7 +3593,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_SUB_DISCLOSURE_NONE",
@@ -3539,7 +3630,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_SUB_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_2LINE_NONE",
@@ -3575,7 +3667,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_2LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN2_DISCLOSURE_NONE",
@@ -3611,7 +3704,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN2_DISCLOSURE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN2_DISCLOSURE_2LINE_NONE",
@@ -3647,7 +3741,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN2_DISCLOSURE_2LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_NONE",
@@ -3683,7 +3778,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_NONE",
@@ -3719,7 +3815,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_NONE",
@@ -3755,7 +3852,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_NONE",
@@ -3791,7 +3889,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_FOUR_LINE_NONE",
@@ -3827,7 +3926,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_FOUR_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_LANDING_ICON",
@@ -3863,7 +3963,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_LANDING_ICON",
@@ -3899,7 +4000,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_LANDING_ICON",
@@ -3935,7 +4037,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_LANDING_ICON",
@@ -3971,7 +4074,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_FOUR_LINE_LANDING_ICON",
@@ -4007,7 +4111,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_FOUR_LINE_LANDING_ICON",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_LANDING_ICON"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_APP_CTA",
@@ -4043,7 +4148,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_APP_CTA",
@@ -4079,7 +4185,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_APP_CTA",
@@ -4115,7 +4222,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA",
@@ -4151,7 +4259,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_APP_CTA"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_MAIN_SUB_NONE",
@@ -4187,7 +4296,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_PERSON_MOVIE_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_THREE_LINE_NONE",
@@ -4223,7 +4333,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_PERSON_MOVIE_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_FOUR_LINE_NONE",
@@ -4259,7 +4370,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_FOUR_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_PERSON_MOVIE_LEFT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_ONE_LINE_NONE",
@@ -4295,7 +4407,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_ONE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_MAIN_SUB_NONE",
@@ -4331,7 +4444,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_MAIN_TWO_LINES_NONE",
@@ -4367,7 +4481,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_MAIN_TWO_LINES_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
@@ -4403,7 +4518,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_FOUR_LINE_NONE",
@@ -4439,7 +4555,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_FOUR_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_MAIN_SUB_NONE",
@@ -4475,7 +4592,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_MAIN_SUB_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_PERSON_MOVIE_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_THREE_LINE_NONE",
@@ -4511,7 +4629,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_THREE_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_PERSON_MOVIE_RIGHT_NONE"
     },
     {
       "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE",
@@ -4547,7 +4666,8 @@
         "registry": "contracts/naver-smartchannel-psd-metadata.json",
         "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE",
         "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-      }
+      },
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_PERSON_MOVIE_RIGHT_NONE"
     }
   ],
   "geometry": {
@@ -5885,5 +6005,8 @@
     "blockers": [],
     "runtimeFontMode": "PROJECT_COMPATIBLE_VERIFIED",
     "exportContributingSfFonts": []
-  }
+  },
+  "objectPlacementContractRef": "contracts/naver-smartchannel-object-placement.json",
+  "objectPlacementSchemaRef": "contracts/naver-smartchannel-object-placement.schema.json",
+  "objectPlacementStatus": "SOURCE_RESOLVED_PROJECT_CONTRACT"
 }

@@ -465,7 +465,7 @@ check(
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.previous === "1.14.0" && versions?.documentVersion?.current === "1.16.0" && versions?.templateContractVersion === "1.9.0",
+  versions?.documentVersion?.previous === "1.16.0" && versions?.documentVersion?.current === "1.17.0" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
   `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

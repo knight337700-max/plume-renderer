@@ -210,7 +210,7 @@ const policy = {
   status: "FROZEN_FAIL_CLOSED",
   channel: "NAVER_GFA",
   placement: "SMARTCHANNEL",
-  templateContractVersion: "1.9.0",
+  templateContractVersion: "1.10.0",
   sourceFontInventoryRef: "contracts/naver-smartchannel-typography.json",
   sfFontAuditRef: "contracts/naver-smartchannel-sf-font-audit.json",
   sfFontAuditStatus: sfFontAudit?.runtimeDecision ?? "AUDIT_NOT_AVAILABLE",

@@ -24,6 +24,7 @@
     "verify:integration-contract": "node scripts/verify-integration-contract.mjs",
     "verify:freeform-contract": "node scripts/verify-freeform-contract.mjs",
     "verify:naver-contract": "node scripts/verify-naver-smartchannel-contract.mjs",
+    "verify:naver-object-placement": "node scripts/verify-naver-smartchannel-object-placement.mjs",
     "verify:naver-font-policy": "node scripts/verify-naver-smartchannel-font-policy.mjs",
     "verify:naver-font-compatibility": "node scripts/verify-naver-smartchannel-font-compatibility.mjs",
     "extract:naver-source": "python scripts/extract-naver-smartchannel-source.py --source-root \"C:/Users/Lenovo/Desktop/SMARTCHANNEL_GUIDE 12\" --contract-dir contracts --asset-root assets/naver-smartchannel --template-contract contracts/naver-smartchannel-template-contract.json && node scripts/audit-naver-smartchannel-sf-font-layers.mjs && node scripts/generate-naver-smartchannel-runtime-font-policy.mjs",
@@ -51,7 +52,7 @@
     "package:windows": "pnpm build:desktop && node scripts/package-windows.mjs",
     "smoke:package": "node scripts/smoke-packaged.mjs",
     "evidence:package": "node scripts/capture-packaged-evidence.mjs",
-    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-contract && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
+    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
     "render": "node dist/cli/index.js"
   },
   "dependencies": {

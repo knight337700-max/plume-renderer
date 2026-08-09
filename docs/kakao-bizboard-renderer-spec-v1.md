@@ -1,9 +1,9 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.16.0
-- **Status:** Frozen Implementation Contract — Phase N1D.2 SmartChannel project-compatible font resolution and effective SF composite audit; no SmartChannel raster/UI implementation
-- **Checked date:** 2026-08-09 (KST)
+- **Document version:** 1.17.0
+- **Status:** Frozen Implementation Contract — Phase N2A SmartChannel source-backed object placement contract; no SmartChannel raster/UI implementation
+- **Checked date:** 2026-08-10 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
 
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **34. Phase N1D.2**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **35. Phase N2A**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -3648,3 +3648,131 @@ N1D.2 acceptance는 controlled alias 4종, local SHA allowlist, glyph coverage, 
 data, representative metric fixture overflow 0, wrong alias/digest/fallback rejection,
 effective SF visibility/contribution audit, N2 readiness, Kakao/FREEFORM fingerprints와
 120-template mapping 불변을 포함한다. **[PROJECT]**
+
+## 35. Phase N2A — NAVER SmartChannel Object Placement Contract [PROJECT]
+
+### 35.1 범위와 근거
+
+N2A는 SmartChannel 공식 PSD 120종의 object layer/group 구조를 object placement
+machine-readable contract로 옮긴다. Renderer, raster output, Golden PNG, Desktop UI,
+preview, download은 이 Phase에서 구현하지 않는다. Kakao 또는 FREEFORM placement 의미를
+상속하지 않으며, PSD sample raster의 alpha bounds를 runtime 자동 crop/trim 규칙으로
+사용하지 않는다. **[PROJECT]**
+
+공식 SmartChannel 제작 가이드는 DA 이미지 배너의 오브젝트/카피 구성과 PSD 제작 자료를
+제공한다. [NAVER SmartChannel 제작 가이드](https://ads.naver.com/adguide/1475)는 2026-05-22
+업데이트 자료이며, 최신 공지에서 750×280 thumbnail UI가 200×200으로 변경되고
+160/200 가이드는 유지됨을 확인했다. [2026-06-01 SmartChannel 공지](https://ads.naver.com/notice/31978),
+[750×280 추가 공지](https://ads.naver.com/notice/22349)는 공식 출처의 현재 규칙 확인에만
+사용한다. 공식 가이드가 upload 승인 또는 본 Renderer의 runtime 동작을 보장한다는
+의미는 아니다. **[OFFICIAL] [PROJECT]**
+
+외부 source root `SMARTCHANNEL_GUIDE 12/`의 120 PSD는 `psd-tools==1.18.0`으로 전수
+검사했다. source SHA와 canvas header는 N1 source revision registry가 보존하며, 이번
+registry에는 OS 절대 경로를 저장하지 않는다. **[TOOL_OUTPUT] [DERIVED]**
+
+### 35.2 Coordinate model 및 공통 금지 규칙
+
+허용 coordinate model은 `FULL_CANVAS_SOURCE`, `SLOT_LOCAL_SOURCE`,
+`TRIMMED_OBJECT_SOURCE`, `SMART_OBJECT_FRAME_SOURCE`, `UNRESOLVED`다. 실제 source가
+증명한 경우만 fit mode를 고정한다. `anchor`는 source transform 또는 guide frame에
+의존하므로 `SOURCE_DEFINED`로 고정하며, 임의의 `CENTER_CONTAIN`, `COVER`, alpha-trim
+anchor를 추가하지 않는다. **[PROJECT] [DERIVED]**
+
+| Source 계열 | PSD 증거 | Frozen model | fit | clip/mask |
+|---|---|---|---|---|
+| `STANDARD` (BASIC/BOTTOM_DISCLOSURE) | absolute-canvas PixelLayer, vector mask/clipping 없음 | `FULL_CANVAS_SOURCE` pre-composed input | `NONE` | `NO_CLIP` |
+| `THUMBNAIL` | ShapeLayer vector mask + clipping sample PixelLayer | `SLOT_LOCAL_SOURCE` fixed frame | `FIXED_FRAME` | `SOURCE_MASK` |
+| `PERSON_MOVIE` 160 | positioned PixelLayer, Smart Object/clip 없음 | `FULL_CANVAS_SOURCE` pre-composed input | `NONE` | `NO_CLIP` |
+| `PERSON_MOVIE` 200/280 | SmartObjectLayer `PLACED_LAYER2` transform 및 source frame | `SMART_OBJECT_FRAME_SOURCE` | `SOURCE_TRANSFORM` | `NO_CLIP` |
+
+모든 계열에서 preprocessing, auto trim, auto crop, semantic focal crop, background
+removal, auto padding, auto resize, 좌/우 mirror generation은 금지한다. source가
+불명확한 값은 `UNRESOLVED`로 남기고 runtime 시작을 허용하지 않는다. **[PROJECT]**
+
+### 35.3 THUMBNAIL source mask
+
+PSD vector path의 normalized canvas bbox와 path digest를
+`contracts/naver-smartchannel-object-placement.json`의 `maskGeometry`에 보존한다.
+Nominal frame은 source guide와 vector mask에서 읽은 값이며, height를 배율로 일반화하지
+않는다.
+
+| Height | LEFT frame | RIGHT frame | source mask |
+|---:|---|---|---|
+| 160 | `(40,15,195,130)` | `(515,15,195,130)` | rounded vector path |
+| 200 | `(40,30,210,140)` | `(500,30,210,140)` | rounded vector path |
+| 280 | `(40,40,200,200)` | `(510,40,200,200)` | rounded vector path |
+
+280 thumbnail의 200×200은 현재 공식 source/guide 규칙과 일치한다. 200B 우측 source는
+2줄 PSD에서만 sub-pixel path coordinate가 달라지므로 두 digest를 모두 registry에
+기록하고 하나를 다른 하나로 mirror하거나 임의 tolerance로 합치지 않는다. **[TOOL_OUTPUT]
+[DERIVED] [OFFICIAL]**
+
+### 35.4 PERSON_MOVIE source transform
+
+200 PSD의 Smart Object frame은 source size `272×234`이며 LEFT/RIGHT canvas transform은
+각각 `(44,13)-(316,247)` 및 `(434,13)-(706,247)`이다. 280 PSD의 Smart Object frame은
+source size `425×370`이며 `PLACED_LAYER2` transform은 좌/우 각각 다음과 같다.
+
+```yaml
+PERSON_MOVIE_280_LEFT:
+  transform: [40.8123423758, 22.7944022616, 337.8848487648, 22.7944022616,
+              337.8848487648, 281.4222313532, 40.8123423758, 281.4222313532]
+PERSON_MOVIE_280_RIGHT:
+  transform: [410.8123423758, 22.7944022616, 707.8848487648, 22.7944022616,
+              707.8848487648, 281.4222313532, 410.8123423758, 281.4222313532]
+```
+
+이 값은 source Smart Object frame/transform을 보존한 것이며, runtime에서 입력 이미지를
+재설계하는 fit 규칙이 아니다. 160 PERSON_MOVIE는 Smart Object가 아니므로 같은
+transform을 추정하지 않고 별도 pre-composed canvas token을 사용한다. **[TOOL_OUTPUT]
+[DERIVED] [PROJECT]**
+
+### 35.5 Placement token 및 template mapping
+
+`contracts/naver-smartchannel-object-placement.json`은 39개의 deterministic token과
+120개의 `templateId → objectPlacementToken` mapping을 제공한다. SmartChannel template
+registry/schema는 additive `objectPlacementToken`, placement registry/schema reference,
+`SOURCE_RESOLVED_PROJECT_CONTRACT` 상태를 요구한다. 대표 N2 후보 6종은 모두 resolved
+token을 가진다.
+
+| Candidate | token |
+|---|---|
+| 160 BASIC STANDARD LEFT MAIN_SUB NONE | `NAVER_SC_160_BASIC_STANDARD_LEFT_NONE` |
+| 200 EMPHASIS THUMBNAIL RIGHT THREE_LINE NONE | `NAVER_SC_200_EMPHASIS_THUMBNAIL_RIGHT_NONE` |
+| 280 BASIC STANDARD LEFT ONE_LINE LANDING_ICON | `NAVER_SC_280_BASIC_STANDARD_LEFT_LANDING_ICON` |
+| 280 EMPHASIS THUMBNAIL LEFT THREE_LINE APP_CTA | `NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_APP_CTA` |
+| 280 EMPHASIS PERSON_MOVIE RIGHT FOUR_LINE NONE | `NAVER_SC_280_EMPHASIS_PERSON_MOVIE_RIGHT_NONE` |
+| 280 BOTTOM_DISCLOSURE STANDARD LEFT MAIN2_DISCLOSURE_2LINE NONE | `NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE` |
+
+좌/우 token은 별도로 등록한다. source가 동일한 object layer structure를 보이는
+affordance variant는 object placement token을 공유하지만, CTA/landing icon asset 자체의
+승인 여부나 runtime 구현을 이 계약에서 추가하지 않는다. **[DERIVED] [PROJECT]**
+
+### 35.6 Source asset input boundary
+
+`STANDARD` 및 160 `PERSON_MOVIE`는 exact template canvas PNG를 1:1로 받는 pre-composed
+project input contract다. `THUMBNAIL`은 exact source mask frame의 PNG/JPEG를 받고,
+`PERSON_MOVIE` 200/280은 exact PSD Smart Object frame source를 받는다. 모두 trim/crop/
+resize는 금지되며 file-size 판정은 기존 channel validator에 위임한다. 이 입력 경계는
+네이버 upload API 규칙의 주장이 아니라 source layer 구조에서 도출한 본 프로젝트의
+deterministic runtime boundary다. **[DERIVED] [PROJECT]**
+
+### 35.7 N2A version and acceptance
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.16.0 | 1.17.0 | source-backed object coordinate/mask/transform contract |
+| Global Kakao/FREEFORM template contract | 1.9.0 | 1.9.0 | public core renderer semantics unchanged |
+| SmartChannel-scoped template contract | 1.9.0 | 1.10.0 | additive `objectPlacementToken` and placement references |
+| SmartChannel template registry/schema | 1.3.0 | 1.4.0 | placement reference and per-template token |
+| Object placement registry | NEW | 1.0.0 | initial source-backed placement contract |
+| Integration Contract | 1.8.0 | 1.8.0 | unchanged |
+| Desktop | 0.8.2 | 0.8.2 | no SmartChannel UI/runtime |
+
+`templateContractVersion` 좌표는 변경하지 않는다. Kakao/FREEFORM core의 1.9.0과
+SmartChannel-scoped 1.10.0은 namespace가 다르므로 혼용하지 않는다. OBJECT region/text
+region/CTA/font fingerprints는 source coordinates를 변경하지 않고 보존한다.
+N2A acceptance는 39 token, 120 mapping, candidate unresolved 0, source mask/transform
+provenance, no inherited placement semantics, no auto-design rule, no renderer/UI/Golden
+artifact를 포함한다. **[PROJECT]**

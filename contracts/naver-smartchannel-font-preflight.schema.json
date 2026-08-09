@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["templateContractVersion", "fallbackAllowed", "fontRequirements", "status", "renderStartAllowed", "errors", "warnings"],
   "properties": {
-    "templateContractVersion": { "const": "1.9.0" },
+    "templateContractVersion": { "const": "1.10.0" },
     "fallbackAllowed": { "const": false },
     "fontRequirements": {
       "type": "array",

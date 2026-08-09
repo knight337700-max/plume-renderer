@@ -753,7 +753,7 @@ def main() -> int:
         row["source"]["sourceRevisionRef"] = "contracts/naver-smartchannel-source-revision.json#/sourceRevision"
     contract["$id"] = "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.3.0.json"
     contract["registryVersion"] = "1.3.0"
-    contract["templateContractVersion"] = "1.9.0"
+    contract["templateContractVersion"] = "1.10.0"
     contract["sourceRevisionRef"] = "contracts/naver-smartchannel-source-revision.json#/sourceRevision"
     contract["psdMetadataRef"] = "contracts/naver-smartchannel-psd-metadata.json"
     contract["fixedComponentsRef"] = "contracts/naver-smartchannel-fixed-components.json"

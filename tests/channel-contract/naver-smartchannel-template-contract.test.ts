@@ -4,9 +4,9 @@ import { describe, expect, it } from "vitest";
 
 const root = resolve(process.cwd());
 type JsonRecord = Record<string, unknown>;
-type TemplateRecord = JsonRecord & { templateId: string; height: number; family: string; objectKind: string; side: string; textVariant: string; affordance: string; sourceTextLabel: string; source: { sha256: string; sourcePath: string; canvas: { width: number; height: number } } };
+type TemplateRecord = JsonRecord & { templateId: string; height: number; family: string; objectKind: string; side: string; textVariant: string; affordance: string; sourceTextLabel: string; objectPlacementToken: string; source: { sha256: string; sourcePath: string; canvas: { width: number; height: number } } };
 type AffordanceRecord = { id: string; enabled: boolean };
-type ContractRecord = { registryVersion: string; templateContractVersion: string; canvas: { width: number; heights: number[] }; sourceCatalog: { sourcePsdCount: number; actualPsdCount: number; countsByHeight: Record<string, number>; catalogHashCrossCheck: { catalogEntries: number; sha256Matches: number; hashMismatches: number }; canvasHeaderCheck: { badHeaders: number } }; templates: TemplateRecord[]; textVariantWhitelist: string[]; affordances: AffordanceRecord[]; runtimeBoundary: JsonRecord };
+type ContractRecord = { registryVersion: string; templateContractVersion: string; objectPlacementContractRef: string; objectPlacementSchemaRef: string; objectPlacementStatus: string; canvas: { width: number; heights: number[] }; sourceCatalog: { sourcePsdCount: number; actualPsdCount: number; countsByHeight: Record<string, number>; catalogHashCrossCheck: { catalogEntries: number; sha256Matches: number; hashMismatches: number }; canvasHeaderCheck: { badHeaders: number } }; templates: TemplateRecord[]; textVariantWhitelist: string[]; affordances: AffordanceRecord[]; runtimeBoundary: JsonRecord };
 type TypographyRecord = {
   registryVersion: string;
   status: string;
@@ -49,9 +49,10 @@ const cta = readJson<CtaRecord>("contracts/naver-smartchannel-cta-options.json")
 
 describe("NAVER SmartChannel N1C source-resolution contract", () => {
   it("freezes the source catalog counts and canvas headers", () => {
-    expect(contract.registryVersion).toBe("1.3.0");
-    expect(contract.templateContractVersion).toBe("1.9.0");
+    expect(contract.registryVersion).toBe("1.4.0");
+    expect(contract.templateContractVersion).toBe("1.10.0");
     expect(contract.canvas).toMatchObject({ width: 750, heights: [160, 200, 280] });
+    expect(contract).toMatchObject({ objectPlacementContractRef: "contracts/naver-smartchannel-object-placement.json", objectPlacementSchemaRef: "contracts/naver-smartchannel-object-placement.schema.json", objectPlacementStatus: "SOURCE_RESOLVED_PROJECT_CONTRACT" });
     expect(contract.sourceCatalog.sourcePsdCount).toBe(120);
     expect(contract.sourceCatalog.actualPsdCount).toBe(120);
     expect(contract.sourceCatalog.countsByHeight).toEqual({ "160": 32, "200": 32, "280": 56 });
@@ -69,6 +70,7 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
       expect(entry.source.sourcePath).not.toMatch(/^[A-Za-z]:[\\/]/);
       expect(entry.source.sha256).toMatch(/^[a-f0-9]{64}$/);
       expect(entry.source.canvas).toEqual({ width: 750, height: entry.height });
+      expect(entry.objectPlacementToken).toMatch(/^NAVER_SC_/);
       expect(contract.textVariantWhitelist).toContain(entry.textVariant);
     }
   });
@@ -121,6 +123,6 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
 
   it("does not expose a SmartChannel runtime implementation", () => {
     expect(contract.runtimeBoundary).toEqual({ rendererImplemented: false, rasterImplemented: false, desktopUiImplemented: false, previewDownloadImplemented: false, runtimeStatus: "CONTRACT_ONLY" });
-    expect(schema.properties.templateContractVersion.const).toBe("1.9.0");
+    expect(schema.properties.templateContractVersion.const).toBe("1.10.0");
   });
 });
