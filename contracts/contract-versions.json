@@ -495,5 +495,30 @@
     "officialPlatform": "Windows 10/11 x64",
     "officialAppleEvidence": ["https://developer.apple.com/fonts/index.html", "https://support.apple.com/en-us/120414", "https://developer.apple.com/fonts/system-fonts/"],
     "nextPhase": "N2_SMARTCHANNEL_TEMPLATE_ENGINE_REPRESENTATIVE_GOLDENS"
+  },
+  "canonicalPhaseN1D1": {
+    "documentPrevious": "1.15.0",
+    "documentCurrent": "1.15.0",
+    "documentBump": "none",
+    "documentReason": "N1D.1 local-only external font adoption and source SF layer audit; no geometry or public template meaning change",
+    "templateContractVersion": "1.9.0",
+    "templateCoordinatesChanged": false,
+    "runtimeFontPolicyPrevious": "1.0.0",
+    "runtimeFontPolicyCurrent": "1.1.0",
+    "runtimeFontPolicyBump": "minor",
+    "runtimeFontPolicyReason": "Add local external resource evidence, exact identity results, and SF guide/export audit without bundling binaries",
+    "integrationContractCurrent": "1.8.0",
+    "desktopAppVersion": "0.8.2",
+    "localFontDirectoryEnv": "NAVER_SMARTCHANNEL_FONT_DIR",
+    "localFontBinaryCommitted": false,
+    "localFontBinaryBundled": false,
+    "sfAuditStatus": "SF_EXACT_RUNTIME_REQUIRED",
+    "sfGuideOnly": false,
+    "runtimeFontExactResolved": false,
+    "n2Ready": false,
+    "n2Blocking": ["runtime_font_exact_match_to_psd"],
+    "runtimeNetworkAccess": "PROHIBITED",
+    "officialPlatform": "Windows 10/11 x64",
+    "nextPhase": "N2_SMARTCHANNEL_TEMPLATE_ENGINE_REPRESENTATIVE_GOLDENS"
   }
 }

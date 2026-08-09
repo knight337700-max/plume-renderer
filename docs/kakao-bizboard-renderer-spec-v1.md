@@ -3549,3 +3549,36 @@ N1D acceptance는 six-font inventory completeness, 25-token identity mapping, Sp
 검출, fallback 금지, wrong PostScript/digest/version/missing/path rejection, Kakao/FREEFORM
 registry and fingerprint regression을 포함한다. N1D phase는 policy/tests가 PASS이면
 완료되지만 N2는 exact runtime font blocker가 해소될 때까지 준비되지 않는다. **[PROJECT]**
+
+### 34.7 N1D.1 local external font adoption and SF audit [TOOL_OUTPUT] [PROJECT]
+
+사용자 지정 [fonts-archive/AppleSDGothicNeo 저장소](https://github.com/fonts-archive/AppleSDGothicNeo)의
+main branch TTF 네 개를 `.local-fonts/naver-smartchannel/`에만 내려받았다. 이 디렉터리는
+`.gitignore` 대상이며 binary는 commit/bundle하지 않는다. 저장소가 재배포 라이선스를
+제공한다고 주장하지 않고, runtime에서는 `NAVER_SMARTCHANNEL_FONT_DIR`로 지정되는
+사용자 제공 local external resource로만 취급한다. runtime network fetch는 계속 금지한다.
+
+파일명과 실제 font table을 분리해 검증한 결과는 다음과 같다.
+
+| File | Bytes | Actual PostScript | Actual version | Weight class | Result |
+|---|---:|---|---|---:|---|
+| `AppleSDGothicNeo-Bold.ttf` | 3,817,104 | `AppleSDGothicNeoB00` | `Version 1.0` | 400 | `IDENTITY_MISMATCH` |
+| `AppleSDGothicNeo-Medium.ttf` | 3,791,636 | `AppleSDGothicNeoM00` | `Version 1.0` | 400 | `IDENTITY_MISMATCH` |
+| `AppleSDGothicNeo-Regular.ttf` | 3,853,124 | `AppleSDGothicNeoR00` | `Version 1.0` | 400 | `IDENTITY_MISMATCH` |
+| `AppleSDGothicNeo-SemiBold.ttf` | 3,705,352 | `AppleSDGothicNeoSB00` | `Version 1.0` | 400 | `IDENTITY_MISMATCH` |
+
+따라서 이 파일들은 exact source font로 승인하지 않고, `approvedForSmartChannel=false`로
+기록한다. `contracts/naver-smartchannel-runtime-font-policy.json`에는 실제 SHA-256과
+identity 결과를 기록하되 binary 자체는 저장하지 않는다. **[TOOL_OUTPUT] [PROJECT]**
+
+SF layer 전수 감사 결과 `SFProDisplay-Bold` 85개와 `SFUIDisplay-Bold` 64개는 모두
+`TEXT` 계열 parent group의 `HEADLINE` role이며, guide/instruction group이 아니고
+기본 보기에서는 hidden인 source-selectable English text variants다. 그러므로 둘 다
+`EXPORT_RENDERED_TEXT`로 분류하고 runtime required source inventory에서 제거하지 않는다.
+`sourceOnlyNonRuntime=[]`, `SF_EXACT_RUNTIME_REQUIRED`, N2 blocker 유지가 확정값이다.
+감사 원본은 `contracts/naver-smartchannel-sf-font-audit.json`이다. **[TOOL_OUTPUT] [DERIVED]**
+
+N1D.1은 문서/Template geometry/Integration/Desktop version을 변경하지 않고 runtime font
+policy registry만 1.0.0에서 1.1.0으로 확장했다. 네 Apple font identity와 두 SF font가
+모두 해결되기 전까지 `next_phase.ready=false`이며 SmartChannel renderer, Golden PNG,
+Desktop UI, font installer는 구현하지 않는다. **[PROJECT]**

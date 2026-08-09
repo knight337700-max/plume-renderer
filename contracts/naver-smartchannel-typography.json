@@ -1610,5 +1610,7 @@
         "numeric": false
       }
     }
-  ]
+  ],
+  "sfFontAuditRef": "contracts/naver-smartchannel-sf-font-audit.json",
+  "sourceOnlyNonRuntime": []
 }

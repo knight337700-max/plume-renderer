@@ -5,6 +5,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const readJson = (relativePath) => JSON.parse(readFileSync(path.join(root, relativePath), "utf8"));
+const readJsonIfPresent = (relativePath) => existsSync(path.join(root, relativePath)) ? readJson(relativePath) : null;
 const writeJson = (relativePath, value) => writeFileSync(path.join(root, relativePath), `${JSON.stringify(value, null, 2)}\n`, "utf8");
 
 function uint16(bytes, offset) {
@@ -72,6 +73,7 @@ function fontIdentity(filePath) {
 const typography = readJson("contracts/naver-smartchannel-typography.json");
 const metadata = readJson("contracts/naver-smartchannel-psd-metadata.json");
 const fontRegistry = readJson("contracts/font-asset-registry.json");
+const sfFontAudit = readJsonIfPresent("contracts/naver-smartchannel-sf-font-audit.json");
 const sourceFonts = new Map(typography.sourceFonts.map((font) => [font.postScriptName, {
   family: font.family,
   style: font.style,
@@ -137,6 +139,48 @@ if (localFontDirectory && existsSync(localFontDirectory)) {
   }
 }
 
+const externalFontDirectoryInput = process.env.NAVER_SMARTCHANNEL_FONT_DIR;
+const externalFontDirectory = externalFontDirectoryInput && path.isAbsolute(externalFontDirectoryInput) && !externalFontDirectoryInput.startsWith("\\\\")
+  ? externalFontDirectoryInput
+  : path.join(root, ".local-fonts", "naver-smartchannel");
+const externalFontFiles = [
+  ["AppleSDGothicNeo-Bold", "AppleSDGothicNeo-Bold.ttf", 700],
+  ["AppleSDGothicNeo-Medium", "AppleSDGothicNeo-Medium.ttf", 500],
+  ["AppleSDGothicNeo-Regular", "AppleSDGothicNeo-Regular.ttf", 400],
+  ["AppleSDGothicNeo-SemiBold", "AppleSDGothicNeo-SemiBold.ttf", 600],
+];
+const externalFontCandidates = externalFontFiles.map(([requiredPostScriptName, fileName, expectedWeight]) => {
+  const filePath = path.join(externalFontDirectory, fileName);
+  const identity = existsSync(filePath) ? fontIdentity(filePath) : null;
+  const postScriptMatch = identity?.postScriptNames.includes(requiredPostScriptName) === true;
+  const weightMatch = identity?.weightClass === expectedWeight;
+  return {
+    requiredPostScriptName,
+    relativePath: fileName,
+    sourceUrl: `https://raw.githubusercontent.com/fonts-archive/AppleSDGothicNeo/main/${fileName}`,
+    localDirectoryEnv: "NAVER_SMARTCHANNEL_FONT_DIR",
+    localDirectoryReference: externalFontDirectoryInput ? "<NAVER_SMARTCHANNEL_FONT_DIR>" : ".local-fonts/naver-smartchannel",
+    exists: Boolean(identity),
+    byteLength: identity?.sizeBytes ?? null,
+    sha256: identity?.sha256 ?? null,
+    actualPostScriptNames: identity?.postScriptNames ?? [],
+    actualFamilyNames: identity?.familyNames ?? [],
+    actualVersion: identity?.versions[0] ?? null,
+    actualWeightClass: identity?.weightClass ?? null,
+    expectedWeight,
+    postScriptMatch,
+    weightMatch,
+    identityStatus: identity === null ? "UNAVAILABLE" : postScriptMatch && weightMatch ? "EXACT_IDENTITY_PASS" : "IDENTITY_MISMATCH",
+    provenance: "USER_SPECIFIED_GITHUB_ARCHIVE_LOCAL_ONLY",
+    licenseStatus: "NOT_CONFIRMED",
+    redistributionClaim: "NOT_MADE",
+    bundleAllowed: false,
+    approvedForSmartChannel: false,
+  };
+});
+const externalExactResolved = externalFontCandidates.length === 4 && externalFontCandidates.every((entry) => entry.identityStatus === "EXACT_IDENTITY_PASS");
+const sfGuideOnly = sfFontAudit?.runtimeDecision === "SF_SOURCE_ONLY_NON_RUNTIME";
+
 const requiredFonts = [...sourceFonts.entries()].sort(([left], [right]) => left.localeCompare(right, "en")).map(([postScriptName, value]) => ({
   postScriptName,
   family: value.family,
@@ -161,13 +205,26 @@ const resolutionMatrix = requiredFonts.map((font) => {
 
 const policy = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-runtime-font-policy-v1.0.0.json",
-  registryVersion: "1.0.0",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-runtime-font-policy-v1.1.0.json",
+  registryVersion: "1.1.0",
   status: "FROZEN_FAIL_CLOSED",
   channel: "NAVER_GFA",
   placement: "SMARTCHANNEL",
   templateContractVersion: "1.9.0",
   sourceFontInventoryRef: "contracts/naver-smartchannel-typography.json",
+  sfFontAuditRef: "contracts/naver-smartchannel-sf-font-audit.json",
+  sfFontAuditStatus: sfFontAudit?.runtimeDecision ?? "AUDIT_NOT_AVAILABLE",
+  sourceOnlyNonRuntime: sfFontAudit?.sourceOnlyNonRuntime ?? [],
+  localExternalFontResource: {
+    directoryEnv: "NAVER_SMARTCHANNEL_FONT_DIR",
+    directoryReference: externalFontDirectoryInput ? "<NAVER_SMARTCHANNEL_FONT_DIR>" : ".local-fonts/naver-smartchannel",
+    source: "https://github.com/fonts-archive/AppleSDGothicNeo",
+    branch: "main",
+    localOnly: true,
+    networkRuntimeAllowed: false,
+    redistributionClaim: "NOT_MADE",
+    files: externalFontCandidates,
+  },
   requiredSourceFonts: requiredFonts,
   resolutionClasses: ["EXACT_BUNDLED_LICENSED", "EXACT_SYSTEM", "EXACT_EXTERNAL_LICENSED", "LICENSED_BUT_NOT_SOURCE_MATCH", "MISSING"],
   resolutionMatrix,
@@ -231,13 +288,20 @@ const policy = {
       "NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH",
     ],
   },
-  n2: { ready: false, blockers: ["runtime_font_exact_match_to_psd"] },
+  n2: {
+    ready: externalExactResolved && sfGuideOnly,
+    blockers: externalExactResolved && sfGuideOnly ? [] : ["runtime_font_exact_match_to_psd"],
+    exactAppleFontsResolved: externalExactResolved,
+    sfGuideOnly,
+  },
 };
 
 typography.runtimePolicyRef = "contracts/naver-smartchannel-runtime-font-policy.json";
+typography.sfFontAuditRef = "contracts/naver-smartchannel-sf-font-audit.json";
+typography.sourceOnlyNonRuntime = sfFontAudit?.sourceOnlyNonRuntime ?? [];
 typography.requiredSourceFonts = requiredFonts;
 typography.runtimeResolution = "LICENSED_BUT_NOT_SOURCE_MATCH";
 typography.n2Blocking = true;
 writeJson("contracts/naver-smartchannel-runtime-font-policy.json", policy);
 writeJson("contracts/naver-smartchannel-typography.json", typography);
-console.log(JSON.stringify({ status: policy.status, requiredSourceFonts: requiredFonts.length, licensedMismatch: resolutionMatrix.filter((entry) => entry.resolutionClass === "LICENSED_BUT_NOT_SOURCE_MATCH").length, missing: resolutionMatrix.filter((entry) => entry.resolutionClass === "MISSING").length, localCandidates: localCandidates.length }));
+console.log(JSON.stringify({ status: policy.status, requiredSourceFonts: requiredFonts.length, licensedMismatch: resolutionMatrix.filter((entry) => entry.resolutionClass === "LICENSED_BUT_NOT_SOURCE_MATCH").length, missing: resolutionMatrix.filter((entry) => entry.resolutionClass === "MISSING").length, localCandidates: localCandidates.length, externalFontCandidates: externalFontCandidates.length, externalExactResolved, sfGuideOnly }));

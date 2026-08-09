@@ -73,6 +73,7 @@ export { resolveTrustedInputFile, resolveTrustedJobDirectory, resolveTrustedRoot
 export {
   assertSmartChannelFallbackProhibited,
   evaluateFontIdentity,
+  getSmartChannelFontDirectory,
   inspectFontIdentity,
   isTrustedFontReference,
   NAVER_SMARTCHANNEL_FONT_ERROR_CODES,

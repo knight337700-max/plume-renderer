@@ -8,6 +8,7 @@ const policy = readJson("contracts/naver-smartchannel-runtime-font-policy.json")
 const schema = readJson("contracts/naver-smartchannel-font-preflight.schema.json");
 const typography = readJson("contracts/naver-smartchannel-typography.json");
 const contract = readJson("contracts/naver-smartchannel-template-contract.json");
+const sfAudit = readJson("contracts/naver-smartchannel-sf-font-audit.json");
 const failures = [];
 const expect = (condition, message) => { if (!condition) failures.push(message); };
 
@@ -20,7 +21,7 @@ const required = [
   ["SFUIDisplay-Bold", 64, false, true, false, 1],
 ];
 const inventory = new Map((policy.requiredSourceFonts ?? []).map((font) => [font.postScriptName, font]));
-expect(policy.registryVersion === "1.0.0", "runtime font policy registry must be v1.0.0");
+expect(policy.registryVersion === "1.1.0", "runtime font policy registry must be v1.1.0");
 expect(policy.templateContractVersion === "1.9.0", "runtime font policy template version must be 1.9.0");
 expect(policy.status === "FROZEN_FAIL_CLOSED", "runtime font policy must be frozen fail-closed");
 expect(policy.fallbackAllowed === false, "SmartChannel fallback must be disabled");
@@ -55,6 +56,11 @@ expect(policy.externalExactContract?.approvedDigestRequired === true && policy.e
 expect(policy.preflight?.failClosed === true && policy.preflight?.renderStartAllowedOnlyWhen === "ALL_REQUIRED_SOURCE_FONTS_PASS", "preflight fail-closed rule mismatch");
 expect(policy.n2?.ready === false && policy.n2?.blockers?.length === 1 && policy.n2.blockers[0] === "runtime_font_exact_match_to_psd", "N2 blocker mismatch");
 expect(typography.runtimePolicyRef === "contracts/naver-smartchannel-runtime-font-policy.json", "typography policy reference missing");
+expect(policy.sfFontAuditRef === "contracts/naver-smartchannel-sf-font-audit.json" && policy.sfFontAuditStatus === "SF_EXACT_RUNTIME_REQUIRED", "SF audit reference/status mismatch");
+expect(sfAudit.runtimeDecision === "SF_EXACT_RUNTIME_REQUIRED" && sfAudit.sourceOnlyNonRuntime?.length === 0, "SF fonts must remain runtime-required");
+expect(sfAudit.fonts?.length === 2 && sfAudit.fonts.every((font) => font.classification === "EXPORT_RENDERED_TEXT" && font.outputInclusion?.guideOnlyNonExport === false), "SF layer audit classification mismatch");
+expect(policy.localExternalFontResource?.directoryEnv === "NAVER_SMARTCHANNEL_FONT_DIR" && policy.localExternalFontResource?.localOnly === true && policy.localExternalFontResource?.networkRuntimeAllowed === false, "local external font resource policy mismatch");
+expect(policy.localExternalFontResource?.files?.length === 4 && policy.localExternalFontResource.files.every((font) => ["IDENTITY_MISMATCH", "UNAVAILABLE"].includes(font.identityStatus) && font.approvedForSmartChannel === false && font.bundleAllowed === false), "downloaded local font identity gate mismatch");
 expect(contract.fontResolutionPolicy?.fallbackAllowed === false, "template fallback policy mismatch");
 
 try {

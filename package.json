@@ -25,7 +25,7 @@
     "verify:freeform-contract": "node scripts/verify-freeform-contract.mjs",
     "verify:naver-contract": "node scripts/verify-naver-smartchannel-contract.mjs",
     "verify:naver-font-policy": "node scripts/verify-naver-smartchannel-font-policy.mjs",
-    "extract:naver-source": "python scripts/extract-naver-smartchannel-source.py --source-root \"C:/Users/Lenovo/Desktop/SMARTCHANNEL_GUIDE 12\" --contract-dir contracts --asset-root assets/naver-smartchannel --template-contract contracts/naver-smartchannel-template-contract.json && node scripts/generate-naver-smartchannel-runtime-font-policy.mjs",
+    "extract:naver-source": "python scripts/extract-naver-smartchannel-source.py --source-root \"C:/Users/Lenovo/Desktop/SMARTCHANNEL_GUIDE 12\" --contract-dir contracts --asset-root assets/naver-smartchannel --template-contract contracts/naver-smartchannel-template-contract.json && node scripts/audit-naver-smartchannel-sf-font-layers.mjs && node scripts/generate-naver-smartchannel-runtime-font-policy.mjs",
     "build": "tsc -p tsconfig.build.json",
     "build:contract": "tsc -p packages/renderer-contract/tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

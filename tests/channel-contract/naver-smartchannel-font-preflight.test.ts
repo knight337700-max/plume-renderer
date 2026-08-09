@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   assertSmartChannelFallbackProhibited,
+  getSmartChannelFontDirectory,
   inspectFontIdentity,
   isTrustedFontReference,
   preflightExternalExactFont,
@@ -85,5 +86,11 @@ describe("NAVER SmartChannel exact font preflight", () => {
   it("does not permit SmartChannel fallback", () => {
     expect(() => assertSmartChannelFallbackProhibited(false)).not.toThrow();
     expect(() => assertSmartChannelFallbackProhibited(true)).toThrow();
+  });
+
+  it("accepts only an absolute non-UNC NAVER_SMARTCHANNEL_FONT_DIR", () => {
+    expect(getSmartChannelFontDirectory({ NAVER_SMARTCHANNEL_FONT_DIR: root })).toBe(root);
+    expect(getSmartChannelFontDirectory({ NAVER_SMARTCHANNEL_FONT_DIR: "relative/fonts" })).toBeNull();
+    expect(getSmartChannelFontDirectory({ NAVER_SMARTCHANNEL_FONT_DIR: "\\\\server\\share\\fonts" })).toBeNull();
   });
 });

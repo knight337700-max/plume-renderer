@@ -350,6 +350,14 @@ export function assertSmartChannelFallbackProhibited(fallbackAllowed: boolean): 
   if (fallbackAllowed) throw new Error("SmartChannel strict Template Locked resolution forbids fallback");
 }
 
+export function getSmartChannelFontDirectory(
+  environment: Readonly<Record<string, string | undefined>> = process.env,
+): string | null {
+  const configured = environment.NAVER_SMARTCHANNEL_FONT_DIR;
+  if (!configured || !path.isAbsolute(configured) || configured.startsWith("\\\\") || configured.startsWith("//")) return null;
+  return configured;
+}
+
 export function isTrustedFontReference(reference: string): boolean {
   if (reference.length === 0 || reference.includes("\0") || path.posix.isAbsolute(reference) || path.win32.isAbsolute(reference)) return false;
   if (/^[a-z][a-z\d+.-]*:/iu.test(reference) || /^[a-z]:/iu.test(reference)) return false;
