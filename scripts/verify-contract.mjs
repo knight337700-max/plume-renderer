@@ -126,7 +126,7 @@ check(
 const versions = contracts.get("contract-versions.json");
 check(
   "template_contract_version",
-  versions?.templateContractVersion === "1.7.0" &&
+  versions?.templateContractVersion === "1.8.0" &&
     versions?.coordinatesChanged === false &&
     versions?.xCoordinatesChanged === false &&
     versions?.baselineDeltaPx === 4,
@@ -360,7 +360,7 @@ check(
 const textContract = contracts.get("text-contract.json");
 check(
   "text_contract",
-  textContract?.templateContractVersion === "1.7.0" &&
+  textContract?.templateContractVersion === "1.8.0" &&
     textContract?.headlineBaselineY === 120 &&
     textContract?.subcopyBaselineY === 178 &&
     textContract?.textStartX === 48 &&
@@ -458,7 +458,7 @@ check(
 );
 check(
   "canonical_document_version",
-  versions?.documentVersion?.previous === "1.12.0" && versions?.documentVersion?.current === "1.13.0" && versions?.templateContractVersion === "1.7.0",
+  versions?.documentVersion?.previous === "1.13.0" && versions?.documentVersion?.current === "1.14.0" && versions?.templateContractVersion === "1.8.0",
   `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

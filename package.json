@@ -24,6 +24,7 @@
     "verify:integration-contract": "node scripts/verify-integration-contract.mjs",
     "verify:freeform-contract": "node scripts/verify-freeform-contract.mjs",
     "verify:naver-contract": "node scripts/verify-naver-smartchannel-contract.mjs",
+    "extract:naver-source": "python scripts/extract-naver-smartchannel-source.py --source-root \"C:/Users/Lenovo/Desktop/SMARTCHANNEL_GUIDE 12\" --contract-dir contracts --asset-root assets/naver-smartchannel --template-contract contracts/naver-smartchannel-template-contract.json",
     "build": "tsc -p tsconfig.build.json",
     "build:contract": "tsc -p packages/renderer-contract/tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

@@ -1,27 +1,1479 @@
 {
-  "registryVersion": "1.0.0",
-  "status": "UNRESOLVED_SOURCE_METADATA",
-  "classification": "UNRESOLVED",
-  "sourceMetadata": {
-    "fontLayerExtraction": "NOT_AVAILABLE_IN_CURRENT_TOOLCHAIN",
-    "requiredFields": [
-      "family",
-      "postScriptName",
-      "weight",
-      "style",
-      "sizePx",
-      "leadingPx",
-      "tracking",
-      "kerning",
-      "alignment",
-      "textBox",
-      "baseline",
-      "fill",
-      "opacity",
-      "antiAliasing"
-    ],
-    "inferredValuesForbidden": true
-  },
+  "registryVersion": "1.1.0",
+  "status": "SOURCE_METADATA_FROZEN",
+  "classification": "SOURCE_CONFIRMED",
+  "extractorRef": "contracts/naver-smartchannel-psd-metadata.json",
+  "sourcePsdCount": 120,
+  "sourceTextLayerCount": 1397,
+  "visibleTextLayerCount": 1031,
+  "exactSourceFontIdentity": "PASS",
+  "sourceFonts": [
+    {
+      "postScriptName": "AppleSDGothicNeo-Bold",
+      "family": "AppleSDGothicNeo",
+      "style": "Bold",
+      "weight": 700,
+      "classification": "SOURCE_CONFIRMED",
+      "occurrenceCount": 957,
+      "visibleOccurrenceCount": 808
+    },
+    {
+      "postScriptName": "AppleSDGothicNeo-Medium",
+      "family": "AppleSDGothicNeo",
+      "style": "Medium",
+      "weight": 500,
+      "classification": "SOURCE_CONFIRMED",
+      "occurrenceCount": 8,
+      "visibleOccurrenceCount": 8
+    },
+    {
+      "postScriptName": "AppleSDGothicNeo-Regular",
+      "family": "AppleSDGothicNeo",
+      "style": "Regular",
+      "weight": 400,
+      "classification": "SOURCE_CONFIRMED",
+      "occurrenceCount": 195,
+      "visibleOccurrenceCount": 127
+    },
+    {
+      "postScriptName": "AppleSDGothicNeo-SemiBold",
+      "family": "AppleSDGothicNeo",
+      "style": "SemiBold",
+      "weight": 600,
+      "classification": "SOURCE_CONFIRMED",
+      "occurrenceCount": 88,
+      "visibleOccurrenceCount": 88
+    },
+    {
+      "postScriptName": "SFProDisplay-Bold",
+      "family": "SFProDisplay",
+      "style": "Bold",
+      "weight": 700,
+      "classification": "SOURCE_CONFIRMED",
+      "occurrenceCount": 85,
+      "visibleOccurrenceCount": 0
+    },
+    {
+      "postScriptName": "SFUIDisplay-Bold",
+      "family": "SFUIDisplay",
+      "style": "Bold",
+      "weight": 700,
+      "classification": "SOURCE_CONFIRMED",
+      "occurrenceCount": 64,
+      "visibleOccurrenceCount": 0
+    }
+  ],
+  "tokens": [
+    {
+      "id": "PSD_TYPE_TOKEN_0027d7d620fb7ea6",
+      "occurrenceCount": 1,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Regular"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Regular",
+            "style": "Regular",
+            "weight": 400,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "18.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-70",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.27844, 0.27844, 0.27844]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_074a21139bce706e",
+      "occurrenceCount": 8,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Medium"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Medium",
+            "style": "Medium",
+            "weight": 500,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "22.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-60",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.25882, 0.25882, 0.25882]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_11da8bc29fd38e3c",
+      "occurrenceCount": 3,
+      "metadata": {
+        "fontNames": [
+          "SFProDisplay-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "SFProDisplay",
+            "postScriptName": "SFProDisplay-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "40.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          },
+          {
+            "Font": "0",
+            "FontSize": "40.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_22c5bf7874458168",
+      "occurrenceCount": 68,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Regular"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Regular",
+            "style": "Regular",
+            "weight": 400,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "34.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.18039, 0.18039, 0.18039]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_2a80735e8efd6150",
+      "occurrenceCount": 355,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "Tracking": "-50",
+            "AutoKerning": "False",
+            "Kerning": "0",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_3cb00cba41e436f4",
+      "occurrenceCount": 83,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "35.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_4071b2a0935f4ce9",
+      "occurrenceCount": 2,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "35.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          },
+          {
+            "Font": "0",
+            "FontSize": "35.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_5027c9a3665891d2",
+      "occurrenceCount": 5,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Regular"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Regular",
+            "style": "Regular",
+            "weight": 400,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "20.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-70",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.25882, 0.25882, 0.25882]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_62e7d0563dd8ebf7",
+      "occurrenceCount": 3,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "20.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_6c383555cd6efbad",
+      "occurrenceCount": 35,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 0.96663, 0.05492]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_71ec8eca9b4b5e0e",
+      "occurrenceCount": 52,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Regular"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Regular",
+            "style": "Regular",
+            "weight": 400,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "18.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-70",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.25882, 0.25882, 0.25882]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_72e630a8d073c3e9",
+      "occurrenceCount": 82,
+      "metadata": {
+        "fontNames": [
+          "SFProDisplay-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "SFProDisplay",
+            "postScriptName": "SFProDisplay-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "40.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_73933ce581728014",
+      "occurrenceCount": 63,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "False",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "Language": "0"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "Language": "0"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_79e976470940f3f4",
+      "occurrenceCount": 64,
+      "metadata": {
+        "fontNames": [
+          "SFUIDisplay-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "SFUIDisplay",
+            "postScriptName": "SFUIDisplay-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "38.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_a5c324cc30685123",
+      "occurrenceCount": 64,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "33.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_aa2a6ba41ccadb3f",
+      "occurrenceCount": 68,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Regular"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Regular",
+            "style": "Regular",
+            "weight": 400,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "29.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.18039, 0.18039, 0.18039]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_bc12c494a7415a90",
+      "occurrenceCount": 2,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "False",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "Language": "0"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "Language": "0"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 0.91763, 2e-05]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "Language": "0"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 0.91763, 2e-05]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "Language": "0"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_bc953c80df8e103f",
+      "occurrenceCount": 88,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-SemiBold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-SemiBold",
+            "style": "SemiBold",
+            "weight": 600,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "20.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "20.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "False",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.2706, 0.2706, 0.2706]}",
+            "Language": "14"
+          },
+          {
+            "Font": "0",
+            "FontSize": "20.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "20.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.2706, 0.2706, 0.2706]}",
+            "Language": "14"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_c64ad67f1d080034",
+      "occurrenceCount": 82,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "40.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_ce52e7c527f0325f",
+      "occurrenceCount": 3,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "40.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          },
+          {
+            "Font": "0",
+            "FontSize": "40.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_ced0e771e9f9ad11",
+      "occurrenceCount": 35,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "20.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "20.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 0.96469, 0.0549]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_d13327659c99dcd2",
+      "occurrenceCount": 143,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "Tracking": "-50",
+            "AutoKerning": "False",
+            "Kerning": "0",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 0.91763, 2e-05]}"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_f18bc981c21cc3c6",
+      "occurrenceCount": 1,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Regular"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Regular",
+            "style": "Regular",
+            "weight": 400,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "18.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-70",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.18039, 0.18039, 0.18039]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_f7bcaf05f9bb0300",
+      "occurrenceCount": 23,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "False",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "Language": "0"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 1.0, 1.0]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "Language": "0"
+          },
+          {
+            "Font": "0",
+            "FontSize": "14.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.0",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-50",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 1.0, 0.91763, 2e-05]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.0, 0.0, 0.0]}",
+            "Language": "0"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    },
+    {
+      "id": "PSD_TYPE_TOKEN_fc75e11aad212e08",
+      "occurrenceCount": 64,
+      "metadata": {
+        "fontNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "fontIdentities": [
+          {
+            "family": "AppleSDGothicNeo",
+            "postScriptName": "AppleSDGothicNeo-Bold",
+            "style": "Bold",
+            "weight": 700,
+            "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+          }
+        ],
+        "styleRuns": [
+          {
+            "Font": "0",
+            "FontSize": "38.0",
+            "FauxBold": "False",
+            "FauxItalic": "False",
+            "AutoLeading": "False",
+            "Leading": "18.98112",
+            "HorizontalScale": "1.0",
+            "VerticalScale": "1.0",
+            "Tracking": "-25",
+            "AutoKerning": "True",
+            "Kerning": "0",
+            "BaselineShift": "0.0",
+            "FontCaps": "0",
+            "FontBaseline": "0",
+            "Underline": "False",
+            "Strikethrough": "False",
+            "FillColor": "{'Type': 1, 'Values': [1.0, 0.1098, 0.1098, 0.1098]}",
+            "StrokeColor": "{'Type': 1, 'Values': [1.0, 0.85883, 0.92941, 0.9451]}",
+            "Language": "0",
+            "NoBreak": "False"
+          }
+        ],
+        "paragraph": "{}",
+        "antiAlias": "1",
+        "textType": "POINT"
+      },
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
+    }
+  ],
   "runtimeFontAssets": [
     {
       "id": "SPOQA_HAN_SANS_BOLD",
@@ -29,7 +1481,8 @@
       "sha256": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef",
       "weight": 700,
       "licenseStatus": "VERIFIED_OFL_1.1",
-      "sourceIdentityToPSD": "UNRESOLVED"
+      "sourceIdentityToPSD": "NO_EXACT_MATCH",
+      "resolution": "LICENSED_BUT_NOT_SOURCE_MATCH"
     },
     {
       "id": "SPOQA_HAN_SANS_REGULAR",
@@ -37,58 +1490,13 @@
       "sha256": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1",
       "weight": 400,
       "licenseStatus": "VERIFIED_OFL_1.1",
-      "sourceIdentityToPSD": "UNRESOLVED"
+      "sourceIdentityToPSD": "NO_EXACT_MATCH",
+      "resolution": "LICENSED_BUT_NOT_SOURCE_MATCH"
     }
   ],
-  "tokens": [
-    {
-      "id": "HEADLINE",
-      "classification": "UNRESOLVED"
-    },
-    {
-      "id": "HEADLINE_LINE_2",
-      "classification": "UNRESOLVED"
-    },
-    {
-      "id": "SUBCOPY",
-      "classification": "UNRESOLVED"
-    },
-    {
-      "id": "SUBCOPY_LINE_4",
-      "classification": "UNRESOLVED"
-    },
-    {
-      "id": "DISCLOSURE",
-      "classification": "UNRESOLVED"
-    },
-    {
-      "id": "DISCLOSURE_LINE_1",
-      "classification": "UNRESOLVED"
-    },
-    {
-      "id": "DISCLOSURE_LINE_2",
-      "classification": "UNRESOLVED"
-    },
-    {
-      "id": "APP_CTA_TEXT",
-      "classification": "UNRESOLVED"
-    }
-  ],
-  "observedGuideSizes": [
-    {
-      "scope": "280 main",
-      "sizePx": 32,
-      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-    },
-    {
-      "scope": "280 subcopy",
-      "sizePx": 26,
-      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
-    }
-  ],
+  "runtimeResolution": "LICENSED_BUT_NOT_SOURCE_MATCH",
+  "n2Blocking": true,
   "unresolved": [
-    "all_psd_text_layer_typography_metadata",
-    "font_identity_match_to_psd",
-    "160_disclosure_two_line_exact_baselines"
+    "runtime_font_exact_match_to_psd"
   ]
 }

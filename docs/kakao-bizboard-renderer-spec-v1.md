@@ -3320,3 +3320,127 @@ fixed-component unresolved honesty, version bump 및 기존 Kakao regression을 
 N2 representative candidates는 registry-only로 6개를 보관한다. source inventory gate는
 통과하지만 PSD text metadata와 fixed assets가 unresolved이므로 `nextPhase.ready=false`다.
 N1B는 공식 Naver 업로드 승인이나 광고 심의 적합성을 보장하지 않는다. **[PROJECT]**
+
+## 33. Phase N1C — NAVER SmartChannel Source Asset & Typography Resolution [PROJECT]
+
+N1C는 N1B의 SmartChannel Renderer가 아니라 외부 공식 source revision, PSD layer metadata,
+고정 UI source layer, typography identity 및 N2 readiness를 검증한다. PSD binary는 계속 외부
+source root에만 두며, 추출기는 local-only development tooling이다. Runtime raster, Desktop UI,
+Preview, Download, Naver upload 및 실행 중 네트워크는 구현하지 않는다. **[PROJECT]**
+
+### 33.1 Current official guide and source revision [OFFICIAL] [TOOL_OUTPUT]
+
+현재 공식 [SmartChannel 광고가이드](https://ads.naver.com/adguide/1475)는 2026-05-22에
+갱신된 `SMARTCHANNEL_GUIDE.zip` 다운로드를 제공한다. 750×280 도입 배경은
+[2025-06-03 공지](https://ads.naver.com/notice/22349)로 교차 확인하고, 2026-06-01 [제작 가이드 및 노출
+지면 일부 조정 공지](https://ads.naver.com/notice/31978)의 source-backed 규칙은 다음과 같다.
+
+- 750×280 썸네일형 오브젝트는 2026-06-25부터 200×200 비율로 통일한다.
+- 750×280 오브젝트 영역 안 광고주 로고는 2026-06-08부터 상단 24px 및 하단 24px 필수 여백을 갖는다.
+- 750×160 및 750×200 제작 가이드에는 해당 공지의 geometry 변경이 없다.
+- 750×200 모바일 메인 홈 노출은 2026-06-25부터 종료되며 소재 자체 삭제/등록 불가로
+  해석하지 않는다. 이는 placement availability metadata이며 Renderer geometry가 아니다.
+
+현재 공식 다운로드의 outer ZIP SHA-256은
+`620ee9c4e6ff421e5d57a05e8de65f7da04294043dc9e9f21581fa6209fbbc1a`다. ZIP 내부의
+비-Mac PSD 120개와 외부 `SMARTCHANNEL_GUIDE 12/`의 PSD 120개는 SHA-256 집합이
+120/120 일치한다. 280 source PSD에는
+`썸네일 오브젝트 영역 : 200px X 200px (위치, 가로폭 & 높이값 고정)` layer가 실제로
+존재하므로 현재 공지와 `sourcePsdMatches=true`로 동결한다. **[TOOL_OUTPUT]**
+
+### 33.2 PSD metadata extraction [TOOL_OUTPUT] [DERIVED]
+
+`scripts/extract-naver-smartchannel-source.py`는 `psd-tools==1.18.0`,
+`Pillow==12.3.0`, `numpy==2.5.1`을 사용하는 local-only extractor다. 추출 결과는
+`contracts/naver-smartchannel-psd-metadata.json`에 source SHA와 연결해 저장한다.
+
+| 항목 | 결과 |
+|---|---:|
+| PSD | 120 |
+| 전체 Text Layer | 1,397 |
+| visible Text Layer | 1,031 |
+| exact typography token | 25 |
+| source layer fixed UI asset | 공식 PSD layer만 사용 |
+| inferred font identity | 0 |
+
+각 text layer에는 layer path/name/kind/visibility/pixel bounds/transform/text engine
+style/paragraph/anti-alias/fill/opacity/font identity 및 point-text origin을 보존한다.
+추출기에서 PNG fixed asset을 만들 때도 원본 PSD layer의 RGBA pixel만 사용하며 색상 변환,
+최적화 또는 임의 제작을 하지 않는다. **[PROJECT]**
+
+### 33.3 Typography identity and runtime font gate [DERIVED] [PROJECT]
+
+PSD resource와 text run metadata에서 다음 PostScript name을 직접 확인했다.
+
+```text
+AppleSDGothicNeo-Bold       957 occurrences / visible 808
+AppleSDGothicNeo-Regular    195 occurrences / visible 127
+AppleSDGothicNeo-Medium       8 occurrences / visible 8
+AppleSDGothicNeo-SemiBold    88 occurrences / visible 88
+SFProDisplay-Bold            85 occurrences / visible 0
+SFUIDisplay-Bold             64 occurrences / visible 0
+```
+
+각 layer의 `transform[4]`, `transform[5]`를 각각 exact origin X/Y 및
+`PSD_POINT_TEXT_TRANSFORM_TRANSLATION` baseline model로 보존한다. 동일한 모든 source
+metadata가 있을 때만 25개 typography token으로 deduplicate한다. **[DERIVED]**
+
+기존 Spoqa Han Sans Bold/Regular OFL asset은 유지하지만 PSD source font와 동일하다고
+주장하지 않는다. 따라서 `exactSourceFontIdentity=PASS`인 반면
+`runtimeResolution=LICENSED_BUT_NOT_SOURCE_MATCH`이며 N2 pixel Golden의 runtime font
+gate는 아직 BLOCKED다. **[PROJECT]**
+
+### 33.4 Fixed component source resolution [DERIVED]
+
+공식 PSD layer에서 다음 fixed component를 동결했다.
+
+| Component | Source result | Asset/reference |
+|---|---|---|
+| `LANDING_ICON_COMPACT` | 160/200 same raw+trimmed digest, placement 694×65/85 | `assets/naver-smartchannel/landing-icon-compact.png` |
+| `LANDING_ICON_280` | separate 56×59 source digest, placement 660×112 | `assets/naver-smartchannel/landing-icon-280.png` |
+| `APP_CTA_160_200` | 11 source label layers + shared chevron, source custom-input guide preserved | `contracts/naver-smartchannel-cta-options.json` |
+| `APP_CTA_280` | 11 source options, 48px visible button bounds, source rounded-rectangle metadata and shared chevron | `contracts/naver-smartchannel-cta-options.json` |
+
+CTA option combinations are not generated. Each option keeps source template occurrences,
+label text, button layer, chevron layer, source digest and exact metadata. `앱특가 보기` and
+`앱 특가 보기` remain distinct source labels because the PSDs distinguish them. **[PROJECT]**
+
+### 33.5 Special geometry [DERIVED_FROM_EXACT_SOURCE_METADATA]
+
+- The three 160 `심의필만2줄` PSDs have exact headline baseline `64.45703125`, disclosure
+  baselines `98.45703125` and `122.45703125`, and line gap `24px` for both left/right and
+  landing-icon variants.
+- The 200 compact landing icon has the same raw and trimmed pixel digest at both observed
+  y=85 and y=86. There is no transform/effect-bound difference; the one-pixel discrepancy is
+  classified as `PSD_AUTHORING_INCONSISTENCY`, not silently normalized.
+- The current 280 thumbnail rule is frozen as 200×200 and does not use height scaling.
+
+### 33.6 Deferred non-pixel blockers [PROJECT]
+
+`260(최대)` is present as a guide-note family across source PSDs. Since it does not alter the
+frozen placement coordinates, it is classified `GUIDE_NOTE_NOT_MACHINE_ENFORCEABLE`,
+`n2Blocking=false`, and deferred to N3 Validator. The official 280 logo top/bottom 24px rule,
+export `BG off + PNG` instruction, final registration byte/metadata semantics, and 750×200
+placement availability are recorded as validation/placement metadata, not renderer behavior.
+
+### 33.7 Version and runtime boundary [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.13.0 | 1.14.0 | source revision and source-backed resolution facts |
+| Template Contract | 1.7.0 | 1.8.0 | metadata/fixed-component references and resolved source semantics |
+| Integration Contract | 1.8.0 | 1.8.0 | no public integration meaning change |
+| CreativeLayoutPlan | 1.0.0 | 1.0.0 | unchanged |
+| Desktop | 0.8.2 | 0.8.2 | no SmartChannel UI/runtime |
+
+N1C runtime remains `CONTRACT_ONLY`, with no SmartChannel `render()`, raster Golden, Desktop
+selector, Preview, Download, upload, or network access. N2 readiness remains `false` solely
+because the licensed Spoqa runtime assets are not an exact match to the source PSD fonts. **[PROJECT]**
+
+### 33.8 N1C acceptance [PROJECT]
+
+N1C acceptance requires official/local source hash-set equality, 120 template provenance,
+metadata extraction, zero inferred font identity, fixed component source digests, exact 160
+disclosure geometry, explicit 200 one-pixel classification, current 280 200×200 match,
+non-blocking 260/export/placement deferrals, and unchanged Kakao/FREEFORM PNG/JPEG/fingerprint
+regression. It does not claim Naver upload approval or advertising review compliance.

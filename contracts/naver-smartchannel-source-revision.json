@@ -1,0 +1,51 @@
+{
+  "registryVersion": "1.0.0",
+  "status": "SOURCE_CONFIRMED",
+  "officialGuide": {
+    "url": "https://ads.naver.com/adguide/1475",
+    "pageUpdate": "2026-05-22",
+    "downloadFileName": "SMARTCHANNEL_GUIDE.zip",
+    "downloadSha256": "620ee9c4e6ff421e5d57a05e8de65f7da04294043dc9e9f21581fa6209fbbc1a",
+    "checkedDate": "2026-08-09",
+    "classification": "SOURCE_CONFIRMED"
+  },
+  "officialNotice": {
+    "url": "https://ads.naver.com/notice/31978",
+    "noticeDate": "2026-06-01",
+    "classification": "SOURCE_CONFIRMED"
+  },
+  "sourceRevision": {
+    "id": "NAVER_SMARTCHANNEL_GUIDE_2026-05-22",
+    "officialNonMacPsdCount": 120,
+    "localPsdCount": 120,
+    "hashSetMatch": true,
+    "hashMismatches": 0,
+    "classification": "SOURCE_CONFIRMED"
+  },
+  "currentOfficialRules": {
+    "thumbnail280": {
+      "width": 200,
+      "height": 200,
+      "effectiveFrom": "2026-06-25",
+      "sourcePsdMatches": true,
+      "evidenceLayerName": "썸네일 오브젝트 영역 : 200px X 200px (위치, 가로폭 & 높이값 고정)",
+      "classification": "SOURCE_CONFIRMED"
+    },
+    "logoVerticalMargin24": {
+      "top": 24,
+      "bottom": 24,
+      "effectiveFrom": "2026-06-08",
+      "classification": "SOURCE_CONFIRMED",
+      "validationStatus": "DEFERRED_NON_BLOCKING"
+    },
+    "guide160200Changed": {
+      "value": false,
+      "classification": "SOURCE_CONFIRMED"
+    },
+    "placement200MobileMainHome": {
+      "status": "ENDED_FROM_2026-06-25",
+      "rendererBehavior": "NOT_APPLIED",
+      "classification": "SOURCE_CONFIRMED"
+    }
+  }
+}

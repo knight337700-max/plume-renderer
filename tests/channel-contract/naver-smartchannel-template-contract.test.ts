@@ -6,22 +6,51 @@ const root = resolve(process.cwd());
 type JsonRecord = Record<string, unknown>;
 type TemplateRecord = JsonRecord & { templateId: string; height: number; family: string; objectKind: string; side: string; textVariant: string; affordance: string; sourceTextLabel: string; source: { sha256: string; sourcePath: string; canvas: { width: number; height: number } } };
 type AffordanceRecord = { id: string; enabled: boolean };
-type ContractRecord = { templateContractVersion: string; canvas: { width: number; heights: number[] }; sourceCatalog: { sourcePsdCount: number; actualPsdCount: number; countsByHeight: Record<string, number>; catalogHashCrossCheck: { catalogEntries: number; sha256Matches: number; hashMismatches: number }; canvasHeaderCheck: { badHeaders: number } }; templates: TemplateRecord[]; textVariantWhitelist: string[]; affordances: AffordanceRecord[]; runtimeBoundary: JsonRecord };
-type TypographyRecord = { status: string; sourceMetadata: { inferredValuesForbidden: boolean } };
-type FixedRecord = { components: Array<{ id: string; status: string }> };
+type ContractRecord = { registryVersion: string; templateContractVersion: string; canvas: { width: number; heights: number[] }; sourceCatalog: { sourcePsdCount: number; actualPsdCount: number; countsByHeight: Record<string, number>; catalogHashCrossCheck: { catalogEntries: number; sha256Matches: number; hashMismatches: number }; canvasHeaderCheck: { badHeaders: number } }; templates: TemplateRecord[]; textVariantWhitelist: string[]; affordances: AffordanceRecord[]; runtimeBoundary: JsonRecord };
+type TypographyRecord = {
+  registryVersion: string;
+  status: string;
+  exactSourceFontIdentity: string;
+  sourceFonts: Array<{ postScriptName: string; classification: string }>;
+  tokens: Array<{ classification: string }>;
+  runtimeResolution: string;
+  runtimeFontAssets: Array<{ resolution: string; sourceIdentityToPSD: string }>;
+  n2Blocking: boolean;
+};
+type FixedRecord = {
+  components: Array<{ id: string; status: string; n2Blocking?: boolean }>;
+  specialGeometry: {
+    disclosure160TwoLine: { status: string; invariants: { line1ToLine2BaselineGapPx: number[] } };
+    landingIcon200OnePixel: { status: string; classification: string; rawPixelDigestSame: boolean; trimmedPixelDigestSame: boolean };
+    thumbnail280CurrentRule: { status: string; width: number; height: number };
+    object260: { status: string; classification: string; n2Blocking: boolean };
+  };
+};
 type CandidateRecord = Pick<TemplateRecord, "height" | "family" | "objectKind" | "side" | "textVariant" | "affordance">;
-type N2Record = { status: string; candidates: CandidateRecord[] };
+type N2Record = { status: string; candidates: CandidateRecord[]; sourceResolutionStatus: string; sourceBacked: boolean; readiness: { ready: boolean; blockers: string[] } };
 type SchemaRecord = { properties: { templateContractVersion: { const: string } } };
+type SourceRevisionRecord = {
+  status: string;
+  sourceRevision: { officialNonMacPsdCount: number; localPsdCount: number; hashSetMatch: boolean; hashMismatches: number };
+  currentOfficialRules: {
+    thumbnail280: { width: number; height: number; sourcePsdMatches: boolean };
+    logoVerticalMargin24: { top: number; bottom: number };
+  };
+};
+type CtaRecord = { status: string; compact160200: { allowedLabels: string[] }; options280: Array<{ label: string; sourceOccurrences: unknown[] }> };
 const readJson = <T>(file: string) => JSON.parse(readFileSync(resolve(root, file), "utf8")) as T;
 const contract = readJson<ContractRecord>("contracts/naver-smartchannel-template-contract.json");
 const schema = readJson<SchemaRecord>("contracts/naver-smartchannel-template.schema.json");
 const typography = readJson<TypographyRecord>("contracts/naver-smartchannel-typography.json");
 const fixed = readJson<FixedRecord>("contracts/naver-smartchannel-fixed-components.json");
 const n2 = readJson<N2Record>("contracts/naver-smartchannel-n2-candidates.json");
+const sourceRevision = readJson<SourceRevisionRecord>("contracts/naver-smartchannel-source-revision.json");
+const cta = readJson<CtaRecord>("contracts/naver-smartchannel-cta-options.json");
 
-describe("NAVER SmartChannel N1B contract", () => {
+describe("NAVER SmartChannel N1C source-resolution contract", () => {
   it("freezes the source catalog counts and canvas headers", () => {
-    expect(contract.templateContractVersion).toBe("1.7.0");
+    expect(contract.registryVersion).toBe("1.1.0");
+    expect(contract.templateContractVersion).toBe("1.8.0");
     expect(contract.canvas).toMatchObject({ width: 750, heights: [160, 200, 280] });
     expect(contract.sourceCatalog.sourcePsdCount).toBe(120);
     expect(contract.sourceCatalog.actualPsdCount).toBe(120);
@@ -44,20 +73,46 @@ describe("NAVER SmartChannel N1B contract", () => {
     }
   });
 
-  it("keeps unsupported fixed affordances and typography explicit", () => {
+  it("freezes source typography and fixed affordances without inventing runtime assets", () => {
     const affordances = contract.affordances;
     expect(affordances.find((entry) => entry.id === "NONE")?.enabled).toBe(true);
     expect(affordances.filter((entry) => entry.enabled).map((entry) => entry.id)).toEqual(["NONE"]);
     expect(affordances.filter((entry) => entry.id !== "NONE").every((entry) => entry.enabled === false)).toBe(true);
-    expect(typography.status).toBe("UNRESOLVED_SOURCE_METADATA");
-    expect(typography.sourceMetadata.inferredValuesForbidden).toBe(true);
+    expect(typography.registryVersion).toBe("1.1.0");
+    expect(typography.status).toBe("SOURCE_METADATA_FROZEN");
+    expect(typography.exactSourceFontIdentity).toBe("PASS");
+    expect(typography.sourceFonts.every((font) => font.classification === "SOURCE_CONFIRMED")).toBe(true);
+    expect(typography.tokens).toHaveLength(25);
+    expect(typography.tokens.every((token) => token.classification === "DERIVED_FROM_EXACT_SOURCE_METADATA")).toBe(true);
+    expect(typography.runtimeResolution).toBe("LICENSED_BUT_NOT_SOURCE_MATCH");
+    expect(typography.runtimeFontAssets.every((asset) => asset.resolution === "LICENSED_BUT_NOT_SOURCE_MATCH" && asset.sourceIdentityToPSD === "NO_EXACT_MATCH")).toBe(true);
+    expect(typography.n2Blocking).toBe(true);
     const fixedAffordances = fixed.components.filter((entry) => entry.id.startsWith("LANDING_ICON") || entry.id.startsWith("APP_CTA"));
-    expect(fixedAffordances.every((entry) => entry.status === "UNRESOLVED")).toBe(true);
+    expect(fixedAffordances.every((entry) => entry.status === "FROZEN")).toBe(true);
+    expect(fixed.specialGeometry.disclosure160TwoLine.status).toBe("FROZEN");
+    expect(fixed.specialGeometry.disclosure160TwoLine.invariants.line1ToLine2BaselineGapPx).toEqual([24]);
+    expect(fixed.specialGeometry.landingIcon200OnePixel).toMatchObject({ status: "RESOLVED", classification: "PSD_AUTHORING_INCONSISTENCY", rawPixelDigestSame: true, trimmedPixelDigestSame: true });
+    expect(fixed.specialGeometry.thumbnail280CurrentRule).toMatchObject({ status: "FROZEN", width: 200, height: 200 });
+    expect(fixed.specialGeometry.object260).toMatchObject({ status: "DEFERRED_NON_BLOCKING", classification: "GUIDE_NOTE_NOT_MACHINE_ENFORCEABLE", n2Blocking: false });
+  });
+
+  it("freezes official source revision and CTA options", () => {
+    expect(sourceRevision.status).toBe("SOURCE_CONFIRMED");
+    expect(sourceRevision.sourceRevision).toMatchObject({ officialNonMacPsdCount: 120, localPsdCount: 120, hashSetMatch: true, hashMismatches: 0 });
+    expect(sourceRevision.currentOfficialRules.thumbnail280).toMatchObject({ width: 200, height: 200, sourcePsdMatches: true });
+    expect(sourceRevision.currentOfficialRules.logoVerticalMargin24).toMatchObject({ top: 24, bottom: 24 });
+    expect(cta.status).toBe("SOURCE_CONFIRMED");
+    expect(cta.compact160200.allowedLabels).toHaveLength(11);
+    expect(cta.options280).toHaveLength(11);
+    expect(cta.options280.every((entry) => entry.sourceOccurrences.length === 8)).toBe(true);
   });
 
   it("keeps N2 candidates registry-only and source-backed", () => {
     expect(n2.status).toBe("REGISTRY_ONLY");
     expect(n2.candidates).toHaveLength(6);
+    expect(n2.sourceResolutionStatus).toBe("SOURCE_RESOLVED_WITH_RUNTIME_FONT_BLOCKER");
+    expect(n2.sourceBacked).toBe(true);
+    expect(n2.readiness).toMatchObject({ ready: false, blockers: ["runtime_font_exact_match_to_psd"] });
     const key = (entry: JsonRecord) => [entry.height, entry.family, entry.objectKind, entry.side, entry.textVariant, entry.affordance].join("/");
     const sourceKeys = new Set(contract.templates.map(key));
     for (const candidate of n2.candidates) expect(sourceKeys.has(key(candidate))).toBe(true);
@@ -65,6 +120,6 @@ describe("NAVER SmartChannel N1B contract", () => {
 
   it("does not expose a SmartChannel runtime implementation", () => {
     expect(contract.runtimeBoundary).toEqual({ rendererImplemented: false, rasterImplemented: false, desktopUiImplemented: false, previewDownloadImplemented: false, runtimeStatus: "CONTRACT_ONLY" });
-    expect(schema.properties.templateContractVersion.const).toBe("1.7.0");
+    expect(schema.properties.templateContractVersion.const).toBe("1.8.0");
   });
 });

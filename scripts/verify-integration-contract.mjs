@@ -68,8 +68,8 @@ if (requiredCodes.every((code) => registryCodes.includes(code))) pass("required_
 else fail("required_error_codes", "one or more required integration codes missing");
 
 const contract = await readJson(path.join(root, "contracts", "contract-versions.json"));
-if (contract.templateContractVersion === "1.7.0") pass("template_contract", "templateContractVersion is 1.7.0");
-else fail("template_contract", `expected 1.7.0, got ${contract.templateContractVersion}`);
+if (contract.templateContractVersion === "1.8.0") pass("template_contract", "templateContractVersion is 1.8.0");
+else fail("template_contract", `expected 1.8.0, got ${contract.templateContractVersion}`);
 if (contract.integrationContract?.current === "1.8.0") pass("integration_contract_version", "Integration Contract is v1.8.0");
 else fail("integration_contract_version", `expected Integration Contract v1.8.0, got ${contract.integrationContract?.current ?? "missing"}`);
 
