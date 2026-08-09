@@ -15,6 +15,8 @@ const root = process.cwd();
 const boldReference = "assets/fonts/SpoqaHanSansBold.ttf";
 const boldPath = path.join(root, boldReference);
 const boldDigest = "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef";
+const localAppleBoldReference = ".local-fonts/naver-smartchannel/AppleSDGothicNeo-Bold.ttf";
+const localAppleBoldDigest = "a652ea0a3c4bf8658845f044b5d6f40c39ecf03207e43f325c1451127528402b";
 
 describe("NAVER SmartChannel exact font preflight", () => {
   it("accepts an exact trusted external resource when identity, digest, and version match", async () => {
@@ -38,6 +40,52 @@ describe("NAVER SmartChannel exact font preflight", () => {
       { trustedRoot: root },
     );
     expect(result).toMatchObject({ status: "PASS", renderStartAllowed: true, resolutionMode: "EXTERNAL_EXACT", digest: boldDigest });
+  });
+
+  it("accepts a controlled source-different runtime alias by token and runtime identity", async () => {
+    const result = await preflightExternalExactFont(
+      {
+        requiredPostScriptName: "AppleSDGothicNeo-Bold",
+        sourcePostScriptName: "AppleSDGothicNeo-Bold",
+        runtimePostScriptName: "AppleSDGothicNeoB00",
+        fontToken: "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+        sourceIdentityStatus: "SOURCE_DIFFERENT_BUILD",
+        compatibilityStatus: "PROJECT_COMPATIBLE_VERIFIED",
+        allowedResolutionModes: ["EXTERNAL_EXACT"],
+        expectedSha256: localAppleBoldDigest,
+        expectedVersion: "Version 1.0",
+      },
+      {
+        path: localAppleBoldReference,
+        expectedPostScriptName: "AppleSDGothicNeoB00",
+        expectedSha256: localAppleBoldDigest,
+        expectedVersion: "Version 1.0",
+      },
+      { trustedRoot: root },
+    );
+    expect(result).toMatchObject({ status: "PASS", renderStartAllowed: true, fontToken: "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD", sourceIdentityStatus: "SOURCE_DIFFERENT_BUILD", compatibilityStatus: "PROJECT_COMPATIBLE_VERIFIED" });
+  });
+
+  it("rejects a wrong controlled alias even when the source identity is preserved", async () => {
+    const result = await preflightExternalExactFont(
+      {
+        requiredPostScriptName: "AppleSDGothicNeo-Bold",
+        runtimePostScriptName: "AppleSDGothicNeo-B00-WRONG",
+        fontToken: "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+        allowedResolutionModes: ["EXTERNAL_EXACT"],
+        expectedSha256: localAppleBoldDigest,
+        expectedVersion: "Version 1.0",
+      },
+      {
+        path: localAppleBoldReference,
+        expectedPostScriptName: "AppleSDGothicNeo-B00-WRONG",
+        expectedSha256: localAppleBoldDigest,
+        expectedVersion: "Version 1.0",
+      },
+      { trustedRoot: root },
+    );
+    expect(result.status).toBe("BLOCKED");
+    expect(result.issues.map((entry) => entry.code)).toContain("NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH");
   });
 
   it.each([

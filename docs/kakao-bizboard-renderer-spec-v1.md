@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.15.0
-- **Status:** Frozen Implementation Contract — Phase N1D SmartChannel runtime font policy frozen fail-closed; no SmartChannel raster/UI implementation
+- **Document version:** 1.16.0
+- **Status:** Frozen Implementation Contract — Phase N1D.2 SmartChannel project-compatible font resolution and effective SF composite audit; no SmartChannel raster/UI implementation
 - **Checked date:** 2026-08-09 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **34. Phase N1D**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **34. Phase N1D.2**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -3531,9 +3531,10 @@ occupied bounds, baseline, fixed component alignment, canvas geometry를 source 
 비교한다. Exact runtime font가 해결되기 전에는 N2를 시작하지 않으며 `next_phase.ready=false`,
 blocker=`runtime_font_exact_match_to_psd`를 유지한다. 해결 후보(권리자로부터 Windows exact
 font 사용권 확보, exact font 설치 환경 한정 활성화, 공식 대체 font 확인)는 별도 제품 결정으로
-남기며 임의 선택하지 않는다.
+남기며 임의 선택하지 않는다. 이 문단의 blocker 판정은 N1D.1 당시 상태이며 N1D.2의
+project-compatible 판정으로 대체된다. **[PROJECT]**
 
-### 34.6 Version and acceptance [PROJECT]
+### 34.6 N1D.1 Version and acceptance (historical) [PROJECT]
 
 | Contract | Previous | Current | Reason |
 |---|---:|---:|---|
@@ -3579,6 +3580,71 @@ SF layer 전수 감사 결과 `SFProDisplay-Bold` 85개와 `SFUIDisplay-Bold` 64
 감사 원본은 `contracts/naver-smartchannel-sf-font-audit.json`이다. **[TOOL_OUTPUT] [DERIVED]**
 
 N1D.1은 문서/Template geometry/Integration/Desktop version을 변경하지 않고 runtime font
-policy registry만 1.0.0에서 1.1.0으로 확장했다. 네 Apple font identity와 두 SF font가
-모두 해결되기 전까지 `next_phase.ready=false`이며 SmartChannel renderer, Golden PNG,
-Desktop UI, font installer는 구현하지 않는다. **[PROJECT]**
+policy registry만 1.0.0에서 1.1.0으로 확장했던 historical freeze다. 당시의
+`next_phase.ready=false`와 `SF_EXACT_RUNTIME_REQUIRED` 판정은 N1D.2 effective audit 및
+project-compatible registry로 supersede되며, SmartChannel renderer, Golden PNG, Desktop UI,
+font installer는 계속 구현하지 않는다. **[PROJECT]**
+
+### 34.8 N1D.2 project-compatible font resolution and effective SF audit [PROJECT] [DERIVED] [TOOL_OUTPUT]
+
+N1D.1의 `PSD PostScript == runtime PostScript` 단일 조건을 폐기한다. source identity와
+runtime compatibility를 별도 상태로 기록한다.
+
+```yaml
+SourceIdentityStatus:
+  - SOURCE_EXACT
+  - SOURCE_DIFFERENT_BUILD
+RuntimeCompatibilityStatus:
+  - PROJECT_COMPATIBLE_VERIFIED
+  - PROJECT_COMPATIBLE_UNVERIFIED
+  - INCOMPATIBLE
+N2Allow:
+  - SOURCE_EXACT
+  - SOURCE_DIFFERENT_BUILD + PROJECT_COMPATIBLE_VERIFIED
+```
+
+archive TTF 네 개는 source exact라고 주장하지 않는다. 각각의 controlled alias는
+`contracts/naver-smartchannel-font-compatibility.json`에 `fontToken`, source expected
+PostScript, runtime local PostScript, SHA-256, 실제 name/OS/2/head/hhea/hmtx/cmap/glyf
+관찰값을 함께 기록한다. runtime lookup key는 source PostScript가 아니라 `fontToken`이다.
+파일은 `.local-fonts/naver-smartchannel/`에만 존재하며 commit/bundle/network fetch는 금지한다.
+
+필수 glyph coverage는 120 PSD metadata 전체 text layer에서 수집한 135개 renderable
+Unicode code point를 대상으로 한다. 네 파일 모두 glyph mapping과 non-invalid outline을
+제공한다. 네 파일의 file/glyf/hmtx digest는 서로 다르며 style role separation을 통과한다.
+`contracts/naver-smartchannel-font-metric-fixtures.json`은 160 headline/subcopy/disclosure,
+200 headline/subcopy/CTA fixed component, 280 headline/subcopy/CTA, 280 disclosure
+대표 fixture를 고정하고 advance width, ink occupied width, ascent/descent, line box,
+overflow를 기록한다. 네 fixture 모두 overflow 0이다. 이 검증은 Photoshop byte/pixel
+parity를 주장하지 않으며 source layout metadata 보존과 deterministic overflow-free
+typography만 의미한다. **[TOOL_OUTPUT] [DERIVED] [PROJECT]**
+
+SF audit는 layer visibility, ancestor visibility, layer-comp visibility, clipping-base
+visibility를 결합한 effective visibility와 실제 composite contribution을 계산한다.
+`SFProDisplay-Bold` 85개와 `SFUIDisplay-Bold` 64개는 모두 hidden source text이며
+composite contribution은 0이다. 분류는 둘 다 `HIDDEN_SOURCE_TEXT`,
+`runtimeDecision=SF_SOURCE_ONLY_NON_RUNTIME`, `exportContributingFonts=[]`로 고정한다.
+PSD provenance는 유지하지만 runtime required font set에서는 제외한다. **[TOOL_OUTPUT]
+[DERIVED] [PROJECT]**
+
+따라서 N1D.2의 runtime mode는 `PROJECT_COMPATIBLE_VERIFIED`, N2 readiness는 `true`다.
+이는 SmartChannel renderer/UI/Golden PNG 구현이나 네이버 업로드 승인 주장이 아니다. **[PROJECT]**
+
+### 34.9 N1D.2 version and acceptance [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.15.0 | 1.16.0 | source/runtime font compatibility split and effective SF composite audit |
+| Template Contract | 1.9.0 | 1.9.0 | global geometry/template version unchanged |
+| SmartChannel template registry/schema | 1.2.0 | 1.3.0 | controlled alias lookup, compatibility registry, N2 readiness |
+| SmartChannel typography registry | 1.2.0 | 1.3.0 | project-compatible runtime tokens and source-only SF inventory |
+| Runtime font policy | 1.1.0 | 1.2.0 | local digest allowlist and compatibility preflight semantics |
+| SF audit registry | 1.0.0 | 1.1.0 | effective visibility and composite contribution classification |
+| Font preflight schema | 1.0.0 | 1.1.0 | additive source/runtime identity fields |
+| Integration Contract | 1.8.0 | 1.8.0 | unchanged public Kakao/FREEFORM semantics |
+| Desktop | 0.8.2 | 0.8.2 | no SmartChannel UI/runtime |
+
+N1D.2 acceptance는 controlled alias 4종, local SHA allowlist, glyph coverage, distinct style
+data, representative metric fixture overflow 0, wrong alias/digest/fallback rejection,
+effective SF visibility/contribution audit, N2 readiness, Kakao/FREEFORM fingerprints와
+120-template mapping 불변을 포함한다. **[PROJECT]**

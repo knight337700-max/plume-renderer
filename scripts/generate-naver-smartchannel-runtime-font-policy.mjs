@@ -305,3 +305,8 @@ typography.n2Blocking = true;
 writeJson("contracts/naver-smartchannel-runtime-font-policy.json", policy);
 writeJson("contracts/naver-smartchannel-typography.json", typography);
 console.log(JSON.stringify({ status: policy.status, requiredSourceFonts: requiredFonts.length, licensedMismatch: resolutionMatrix.filter((entry) => entry.resolutionClass === "LICENSED_BUT_NOT_SOURCE_MATCH").length, missing: resolutionMatrix.filter((entry) => entry.resolutionClass === "MISSING").length, localCandidates: localCandidates.length, externalFontCandidates: externalFontCandidates.length, externalExactResolved, sfGuideOnly }));
+
+// N1D.2 makes the compatibility registry the canonical runtime-policy projection.
+// Keep this legacy generator useful for source extraction while ensuring a direct
+// invocation cannot leave the repository at the superseded N1D.1 policy shape.
+await import("./generate-naver-smartchannel-font-compatibility.mjs");

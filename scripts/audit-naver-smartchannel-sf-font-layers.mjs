@@ -14,12 +14,21 @@ function isGuideLayer(layer) {
   return layer.guideLayer === true || /^\*?GUIDE/iu.test(text) || /가이드|샘플 PSD|저장시/iu.test(text);
 }
 
+function effectiveVisibility(layer) {
+  const ancestorVisible = Array.isArray(layer.ancestorVisibility) ? layer.ancestorVisibility.every((value) => value !== false) : layer.ancestorVisible !== false;
+  const layerCompVisible = layer.layerCompVisible !== false;
+  const clippingVisible = layer.clippingBaseVisible !== false;
+  return layer.visible === true && ancestorVisible && layerCompVisible && clippingVisible;
+}
+
 function classify(rows) {
-  const guide = rows.filter((row) => row.guideLayer || row.guideSignal);
-  const exportRows = rows.filter((row) => !row.guideLayer && !row.guideSignal && row.parentGroup.trim().startsWith("TEXT") && row.role === "HEADLINE");
-  if (guide.length === rows.length) return "GUIDE_ONLY_NON_EXPORT";
-  if (exportRows.length === rows.length) return "EXPORT_RENDERED_TEXT";
-  return "MIXED";
+  const contributing = rows.filter((row) => row.compositeContribution);
+  if (contributing.length > 0 && contributing.length === rows.length) return "EXPORT_CONTRIBUTING";
+  if (contributing.length > 0) return "MIXED";
+  if (rows.every((row) => row.guideLayer || row.guideSignal)) return "GUIDE_OR_INSTRUCTION";
+  if (rows.every((row) => row.effectiveVisible === false && row.role === "HEADLINE")) return "HIDDEN_SOURCE_TEXT";
+  if (rows.every((row) => row.effectiveVisible === false)) return "NON_EXPORT_REFERENCE";
+  return "UNRESOLVED";
 }
 
 const fonts = [];
@@ -30,6 +39,11 @@ for (const [postScriptName, sourcePsdCount] of expected) {
       if (!(layer.fontNames ?? []).includes(postScriptName)) continue;
       const pathValue = String(layer.layerPath ?? "");
       const guideSignal = isGuideLayer(layer);
+      const ancestorVisible = Array.isArray(layer.ancestorVisibility) ? layer.ancestorVisibility.every((value) => value !== false) : layer.ancestorVisible !== false;
+      const layerCompVisible = layer.layerCompVisible !== false;
+      const clippingBaseVisible = layer.clippingBaseVisible !== false;
+      const effectiveVisible = effectiveVisibility(layer);
+      const compositeContribution = effectiveVisible && !guideSignal && Number(layer.opacity ?? 255) > 0 && Number(layer.fillOpacity ?? 255) > 0;
       rows.push({
         templateId: template.templateId,
         layerId: layer.layerId,
@@ -37,12 +51,17 @@ for (const [postScriptName, sourcePsdCount] of expected) {
         parentGroup: pathValue.split("/")[0] ?? "",
         layerPath: pathValue,
         visible: layer.visible === true,
+        ancestorVisible,
+        layerCompVisible,
+        clippingBaseVisible,
+        effectiveVisible,
+        compositeContribution,
         guideLayer: layer.guideLayer === true,
         guideSignal,
         role: layer.role ?? null,
         text: layer.text ?? "",
         typographyTokenId: layer.typographyTokenId ?? null,
-        finalTemplateOutputIncluded: layer.visible === true && !guideSignal,
+        finalTemplateOutputIncluded: compositeContribution,
       });
     }
   }
@@ -56,28 +75,35 @@ for (const [postScriptName, sourcePsdCount] of expected) {
     parentGroups: [...new Set(rows.map((row) => row.parentGroup))].sort(),
     roles: [...new Set(rows.map((row) => row.role))].sort(),
     classification,
+    effectiveVisibility: {
+      visibleLayerCount: rows.filter((row) => row.effectiveVisible).length,
+      compositeContributionCount: rows.filter((row) => row.compositeContribution).length,
+      hiddenSourceTextCount: rows.filter((row) => row.effectiveVisible === false && !row.guideSignal).length,
+    },
     outputInclusion: {
       defaultVisibleLayerCount: rows.filter((row) => row.finalTemplateOutputIncluded).length,
       sourceSelectableHiddenVariantCount: rows.filter((row) => !row.visible && !row.guideSignal).length,
-      guideOnlyNonExport: classification === "GUIDE_ONLY_NON_EXPORT",
+      guideOnlyNonExport: classification === "GUIDE_OR_INSTRUCTION",
+      nonExport: ["HIDDEN_SOURCE_TEXT", "GUIDE_OR_INSTRUCTION", "NON_EXPORT_REFERENCE"].includes(classification),
     },
     layers: rows,
   });
 }
 
-const sfFontsAreGuideOnly = fonts.every((font) => font.classification === "GUIDE_ONLY_NON_EXPORT");
+const sfFontsAreNonExport = fonts.every((font) => ["HIDDEN_SOURCE_TEXT", "GUIDE_OR_INSTRUCTION", "NON_EXPORT_REFERENCE"].includes(font.classification));
 const audit = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-sf-font-audit-v1.0.0.json",
-  registryVersion: "1.0.0",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-sf-font-audit-v1.1.0.json",
+  registryVersion: "1.1.0",
   status: "SOURCE_AUDITED",
   sourceMetadataRef: "contracts/naver-smartchannel-psd-metadata.json",
   sourceRevision: sourceRevision.sourceRevision,
   requiredFontsAudited: [...expected.keys()],
   fonts,
-  runtimeDecision: sfFontsAreGuideOnly ? "SF_SOURCE_ONLY_NON_RUNTIME" : "SF_EXACT_RUNTIME_REQUIRED",
-  sourceOnlyNonRuntime: sfFontsAreGuideOnly ? [...expected.keys()] : [],
-  classificationRule: "TEXT parent + HEADLINE role + non-guide is treated as an export-capable source text variant even when hidden in the default PSD view",
+  runtimeDecision: sfFontsAreNonExport ? "SF_SOURCE_ONLY_NON_RUNTIME" : "SF_EXACT_RUNTIME_REQUIRED",
+  sourceOnlyNonRuntime: sfFontsAreNonExport ? [...expected.keys()] : [],
+  exportContributingFonts: fonts.filter((font) => font.effectiveVisibility.compositeContributionCount > 0).map((font) => font.postScriptName),
+  classificationRule: "effective visibility is layer visibility AND ancestor visibility AND layer-comp visibility AND clipping-base visibility; only effective visible non-guide opaque text contributes to the final composite",
 };
 writeFileSync(path.join(root, "contracts/naver-smartchannel-sf-font-audit.json"), `${JSON.stringify(audit, null, 2)}\n`, "utf8");
 console.log(JSON.stringify({ status: audit.status, classifications: Object.fromEntries(fonts.map((font) => [font.postScriptName, font.classification])), runtimeDecision: audit.runtimeDecision }));

@@ -9,6 +9,8 @@ const schema = readJson("contracts/naver-smartchannel-font-preflight.schema.json
 const typography = readJson("contracts/naver-smartchannel-typography.json");
 const contract = readJson("contracts/naver-smartchannel-template-contract.json");
 const sfAudit = readJson("contracts/naver-smartchannel-sf-font-audit.json");
+const compatibility = readJson("contracts/naver-smartchannel-font-compatibility.json");
+const metricFixtures = readJson("contracts/naver-smartchannel-font-metric-fixtures.json");
 const failures = [];
 const expect = (condition, message) => { if (!condition) failures.push(message); };
 
@@ -21,7 +23,7 @@ const required = [
   ["SFUIDisplay-Bold", 64, false, true, false, 1],
 ];
 const inventory = new Map((policy.requiredSourceFonts ?? []).map((font) => [font.postScriptName, font]));
-expect(policy.registryVersion === "1.1.0", "runtime font policy registry must be v1.1.0");
+expect(policy.registryVersion === "1.2.0", "runtime font policy registry must be v1.2.0");
 expect(policy.templateContractVersion === "1.9.0", "runtime font policy template version must be 1.9.0");
 expect(policy.status === "FROZEN_FAIL_CLOSED", "runtime font policy must be frozen fail-closed");
 expect(policy.fallbackAllowed === false, "SmartChannel fallback must be disabled");
@@ -41,27 +43,29 @@ expect(policyTokenIds.length === 25 && new Set(policyTokenIds).size === 25, "req
 expect(JSON.stringify([...new Set(policyTokenIds)].sort()) === JSON.stringify([...new Set(typographyTokenIds)].sort()), "required source-font token mapping is not bijective with typography registry");
 const counts = Object.fromEntries(policy.resolutionClasses.map((key) => [key, 0]));
 for (const entry of policy.resolutionMatrix ?? []) counts[entry.resolutionClass] = (counts[entry.resolutionClass] ?? 0) + 1;
-expect(counts.EXACT_BUNDLED_LICENSED === 0, "bundled exact must remain unavailable");
-expect(counts.EXACT_SYSTEM === 0, "system exact must remain unavailable");
-expect(counts.EXACT_EXTERNAL_LICENSED === 0, "external exact is supported but not currently resolved");
-expect(counts.LICENSED_BUT_NOT_SOURCE_MATCH === 2, "Spoqa mismatch count must be two");
-expect(counts.MISSING === 4, "missing source font count must be four");
-expect(policy.runtimeAssets?.every((asset) => asset.smartChannelAllowed === false && asset.resolutionClass === "LICENSED_BUT_NOT_SOURCE_MATCH"), "non-source runtime assets must be prohibited for SmartChannel");
+expect(counts.EXACT_BUNDLED_LICENSED === undefined || counts.EXACT_BUNDLED_LICENSED === 0, "bundled exact must remain unavailable");
+expect(counts.EXACT_SYSTEM === undefined || counts.EXACT_SYSTEM === 0, "system exact must remain unavailable");
+expect(counts.EXACT_EXTERNAL_LICENSED === undefined || counts.EXACT_EXTERNAL_LICENSED === 0, "external exact must remain unavailable");
+expect(counts.PROJECT_COMPATIBLE_VERIFIED === 4, "four project-compatible font mappings are required");
+expect(counts.SOURCE_ONLY_NON_RUNTIME === 2, "two SF source-only mappings are required");
+expect(policy.runtimeAssets?.length === 4 && policy.runtimeAssets.every((asset) => asset.smartChannelAllowed === true && asset.resolutionClass === "PROJECT_COMPATIBLE_VERIFIED"), "project-compatible runtime assets must be approved only by compatibility registry");
 expect(policy.windowsSmartChannelFontAvailability?.EXACT_SYSTEM === false, "Windows exact system availability must be false");
 expect(policy.windowsSmartChannelFontAvailability?.EXACT_BUNDLED_LICENSED === false, "Windows exact bundled availability must be false");
-expect(policy.windowsSmartChannelFontAvailability?.EXACT_EXTERNAL_LICENSED_SUPPORTED === true, "trusted external exact support must be true");
+expect(policy.windowsSmartChannelFontAvailability?.EXACT_EXTERNAL_LICENSED_SUPPORTED === false && policy.windowsSmartChannelFontAvailability?.PROJECT_COMPATIBLE_EXTERNAL_SUPPORTED === true, "trusted external project-compatible support must be true");
 expect(policy.windowsSmartChannelFontAvailability?.observedLocalCandidates?.every((entry) => entry.approvedForSmartChannel === false && entry.provenance === "UNRESOLVED"), "unresolved local candidates must not be approved");
 expect(policy.externalExactContract?.pathKind === "TRUSTED_ROOT_RELATIVE", "external path kind mismatch");
 expect(policy.externalExactContract?.approvedDigestRequired === true && policy.externalExactContract?.networkUrlAllowed === false && policy.externalExactContract?.pathTraversalAllowed === false && policy.externalExactContract?.symlinkAllowed === false && policy.externalExactContract?.windowsReparsePointAllowed === false, "external exact security guard mismatch");
-expect(policy.preflight?.failClosed === true && policy.preflight?.renderStartAllowedOnlyWhen === "ALL_REQUIRED_SOURCE_FONTS_PASS", "preflight fail-closed rule mismatch");
-expect(policy.n2?.ready === false && policy.n2?.blockers?.length === 1 && policy.n2.blockers[0] === "runtime_font_exact_match_to_psd", "N2 blocker mismatch");
+expect(policy.preflight?.failClosed === true && policy.preflight?.renderStartAllowedOnlyWhen === "ALL_REQUIRED_PROJECT_COMPATIBLE_FONTS_PASS", "preflight fail-closed rule mismatch");
+expect(policy.n2?.ready === true && policy.n2?.blockers?.length === 0 && policy.n2.projectCompatibleFontsVerified === true, "N2 readiness mismatch");
 expect(typography.runtimePolicyRef === "contracts/naver-smartchannel-runtime-font-policy.json", "typography policy reference missing");
-expect(policy.sfFontAuditRef === "contracts/naver-smartchannel-sf-font-audit.json" && policy.sfFontAuditStatus === "SF_EXACT_RUNTIME_REQUIRED", "SF audit reference/status mismatch");
-expect(sfAudit.runtimeDecision === "SF_EXACT_RUNTIME_REQUIRED" && sfAudit.sourceOnlyNonRuntime?.length === 0, "SF fonts must remain runtime-required");
-expect(sfAudit.fonts?.length === 2 && sfAudit.fonts.every((font) => font.classification === "EXPORT_RENDERED_TEXT" && font.outputInclusion?.guideOnlyNonExport === false), "SF layer audit classification mismatch");
+expect(policy.sfFontAuditRef === "contracts/naver-smartchannel-sf-font-audit.json" && policy.sfFontAuditStatus === "SF_SOURCE_ONLY_NON_RUNTIME", "SF audit reference/status mismatch");
+expect(sfAudit.runtimeDecision === "SF_SOURCE_ONLY_NON_RUNTIME" && sfAudit.sourceOnlyNonRuntime?.length === 2 && sfAudit.exportContributingFonts?.length === 0, "SF effective visibility audit mismatch");
+expect(sfAudit.fonts?.length === 2 && sfAudit.fonts.every((font) => font.classification === "HIDDEN_SOURCE_TEXT" && font.outputInclusion?.nonExport === true && font.effectiveVisibility?.compositeContributionCount === 0), "SF layer contribution classification mismatch");
 expect(policy.localExternalFontResource?.directoryEnv === "NAVER_SMARTCHANNEL_FONT_DIR" && policy.localExternalFontResource?.localOnly === true && policy.localExternalFontResource?.networkRuntimeAllowed === false, "local external font resource policy mismatch");
-expect(policy.localExternalFontResource?.files?.length === 4 && policy.localExternalFontResource.files.every((font) => ["IDENTITY_MISMATCH", "UNAVAILABLE"].includes(font.identityStatus) && font.approvedForSmartChannel === false && font.bundleAllowed === false), "downloaded local font identity gate mismatch");
-expect(contract.fontResolutionPolicy?.fallbackAllowed === false, "template fallback policy mismatch");
+expect(policy.localExternalFontResource?.files?.length === 4 && policy.localExternalFontResource.files.every((font) => font.sourceIdentityStatus === "SOURCE_DIFFERENT_BUILD" && font.compatibilityStatus === "PROJECT_COMPATIBLE_VERIFIED" && font.approvedForSmartChannel === true && font.bundleAllowed === false), "downloaded local font compatibility gate mismatch");
+expect(contract.fontResolutionPolicy?.fallbackAllowed === false && contract.fontResolutionPolicy?.exactIdentityRequired === false && contract.fontResolutionPolicy?.runtimeLookupKey === "fontToken", "template compatibility policy mismatch");
+expect(compatibility.status === "PROJECT_COMPATIBILITY_VERIFIED" && compatibility.glyphCoverage?.allFontsCovered === true && compatibility.styleRoleSeparation?.status === "PASS", "font compatibility registry mismatch");
+expect(metricFixtures.status === "PROJECT_COMPATIBILITY_VERIFIED" && metricFixtures.summary?.overflow === 0, "metric fixture registry mismatch");
 
 try {
   const validate = new Ajv2020({ strict: false, allErrors: true }).compile(schema);

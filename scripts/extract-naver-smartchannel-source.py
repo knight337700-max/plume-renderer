@@ -708,7 +708,7 @@ def main() -> int:
         {"id": "EXPORT_BG_GUIDE", "status": "SOURCE_CONFIRMED", "sourceInstruction": "BG guide layer is off when saving PNG", "registrationStatus": "DEFERRED_NON_BLOCKING", "classification": "SOURCE_CONFIRMED"},
     ])
     typography = {
-        "registryVersion": "1.2.0",
+        "registryVersion": "1.3.0",
         "status": "SOURCE_METADATA_FROZEN",
         "classification": "SOURCE_CONFIRMED",
         "extractorRef": "contracts/naver-smartchannel-psd-metadata.json",
@@ -725,9 +725,9 @@ def main() -> int:
             {"id": "SPOQA_HAN_SANS_BOLD", "relativePath": "assets/fonts/SpoqaHanSansBold.ttf", "sha256": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef", "weight": 700, "licenseStatus": "VERIFIED_OFL_1.1", "sourceIdentityToPSD": "NO_EXACT_MATCH", "resolution": "LICENSED_BUT_NOT_SOURCE_MATCH"},
             {"id": "SPOQA_HAN_SANS_REGULAR", "relativePath": "assets/fonts/SpoqaHanSansRegular.ttf", "sha256": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1", "weight": 400, "licenseStatus": "VERIFIED_OFL_1.1", "sourceIdentityToPSD": "NO_EXACT_MATCH", "resolution": "LICENSED_BUT_NOT_SOURCE_MATCH"},
         ],
-        "runtimeResolution": "LICENSED_BUT_NOT_SOURCE_MATCH",
+        "runtimeResolution": "PROJECT_COMPATIBLE_PENDING",
         "n2Blocking": True,
-        "unresolved": ["runtime_font_exact_match_to_psd"],
+        "unresolved": [],
     }
     source_revision = {
         "registryVersion": "1.0.0",
@@ -751,21 +751,21 @@ def main() -> int:
     for index, row in enumerate(rows):
         row["sourceMetadataRef"] = {"registry": "contracts/naver-smartchannel-psd-metadata.json", "templateId": row["templateId"], "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"}
         row["source"]["sourceRevisionRef"] = "contracts/naver-smartchannel-source-revision.json#/sourceRevision"
-    contract["$id"] = "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.2.0.json"
-    contract["registryVersion"] = "1.2.0"
+    contract["$id"] = "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.3.0.json"
+    contract["registryVersion"] = "1.3.0"
     contract["templateContractVersion"] = "1.9.0"
     contract["sourceRevisionRef"] = "contracts/naver-smartchannel-source-revision.json#/sourceRevision"
     contract["psdMetadataRef"] = "contracts/naver-smartchannel-psd-metadata.json"
     contract["fixedComponentsRef"] = "contracts/naver-smartchannel-fixed-components.json"
     contract["ctaOptionsRef"] = "contracts/naver-smartchannel-cta-options.json"
     contract["runtimeFontPolicyRef"] = "contracts/naver-smartchannel-runtime-font-policy.json"
-    contract["fontResolutionPolicy"] = {"fallbackAllowed": False, "exactIdentityRequired": True, "allowedModes": ["BUNDLED_EXACT", "SYSTEM_EXACT", "EXTERNAL_EXACT"], "classification": "SOURCE_CONFIRMED"}
+    contract["fontResolutionPolicy"] = {"fallbackAllowed": False, "exactIdentityRequired": False, "runtimeIdentityRequired": True, "allowedModes": ["BUNDLED_EXACT", "SYSTEM_EXACT", "EXTERNAL_EXACT"], "sourceIdentityPolicy": "SOURCE_EXACT_OR_PROJECT_COMPATIBLE_VERIFIED_DIFFERENT_BUILD", "runtimeLookupKey": "fontToken", "classification": "PROJECT_COMPATIBILITY_PENDING"}
     contract["currentOfficialRuleRefs"] = ["contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/thumbnail280", "contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/logoVerticalMargin24"]
     contract["fixedComponents"] = fixed
-    contract["unresolvedBlockers"] = ["runtime_font_exact_match_to_psd"]
-    contract["sourceResolutionStatus"] = "SOURCE_RESOLVED_WITH_RUNTIME_FONT_BLOCKER"
+    contract["unresolvedBlockers"] = []
+    contract["sourceResolutionStatus"] = "SOURCE_RESOLVED_PROJECT_COMPATIBLE"
     write_json(args.template_contract, contract)
-    print(json.dumps({"status": "PASS", "sourcePsdCount": len(metadata_rows), "typographyTokens": len(tokens), "fontIdentity": "PASS", "runtimeFont": "LICENSED_BUT_NOT_SOURCE_MATCH", "landingIcons": "FROZEN", "ctaOptions": len(cta["options280"]), "thumbnail280": "PASS", "sourceRevision": "PASS"}, ensure_ascii=False))
+    print(json.dumps({"status": "PASS", "sourcePsdCount": len(metadata_rows), "typographyTokens": len(tokens), "fontIdentity": "PASS", "runtimeFont": "PROJECT_COMPATIBLE_PENDING", "landingIcons": "FROZEN", "ctaOptions": len(cta["options280"]), "thumbnail280": "PASS", "sourceRevision": "PASS"}, ensure_ascii=False))
     return 0
 
 

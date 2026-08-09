@@ -14,7 +14,7 @@ type TypographyRecord = {
   sourceFonts: Array<{ postScriptName: string; classification: string }>;
   tokens: Array<{ classification: string }>;
   runtimeResolution: string;
-  runtimeFontAssets: Array<{ resolution: string; sourceIdentityToPSD: string }>;
+  runtimeFontAssets: Array<{ resolution: string; sourceIdentityToPSD: string; bundleAllowed?: boolean }>;
   n2Blocking: boolean;
 };
 type FixedRecord = {
@@ -49,7 +49,7 @@ const cta = readJson<CtaRecord>("contracts/naver-smartchannel-cta-options.json")
 
 describe("NAVER SmartChannel N1C source-resolution contract", () => {
   it("freezes the source catalog counts and canvas headers", () => {
-    expect(contract.registryVersion).toBe("1.2.0");
+    expect(contract.registryVersion).toBe("1.3.0");
     expect(contract.templateContractVersion).toBe("1.9.0");
     expect(contract.canvas).toMatchObject({ width: 750, heights: [160, 200, 280] });
     expect(contract.sourceCatalog.sourcePsdCount).toBe(120);
@@ -78,15 +78,16 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
     expect(affordances.find((entry) => entry.id === "NONE")?.enabled).toBe(true);
     expect(affordances.filter((entry) => entry.enabled).map((entry) => entry.id)).toEqual(["NONE"]);
     expect(affordances.filter((entry) => entry.id !== "NONE").every((entry) => entry.enabled === false)).toBe(true);
-    expect(typography.registryVersion).toBe("1.2.0");
+    expect(typography.registryVersion).toBe("1.3.0");
     expect(typography.status).toBe("SOURCE_METADATA_FROZEN");
     expect(typography.exactSourceFontIdentity).toBe("PASS");
     expect(typography.sourceFonts.every((font) => font.classification === "SOURCE_CONFIRMED")).toBe(true);
     expect(typography.tokens).toHaveLength(25);
     expect(typography.tokens.every((token) => token.classification === "DERIVED_FROM_EXACT_SOURCE_METADATA")).toBe(true);
-    expect(typography.runtimeResolution).toBe("LICENSED_BUT_NOT_SOURCE_MATCH");
-    expect(typography.runtimeFontAssets.every((asset) => asset.resolution === "LICENSED_BUT_NOT_SOURCE_MATCH" && asset.sourceIdentityToPSD === "NO_EXACT_MATCH")).toBe(true);
-    expect(typography.n2Blocking).toBe(true);
+    expect(typography.runtimeResolution).toBe("PROJECT_COMPATIBLE_VERIFIED");
+    expect(typography.runtimeFontAssets).toHaveLength(4);
+    expect(typography.runtimeFontAssets.every((asset) => asset.resolution === "PROJECT_COMPATIBLE_VERIFIED" && asset.sourceIdentityToPSD === "NO_EXACT_MATCH" && asset.bundleAllowed === false)).toBe(true);
+    expect(typography.n2Blocking).toBe(false);
     const fixedAffordances = fixed.components.filter((entry) => entry.id.startsWith("LANDING_ICON") || entry.id.startsWith("APP_CTA"));
     expect(fixedAffordances.every((entry) => entry.status === "FROZEN")).toBe(true);
     expect(fixed.specialGeometry.disclosure160TwoLine.status).toBe("FROZEN");
@@ -110,9 +111,9 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
   it("keeps N2 candidates registry-only and source-backed", () => {
     expect(n2.status).toBe("REGISTRY_ONLY");
     expect(n2.candidates).toHaveLength(6);
-    expect(n2.sourceResolutionStatus).toBe("SOURCE_RESOLVED_WITH_RUNTIME_FONT_BLOCKER");
+    expect(n2.sourceResolutionStatus).toBe("SOURCE_RESOLVED_PROJECT_COMPATIBLE");
     expect(n2.sourceBacked).toBe(true);
-    expect(n2.readiness).toMatchObject({ ready: false, blockers: ["runtime_font_exact_match_to_psd"] });
+    expect(n2.readiness).toMatchObject({ ready: true, blockers: [], runtimeFontMode: "PROJECT_COMPATIBLE_VERIFIED" });
     const key = (entry: JsonRecord) => [entry.height, entry.family, entry.objectKind, entry.side, entry.textVariant, entry.affordance].join("/");
     const sourceKeys = new Set(contract.templates.map(key));
     for (const candidate of n2.candidates) expect(sourceKeys.has(key(candidate))).toBe(true);

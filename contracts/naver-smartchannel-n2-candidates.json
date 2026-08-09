@@ -1,25 +1,13 @@
 {
-  "registryVersion": "1.0.0",
+  "registryVersion": "1.1.0",
   "status": "REGISTRY_ONLY",
-  "sourceResolutionStatus": "SOURCE_RESOLVED_WITH_RUNTIME_FONT_BLOCKER",
+  "sourceResolutionStatus": "SOURCE_RESOLVED_PROJECT_COMPATIBLE",
   "sourceBacked": true,
   "readiness": {
-    "ready": false,
-    "blockers": [
-      "runtime_font_exact_match_to_psd"
-    ],
-    "resolvedPrerequisites": [
-      "template_registry_120",
-      "source_revision_sha",
-      "exact_psd_text_metadata",
-      "landing_icon_compact",
-      "landing_icon_280",
-      "app_cta_160_200",
-      "app_cta_280",
-      "disclosure_160_two_line",
-      "landing_icon_200_one_pixel_classification",
-      "thumbnail_280_current_200x200_rule"
-    ]
+    "ready": true,
+    "blockers": [],
+    "runtimeFontMode": "PROJECT_COMPATIBLE_VERIFIED",
+    "exportContributingSfFonts": []
   },
   "candidates": [
     {

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.2.0.json",
-  "registryVersion": "1.2.0",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-template-contract-v1.3.0.json",
+  "registryVersion": "1.3.0",
   "templateContractVersion": "1.9.0",
   "channel": "NAVER_GFA",
   "placement": "SMARTCHANNEL",
@@ -5582,7 +5582,7 @@
               "baselineModel": "PSD_POINT_TEXT_TRANSFORM_TRANSLATION",
               "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
             },
-            "line1ToLine2BaselineGapPx": 24.0,
+            "line1ToLine2BaselineGapPx": 24,
             "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
           },
           {
@@ -5621,7 +5621,7 @@
               "baselineModel": "PSD_POINT_TEXT_TRANSFORM_TRANSLATION",
               "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
             },
-            "line1ToLine2BaselineGapPx": 24.0,
+            "line1ToLine2BaselineGapPx": 24,
             "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
           },
           {
@@ -5660,7 +5660,7 @@
               "baselineModel": "PSD_POINT_TEXT_TRANSFORM_TRANSLATION",
               "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
             },
-            "line1ToLine2BaselineGapPx": 24.0,
+            "line1ToLine2BaselineGapPx": 24,
             "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
           }
         ],
@@ -5673,7 +5673,7 @@
             122.45703125
           ],
           "line1ToLine2BaselineGapPx": [
-            24.0
+            24
           ],
           "leftRightBaselineConsistency": true,
           "landingIconVariantBaselineConsistency": true
@@ -5854,9 +5854,7 @@
     "previewDownloadImplemented": false,
     "runtimeStatus": "CONTRACT_ONLY"
   },
-  "unresolvedBlockers": [
-    "runtime_font_exact_match_to_psd"
-  ],
+  "unresolvedBlockers": [],
   "sourceRevisionRef": "contracts/naver-smartchannel-source-revision.json#/sourceRevision",
   "psdMetadataRef": "contracts/naver-smartchannel-psd-metadata.json",
   "fixedComponentsRef": "contracts/naver-smartchannel-fixed-components.json",
@@ -5865,16 +5863,27 @@
     "contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/thumbnail280",
     "contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/logoVerticalMargin24"
   ],
-  "sourceResolutionStatus": "SOURCE_RESOLVED_WITH_RUNTIME_FONT_BLOCKER",
+  "sourceResolutionStatus": "SOURCE_RESOLVED_PROJECT_COMPATIBLE",
   "runtimeFontPolicyRef": "contracts/naver-smartchannel-runtime-font-policy.json",
   "fontResolutionPolicy": {
     "fallbackAllowed": false,
-    "exactIdentityRequired": true,
+    "exactIdentityRequired": false,
+    "runtimeIdentityRequired": true,
     "allowedModes": [
       "BUNDLED_EXACT",
       "SYSTEM_EXACT",
       "EXTERNAL_EXACT"
     ],
-    "classification": "SOURCE_CONFIRMED"
+    "sourceIdentityPolicy": "SOURCE_EXACT_OR_PROJECT_COMPATIBLE_VERIFIED_DIFFERENT_BUILD",
+    "runtimeLookupKey": "fontToken",
+    "classification": "PROJECT_COMPATIBILITY_VERIFIED"
+  },
+  "fontCompatibilityRef": "contracts/naver-smartchannel-font-compatibility.json",
+  "metricFixturesRef": "contracts/naver-smartchannel-font-metric-fixtures.json",
+  "n2Readiness": {
+    "ready": true,
+    "blockers": [],
+    "runtimeFontMode": "PROJECT_COMPATIBLE_VERIFIED",
+    "exportContributingSfFonts": []
   }
 }

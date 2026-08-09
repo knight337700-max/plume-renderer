@@ -17,6 +17,12 @@ export type SmartChannelFontResolutionMode = "BUNDLED_EXACT" | "SYSTEM_EXACT" | 
 
 export type SmartChannelFontRequirement = {
   requiredPostScriptName: string;
+  /** Source PSD identity; runtime matching uses runtimePostScriptName when present. */
+  sourcePostScriptName?: string;
+  runtimePostScriptName?: string;
+  fontToken?: string;
+  sourceIdentityStatus?: "SOURCE_EXACT" | "SOURCE_DIFFERENT_BUILD";
+  compatibilityStatus?: "PROJECT_COMPATIBLE_VERIFIED" | "PROJECT_COMPATIBLE_UNVERIFIED" | "INCOMPATIBLE";
   allowedResolutionModes: readonly SmartChannelFontResolutionMode[];
   expectedSha256?: string;
   expectedVersion?: string;
@@ -54,6 +60,9 @@ export type FontPreflightResult = {
   resolvedPath?: string;
   digest?: string;
   identity?: ParsedFontIdentity;
+  fontToken?: string;
+  sourceIdentityStatus?: "SOURCE_EXACT" | "SOURCE_DIFFERENT_BUILD";
+  compatibilityStatus?: "PROJECT_COMPATIBLE_VERIFIED" | "PROJECT_COMPATIBLE_UNVERIFIED" | "INCOMPATIBLE";
 };
 
 type TableRecord = { offset: number; length: number };
@@ -176,6 +185,9 @@ function passedResult(
     resolutionMode,
     issues: [],
   };
+  if (requirement.fontToken !== undefined) result.fontToken = requirement.fontToken;
+  if (requirement.sourceIdentityStatus !== undefined) result.sourceIdentityStatus = requirement.sourceIdentityStatus;
+  if (requirement.compatibilityStatus !== undefined) result.compatibilityStatus = requirement.compatibilityStatus;
   if (details.resolvedPath !== undefined) result.resolvedPath = details.resolvedPath;
   if (details.digest !== undefined) result.digest = details.digest;
   if (details.identity !== undefined) result.identity = details.identity;
@@ -195,6 +207,9 @@ function blockedResult(
     resolutionMode,
     issues,
   };
+  if (requirement.fontToken !== undefined) result.fontToken = requirement.fontToken;
+  if (requirement.sourceIdentityStatus !== undefined) result.sourceIdentityStatus = requirement.sourceIdentityStatus;
+  if (requirement.compatibilityStatus !== undefined) result.compatibilityStatus = requirement.compatibilityStatus;
   if (details.resolvedPath !== undefined) result.resolvedPath = details.resolvedPath;
   if (details.digest !== undefined) result.digest = details.digest;
   if (details.identity !== undefined) result.identity = details.identity;
@@ -207,6 +222,7 @@ export function evaluateFontIdentity(
   actual: { postScriptNames: readonly string[]; digest: string; versions?: readonly string[] },
 ): FontPreflightResult {
   const issues: FontPreflightIssue[] = [];
+  const runtimePostScriptName = requirement.runtimePostScriptName ?? requirement.requiredPostScriptName;
   if (!requirement.allowedResolutionModes.includes(resolutionMode)) {
     issues.push(issue(
       NAVER_SMARTCHANNEL_FONT_ERROR_CODES.unavailable,
@@ -216,11 +232,11 @@ export function evaluateFontIdentity(
       "/font/resolutionMode",
     ));
   }
-  if (!actual.postScriptNames.includes(requirement.requiredPostScriptName)) {
+  if (!actual.postScriptNames.includes(runtimePostScriptName)) {
     issues.push(issue(
       NAVER_SMARTCHANNEL_FONT_ERROR_CODES.identityMismatch,
       "naver_smartchannel.font_identity_mismatch",
-      requirement.requiredPostScriptName,
+      runtimePostScriptName,
       actual.postScriptNames,
       "/font/postScriptName",
     ));
@@ -281,11 +297,12 @@ export async function preflightExternalExactFont(
   }
 
   const declarationIssues: FontPreflightIssue[] = [];
-  if (resource.expectedPostScriptName !== requirement.requiredPostScriptName) {
+  const runtimePostScriptName = requirement.runtimePostScriptName ?? requirement.requiredPostScriptName;
+  if (resource.expectedPostScriptName !== runtimePostScriptName) {
     declarationIssues.push(issue(
       NAVER_SMARTCHANNEL_FONT_ERROR_CODES.identityMismatch,
       "naver_smartchannel.font_identity_mismatch",
-      requirement.requiredPostScriptName,
+      runtimePostScriptName,
       resource.expectedPostScriptName,
       "/font/expectedPostScriptName",
     ));

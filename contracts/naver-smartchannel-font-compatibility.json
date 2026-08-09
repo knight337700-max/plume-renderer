@@ -1,0 +1,463 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-font-compatibility-v1.0.0.json",
+  "registryVersion": "1.0.0",
+  "status": "PROJECT_COMPATIBILITY_VERIFIED",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "sourceMetadataRef": "contracts/naver-smartchannel-psd-metadata.json",
+  "sourceFontBinaryExact": false,
+  "sourceLayoutMetadataPreserved": true,
+  "runtimeFontMode": "PROJECT_COMPATIBLE_VERIFIED",
+  "photoshopBytePixelParityClaim": false,
+  "runtimeLookupKey": "fontToken",
+  "fonts": [
+    {
+      "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+      "source": {
+        "expectedPostScriptName": "AppleSDGothicNeo-Bold",
+        "family": "AppleSDGothicNeo",
+        "style": "Bold",
+        "cssWeight": 700,
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD"
+      },
+      "runtime": {
+        "localRelativePath": ".local-fonts/naver-smartchannel/AppleSDGothicNeo-Bold.ttf",
+        "localFileName": "AppleSDGothicNeo-Bold.ttf",
+        "localPostScriptName": "AppleSDGothicNeoB00",
+        "localSha256": "a652ea0a3c4bf8658845f044b5d6f40c39ecf03207e43f325c1451127528402b",
+        "byteLength": 3817104,
+        "localVersion": "Version 1.0",
+        "localFamilyNames": [
+          "AppleSDGothicNeoB00"
+        ],
+        "localFullNames": [
+          "AppleSDGothicNeoB00"
+        ],
+        "localSubfamilyNames": [
+          "Regular"
+        ],
+        "localWeightClass": 400,
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD",
+        "compatibilityStatus": "PROJECT_COMPATIBLE_VERIFIED",
+        "lookupKey": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+        "bundleAllowed": false,
+        "commitAllowed": false,
+        "networkFetchAllowed": false
+      },
+      "fontTables": {
+        "unitsPerEm": 1000,
+        "numberOfGlyphs": 18664,
+        "numberOfLongHorMetrics": 18663,
+        "cmapRecordFormats": [
+          "0/3:4",
+          "1/0:6",
+          "3/1:4"
+        ],
+        "tableDigests": {
+          "head": "dee26858f3b26da153f8a856058aca62511d1b118168ba691d1be3fff04b335c",
+          "hhea": "4f7479201cb6d8db158e8c1a6699172aaa62fdceb0738a245a3d30ca04f44681",
+          "hmtx": "93840104163c59bb00ba80d80577df15d4bb7e8b10694a3c0d7fa4edd2564380",
+          "cmap": "60dc756859f40b5006bb0a20705acdb1e3a4cd3c3170e9e9091700155d56d30c",
+          "glyf": "3b6ff0be443990d92601d800de050d4a386042ae022153e8d6af935609d20c26",
+          "os2": "4ceb51e774d5eb2a91c0039278779067e7d908c61d828938b162f0664355004c"
+        },
+        "outlineKindCounts": {
+          "SIMPLE": 18622,
+          "COMPOSITE": 0,
+          "EMPTY": 42,
+          "INVALID": 0
+        }
+      }
+    },
+    {
+      "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MEDIUM",
+      "source": {
+        "expectedPostScriptName": "AppleSDGothicNeo-Medium",
+        "family": "AppleSDGothicNeo",
+        "style": "Medium",
+        "cssWeight": 500,
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD"
+      },
+      "runtime": {
+        "localRelativePath": ".local-fonts/naver-smartchannel/AppleSDGothicNeo-Medium.ttf",
+        "localFileName": "AppleSDGothicNeo-Medium.ttf",
+        "localPostScriptName": "AppleSDGothicNeoM00",
+        "localSha256": "0ab8f4045a0c5ac30eee01da33f75998c0a8f6f3d65b0952be8dc9ece63bde29",
+        "byteLength": 3791636,
+        "localVersion": "Version 1.0",
+        "localFamilyNames": [
+          "AppleSDGothicNeoM00"
+        ],
+        "localFullNames": [
+          "AppleSDGothicNeoM00"
+        ],
+        "localSubfamilyNames": [
+          "Regular"
+        ],
+        "localWeightClass": 400,
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD",
+        "compatibilityStatus": "PROJECT_COMPATIBLE_VERIFIED",
+        "lookupKey": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MEDIUM",
+        "bundleAllowed": false,
+        "commitAllowed": false,
+        "networkFetchAllowed": false
+      },
+      "fontTables": {
+        "unitsPerEm": 1000,
+        "numberOfGlyphs": 18664,
+        "numberOfLongHorMetrics": 18663,
+        "cmapRecordFormats": [
+          "0/3:4",
+          "1/0:6",
+          "3/1:4"
+        ],
+        "tableDigests": {
+          "head": "7a4f8dbb3bb627fbc3e7fc3e826ea95bbad8db5434b34015da5d9b036024ffae",
+          "hhea": "aa50777b46a5158bd76bbe93dd5f9568f35866c0801353fbc47d1457f90996e3",
+          "hmtx": "ebc56814025014b9d1ba889d2425ae880890847decdbdbf60ac00b3b411c558b",
+          "cmap": "60dc756859f40b5006bb0a20705acdb1e3a4cd3c3170e9e9091700155d56d30c",
+          "glyf": "17366fcc33d083e9d701f30d558de00366211194465687c2cb7d313699360b35",
+          "os2": "d675468766c73e1b4a585ab9eb9726c2b57120e48a52e99eb448bb1d852dcd5f"
+        },
+        "outlineKindCounts": {
+          "SIMPLE": 18622,
+          "COMPOSITE": 0,
+          "EMPTY": 42,
+          "INVALID": 0
+        }
+      }
+    },
+    {
+      "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
+      "source": {
+        "expectedPostScriptName": "AppleSDGothicNeo-Regular",
+        "family": "AppleSDGothicNeo",
+        "style": "Regular",
+        "cssWeight": 400,
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD"
+      },
+      "runtime": {
+        "localRelativePath": ".local-fonts/naver-smartchannel/AppleSDGothicNeo-Regular.ttf",
+        "localFileName": "AppleSDGothicNeo-Regular.ttf",
+        "localPostScriptName": "AppleSDGothicNeoR00",
+        "localSha256": "f44eec027992b99dc25de0229c5726fe209a6cb80761aaef98d050cdc0bc6cfe",
+        "byteLength": 3853124,
+        "localVersion": "Version 1.0",
+        "localFamilyNames": [
+          "AppleSDGothicNeoR00"
+        ],
+        "localFullNames": [
+          "AppleSDGothicNeoR00"
+        ],
+        "localSubfamilyNames": [
+          "Regular"
+        ],
+        "localWeightClass": 400,
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD",
+        "compatibilityStatus": "PROJECT_COMPATIBLE_VERIFIED",
+        "lookupKey": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
+        "bundleAllowed": false,
+        "commitAllowed": false,
+        "networkFetchAllowed": false
+      },
+      "fontTables": {
+        "unitsPerEm": 1000,
+        "numberOfGlyphs": 18664,
+        "numberOfLongHorMetrics": 18663,
+        "cmapRecordFormats": [
+          "0/3:4",
+          "1/0:6",
+          "3/1:4"
+        ],
+        "tableDigests": {
+          "head": "0f03b7c977de6bcc475659e1b9c42e639ca094cd9ce2b94379cfd579b5983522",
+          "hhea": "73589efe4e746b6955436689495e3ed093584bcf47a6a822463562ae9b6b53b8",
+          "hmtx": "b571c6c780420d8680aeb7798cb1d2199243a83085f021f2f9794881c14977f5",
+          "cmap": "60dc756859f40b5006bb0a20705acdb1e3a4cd3c3170e9e9091700155d56d30c",
+          "glyf": "725431162d9a7e505c3625171e5abbb8af49f59aa43f7025dbee921b469c977d",
+          "os2": "62d7c04925392f57450388deed3bd9ccaa5cf76c97711d4111a13b4df6f7e55a"
+        },
+        "outlineKindCounts": {
+          "SIMPLE": 18622,
+          "COMPOSITE": 0,
+          "EMPTY": 42,
+          "INVALID": 0
+        }
+      }
+    },
+    {
+      "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
+      "source": {
+        "expectedPostScriptName": "AppleSDGothicNeo-SemiBold",
+        "family": "AppleSDGothicNeo",
+        "style": "SemiBold",
+        "cssWeight": 600,
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD"
+      },
+      "runtime": {
+        "localRelativePath": ".local-fonts/naver-smartchannel/AppleSDGothicNeo-SemiBold.ttf",
+        "localFileName": "AppleSDGothicNeo-SemiBold.ttf",
+        "localPostScriptName": "AppleSDGothicNeoSB00",
+        "localSha256": "a9c5ffb4dadce253d8748b18019954a8af19b7cfcc3b586fce64ef1f6bd71492",
+        "byteLength": 3705352,
+        "localVersion": "Version 1.0",
+        "localFamilyNames": [
+          "AppleSDGothicNeoSB00"
+        ],
+        "localFullNames": [
+          "AppleSDGothicNeoSB00"
+        ],
+        "localSubfamilyNames": [
+          "Regular"
+        ],
+        "localWeightClass": 400,
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD",
+        "compatibilityStatus": "PROJECT_COMPATIBLE_VERIFIED",
+        "lookupKey": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
+        "bundleAllowed": false,
+        "commitAllowed": false,
+        "networkFetchAllowed": false
+      },
+      "fontTables": {
+        "unitsPerEm": 1000,
+        "numberOfGlyphs": 18664,
+        "numberOfLongHorMetrics": 18663,
+        "cmapRecordFormats": [
+          "0/3:4",
+          "1/0:6",
+          "3/1:4"
+        ],
+        "tableDigests": {
+          "head": "80fd6dacd828a4ee711ba2c0e5bd4b6153dff3972341b51daa5b1a9a0dfe8016",
+          "hhea": "52991dcf4cc89254996cae5d2460e5a7bfbf72ef6b0a0ac2f0f300bc47895d84",
+          "hmtx": "e2bbfad044414e11068cdb9763778488335b73bec423d330ff24c1fe41c6a72c",
+          "cmap": "60dc756859f40b5006bb0a20705acdb1e3a4cd3c3170e9e9091700155d56d30c",
+          "glyf": "4a0b88e6113212b5f7dd800d7ef461d765aa88189cbadb82be2b33b8304f9900",
+          "os2": "35fa3141ff48b9d0be6112be5cdce0548ca09f4e8239cdc8ec67e8381e815532"
+        },
+        "outlineKindCounts": {
+          "SIMPLE": 18622,
+          "COMPOSITE": 0,
+          "EMPTY": 42,
+          "INVALID": 0
+        }
+      }
+    }
+  ],
+  "approvedDigestAllowlist": {
+    "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "a652ea0a3c4bf8658845f044b5d6f40c39ecf03207e43f325c1451127528402b",
+    "NAVER_SC_APPLE_SD_GOTHIC_NEO_MEDIUM": "0ab8f4045a0c5ac30eee01da33f75998c0a8f6f3d65b0952be8dc9ece63bde29",
+    "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f44eec027992b99dc25de0229c5726fe209a6cb80761aaef98d050cdc0bc6cfe",
+    "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "a9c5ffb4dadce253d8748b18019954a8af19b7cfcc3b586fce64ef1f6bd71492"
+  },
+  "glyphCoverage": {
+    "sourceTextLayerCount": 1397,
+    "sourceTextCodePointCount": 135,
+    "sourceTextCodePoints": [
+      "U+0020",
+      "U+0026",
+      "U+0028",
+      "U+0029",
+      "U+002C",
+      "U+002E",
+      "U+0030",
+      "U+0031",
+      "U+0032",
+      "U+0033",
+      "U+0034",
+      "U+0035",
+      "U+0036",
+      "U+0038",
+      "U+0039",
+      "U+003A",
+      "U+0041",
+      "U+0042",
+      "U+0043",
+      "U+0044",
+      "U+0045",
+      "U+0046",
+      "U+0047",
+      "U+0048",
+      "U+0049",
+      "U+004A",
+      "U+004B",
+      "U+004C",
+      "U+004D",
+      "U+004E",
+      "U+004F",
+      "U+0050",
+      "U+0051",
+      "U+0052",
+      "U+0053",
+      "U+0054",
+      "U+0055",
+      "U+0056",
+      "U+0057",
+      "U+0058",
+      "U+0062",
+      "U+0065",
+      "U+0069",
+      "U+006C",
+      "U+0070",
+      "U+0078",
+      "U+AC00",
+      "U+AC04",
+      "U+AC12",
+      "U+AC1C",
+      "U+AC8C",
+      "U+ACA9",
+      "U+ACBD",
+      "U+ACE0",
+      "U+AD6C",
+      "U+AE08",
+      "U+AE09",
+      "U+AE30",
+      "U+B124",
+      "U+B192",
+      "U+B2A5",
+      "U+B2E4",
+      "U+B300",
+      "U+B354",
+      "U+B3D9",
+      "U+B41C",
+      "U+B4DC",
+      "U+B4F1",
+      "U+B529",
+      "U+B530",
+      "U+B77C",
+      "U+B79C",
+      "U+B825",
+      "U+B85C",
+      "U+B959",
+      "U+B9CC",
+      "U+B9E4",
+      "U+BB34",
+      "U+BB38",
+      "U+BB3C",
+      "U+BC0F",
+      "U+BCC0",
+      "U+BCF4",
+      "U+BD09",
+      "U+BD88",
+      "U+BE0C",
+      "U+C0AC",
+      "U+C0BC",
+      "U+C0C1",
+      "U+C0D8",
+      "U+C2A4",
+      "U+C2EC",
+      "U+C2ED",
+      "U+C378",
+      "U+C544",
+      "U+C54C",
+      "U+C571",
+      "U+C57D",
+      "U+C5D0",
+      "U+C5ED",
+      "U+C601",
+      "U+C608",
+      "U+C624",
+      "U+C6A9",
+      "U+C6B4",
+      "U+C704",
+      "U+C720",
+      "U+C73C",
+      "U+C740",
+      "U+C758",
+      "U+C774",
+      "U+C778",
+      "U+C77C",
+      "U+C785",
+      "U+C801",
+      "U+C815",
+      "U+C81D",
+      "U+C904",
+      "U+C988",
+      "U+C9C0",
+      "U+CD5C",
+      "U+CE58",
+      "U+CE60",
+      "U+CF58",
+      "U+D0C0",
+      "U+D14D",
+      "U+D2B8",
+      "U+D2B9",
+      "U+D314",
+      "U+D3ED",
+      "U+D3F0",
+      "U+D50C",
+      "U+D544",
+      "U+D558",
+      "U+D654"
+    ],
+    "sourceTextSample": " &(),.012345689:ABCDEFGHIJKLMNOPQRSTUVWXbeilpx가간값개게격경고구금급기네높능다대더동된드등딩따라랜력로륙만매무문물및변보봉불브사삼상샘스심십썸아알앱약에역영예오용운위유으은의이인일입적정젝줄즈지최치칠콘타텍트특팔폭폰플필하화",
+    "excludedControlCodePoints": [
+      "U+0009",
+      "U+000A",
+      "U+000D",
+      "U+200B"
+    ],
+    "allFontsCovered": true,
+    "perFont": [
+      {
+        "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+        "runtimePostScriptName": "AppleSDGothicNeoB00",
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD",
+        "runtimeIdentityPass": true,
+        "requiredCodePointCount": 135,
+        "coveredCodePointCount": 135,
+        "missingCodePoints": [],
+        "coverageStatus": "PASS"
+      },
+      {
+        "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MEDIUM",
+        "runtimePostScriptName": "AppleSDGothicNeoM00",
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD",
+        "runtimeIdentityPass": true,
+        "requiredCodePointCount": 135,
+        "coveredCodePointCount": 135,
+        "missingCodePoints": [],
+        "coverageStatus": "PASS"
+      },
+      {
+        "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
+        "runtimePostScriptName": "AppleSDGothicNeoR00",
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD",
+        "runtimeIdentityPass": true,
+        "requiredCodePointCount": 135,
+        "coveredCodePointCount": 135,
+        "missingCodePoints": [],
+        "coverageStatus": "PASS"
+      },
+      {
+        "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
+        "runtimePostScriptName": "AppleSDGothicNeoSB00",
+        "sourceIdentityStatus": "SOURCE_DIFFERENT_BUILD",
+        "runtimeIdentityPass": true,
+        "requiredCodePointCount": 135,
+        "coveredCodePointCount": 135,
+        "missingCodePoints": [],
+        "coverageStatus": "PASS"
+      }
+    ]
+  },
+  "styleRoleSeparation": {
+    "fileDigestDistinct": true,
+    "glyphOutlineDigestDistinct": true,
+    "horizontalMetricDigestDistinct": true,
+    "headMetricDigestDistinct": true,
+    "status": "PASS"
+  },
+  "metricFixturesRef": "contracts/naver-smartchannel-font-metric-fixtures.json",
+  "sfAuditRef": "contracts/naver-smartchannel-sf-font-audit.json",
+  "security": {
+    "runtimeNetworkAccess": "PROHIBITED",
+    "localDirectoryEnv": "NAVER_SMARTCHANNEL_FONT_DIR",
+    "localOnly": true,
+    "commitBinaries": false,
+    "bundleBinaries": false,
+    "arbitraryFallbackAllowed": false,
+    "wrongDigestRejected": true
+  }
+}

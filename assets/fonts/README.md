@@ -43,3 +43,17 @@ N1D.1의 사용자 지정 AppleSDGothicNeo TTF는 `.local-fonts/naver-smartchann
 지정할 수 있지만, 현재 다운로드본은 내부 PostScript identity가 `AppleSDGothicNeoB00`
 등으로 source exact name과 달라 SmartChannel 승인 자산이 아니다. SFPro/SFUI는 PSD의
 export-capable hidden English text variants로 감사되어 source required 상태를 유지한다.
+
+## NAVER SmartChannel N1D.2 compatibility update
+
+위 N1D.1 판정은 historical exact-identity 정책이다. 현재 정책은 source identity와 runtime
+compatibility를 분리한다. 네 local archive 파일은 source exact가 아닌
+`SOURCE_DIFFERENT_BUILD`로 기록되지만, controlled alias, SHA-256, SFNT tables, glyph
+coverage, style separation, representative metric fixtures를 모두 통과하여
+`PROJECT_COMPATIBLE_VERIFIED`로 승인된다. runtime lookup key는 `fontToken`이며 arbitrary
+fallback은 계속 금지된다. Photoshop byte/pixel parity와 재배포 권한은 주장하지 않는다.
+
+SF effective audit 결과 SFPro/SFUI layer는 `HIDDEN_SOURCE_TEXT`이고 composite contribution이
+0이므로 runtime required set에서 제외된다. 자세한 기준은
+[`contracts/naver-smartchannel-font-compatibility.json`](../../contracts/naver-smartchannel-font-compatibility.json)
+및 [`contracts/naver-smartchannel-sf-font-audit.json`](../../contracts/naver-smartchannel-sf-font-audit.json)에 있다.
