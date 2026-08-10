@@ -114,7 +114,14 @@ for (const relativePath of directories) {
   }
 }
 
-const psdSourceRoot = "C:/Users/Lenovo/Desktop/SMARTCHANNEL_GUIDE 12";
+const psdSourceCandidates = [
+  "C:/Users/Lenovo/Desktop/SMARTCHANNEL_GUIDE 12",
+  "C:/Users/Lenovo/Desktop/Renderer Guidelines/official/SMARTCHANNEL_GUIDE 12",
+];
+const psdSourceRoot = (await (async () => {
+  for (const candidate of psdSourceCandidates) if (await exists(candidate)) return candidate;
+  return psdSourceCandidates[0];
+})());
 const psdDestination = path.join(target, "source-guides/naver/smartchannel/psd");
 const smartchannelPsdCount = await copyPsdFiles(psdSourceRoot, psdDestination);
 
@@ -131,7 +138,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N5 handoff
+const readme = `# Renderer Module — N6 handoff
 
 ## Purpose
 
@@ -139,7 +146,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N5 completion commit: ${sourceSha}
+- N6 completion commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Runtime network access: PROHIBITED
 
@@ -149,7 +156,7 @@ build, test, and later phase development. The source repository remains unchange
 - Kakao/NAVER FREEFORM profiles: implemented according to current contracts
 - NAVER SmartChannel 120: implemented
 - NAVER Platform-Composed: source contract only; final native/feed UI is NAVER-owned
-- NAVER Collection: not implemented (deferred to N6)
+- NAVER Feed Collection: implemented source artifacts, ordered fingerprints, and atomic manifest publish; final Feed UI is not implemented
 - NAVER video runtime: not implemented
 - NAVER Desktop UI: not implemented
 - Meta: not implemented
@@ -186,11 +193,12 @@ OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is N5 in docs/kakao-bizboard-renderer-spec-v1.md. N5 source contracts are
+The latest phase is N6 in docs/kakao-bizboard-renderer-spec-v1.md. N6 source contracts are
 contracts/naver-platform-composed-source.schema.json,
 contracts/naver-platform-composed-source-profiles.json, and
-contracts/naver-platform-composed-source-revision.json. The next planned phase is
-N6_NAVER_COLLECTION_MULTI_ARTIFACT_CONTRACT; it must not invent final NAVER UI geometry.
+contracts/naver-platform-composed-source-revision.json, plus the generic
+multi-artifact manifest schema. The next planned phase is
+N7_NAVER_DESKTOP_INTEGRATION_FULL_REGRESSION; it must not invent final NAVER UI geometry.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
 const readmeEntry = files.find((entry) => entry.path === "README.md");
@@ -198,7 +206,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N5_NAVER_PLATFORM_COMPOSED_SOURCE_CONTRACT",
+  handoffPhase: "N6_NAVER_COLLECTION_MULTI_ARTIFACT_CONTRACT",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -213,7 +221,7 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN5.rendererCoreVersion,
+    rendererCore: canonicalDocument.canonicalPhaseN6.rendererCoreVersion,
     desktop: canonicalDocument.desktopAppVersion,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
@@ -221,7 +229,7 @@ const manifest = {
   },
   channels: {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
-    NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", finalNativeUi: "NOT_IMPLEMENTED" },
+    NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED" },
     META: "NOT_IMPLEMENTED",
     GOOGLE: "NOT_IMPLEMENTED",
   },
@@ -230,6 +238,7 @@ const manifest = {
     smartchannelPsdSource: psdSourceRoot,
     smartchannelPsdCount,
     officialNaverGuideDirectory: "source-guides/naver/platform-composed",
+    collectionContract: "contracts/multi-artifact-manifest.schema.json",
   },
   externalRuntimeDependencies: [
     { kind: "font", directoryEnv: "NAVER_SMARTCHANNEL_FONT_DIR", manifest: "local-runtime-resources/fonts/font-manifest.json", bundled: false, licenseStatus: "NOT_CONFIRMED" },

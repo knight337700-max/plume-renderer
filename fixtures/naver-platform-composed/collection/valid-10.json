@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "1.1.0",
+  "channel": "NAVER_GFA",
+  "placement": "MOBILE_DA_FEED",
+  "compositionMode": "PLATFORM_COMPOSED",
+  "artifactCardinality": "COLLECTION",
+  "sourceProfileId": "NAVER_FEED_COLLECTION_SOURCE_V1",
+  "fields": { "profileName": "Fixture Shop", "adCopy": "Collection fixture", "cta": "PLATFORM_DEFINED" },
+  "assets": [
+    { "assetId": "profile", "assetRole": "profileImage", "sourceProfileId": "NAVER_FEED_PROFILE_IMAGE_300X300", "mime": "image/jpeg", "width": 300, "height": 300, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 27, "y": 27, "width": 246, "height": 246 }, "pathRef": "collection/assets/profile.jpg" },
+    { "assetId": "item-001-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-001.jpg" },
+    { "assetId": "item-002-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-002.jpg" },
+    { "assetId": "item-003-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-003.jpg" },
+    { "assetId": "item-004-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-004.jpg" },
+    { "assetId": "item-005-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-005.jpg" },
+    { "assetId": "item-006-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-006.jpg" },
+    { "assetId": "item-007-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-007.jpg" },
+    { "assetId": "item-008-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-008.jpg" },
+    { "assetId": "item-009-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-009.jpg" },
+    { "assetId": "item-010-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 }, "pathRef": "collection/assets/item-010.jpg" }
+  ],
+  "collection": {
+    "items": [
+      { "id": "item-001", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-001-image", "fields": { "landingUrl": "https://example.test/001", "itemDescription": "Fixture item 001" } },
+      { "id": "item-002", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-002-image", "fields": { "landingUrl": "https://example.test/002", "itemDescription": "Fixture item 002" } },
+      { "id": "item-003", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-003-image", "fields": { "landingUrl": "https://example.test/003", "itemDescription": "Fixture item 003" } },
+      { "id": "item-004", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-004-image", "fields": { "landingUrl": "https://example.test/004", "itemDescription": "Fixture item 004" } },
+      { "id": "item-005", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-005-image", "fields": { "landingUrl": "https://example.test/005", "itemDescription": "Fixture item 005" } },
+      { "id": "item-006", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-006-image", "fields": { "landingUrl": "https://example.test/006", "itemDescription": "Fixture item 006" } },
+      { "id": "item-007", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-007-image", "fields": { "landingUrl": "https://example.test/007", "itemDescription": "Fixture item 007" } },
+      { "id": "item-008", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-008-image", "fields": { "landingUrl": "https://example.test/008", "itemDescription": "Fixture item 008" } },
+      { "id": "item-009", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-009-image", "fields": { "landingUrl": "https://example.test/009", "itemDescription": "Fixture item 009" } },
+      { "id": "item-010", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-010-image", "fields": { "landingUrl": "https://example.test/010", "itemDescription": "Fixture item 010" } }
+    ]
+  }
+}

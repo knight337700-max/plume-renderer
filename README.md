@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.20.0`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원하며, NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.8.0`과 기존 Kakao/SmartChannel fingerprints는 유지된다. Variable-canvas, NAVER video/collection runtime, Meta/Google은 후속 Phase다.
+Canonical 계약 `1.21.0`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원하며, NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. NAVER Feed Collection은 4–10개 ordered image source artifact, fingerprint, collection manifest와 atomic publish를 지원하지만 최종 Feed UI는 만들지 않는다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.8.0`과 기존 Kakao/SmartChannel fingerprints는 유지된다. Variable-canvas, NAVER video, Meta/Google은 후속 Phase다.
 
 ## 요구 환경
 
@@ -19,7 +19,8 @@ pnpm check
 
 `pnpm check`는 기존 계약과 Integration Contract 무결성, TypeScript, lint, Core·Desktop build, 단위·통합·보안·Golden·Electron E2E 테스트를 순서대로 실행한다. Integration 전용 검증은 `pnpm test:integration-contract`다.
 
-N5 NAVER Platform-Composed source provenance와 field/asset validator는
+N6 NAVER Platform-Composed source provenance, collection validator, fingerprints와 atomic
+manifest publish는
 `pnpm verify:naver-platform`으로 검사한다. Desktop handoff 복사본은
 `node scripts/verify-renderer-module-handoff.mjs`로 별도 검증한다.
 
@@ -83,6 +84,7 @@ node dist/cli/index.js render `
 ## 지원 범위
 
 - `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`, Canvas `1029×258`
+- NAVER Feed Collection ordered source artifacts (`4–10`), per-item checksums/pixel fingerprints, collection manifest, and atomic publish; final platform UI is not rendered
 - MASK circle `(801,225,r=180)`, image destination `(621,45,360,213)`, optional LOGO_PRIMARY overlay safe box `(847,24,126,44)`, pinned circle-only mask digest `eb9ea4859e2b75384ac814add59ce9636ce865ad5bae5a33f76d46210bfa6027`
 - CTA `NONE`만 활성
 - Spoqa Han Sans Bold/Regular 고정 파일 및 SHA-256 검증

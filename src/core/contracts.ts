@@ -25,6 +25,11 @@ export type ContractBundle = {
   outputSchema: Record<string, unknown>;
   manifestSchema: Record<string, unknown>;
   responseSchema: Record<string, unknown>;
+  multiArtifactManifestSchema: Record<string, unknown>;
+  naverPlatformSourceSchema: Record<string, unknown>;
+  naverPlatformSourceProfiles: Record<string, unknown>;
+  naverFeedSource: Record<string, unknown>;
+  naverPlatformSourceRevision: Record<string, unknown>;
   errorRegistry: ReadonlyMap<string, ErrorRegistryEntry>;
   ajvErrorMapping: AjvErrorMapping;
   ctaRegistry: CtaRegistry;
@@ -54,6 +59,11 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     outputSchema,
     manifestSchema,
     responseSchema,
+    multiArtifactManifestSchema,
+    naverPlatformSourceSchema,
+    naverPlatformSourceProfiles,
+    naverFeedSource,
+    naverPlatformSourceRevision,
     errorRegistryJson,
     ajvErrorMapping,
     ctaRegistry,
@@ -75,6 +85,11 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     readJson<Record<string, unknown>>(projectRoot, "contracts/output.schema.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/render-manifest.schema.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/response-envelope.schema.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/multi-artifact-manifest.schema.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-platform-composed-source.schema.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-platform-composed-source-profiles.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-feed-source.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-platform-composed-source-revision.json"),
     readJson<{ codes: ErrorRegistryEntry[] }>(projectRoot, "contracts/error-registry.json"),
     readJson<AjvErrorMapping>(projectRoot, "contracts/ajv-error-mapping.json"),
     readJson<CtaRegistry>(projectRoot, "contracts/cta-registry.json"),
@@ -98,6 +113,11 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     outputSchema,
     manifestSchema,
     responseSchema,
+    multiArtifactManifestSchema,
+    naverPlatformSourceSchema,
+    naverPlatformSourceProfiles,
+    naverFeedSource,
+    naverPlatformSourceRevision,
     errorRegistry: new Map(errorRegistryJson.codes.map((entry) => [entry.code, entry])),
     ajvErrorMapping,
     ctaRegistry,

@@ -1,0 +1,3 @@
+{
+  "schemaVersion": "1.1.0", "channel": "NAVER_GFA", "placement": "MOBILE_DA_FEED", "compositionMode": "PLATFORM_COMPOSED", "artifactCardinality": "COLLECTION", "sourceProfileId": "NAVER_FEED_COLLECTION_SOURCE_V1", "fields": {}, "assets": [], "collection": {}
+}

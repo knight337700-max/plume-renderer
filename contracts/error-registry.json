@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.5.0",
+  "registryVersion": "1.6.0",
   "messageContract": "messageKey is stable; localized or AJV-native prose is not part of the external contract",
   "codes": [
     { "code": "KBR-INPUT-001", "severity": "ERROR", "messageKey": "input.json_parse_failed", "condition": "Raw JSON cannot be parsed" },
@@ -178,6 +178,15 @@
     { "code": "KBR-NAVER-SOURCE-ASSET-FILESIZE", "severity": "ERROR", "messageKey": "naver_source.asset_filesize", "condition": "A source asset byte size is outside its source-backed range" },
     { "code": "KBR-NAVER-SOURCE-ASSET-ALPHA", "severity": "ERROR", "messageKey": "naver_source.asset_alpha", "condition": "A source asset alpha state conflicts with an explicit source-backed alpha rule" },
     { "code": "KBR-NAVER-SOURCE-COLLECTION-COUNT", "severity": "ERROR", "messageKey": "naver_source.collection_count", "condition": "A collection source has no item count or is outside the source-backed item range" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-ITEMS-REQUIRED", "severity": "ERROR", "messageKey": "naver_source.collection_items_required", "condition": "A COLLECTION SourceSpec does not provide an ordered collection.items array" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-TOO-FEW-ITEMS", "severity": "ERROR", "messageKey": "naver_source.collection_too_few_items", "condition": "A collection contains fewer than the source-backed minimum item count" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-TOO-MANY-ITEMS", "severity": "ERROR", "messageKey": "naver_source.collection_too_many_items", "condition": "A collection contains more than the source-backed maximum item count" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-DUPLICATE-ITEM-ID", "severity": "ERROR", "messageKey": "naver_source.collection_duplicate_item_id", "condition": "Two collection items share the same stable item ID" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-ITEM-INVALID", "severity": "ERROR", "messageKey": "naver_source.collection_item_invalid", "condition": "A collection item is missing its stable ID, source profile, asset reference, or item fields" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-SOURCE-PROFILE-NOT-ALLOWED", "severity": "ERROR", "messageKey": "naver_source.collection_source_profile_not_allowed", "condition": "A collection item references a source profile outside the frozen image-only allowlist" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-NESTED-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "naver_source.collection_nested_not_supported", "condition": "A collection item attempts to contain a nested collection or a SINGLE source contains collection data" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-ASSET-SAFE-AREA", "severity": "ERROR", "messageKey": "naver_source.collection_asset_safe_area", "condition": "A collection source asset does not declare the source-backed safe area" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-ASSET-CHECKSUM", "severity": "ERROR", "messageKey": "naver_source.collection_asset_checksum", "condition": "Resolved collection asset bytes do not match the declared source checksum" },
     { "code": "KBR-NAVER-SOURCE-RUNTIME-DEFERRED", "severity": "WARNING", "messageKey": "naver_source.runtime_deferred", "condition": "The source contract is valid but its final platform UI or collection/video runtime is not implemented" },
 
     { "code": "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", "severity": "ERROR", "messageKey": "naver_smartchannel.font_unavailable", "condition": "A required SmartChannel exact font is missing, unreadable, undecodable, or an external exact-font reference is not trusted" },

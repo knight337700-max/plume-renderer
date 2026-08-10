@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.20.0
-- **Status:** Frozen Implementation Contract — Phase N5 NAVER_GFA PLATFORM_COMPOSED source contracts for Mobile Native, PC Native, Shopping News, Communication Ad, and Mobile DA Feed; final NAVER UI remains platform-owned
+- **Document version:** 1.21.0
+- **Status:** Frozen Implementation Contract — Phase N6 NAVER_GFA MOBILE_DA_FEED COLLECTION ordered source artifacts and multi-artifact manifest; final NAVER UI remains platform-owned
 - **Checked date:** 2026-08-10 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **37. Phase N5 NAVER PLATFORM_COMPOSED source contract**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **38. Phase N6 NAVER COLLECTION multi-artifact contract**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -4082,3 +4082,146 @@ datasets are implementation work, not Contract Freeze prerequisites. **[PROJECT]
 
 N5's next phase is `N6_NAVER_COLLECTION_MULTI_ARTIFACT_CONTRACT`. Collection and video remain
 explicitly deferred; final NAVER UI geometry and upload approval are not claimed. **[PROJECT]**
+
+---
+
+## 38. Phase N6 — NAVER Collection / Multi-Artifact Contract
+
+N6는 NAVER Feed Collection을 시작으로 여러 source artifact를 하나의 ordered payload로
+관리하는 공통 cardinality contract와 실행 경계를 동결한다. 이 절은 N5의 source contract를
+확장하지만 기존 `ArtifactCardinality = SINGLE | COLLECTION` enum을 재사용한다. 새로운
+NAVER 전용 배열 schema나 새로운 `LayoutMode`는 추가하지 않는다. **[PROJECT]**
+
+### 38.1 Official source revalidation [OFFICIAL] [TOOL_OUTPUT]
+
+공식 Feed 가이드 페이지와 연결된 `FEED_AD_GUIDE.pdf`를 다시 확인했다. 페이지는 Mobile DA
+Feed의 이미지·동영상·컬렉션 유형을 안내하고, 저장된 첨부의 SHA-256은
+`0e45fdf9dda180551dde06bdef91e726f86823a405e62e00232db7ba407170ef`이다. 페이지와 첨부의
+최종 UI 카드 좌표는 source contract가 아니라 NAVER 플랫폼 소유로 남긴다. **[OFFICIAL]
+[TOOL_OUTPUT]**
+
+### 38.2 Scope and platform boundary [PROJECT]
+
+구현 대상은 `NAVER_GFA / MOBILE_DA_FEED / PLATFORM_COMPOSED / COLLECTION` 하나다.
+Feed VIDEO, still alternative, SmartChannel, Mobile DA IMAGE, Native/Communication/
+Shopping News 최종 UI, Meta/Google, Desktop UI는 N6 범위가 아니다. Renderer는 source
+image bytes와 metadata/manifest만 만들며 carousel/card wrapper, label, interaction,
+arrows/swipe, platform typography, spacing 또는 final Feed screenshot을 만들지 않는다.
+`finalUiRendered`는 항상 `false`, `finalUiChecksum`은 항상 `null`이다. **[PROJECT]**
+
+### 38.3 Collection SourceSpec [PROJECT]
+
+공개 SourceSpec은 다음 shape을 사용한다.
+
+```yaml
+schemaVersion: "1.1.0"
+channel: NAVER_GFA
+placement: MOBILE_DA_FEED
+compositionMode: PLATFORM_COMPOSED
+artifactCardinality: COLLECTION
+sourceProfileId: NAVER_FEED_COLLECTION_SOURCE_V1
+fields: { ...collection-level fields... }
+assets: [ ...source asset descriptors... ]
+collection:
+  items:
+    - id: item-001
+      sourceProfileId: NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600
+      assetId: item-001-image
+      fields:
+        landingUrl: https://example.test/item-001
+        itemDescription: 상품 설명
+```
+
+`collection.items` 배열 순서가 플랫폼에 전달할 순서이며 runtime은 자동 정렬하지 않는다.
+각 item은 stable `id`를 가져야 하고 duplicate id, nested collection, 허용 목록 밖의
+`sourceProfileId`를 거부한다. SINGLE SourceSpec은 `collection`을 가질 수 없으며 기존
+SINGLE 입력은 그대로 허용한다. **[PROJECT]**
+
+### 38.4 Frozen fields and item limits [OFFICIAL] [PROJECT]
+
+검사한 공식 첨부에서 확인된 collection-level 필드는 Feed profile name(최대 19자), ad
+copy(최대 65자), platform-defined CTA다. Item-level 필드는 landing URL과 item description
+(최대 28자)이며, 완전한 CTA label 목록과 최종 UI label/spacing은 공개 계약으로 추론하지
+않는다. Collection item count는 최소 4개, 최대 10개로 고정한다. **[OFFICIAL] [PROJECT]**
+
+Item image source profile `NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600`은 다음과 같다.
+
+| Rule | Frozen value | Evidence tag |
+|---|---:|---|
+| Canvas | `600×600` source pixels | [OFFICIAL] |
+| MIME | `image/jpeg`, `image/png` | [OFFICIAL] |
+| File size | `20,000–500,000` decimal bytes | [OFFICIAL] [DERIVED] |
+| Alpha | RGB / alpha not allowed | [OFFICIAL] |
+| Safe area | `x=30,y=30,width=540,height=540` | [OFFICIAL] |
+| Runtime | source artifacts only | [PROJECT] |
+
+Safe area는 source crop guidance를 metadata로 검증할 뿐이며 Renderer가 crop, resize,
+reposition 또는 final UI geometry를 계산하지 않는다. Video/still item profiles는 registry에
+정의하지만 `NOT_IMPLEMENTED`로 비활성화한다. **[OFFICIAL] [PROJECT]**
+
+### 38.5 Validation and deterministic issues [PROJECT]
+
+Collection-level 검증은 4–10 count, stable unique IDs, required collection fields, input
+ordering, allowed item source profile, no nested collection을 검사한다. Per-item 검증은
+required fields, asset existence, source profile, 600×600 dimensions, MIME, decimal byte
+range, alpha, safe-area declaration, item field type/length와 landing URL presence를
+검사한다. 하나라도 `ERROR`이면 collection 전체 export/publish를 차단한다. N6 Error Registry는
+`KBR-NAVER-SOURCE-COLLECTION-ITEMS-REQUIRED`, `...TOO-FEW-ITEMS`, `...TOO-MANY-ITEMS`,
+`...DUPLICATE-ITEM-ID`, `...ITEM-INVALID`, `...SOURCE-PROFILE-NOT-ALLOWED`,
+`...NESTED-NOT-SUPPORTED`, `...ASSET-SAFE-AREA`, `...ASSET-CHECKSUM`을 등록한다.
+오류는 severity, JSON pointer, code, message key 순으로 정렬한다. **[PROJECT]**
+
+### 38.6 Multi-Artifact manifest and fingerprints [PROJECT]
+
+N6 산출물은 `N source artifacts + 1 collection-manifest.json`이다. Manifest는
+`collectionFingerprint`, `requestFingerprint`, `itemCount`, ordered `items`를 가지며 item
+마다 `itemId`, `index`, `artifactChecksum`, `pixelFingerprint`, `requestFingerprint`,
+`sourceProfileId`, `assetId`, MIME, dimensions, byte count와 normalized relative
+`artifactPath`를 기록한다. Final NAVER Feed UI checksum이나 pixel fingerprint는 기록하지
+않는다.
+
+- `artifactChecksum`: source image byte의 SHA-256
+- `pixelFingerprint`: decoded RGB/RGBA source pixels와 dimensions의 SHA-256
+- item `requestFingerprint`: item fields, ID, source/asset profile와 resolved asset material
+- `collectionFingerprint`: collection-level fields, ordered item IDs, ordered item request
+  fingerprints, placement/profile/schema version
+- `requestFingerprint`: normalized SourceSpec와 ordered item request fingerprints
+
+따라서 `[A,B,C,D]`와 `[B,A,C,D]`는 서로 다른 collection fingerprint를 갖는다. 같은
+normalized payload, 같은 bytes, 같은 dependency/runtime에서는 3회 실행의 item checksum,
+item/payload fingerprint와 canonical manifest bytes가 byte-equal이어야 한다. **[PROJECT]**
+
+### 38.7 Atomic publish and network boundary [PROJECT]
+
+Publish는 동일 output root 아래 `.out-staging/<jobId>/`에 모든 item artifact와 manifest를
+flush/close한 뒤 수행한다. 모든 item artifact를 먼저 rename하고 manifest를 마지막에 rename한다.
+실패하면 staging과 부분 publish 파일을 정리하며 `partialPublish`는 항상 `false`다. 최종
+manifest가 존재하는 상태는 모든 item artifact의 publish가 완료된 상태다. `downloadAllowed`
+는 전체 validation과 atomic publish가 성공한 경우에만 `true`다. Runtime network access는
+0이며 Naver API, CDN, remote font, telemetry, update check, analytics, upload와 plume/
+Railway를 호출하지 않는다. Build dependency resolution만 lockfile 기반으로 허용한다.
+**[PROJECT]**
+
+### 38.8 Version, fixtures, and acceptance [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.20.0 | 1.21.0 | Additive N6 collection/multi-artifact contract |
+| Template contract | 1.9.0 | 1.9.0 | No Kakao coordinates changed |
+| Integration Contract | 1.8.0 | 1.8.0 | Existing raster response unchanged |
+| Platform-Composed SourceSpec | 1.0.0 | 1.1.0 | Additive collection shape and schema compatibility |
+| Platform-Composed source registry | 1.0.0 | 1.1.0 | Collection runtime and image-only allowlist |
+| Multi-Artifact manifest | — | 1.0.0 | New generic ordered manifest |
+| Renderer Core | 0.7.0 | 0.8.0 | Source collection validation/fingerprint/publish runtime |
+| Desktop | 0.8.2 | 0.8.2 | No Desktop UI in N6 |
+
+Representative fixtures are `valid-4`, `valid-10`, invalid 3/11, duplicate ID, invalid item,
+unsupported source profile, nested collection, safe-area/checksum violations, and order-change
+payloads. They are metadata/source artifacts only; no official sample creative is copied and no
+final UI golden is created. Windows 10/11 x64 is the first supported deterministic golden
+environment. N6 does not add cross-platform pixel tolerance. **[PROJECT]**
+
+Desktop collection editor, reorder UI and multi-preview remain `NOT_IMPLEMENTED`. The next
+phase is `N7_NAVER_DESKTOP_INTEGRATION_FULL_REGRESSION`; it may connect the already frozen source
+contract to Desktop channel/placement selection without fabricating platform-owned final UI.
+**[PROJECT]**

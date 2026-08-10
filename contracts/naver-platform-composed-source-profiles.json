@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://kbr.local/contracts/naver-platform-composed-source-profiles-v1.json",
-  "registryVersion": "1.0.0",
+  "registryVersion": "1.1.0",
   "sourceRevision": "contracts/naver-platform-composed-source-revision.json",
   "sourceSpecSchema": "contracts/naver-platform-composed-source.schema.json",
   "channel": "NAVER_GFA",
@@ -636,8 +636,8 @@
       "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540, "coordinateSpace": "SOURCE_PIXELS" },
       "cropSemantics": "PLATFORM_OWNED",
       "platformCropPossible": true,
-      "runtime": "DEFERRED_TO_N6",
-      "sourceStatus": "SOURCE_CONFIRMED_RUNTIME_DEFERRED"
+      "runtime": "IMPLEMENTED_SOURCE_ARTIFACT_ONLY",
+      "sourceStatus": "SOURCE_CONFIRMED_RUNTIME_IMPLEMENTED_SOURCE_ONLY"
     },
     "NAVER_FEED_COLLECTION_ITEM_VIDEO": {
       "assetRole": "collectionItemVideo",
@@ -651,7 +651,8 @@
       "safeArea": { "status": "UNRESOLVED" },
       "cropSemantics": "PLATFORM_OWNED",
       "platformCropPossible": true,
-      "runtime": "DEFERRED_TO_N6",
+      "runtime": "NOT_IMPLEMENTED",
+      "reason": "N6_IMAGE_ONLY_SCOPE",
       "sourceStatus": "SOURCE_CONFIRMED_RUNTIME_DEFERRED"
     },
     "NAVER_FEED_COLLECTION_ITEM_STILL": {
@@ -666,7 +667,8 @@
       "safeArea": { "x": 60, "y": 60, "width": 1080, "height": 1080, "coordinateSpace": "SOURCE_PIXELS" },
       "cropSemantics": "PLATFORM_OWNED",
       "platformCropPossible": true,
-      "runtime": "DEFERRED_TO_N6",
+      "runtime": "NOT_IMPLEMENTED",
+      "reason": "N6_IMAGE_ONLY_SCOPE",
       "sourceStatus": "SOURCE_CONFIRMED_RUNTIME_DEFERRED"
     }
   },
@@ -772,10 +774,17 @@
       "variant": "COLLECTION",
       "sourceRevisionRef": "contracts/naver-platform-composed-source-revision.json#/sources/MOBILE_DA_FEED",
       "presentation": { "finalPresentationOwner": "NAVER_PLATFORM", "platformCropPossible": true },
-      "fields": ["feedProfileName19", "feedAdCopy65", "platformCta", "landingUrl", "collectionDescription28"],
+      "fields": ["feedProfileName19", "feedAdCopy65", "platformCta"],
       "assets": ["NAVER_FEED_PROFILE_IMAGE_300X300", "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "NAVER_FEED_COLLECTION_ITEM_VIDEO", "NAVER_FEED_COLLECTION_ITEM_STILL"],
-      "collection": { "minimumItems": 4, "maximumItems": 10, "ordering": "INPUT_ORDER_PRESERVED", "runtimeStatus": "DEFERRED_TO_N6" },
-      "runtimeStatus": "DEFERRED_TO_N6",
+      "collection": {
+        "minimumItems": 4,
+        "maximumItems": 10,
+        "ordering": "INPUT_ORDER_PRESERVED",
+        "itemFields": ["landingUrl", "collectionDescription28"],
+        "itemSourceProfileIds": ["NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600"],
+        "runtimeStatus": "IMPLEMENTED_SOURCE_ARTIFACT_ONLY"
+      },
+      "runtimeStatus": "IMPLEMENTED_SOURCE_ARTIFACT_ONLY",
       "finalUiRuntime": "NOT_IMPLEMENTED"
     }
   ]

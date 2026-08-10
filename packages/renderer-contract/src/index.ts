@@ -8,6 +8,7 @@ import {
 
 export * from "./freeform.js";
 export * from "./capability.js";
+export * from "./multi-artifact.js";
 
 export const INTEGRATION_SCHEMA_VERSION = "1.8.0" as const;
 export const PREVIOUS_INTEGRATION_SCHEMA_VERSION = "1.7.0" as const;

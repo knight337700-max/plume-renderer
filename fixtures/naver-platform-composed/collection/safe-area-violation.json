@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.1.0", "channel": "NAVER_GFA", "placement": "MOBILE_DA_FEED", "compositionMode": "PLATFORM_COMPOSED", "artifactCardinality": "COLLECTION", "sourceProfileId": "NAVER_FEED_COLLECTION_SOURCE_V1", "fields": {},
+  "assets": [{ "assetId": "item-001-image", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 0, "y": 0, "width": 600, "height": 600 }, "pathRef": "collection/assets/item-001.jpg" }],
+  "collection": { "items": [
+    { "id": "item-001", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-001-image", "fields": {} },
+    { "id": "item-002", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-002-image", "fields": {} },
+    { "id": "item-003", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-003-image", "fields": {} },
+    { "id": "item-004", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "item-004-image", "fields": {} }
+  ] }
+}

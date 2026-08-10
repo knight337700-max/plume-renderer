@@ -1,12 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://kbr.local/contracts/naver-platform-composed-source-revision-v1.json",
-  "registryVersion": "1.0.0",
+  "registryVersion": "1.1.0",
   "channel": "NAVER_GFA",
   "compositionMode": "PLATFORM_COMPOSED",
   "retrievedAt": "2026-08-10",
+  "revalidatedAt": "2026-08-10",
   "runtimeNetworkAccess": "PROHIBITED",
   "sourceStatus": "SOURCE_CONFIRMED",
+  "collectionRuntime": "IMPLEMENTED_SOURCE_ARTIFACT_ONLY",
+  "collectionFinalUiRuntime": "NOT_IMPLEMENTED",
   "sourcePolicy": "Official guide pages and the linked attachment PDFs are the source of truth for source fields, source assets, MIME, dimensions, file-size and safe-area rules. Final UI geometry is platform-owned and is not present in this registry.",
   "sources": {
     "MOBILE_NATIVE": {

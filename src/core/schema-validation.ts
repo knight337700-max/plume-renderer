@@ -9,6 +9,7 @@ import type {
   RenderResponse,
   ValidationIssue,
 } from "./types.js";
+import type { MultiArtifactCollectionManifest } from "@kbr/renderer-contract";
 
 function escapeJsonPointer(value: string): string {
   return value.replaceAll("~", "~0").replaceAll("/", "~1");
@@ -48,6 +49,7 @@ export class SchemaValidators {
   readonly #naverInput: ValidateFunction<Record<string, unknown>>;
   readonly #manifest: ValidateFunction<RenderManifest>;
   readonly #response: ValidateFunction<RenderResponse>;
+  readonly #multiArtifactManifest: ValidateFunction<MultiArtifactCollectionManifest>;
 
   constructor(contracts: ContractBundle) {
     this.#contracts = contracts;
@@ -61,6 +63,7 @@ export class SchemaValidators {
     this.#naverInput = ajv.compile<Record<string, unknown>>(contracts.naverInputSchema);
     this.#manifest = ajv.compile<RenderManifest>(contracts.manifestSchema);
     this.#response = ajv.compile<RenderResponse>(contracts.responseSchema);
+    this.#multiArtifactManifest = ajv.compile<MultiArtifactCollectionManifest>(contracts.multiArtifactManifestSchema);
   }
 
   validateInput(value: unknown): { valid: true; value: KakaoBizboardInputV1 } | { valid: false; issues: ValidationIssue[] } {
@@ -82,6 +85,12 @@ export class SchemaValidators {
   assertResponse(value: unknown): asserts value is RenderResponse {
     if (!this.#response(value)) {
       throw new Error(`Internal response schema mismatch: ${JSON.stringify(this.#response.errors)}`);
+    }
+  }
+
+  assertMultiArtifactManifest(value: unknown): asserts value is MultiArtifactCollectionManifest {
+    if (!this.#multiArtifactManifest(value)) {
+      throw new Error(`Internal collection manifest schema mismatch: ${JSON.stringify(this.#multiArtifactManifest.errors)}`);
     }
   }
 }

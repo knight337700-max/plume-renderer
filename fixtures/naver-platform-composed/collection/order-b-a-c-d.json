@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.1.0", "channel": "NAVER_GFA", "placement": "MOBILE_DA_FEED", "compositionMode": "PLATFORM_COMPOSED", "artifactCardinality": "COLLECTION", "sourceProfileId": "NAVER_FEED_COLLECTION_SOURCE_V1",
+  "fields": { "profileName": "Fixture Shop", "adCopy": "Collection fixture", "cta": "PLATFORM_DEFINED" },
+  "assets": [
+    { "assetId": "profile", "assetRole": "profileImage", "sourceProfileId": "NAVER_FEED_PROFILE_IMAGE_300X300", "mime": "image/jpeg", "width": 300, "height": 300, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 27, "y": 27, "width": 246, "height": 246 } },
+    { "assetId": "a1", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 } },
+    { "assetId": "a2", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 } },
+    { "assetId": "a3", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 } },
+    { "assetId": "a4", "assetRole": "collectionItemImage", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "mime": "image/jpeg", "width": 600, "height": 600, "bytes": 20000, "hasAlpha": false, "safeArea": { "x": 30, "y": 30, "width": 540, "height": 540 } }
+  ],
+  "collection": { "items": [
+    { "id": "item-002", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "a2", "fields": { "landingUrl": "https://example.test/2", "itemDescription": "Item 2" } },
+    { "id": "item-001", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "a1", "fields": { "landingUrl": "https://example.test/1", "itemDescription": "Item 1" } },
+    { "id": "item-003", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "a3", "fields": { "landingUrl": "https://example.test/3", "itemDescription": "Item 3" } },
+    { "id": "item-004", "sourceProfileId": "NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600", "assetId": "a4", "fields": { "landingUrl": "https://example.test/4", "itemDescription": "Item 4" } }
+  ] }
+}

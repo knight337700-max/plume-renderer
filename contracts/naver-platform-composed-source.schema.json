@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/schema/naver-platform-composed-source-v1.schema.json",
-  "title": "Naver Platform-Composed SourceSpec v1",
-  "description": "Source payload for a NAVER platform-owned native/feed presentation. It intentionally has no final canvas or final UI coordinates.",
+  "$id": "https://kbr.local/schema/naver-platform-composed-source-v1.1.0.schema.json",
+  "title": "Naver Platform-Composed SourceSpec v1.1",
+  "description": "Source payload for a NAVER platform-owned native/feed presentation. Collection items reuse the generic ordered multi-artifact contract; final UI coordinates remain platform-owned.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "channel", "placement", "compositionMode", "artifactCardinality", "sourceProfileId", "fields", "assets"],
   "properties": {
-    "schemaVersion": { "const": "1.0.0" },
+    "schemaVersion": { "enum": ["1.0.0", "1.1.0"] },
     "channel": { "const": "NAVER_GFA" },
     "placement": { "enum": ["MOBILE_NATIVE", "PC_NATIVE", "SHOPPING_NEWS", "COMMUNICATION_AD", "MOBILE_DA_FEED"] },
     "compositionMode": { "const": "PLATFORM_COMPOSED" },
@@ -15,9 +15,18 @@
     "sourceProfileId": { "type": "string", "minLength": 1 },
     "fields": { "$ref": "#/$defs/fields" },
     "assets": { "type": "array", "items": { "$ref": "#/$defs/asset" } },
+    "collection": { "$ref": "#/$defs/collection" },
     "metadata": { "$ref": "#/$defs/metadata" }
   },
   "allOf": [
+    {
+      "if": { "properties": { "artifactCardinality": { "const": "COLLECTION" } } },
+      "then": { "required": ["collection"] }
+    },
+    {
+      "if": { "properties": { "artifactCardinality": { "const": "SINGLE" } } },
+      "then": { "not": { "required": ["collection"] } }
+    },
     { "not": { "required": ["finalCanvas"] } },
     { "not": { "required": ["finalCoordinates"] } },
     { "not": { "required": ["finalUi"] } },
@@ -51,6 +60,29 @@
         "pathRef": { "type": "string", "minLength": 1 }
       }
     },
+    "collection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items"],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/collectionItem" }
+        }
+      }
+    },
+    "collectionItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sourceProfileId", "assetId", "fields"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "sourceProfileId": { "type": "string", "minLength": 1 },
+        "assetId": { "type": "string", "minLength": 1 },
+        "fields": { "$ref": "#/$defs/fields" },
+        "metadata": { "$ref": "#/$defs/metadataFields" }
+      }
+    },
     "sourceSafeArea": {
       "type": "object",
       "additionalProperties": false,
@@ -72,6 +104,10 @@
         "sourceAssetRole": { "type": "string", "minLength": 1 },
         "notes": { "type": "string" }
       }
+    },
+    "metadataFields": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/value" }
     }
   }
 }

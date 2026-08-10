@@ -1,11 +1,15 @@
 {
   "manifestVersion": "1.0.0",
   "contract": "NAVER_PLATFORM_COMPOSED_SOURCE",
-  "status": "REQUIREMENTS_FROZEN",
+  "status": "N6_COLLECTION_RUNTIME_FROZEN",
   "implementedFixtures": [
     { "path": "minimal-valid-mobile-native.json", "kind": "VALID_SOURCE" },
     { "path": "cta-none-mobile-native.json", "kind": "CTA_NONE" },
-    { "path": "invalid-final-geometry.json", "kind": "FINAL_GEOMETRY_REJECTION", "expectedCodes": ["KBR-NAVER-SOURCE-FINAL-GEOMETRY-FORBIDDEN"] }
+    { "path": "invalid-final-geometry.json", "kind": "FINAL_GEOMETRY_REJECTION", "expectedCodes": ["KBR-NAVER-SOURCE-FINAL-GEOMETRY-FORBIDDEN"] },
+    { "path": "collection/valid-4.json", "kind": "COLLECTION_VALID_4", "expectedCodes": [] },
+    { "path": "collection/valid-10.json", "kind": "COLLECTION_VALID_10", "expectedCodes": [] },
+    { "path": "collection/order-a-b-c-d.json", "kind": "COLLECTION_ORDER_BASELINE", "expectedCodes": [] },
+    { "path": "collection/order-b-a-c-d.json", "kind": "COLLECTION_ORDER_CHANGED", "expectedCodes": [] }
   ],
   "requiredBoundaryFixtures": [
     { "id": "mobile-native-field-min-max", "placements": ["MOBILE_NATIVE"], "purpose": "Each published field boundary at minimum and maximum" },
@@ -38,6 +42,15 @@
     { "code": "KBR-NAVER-SOURCE-ASSET-FILESIZE", "minimumFixture": "wrong-asset-bytes.json" },
     { "code": "KBR-NAVER-SOURCE-ASSET-ALPHA", "minimumFixture": "wrong-asset-alpha.json" },
     { "code": "KBR-NAVER-SOURCE-COLLECTION-COUNT", "minimumFixture": "collection-count-out-of-range.json" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-ITEMS-REQUIRED", "minimumFixture": "collection/items-required.json" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-TOO-FEW-ITEMS", "minimumFixture": "collection/invalid-3.json" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-TOO-MANY-ITEMS", "minimumFixture": "collection/invalid-11.json" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-DUPLICATE-ITEM-ID", "minimumFixture": "collection/duplicate-id.json" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-ITEM-INVALID", "minimumFixture": "collection/invalid-item.json" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-SOURCE-PROFILE-NOT-ALLOWED", "minimumFixture": "collection/unsupported-source-profile.json" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-NESTED-NOT-SUPPORTED", "minimumFixture": "collection/nested-collection.json" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-ASSET-SAFE-AREA", "minimumFixture": "collection/safe-area-violation.json" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-ASSET-CHECKSUM", "minimumFixture": "collection/asset-checksum-mismatch.json" },
     { "code": "KBR-NAVER-SOURCE-RUNTIME-DEFERRED", "minimumFixture": "runtime-deferred-warning.json", "severity": "WARNING" }
   ]
 }

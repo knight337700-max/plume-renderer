@@ -31,6 +31,12 @@ import {
   resolveTrustedRoot,
 } from "./path-security.js";
 import { analyzeAndResizeProduct } from "./product-image.js";
+import {
+  isNaverFeedCollectionRenderRequest,
+  renderNaverFeedCollection,
+  type NaverFeedCollectionRenderRequest,
+  type NaverFeedCollectionRenderResult,
+} from "./naver-collection.js";
 import { PublishError, publishArtifacts } from "./publish.js";
 import { renderRgbaPng, validateRenderedPng } from "./raster.js";
 import { SchemaValidators, parseJsonInput } from "./schema-validation.js";
@@ -45,7 +51,7 @@ import type {
   ValidationIssue,
 } from "./types.js";
 
-const RENDERER_VERSION = "0.7.0";
+const RENDERER_VERSION = "0.8.0";
 
 function failureResponse(issues: readonly ValidationIssue[]): RenderResponse {
   const sorted = sortAndDedupeIssues(issues);
@@ -135,6 +141,7 @@ export type KakaoBizboardRenderer = {
   render(request: unknown): Promise<RenderResponse>;
   renderJson(json: string): Promise<RenderResponse>;
   renderFreeform(request: FreeformRenderRequest): Promise<FreeformRenderResult>;
+  renderNaverFeedCollection(request: NaverFeedCollectionRenderRequest): Promise<NaverFeedCollectionRenderResult>;
   /** @internal Used only by the local Desktop Main Process. Never publishes files. */
   previewInternal(request: unknown): Promise<InternalPreviewResult>;
 };
@@ -445,6 +452,33 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
 
   return {
     render: renderSafe,
+    async renderNaverFeedCollection(request: NaverFeedCollectionRenderRequest): Promise<NaverFeedCollectionRenderResult> {
+      if (!isNaverFeedCollectionRenderRequest(request)) {
+        return {
+          status: "BLOCKED",
+          downloadAllowed: false,
+          manifestDigest: null,
+          manifestPath: null,
+          artifactPaths: [],
+          manifest: null,
+          artifacts: [],
+          collectionFingerprint: null,
+          requestFingerprint: null,
+          finalUiRendered: false,
+          finalUiChecksum: null,
+          partialPublish: false,
+          errors: [createIssue(contracts.errorRegistry, "KBR-NAVER-SOURCE-CARDINALITY", "/artifactCardinality", { actual: "invalid collection request" })],
+          warnings: [],
+        };
+      }
+      return renderNaverFeedCollection(request, {
+        projectRoot,
+        inputRoot,
+        outputRoot,
+        contracts,
+        publish: true,
+      });
+    },
     async renderFreeform(request: FreeformRenderRequest): Promise<FreeformRenderResult> {
       return renderFreeform(request, {
         projectRoot,

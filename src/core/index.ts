@@ -93,6 +93,8 @@ export {
 } from "./naver-smartchannel-font-preflight.js";
 export {
   NAVER_PLATFORM_SOURCE_SCHEMA_VERSION,
+  NAVER_PLATFORM_SOURCE_PREVIOUS_SCHEMA_VERSION,
+  materializePlatformComposedProfile,
   normalizePlatformComposedSource,
   platformComposedSourceHasFinalPixelOutput,
   validatePlatformComposedSource,
@@ -100,12 +102,25 @@ export {
 export type {
   PlatformComposedProfile,
   PlatformComposedSourceSpec,
+  PlatformCollectionItem,
   PlatformSourceAsset,
   PlatformSourceAssetRule,
   PlatformSourceFieldRule,
   PlatformSourceValidationIssue,
   PlatformSourceValidationResult,
 } from "./naver-platform-composed.js";
+export {
+  isNaverFeedCollectionRenderRequest,
+  renderNaverFeedCollection,
+  NAVER_FEED_COLLECTION_CONTRACT,
+} from "./naver-collection.js";
+export type {
+  NaverCollectionItemArtifact,
+  NaverFeedCollectionManifest,
+  NaverFeedCollectionRenderOptions,
+  NaverFeedCollectionRenderRequest,
+  NaverFeedCollectionRenderResult,
+} from "./naver-collection.js";
 export type {
   ExternalExactFontResource,
   FontPreflightIssue,
