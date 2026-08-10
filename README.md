@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.21.0`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원한다. Desktop `0.9.1`은 capability registry 기반 `NAVER` Channel → Placement → Editor 흐름, SmartChannel PNG, Platform-Composed source export, Feed Collection source artifact 편집과 local-only renderer diagnostics/Error Boundary를 제공한다. NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.8.0`과 기존 Kakao/SmartChannel fingerprints는 유지된다. Variable-canvas, NAVER video, Meta/Google은 후속 Phase다.
+Canonical 계약 `1.21.0`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원한다. Desktop `0.9.2`는 capability registry 기반 `NAVER` Channel → Placement → Editor 흐름, SmartChannel PNG, source export, Feed Collection source artifact 편집, local-only renderer diagnostics/Error Boundary와 SmartChannel 선택 상태 reconciliation을 제공한다. NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.8.0`과 기존 Kakao/SmartChannel fingerprints는 유지된다. Variable-canvas, NAVER video, Meta/Google은 후속 Phase다.
 
 ## 요구 환경
 
@@ -17,7 +17,7 @@ pnpm install --frozen-lockfile
 pnpm check
 ```
 
-`pnpm check`는 기존 계약과 Integration Contract 무결성, TypeScript, lint, Core·Desktop build, 단위·통합·보안·Golden·Electron E2E 테스트를 순서대로 실행한다. Integration 전용 검증은 `pnpm test:integration-contract`다. NAVER Desktop 회귀만 실행하려면 `pnpm exec playwright test tests/e2e/naver-desktop.spec.ts`를 사용한다.
+`pnpm check`는 기존 계약과 Integration Contract 무결성, TypeScript, lint, Core·Desktop build, 단위·통합·보안·Golden·Electron E2E 테스트를 순서대로 실행한다. Integration 전용 검증은 `pnpm test:integration-contract`다. NAVER Desktop 회귀만 실행하려면 `pnpm exec playwright test tests/e2e/naver-desktop.spec.ts`를 사용하고, packaged 8-placement·SmartChannel 120-template matrix는 `pnpm smoke:desktop`을 사용한다.
 
 N6 NAVER Platform-Composed source provenance, collection validator, fingerprints와 atomic
 manifest publish는
@@ -65,7 +65,7 @@ pnpm smoke:desktop
 
 ```text
 release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
-release/Kakao-Bizboard-Local-Renderer-0.9.1-x64.exe
+release/Kakao-Bizboard-Local-Renderer-0.9.2-x64.exe
 ```
 
 Portable 앱은 설치와 관리자 권한을 요구하지 않는다. 코드 서명과 자동 업데이트가 없으므로 Windows SmartScreen 경고가 표시될 수 있다. 앱은 비공식 로컬 Renderer이며 카카오 공식 서비스가 아니고 실제 광고 심사 승인을 보장하지 않는다.

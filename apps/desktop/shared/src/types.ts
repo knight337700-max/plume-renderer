@@ -337,6 +337,7 @@ export type RendererDiagnostic = Readonly<{
   placement?: string;
   subtype?: string;
   templateId?: string;
+  selectedDimensions?: Readonly<Partial<Pick<NaverTemplateOption, "height" | "family" | "objectKind" | "side" | "textVariant" | "affordance">>>;
   name?: string;
   message: string;
   stack?: string;

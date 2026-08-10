@@ -20,6 +20,40 @@ import { reportRendererDiagnostic, setRendererDiagnosticContext } from "../../di
 
 type SelectedProduct = Extract<ProductSelectionResult, { status: "SELECTED" }>;
 type PlacementId = "NAVER_SMARTCHANNEL" | "NAVER_MOBILE_DA" | "NAVER_IMAGE_BANNER_1_1" | "NAVER_MOBILE_NATIVE" | "NAVER_PC_NATIVE" | "NAVER_SHOPPING_NEWS" | "NAVER_COMMUNICATION_AD" | "NAVER_MOBILE_DA_FEED";
+const SMART_FILTER_KEYS = ["height", "family", "objectKind", "side", "textVariant", "affordance"] as const;
+type SmartFilterKey = typeof SMART_FILTER_KEYS[number];
+type SmartFilters = Record<SmartFilterKey, string>;
+
+function smartFilterValue(template: NaverTemplateOption, key: SmartFilterKey): string {
+  return key === "height" ? String(template.height) : template[key];
+}
+
+function uniqueSmartFilterValues(templates: readonly NaverTemplateOption[], key: SmartFilterKey): string[] {
+  return Array.from(new Set(templates.map((entry) => smartFilterValue(entry, key))));
+}
+
+function filterSmartTemplates(templates: readonly NaverTemplateOption[], filters: SmartFilters): NaverTemplateOption[] {
+  return templates.filter((entry) => SMART_FILTER_KEYS.every((key) => filters[key] === "ALL" || smartFilterValue(entry, key) === filters[key]));
+}
+
+function smartFilterOptions(templates: readonly NaverTemplateOption[], filters: SmartFilters, key: SmartFilterKey): string[] {
+  const keyIndex = SMART_FILTER_KEYS.indexOf(key);
+  const prefixCandidates = templates.filter((entry) => SMART_FILTER_KEYS.slice(0, keyIndex).every((prefixKey) => filters[prefixKey] === "ALL" || smartFilterValue(entry, prefixKey) === filters[prefixKey]));
+  return uniqueSmartFilterValues(prefixCandidates, key);
+}
+
+function reconcileSmartFilters(templates: readonly NaverTemplateOption[], previous: SmartFilters, changedKey: SmartFilterKey, changedValue: string): SmartFilters {
+  const next: SmartFilters = { ...previous, [changedKey]: changedValue };
+  const changedIndex = SMART_FILTER_KEYS.indexOf(changedKey);
+  const changedOptions = smartFilterOptions(templates, previous, changedKey);
+  if (changedValue !== "ALL" && !changedOptions.includes(changedValue)) next[changedKey] = changedOptions[0] ?? "ALL";
+  for (const key of SMART_FILTER_KEYS.slice(changedIndex + 1)) {
+    const options = smartFilterOptions(templates, next, key);
+    if (next[key] !== "ALL" && options.includes(next[key])) continue;
+    next[key] = options[0] ?? "ALL";
+  }
+  return next;
+}
 
 const DEFAULT_TEXT: Record<string, string> = {
   headline: "브랜드의 새로운 시작",
@@ -97,7 +131,7 @@ export function NaverDesktopEditor() {
   const [placementId, setPlacementId] = useState<PlacementId>("NAVER_SMARTCHANNEL");
   const [feedSubtype, setFeedSubtype] = useState<"IMAGE" | "COLLECTION" | "VIDEO">("IMAGE");
   const [communicationVariant, setCommunicationVariant] = useState<"LIST" | "COMMENT">("LIST");
-  const [filters, setFilters] = useState({ height: "ALL", family: "ALL", objectKind: "ALL", side: "ALL", textVariant: "ALL", affordance: "ALL" });
+  const [filters, setFilters] = useState<SmartFilters>({ height: "ALL", family: "ALL", objectKind: "ALL", side: "ALL", textVariant: "ALL", affordance: "ALL" });
   const [templateId, setTemplateId] = useState("");
   const [smartContent, setSmartContent] = useState<Record<string, string>>({ ...DEFAULT_TEXT });
   const [fields, setFields] = useState<Record<string, unknown>>({ ...DEFAULT_SOURCE_FIELDS });
@@ -130,15 +164,9 @@ export function NaverDesktopEditor() {
   const placements = catalog?.capabilities.find((entry) => entry.id === "NAVER")?.placements ?? [];
   const capability = placements.find((entry) => entry.id === placementId);
   const templates = catalog?.templates ?? [];
-  const selectedTemplate = templates.find((entry) => entry.templateId === templateId);
-  const filteredTemplates = useMemo(() => templates.filter((entry) =>
-    (filters.height === "ALL" || String(entry.height) === filters.height)
-    && (filters.family === "ALL" || entry.family === filters.family)
-    && (filters.objectKind === "ALL" || entry.objectKind === filters.objectKind)
-    && (filters.side === "ALL" || entry.side === filters.side)
-    && (filters.textVariant === "ALL" || entry.textVariant === filters.textVariant)
-    && (filters.affordance === "ALL" || entry.affordance === filters.affordance),
-  ), [filters, templates]);
+  const filteredTemplates = useMemo(() => filterSmartTemplates(templates, filters), [filters, templates]);
+  const selectedTemplate = filteredTemplates.find((entry) => entry.templateId === templateId) ?? filteredTemplates[0];
+  const resolvedTemplateId = selectedTemplate?.templateId ?? "";
   const sourceProfileId = placementId === "NAVER_COMMUNICATION_AD"
     ? communicationVariant === "LIST" ? "NAVER_COMMUNICATION_AD_LIST_SOURCE_V1" : "NAVER_COMMUNICATION_AD_COMMENT_SOURCE_V1"
     : placementId === "NAVER_MOBILE_DA_FEED"
@@ -146,6 +174,7 @@ export function NaverDesktopEditor() {
       : capability?.sourceProfileId || capability?.sourceProfileIds?.[0] || "";
   const sourceProfile = catalog?.sourceProfiles.find((entry) => entry.id === sourceProfileId);
   const smartFields = templateFields(selectedTemplate);
+  const smartChannelUnresolved = placementId === "NAVER_SMARTCHANNEL" && templates.length > 0 && !selectedTemplate;
   const isSource = capability?.compositionMode === "PLATFORM_COMPOSED";
   const isCollection = placementId === "NAVER_MOBILE_DA_FEED" && isSource && feedSubtype === "COLLECTION";
   const isFreeformPlacement = placementId === "NAVER_MOBILE_DA" || placementId === "NAVER_IMAGE_BANNER_1_1";
@@ -156,13 +185,31 @@ export function NaverDesktopEditor() {
       channel: "NAVER",
       placement: placementId,
       ...(placementId === "NAVER_MOBILE_DA_FEED" ? { subtype: feedSubtype } : {}),
-      ...(placementId === "NAVER_SMARTCHANNEL" && templateId ? { templateId } : {}),
+      ...(placementId === "NAVER_SMARTCHANNEL" && selectedTemplate ? {
+        templateId: selectedTemplate.templateId,
+        selectedDimensions: {
+          height: selectedTemplate.height,
+          family: selectedTemplate.family,
+          objectKind: selectedTemplate.objectKind,
+          side: selectedTemplate.side,
+          textVariant: selectedTemplate.textVariant,
+          affordance: selectedTemplate.affordance,
+        },
+      } : {}),
     });
-  }, [feedSubtype, placementId, templateId]);
+  }, [feedSubtype, placementId, resolvedTemplateId]);
 
   useEffect(() => {
-    if (!selectedTemplate && filteredTemplates[0]) setTemplateId(filteredTemplates[0].templateId);
-  }, [filteredTemplates, selectedTemplate]);
+    if (resolvedTemplateId !== templateId) setTemplateId(resolvedTemplateId);
+  }, [resolvedTemplateId, templateId]);
+
+  function updateSmartFilter(key: SmartFilterKey, value: string): void {
+    const nextFilters = reconcileSmartFilters(templates, filters, key, value);
+    const nextTemplates = filterSmartTemplates(templates, nextFilters);
+    setFilters(nextFilters);
+    setTemplateId(nextTemplates[0]?.templateId ?? "");
+    invalidate();
+  }
 
   function invalidate() {
     setPreview(null);
@@ -231,7 +278,7 @@ export function NaverDesktopEditor() {
       return;
     }
     const request: NaverSmartChannelRequest | NaverPlatformSourceRequest | null = placementId === "NAVER_SMARTCHANNEL"
-      ? { kind: "SMARTCHANNEL", templateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] || DEFAULT_TEXT[key] || ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
+      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] || DEFAULT_TEXT[key] || ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
       : buildSourceRequest();
     if (!request || !primary) {
       setNotice(!primary ? "필수 asset과 source field를 먼저 준비하세요. (Primary asset 필요)" : "필수 asset과 source field를 먼저 준비하세요. (Source profile/asset rule 확인 필요)");
@@ -250,7 +297,7 @@ export function NaverDesktopEditor() {
   async function exportNaver() {
     if (!preview || preview.validationStatus === "ERROR" || !output) return;
     const request: NaverSmartChannelRequest | NaverPlatformSourceRequest | null = placementId === "NAVER_SMARTCHANNEL"
-      ? { kind: "SMARTCHANNEL", templateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] || ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
+      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] || ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
       : buildSourceRequest();
     if (!request) return;
     const exportRequest: NaverExportRequest = {
@@ -299,10 +346,11 @@ export function NaverDesktopEditor() {
 
         {placementId === "NAVER_SMARTCHANNEL" ? <section className="naver-card" data-testid="naver-smartchannel-editor">
           <div className="section-heading"><h3>SmartChannel · 120 whitelisted templates</h3><span className="capability-pill">TEMPLATE_LOCKED</span></div>
-          <div className="naver-filter-grid">{(["height", "family", "objectKind", "side", "textVariant", "affordance"] as const).map((key) => { const values = Array.from(new Set(templates.map((entry) => key === "height" ? String(entry.height) : entry[key]))); return <label key={key}><span>{key}</span><select data-testid={"naver-template-filter-" + key} value={filters[key]} onChange={(event) => setFilters((previous) => ({ ...previous, [key]: event.currentTarget.value }))}><option value="ALL">ALL</option>{values.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>; })}</div>
-          <label className="field-group"><span className="field-label">Template whitelist</span><select data-testid="naver-smartchannel-template-select" value={templateId} onChange={(event) => { setTemplateId(event.currentTarget.value); invalidate(); }}>{filteredTemplates.map((entry) => <option key={entry.templateId} value={entry.templateId}>{entry.height}px · {entry.family} · {entry.objectKind} · {entry.side} · {entry.textVariant} · {entry.affordance}</option>)}</select></label>
+          <div className="naver-filter-grid">{SMART_FILTER_KEYS.map((key) => { const values = smartFilterOptions(templates, filters, key); return <label key={key}><span>{key}</span><select data-testid={"naver-template-filter-" + key} value={filters[key]} onChange={(event) => { const nextValue = event.currentTarget.value; updateSmartFilter(key, nextValue); }}><option value="ALL">ALL</option>{values.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>; })}</div>
+          <label className="field-group"><span className="field-label">Template whitelist</span><select data-testid="naver-smartchannel-template-select" value={resolvedTemplateId} onChange={(event) => { const nextTemplateId = event.currentTarget.value; setTemplateId(nextTemplateId); invalidate(); }}>{filteredTemplates.map((entry) => <option key={entry.templateId} value={entry.templateId}>{entry.height}px · {entry.family} · {entry.objectKind} · {entry.side} · {entry.textVariant} · {entry.affordance}</option>)}</select></label>
           <div className="naver-template-summary" data-testid="naver-template-summary"><strong>{selectedTemplate?.templateId || "—"}</strong><span>Object token · {selectedTemplate?.objectPlacementToken || "—"}</span><span>Source whitelist only · Cartesian product 금지</span></div>
-          {smartFields.map((field) => <label className="field-group" key={field}><span className="field-label">{field}</span><input data-testid={"naver-smartchannel-field-" + field} value={smartContent[field] || DEFAULT_TEXT[field] || ""} onChange={(event) => { setSmartContent((previous) => ({ ...previous, [field]: event.currentTarget.value })); invalidate(); }} /></label>)}
+          {smartChannelUnresolved ? <div className="issue issue-error" data-testid="naver-smartchannel-resolution-error"><strong>SmartChannel selection unresolved</strong><p>현재 필터 조합에 대응하는 source-backed template이 없습니다. 필터를 다시 선택하세요. Render/Download는 차단됩니다.</p></div> : null}
+          {smartFields.map((field) => <label className="field-group" key={field}><span className="field-label">{field}</span><input data-testid={"naver-smartchannel-field-" + field} value={smartContent[field] || DEFAULT_TEXT[field] || ""} onChange={(event) => { const nextValue = event.currentTarget.value; setSmartContent((previous) => ({ ...previous, [field]: nextValue })); invalidate(); }} /></label>)}
           <div className="asset-card"><strong>Object image</strong>{primary ? <><span>{primary.displayName}</span><small>{formatProductMetadata(primary)}</small></> : <span>선택하지 않음</span>}<button type="button" onClick={() => void selectPrimary()} data-testid="naver-smartchannel-select-object">Object 선택</button></div>
           <div className="asset-card"><strong>Advertiser logo · optional</strong>{logo ? <span>{logo.displayName}</span> : <span>선택하지 않음</span>}<button type="button" className="secondary" onClick={() => void selectLogo()} data-testid="naver-smartchannel-select-logo">Logo 선택</button></div>
           <div className="font-preflight" data-testid="naver-smartchannel-font-preflight"><strong>Apple SD Gothic Neo preflight</strong><span>{catalog.fontPreflight.configuredDirectory || "configured local font directory required"}</span>{catalog.fontPreflight.requiredAssets.map((font) => <small key={font.token}>{font.expectedFilename} · {font.expectedSha256 || "SHA unresolved"}</small>)}<small>실패 시 SmartChannel render/download만 차단됩니다.</small></div>
@@ -317,7 +365,7 @@ export function NaverDesktopEditor() {
         </section> : null}
 
         <label className="field-group"><span className="field-label">Job name</span><input data-testid="naver-job-name" value={jobName} onChange={(event) => { setJobName(event.currentTarget.value); invalidate(); }} /></label>
-        <div className="button-row"><button type="button" className="primary" onClick={() => void requestPreview()} disabled={isFreeformPlacement || feedSubtype === "VIDEO"} data-testid="naver-request-preview">Preview / Validate</button><button type="button" className="secondary" onClick={() => void selectOutput()} data-testid="naver-select-output">출력 폴더 선택</button><button type="button" className="primary" onClick={() => void exportNaver()} disabled={!preview || preview.validationStatus === "ERROR" || !output} data-testid="naver-export">{isCollection ? "Source artifacts + Manifest export" : "Source/PNG export"}</button></div>
+        <div className="button-row"><button type="button" className="primary" onClick={() => void requestPreview()} disabled={isFreeformPlacement || feedSubtype === "VIDEO" || smartChannelUnresolved} data-testid="naver-request-preview">Preview / Validate</button><button type="button" className="secondary" onClick={() => void selectOutput()} data-testid="naver-select-output">출력 폴더 선택</button><button type="button" className="primary" onClick={() => void exportNaver()} disabled={!preview || preview.validationStatus === "ERROR" || !output} data-testid="naver-export">{isCollection ? "Source artifacts + Manifest export" : "Source/PNG export"}</button></div>
         <small className="placement-plan-status" data-testid="naver-notice">{notice}</small>
       </aside>
 

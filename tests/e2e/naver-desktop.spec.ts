@@ -103,6 +103,31 @@ test("NAVER SmartChannel is registry-driven and exports a renderer-composed PNG"
   }
 });
 
+test("NAVER SmartChannel filter changes keep the editor mounted", async () => {
+  const launched = await launch(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", "N2-REP-001-object.png"));
+  try {
+    await expect(launched.page.getByTestId("naver-smartchannel-editor")).toBeVisible();
+    await launched.page.getByTestId("naver-template-filter-height").selectOption("280");
+    await expect(launched.page.getByTestId("naver-smartchannel-editor")).toBeVisible();
+    await expect(launched.page.getByTestId("naver-template-summary")).not.toContainText("—");
+    for (const [key, value] of [["family", "EMPHASIS"], ["objectKind", "THUMBNAIL"], ["side", "LEFT"], ["textVariant", "THREE_LINE"], ["affordance", "APP_CTA"]] as const) {
+      const nextValue = value;
+      await launched.page.getByTestId(`naver-template-filter-${key}`).selectOption(nextValue);
+      await expect(launched.page.getByTestId("naver-template-summary")).not.toContainText("—");
+    }
+    await expect(launched.page.getByTestId("naver-template-summary")).toContainText("NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA");
+    for (const height of ["160", "280", "200", "160"]) {
+      await launched.page.getByTestId("naver-template-filter-height").selectOption(height);
+      await expect(launched.page.getByTestId("naver-template-summary")).not.toContainText("—");
+    }
+    await launched.page.getByTestId("naver-smartchannel-field-headline").fill("state snapshot");
+    await expect(launched.page.getByTestId("naver-smartchannel-field-headline")).toHaveValue("state snapshot");
+    expect(launched.rendererErrors, "SmartChannel filter renderer errors").toEqual([]);
+  } finally {
+    await close(launched);
+  }
+});
+
 test("NAVER platform-composed source flow validates and exports source artifacts without final UI", async () => {
   const sourceAsset = path.join(os.tmpdir(), `kbr-naver-source-${randomUUID()}.png`);
   await sharp({ create: { width: 112, height: 112, channels: 4, background: { r: 24, g: 116, b: 205, alpha: 1 } } }).png().toFile(sourceAsset);

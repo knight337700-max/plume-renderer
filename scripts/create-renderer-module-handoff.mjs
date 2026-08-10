@@ -143,7 +143,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N7.1 handoff
+const readme = `# Renderer Module — N7.2 handoff
 
 ## Purpose
 
@@ -151,7 +151,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N7.1 hotfix source commit: ${sourceSha}
+- N7.2 hotfix source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Desktop package: ${packageArtifact?.path ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256})` : ""}
 - Runtime network access: PROHIBITED
@@ -165,7 +165,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER Feed Collection: implemented source artifacts, ordered fingerprints, and atomic manifest publish; final Feed UI is not implemented
 - NAVER video runtime: not implemented
 - NAVER Desktop UI: implemented (capability-driven Channel → Placement → Editor)
-- NAVER Desktop N7.1 resilience: local diagnostics, Error Boundary, explicit registry errors, packaged click matrix
+- NAVER Desktop N7.1/N7.2 resilience: local diagnostics, Error Boundary, explicit registry errors, SmartChannel selection reconciliation, packaged click matrix
 - Meta: not implemented
 - Google: not implemented
 
@@ -184,6 +184,7 @@ PowerShell from this folder:
     pnpm install --frozen-lockfile
     pnpm check
     pnpm verify:naver-platform
+    pnpm smoke:desktop
     node scripts/verify-renderer-module-handoff.mjs
 
 The full check includes TypeScript, ESLint, Vitest, Desktop build, and Playwright gates. No
@@ -200,14 +201,15 @@ OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is N7.1 in docs/kakao-bizboard-renderer-spec-v1.md. N7.1 Desktop resilience
-uses the capability registry and existing Core paths. N6 source contracts are
+The latest phase is N7.2 in docs/kakao-bizboard-renderer-spec-v1.md. N7.2 SmartChannel selection
+stability uses source-backed template candidates and existing Core paths. N6 source contracts are
 contracts/naver-platform-composed-source.schema.json,
 contracts/naver-platform-composed-source-profiles.json, and
 contracts/naver-platform-composed-source-revision.json, plus the generic
 multi-artifact manifest schema. N7 additions are
 contracts/desktop-capability-registry.json, contracts/desktop-error-registry.json,
-tests/e2e/naver-desktop.spec.ts, and scripts/smoke-naver-desktop.mjs. The next
+tests/e2e/naver-desktop.spec.ts, and scripts/smoke-naver-desktop.mjs. N7.2 adds
+source-backed SmartChannel filter reconciliation and event-value snapshot tests. The next
 planned phase is M0_NAVER_DESKTOP_HARDENING; it must not invent final NAVER UI geometry.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
@@ -216,7 +218,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N7_1_NAVER_DESKTOP_WHITE_SCREEN_RUNTIME_HOTFIX",
+  handoffPhase: "N7_2_SMARTCHANNEL_NULL_VALUE_SELECTION_HOTFIX",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -231,7 +233,7 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN7_1.rendererCoreVersion,
+    rendererCore: canonicalDocument.canonicalPhaseN7_2.rendererCoreVersion,
     desktop: canonicalDocument.desktopAppVersion,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
@@ -257,6 +259,8 @@ const manifest = {
     n7ImplementationRecord: "docs/implementation/naver-desktop-integration-n7.md",
     n7_1ImplementationRecord: "docs/implementation/naver-desktop-white-screen-runtime-hotfix-n7-1.md",
     n7_1PackageSmoke: "scripts/smoke-naver-desktop.mjs",
+    n7_2ImplementationRecord: "docs/implementation/naver-smartchannel-null-value-selection-hotfix-n7-2.md",
+    n7_2ContractClarification: "docs/contract-clarifications/naver-smartchannel-null-value-selection-hotfix-n7-2.md",
   },
   externalRuntimeDependencies: [
     { kind: "font", directoryEnv: "NAVER_SMARTCHANNEL_FONT_DIR", manifest: "local-runtime-resources/fonts/font-manifest.json", bundled: false, licenseStatus: "NOT_CONFIRMED" },

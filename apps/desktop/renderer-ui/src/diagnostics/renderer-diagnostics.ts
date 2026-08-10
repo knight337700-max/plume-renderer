@@ -1,6 +1,6 @@
 import type { RendererDiagnostic, UiChannel } from "../../../shared/src/index.js";
 
-type DiagnosticContext = Pick<RendererDiagnostic, "channel" | "placement" | "subtype" | "templateId">;
+type DiagnosticContext = Pick<RendererDiagnostic, "channel" | "placement" | "subtype" | "templateId" | "selectedDimensions">;
 
 let context: DiagnosticContext = {};
 let installed = false;

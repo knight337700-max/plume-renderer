@@ -9,7 +9,7 @@
   },
   "templateContractVersion": "1.9.0",
   "smartChannelTemplateContractVersion": "1.10.0",
-  "desktopAppVersion": "0.9.1",
+  "desktopAppVersion": "0.9.2",
   "desktopErrorRegistryVersion": "1.0.0",
   "errorRegistryVersion": "1.6.0",
   "integrationErrorRegistryVersion": "1.9.0",
@@ -862,6 +862,27 @@
     "corePixelsChanged": false,
     "canonicalContractChanged": false,
     "originalWhiteScreenReproducedInCurrentCheckout": false,
+    "nextPhase": "M0_NAVER_DESKTOP_HARDENING"
+  },
+  "canonicalPhaseN7_2": {
+    "documentVersion": "1.21.0",
+    "documentBump": "none",
+    "templateContractVersion": "1.9.0",
+    "rendererCoreVersion": "0.8.0",
+    "desktopPrevious": "0.9.1",
+    "desktopCurrent": "0.9.2",
+    "desktopBump": "patch",
+    "desktopReason": "SmartChannel filter event value snapshot, source-backed selection reconciliation, deterministic template resolution, and packaged 120-template transition regression coverage",
+    "desktopErrorRegistryVersion": "1.0.0",
+    "runtimeNetworkAccess": "PROHIBITED",
+    "corePixelsChanged": false,
+    "smartChannelTemplateContractChanged": false,
+    "smartChannelTemplateCount": 120,
+    "smartChannelUiReachableTemplates": 120,
+    "unsupportedSmartChannelOptionsExposed": 0,
+    "nullValueExceptions": 0,
+    "rootCauseCategory": "EVENT_LIFETIME",
+    "rootCauseCaptured": true,
     "nextPhase": "M0_NAVER_DESKTOP_HARDENING"
   }
 }

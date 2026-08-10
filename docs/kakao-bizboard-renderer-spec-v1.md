@@ -4344,3 +4344,51 @@ Core PNG pixels, Kakao goldens, SmartChannel 120 outputs, N4 goldens, N6 collect
 fingerprints/manifest semantics, and runtime network prohibition remain unchanged. The original
 user-reported exception remains an unresolved reproduction blocker until an affected machine
 supplies its captured stack or environment-specific failure evidence. **[PROJECT]**
+
+---
+
+## 41. Phase N7.2 — SmartChannel Null Value Selection Hotfix
+
+N7.2는 N7.1 local diagnostic log에서 실제로 확보된 SmartChannel 예외
+`TypeError: Cannot read properties of null (reading 'value')`를 대상으로 한다. 0.9.1 stack은
+`NaverDesktopEditor`의 SmartChannel filter render와 React `useState` updater 경로를 가리켰고,
+source handler가 functional updater 안에서 `event.currentTarget.value`를 지연 참조하는
+event-lifetime 결함으로 분류되었다. **[PROJECT]**
+
+### 41.1 Selection and event invariants [PROJECT]
+
+SmartChannel filter 순서는 `height → family → objectKind → side → textVariant → affordance`로
+고정한다. 모든 option과 최종 selection은 source-backed 120-template registry에서 derive한다.
+상위 dimension이 변경되면 하위 값은 유효할 때 유지하고, 유효하지 않으면 canonical registry
+order의 첫 candidate로 deterministic reset한다. candidate가 없으면 editor shell을 유지하는
+controlled unresolved state로 전환하며 Preview/Download를 차단한다. unsupported Cartesian
+product나 다른 template로의 silent fallback은 금지한다. **[PROJECT]**
+
+React event 값은 state updater에 전달하기 전에 동기적으로 snapshot한다. `event.currentTarget`
+또는 `event.target`을 functional updater나 `await` 이후에 읽지 않는다. Font preflight 결과는
+selection state를 null로 만들지 않으며, local diagnostics에는 선택된 height, family,
+objectKind, side, textVariant, affordance를 기록할 수 있다. **[PROJECT]**
+
+### 41.2 Acceptance and regression [PROJECT]
+
+N7.2 acceptance는 다음을 포함한다.
+
+- 최초 NAVER → SmartChannel mount 및 Error Boundary fallback 0회
+- 대표 4개 source-backed transition과 `160 → 280 → 200 → 160`, `LEFT → RIGHT → LEFT`,
+  `BASIC → EMPHASIS → BOTTOM_DISCLOSURE → BASIC` 왕복
+- registry 120개와 UI reachable template 120개, unsupported exposed 0개
+- unpacked production build와 Windows portable EXE에서 SmartChannel transition matrix
+- 기존 8개 NAVER placement, Feed IMAGE/COLLECTION/VIDEO, KAKAO 회귀
+- Core pixels, goldens, fingerprints, source contracts 및 runtime network prohibition 불변
+
+### 41.3 Version and regression policy [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.21.0 | 1.21.0 | Desktop-only state hotfix |
+| Template contract | 1.9.0 | 1.9.0 | 120-template source contract unchanged |
+| Renderer Core | 0.8.0 | 0.8.0 | Pixel/golden/fingerprint behavior unchanged |
+| Desktop | 0.9.1 | 0.9.2 | Event value snapshot, selection reconciliation, packaged SmartChannel matrix |
+
+N7.2 root-cause evidence and implementation are recorded in the N7.2 clarification and
+implementation documents. The next phase remains `M0_NAVER_DESKTOP_HARDENING`. **[PROJECT]**

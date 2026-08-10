@@ -34,6 +34,7 @@ export class RendererDiagnostics {
       ...(diagnostic.placement === undefined ? {} : { placement: bounded(diagnostic.placement) }),
       ...(diagnostic.subtype === undefined ? {} : { subtype: bounded(diagnostic.subtype) }),
       ...(diagnostic.templateId === undefined ? {} : { templateId: bounded(diagnostic.templateId) }),
+      ...(diagnostic.selectedDimensions === undefined ? {} : { selectedDimensions: diagnostic.selectedDimensions }),
       ...(diagnostic.name === undefined ? {} : { name: bounded(diagnostic.name) }),
       message: bounded(diagnostic.message) ?? "Unknown renderer diagnostic",
       ...(diagnostic.stack === undefined ? {} : { stack: bounded(diagnostic.stack) }),
