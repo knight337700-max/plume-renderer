@@ -4225,3 +4225,67 @@ Desktop collection editor, reorder UI and multi-preview remain `NOT_IMPLEMENTED`
 phase is `N7_NAVER_DESKTOP_INTEGRATION_FULL_REGRESSION`; it may connect the already frozen source
 contract to Desktop channel/placement selection without fabricating platform-owned final UI.
 **[PROJECT]**
+
+---
+
+## 39. Phase N7 — NAVER Desktop Integration and Full Regression
+
+N7는 N1–N6에서 동결한 NAVER 계약을 독립 실행형 Desktop의 실제 Channel → Placement →
+Editor 흐름에 연결한다. Canonical 문서 버전 `1.21.0`, Template Contract `1.9.0`,
+Platform-Composed SourceSpec/registry `1.1.0`, Multi-Artifact manifest `1.0.0`, Renderer
+Core `0.8.0`과 좌표 계약은 변경하지 않는다. Desktop 공개 버전만 `0.8.2`에서 `0.9.0`으로
+minor bump한다. **[PROJECT]**
+
+### 39.1 Official source recheck [OFFICIAL] [TOOL_OUTPUT]
+
+N7 시작 전에 공식 NAVER placement pages 1473–1480을 재확인했다. SmartChannel, Mobile
+DA/Image Banner, Communication Ad, Shopping News, Native 및 Feed의 placement 명칭,
+Feed IMAGE/VIDEO/COLLECTION 유형과 플랫폼 소유 presentation 경계는 frozen registry와
+충돌하지 않았다. 최종 NAVER UI 좌표나 업로드 승인은 여전히 이 Renderer 계약의 대상이
+아니다. **[OFFICIAL] [TOOL_OUTPUT]**
+
+### 39.2 Capability-driven Desktop entry [PROJECT]
+
+`contracts/desktop-capability-registry.json`을 Desktop capability source of truth로
+사용한다. 첫 사용자 결정은 `KAKAO | NAVER` Channel이며 mode를 먼저 노출하지 않는다.
+NAVER capability는 placement별 `compositionMode`, `layoutMode`, `artifactCardinality`,
+editor type, source/freeform profile, template registry, font preflight, platform-owned
+fields를 명시한다. KAKAO 상태와 NAVER 상태는 별도 UI state로 유지한다.
+
+### 39.3 Placement editor mapping [PROJECT]
+
+| Placement | Editor | Runtime output | Boundary |
+|---|---|---|---|
+| SmartChannel | template-locked | Core RGBA PNG + manifest | 120 whitelist; exact local font preflight |
+| Mobile DA / Image Banner 1:1 | existing FREEFORM editor | Core raster artifact | shared editor; no duplicate implementation |
+| Mobile Native / PC Native | source editor | SourceSpec + source manifest | final UI is NAVER-owned |
+| Shopping News | source editor | SourceSpec + source manifest | notification/presentation/mute are platform-owned |
+| Communication Ad | LIST/COMMENT source editor | SourceSpec + source manifest | variant selects frozen field profile |
+| Mobile DA Feed IMAGE | source editor | SourceSpec + source manifest | no final feed UI |
+| Mobile DA Feed COLLECTION | ordered collection editor | N6 item artifacts + collection manifest | 4–10; atomic; input order preserved |
+| Mobile DA Feed VIDEO | disabled | none | out of static renderer scope |
+
+Platform-Composed Preview and normalized payload always expose `finalUiRendered=false` and do
+not contain final canvas/coordinates. Renderer-composed SmartChannel Preview/Export uses the
+existing Core validator, fingerprint and atomic publish path. **[PROJECT]**
+
+### 39.4 Validation, security, and network [PROJECT]
+
+Naver IPC payloads are strict Zod schemas. Electron Main owns session asset/output tokens and
+Core revalidates source profiles, MIME/canvas/bytes/alpha/safe-area, field rules, fingerprint
+and Download gate. Existing path-security and same-volume atomic publish rules apply. Runtime
+network access remains `0`: no Naver API, CDN, remote font, telemetry, update check, upload or
+server dependency. **[PROJECT]**
+
+### 39.5 Acceptance and regression [PROJECT]
+
+N7 acceptance includes the existing contract/Core/CLI/GOLDEN gates, Windows x64 Desktop build,
+the three-run deterministic SmartChannel target, and `tests/e2e/naver-desktop.spec.ts` covering
+120-template discovery and PNG export, source-only export with `finalUiRendered=false`,
+Communication source fields, Collection 4–10 controls, and disabled VIDEO. The handoff copy is
+`C:\Users\Lenovo\Desktop\Renderer Module`; it records the N7 commit, capability matrix,
+canonical SHA-256 and machine-readable manifest. **[PROJECT]**
+
+N7's unresolved items are external exact SmartChannel font preflight on machines without the
+approved local files, final NAVER native/feed UI, VIDEO runtime, upload approval and
+cross-platform pixel tolerance. The next phase is `M0_NAVER_DESKTOP_HARDENING`. **[PROJECT]**

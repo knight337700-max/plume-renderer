@@ -16,6 +16,54 @@ const freeformRequestSchema = z.strictObject({
   outputQuality: z.union([z.number().finite().min(1).max(100), z.literal("AUTO_FIT")]).optional(),
 });
 
+const naverSmartChannelRequestSchema = z.strictObject({
+  kind: z.literal("SMARTCHANNEL"),
+  templateId: z.string().min(1).max(240),
+  content: z.record(z.string().min(1).max(80), boundedText),
+  objectAssetToken: token,
+  advertiserLogoAssetToken: token.optional(),
+  jobName,
+});
+
+const naverSourceAssetRequestSchema = z.strictObject({
+  assetId: z.string().min(1).max(160),
+  assetRole: z.string().min(1).max(160),
+  sourceProfileId: z.string().min(1).max(200),
+  assetToken: token,
+});
+
+const naverCollectionItemRequestSchema = z.strictObject({
+  id: z.string().min(1).max(120),
+  assetId: z.string().min(1).max(160),
+  sourceProfileId: z.string().min(1).max(200),
+  assetToken: token,
+  fields: z.record(z.string().min(1).max(80), z.unknown()),
+});
+
+const naverPlatformSourceRequestSchema = z.strictObject({
+  kind: z.literal("PLATFORM_SOURCE"),
+  placement: z.enum(["MOBILE_NATIVE", "PC_NATIVE", "SHOPPING_NEWS", "COMMUNICATION_AD", "MOBILE_DA_FEED"]),
+  sourceProfileId: z.string().min(1).max(200),
+  fields: z.record(z.string().min(1).max(80), z.unknown()),
+  assets: z.array(naverSourceAssetRequestSchema).max(32),
+  collectionItems: z.array(naverCollectionItemRequestSchema).max(10).optional(),
+  jobName,
+});
+
+const naverRequestSchema = z.union([naverSmartChannelRequestSchema, naverPlatformSourceRequestSchema]);
+
+export const naverPreviewRequestSchema = z.strictObject({
+  requestSequence: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+  request: naverRequestSchema,
+});
+
+export const naverExportRequestSchema = z.strictObject({
+  request: naverRequestSchema,
+  previewToken: token.optional(),
+  previewFingerprint: z.string().regex(/^[a-f0-9]{64}$/u).optional(),
+  outputDirectoryToken: token,
+});
+
 export const previewRequestSchema = z.strictObject({
   assetToken: token,
   secondaryAssetToken: token.optional(),

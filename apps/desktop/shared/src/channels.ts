@@ -8,6 +8,9 @@ export const DESKTOP_CHANNELS = Object.freeze({
   requestPreview: "kbr:preview:request",
   selectOutputDirectory: "kbr:output:select-directory",
   exportRender: "kbr:export:render",
+  getNaverCatalog: "kbr:naver:catalog",
+  requestNaverPreview: "kbr:naver:preview",
+  exportNaver: "kbr:naver:export",
   revealExportedFile: "kbr:export:reveal",
   getAppInfo: "kbr:app:info",
 });

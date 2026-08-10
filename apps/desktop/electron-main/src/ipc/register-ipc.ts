@@ -3,12 +3,14 @@ import type { BrowserWindow, IpcMain, IpcMainInvokeEvent, OpenDialogOptions, She
 import { DESKTOP_CHANNELS } from "../../../shared/src/index.js";
 import type {
   ExportRequest,
+  NaverExportRequest,
+  NaverPreviewRequest,
   OutputDirectoryResult,
   ProductSelectionResult,
   UiRenderInput,
 } from "../../../shared/src/index.js";
 import type { DesktopController } from "../desktop-controller.js";
-import { exportRequestSchema, parseIpcPayload, previewRequestSchema, revealRequestSchema } from "./schemas.js";
+import { exportRequestSchema, naverExportRequestSchema, naverPreviewRequestSchema, parseIpcPayload, previewRequestSchema, revealRequestSchema } from "./schemas.js";
 
 type DialogPort = {
   showOpenDialog(
@@ -145,6 +147,16 @@ export function registerDesktopIpc(options: RegisterDesktopIpcOptions): void {
 
   handle(DESKTOP_CHANNELS.exportRender, async (_event, raw: unknown) => {
     return options.controller.exportRender(parseIpcPayload(exportRequestSchema, raw) as ExportRequest);
+  });
+
+  handle(DESKTOP_CHANNELS.getNaverCatalog, async () => options.controller.getNaverCatalog());
+
+  handle(DESKTOP_CHANNELS.requestNaverPreview, async (_event, raw: unknown) => {
+    return options.controller.requestNaverPreview(parseIpcPayload(naverPreviewRequestSchema, raw) as NaverPreviewRequest);
+  });
+
+  handle(DESKTOP_CHANNELS.exportNaver, async (_event, raw: unknown) => {
+    return options.controller.exportNaver(parseIpcPayload(naverExportRequestSchema, raw) as NaverExportRequest);
   });
 
   handle(DESKTOP_CHANNELS.revealExportedFile, async (_event, raw: unknown): Promise<void> => {

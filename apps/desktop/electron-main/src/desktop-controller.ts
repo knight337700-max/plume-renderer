@@ -27,20 +27,38 @@ import {
   renderThumbnailMultiRight,
   renderThumbnailBoxRight,
   renderMaskSemicircleRight,
+  renderNaverFeedCollection,
+  renderSmartChannel,
+  materializePlatformComposedProfile,
+  validatePlatformComposedSource,
+  type NaverFeedCollectionRenderRequest,
+  type PlatformComposedSourceSpec,
+  type PlatformSourceFieldRule,
   type FreeformRenderRequest,
 } from "../../../../src/core/index.js";
 import { renderFreeformPreviewArtifact } from "../../../../src/core/freeform.js";
 import { verifyRuntimeAssets } from "../../../../src/core/assets.js";
-import { canonicalJson } from "../../../../src/core/canonical.js";
+import { canonicalDigest, canonicalJson } from "../../../../src/core/canonical.js";
 import { sha256Bytes, sha256File } from "../../../../src/core/hash.js";
-import { publishArtifacts } from "../../../../src/core/publish.js";
+import { publishArtifacts, publishCollectionArtifacts, PublishError } from "../../../../src/core/publish.js";
 import { resolveTrustedJobDirectory } from "../../../../src/core/path-security.js";
 import type { KakaoBizboardInputV1, ValidationIssue } from "../../../../src/core/types.js";
 import { previewMimeType, resolvePreviewEligibility } from "../../shared/src/index.js";
 import type {
   AppInfo,
+  DesktopCapability,
+  DesktopChannelCapability,
   ExportRequest,
   ExportResult,
+  NaverCatalog,
+  NaverExportRequest,
+  NaverExportResult,
+  NaverFieldRule,
+  NaverPreviewRequest,
+  NaverPreviewResult,
+  NaverPlatformSourceRequest,
+  NaverSourceAssetRequest,
+  NaverSourceProfile,
   PreviewResult,
   ProductSelectionResult,
   UiRenderInput,
@@ -79,6 +97,113 @@ function resolveProjectRelativeMaskPath(projectRoot: string): string {
   return target;
 }
 
+type DesktopCapabilityRegistryJson = Readonly<{
+  channels?: readonly Readonly<{ id: string; label: string; placements?: readonly DesktopCapability[] }>[];
+}>;
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+async function readDesktopCapabilityRegistry(projectRoot: string): Promise<readonly DesktopChannelCapability[]> {
+  const registry = JSON.parse(await readFile(path.join(projectRoot, "contracts", "desktop-capability-registry.json"), "utf8")) as DesktopCapabilityRegistryJson;
+  return (registry.channels ?? []).map((channel) => ({
+    id: channel.id as DesktopChannelCapability["id"],
+    label: channel.label,
+    placements: channel.placements ?? [],
+  }));
+}
+
+function naverFieldRuleFromCatalog(
+  registry: Record<string, unknown>,
+  reference: unknown,
+  materialized: PlatformSourceFieldRule | undefined,
+): NaverFieldRule | null {
+  const catalog = asRecord(registry.fieldCatalog);
+  const raw = asRecord(catalog[String(reference)]);
+  if (!materialized) return null;
+  return {
+    ...materialized,
+    ...(typeof raw.label === "string" ? { label: raw.label } : { label: materialized.id }),
+    ...(typeof raw.platformGenerated === "boolean" ? { platformGenerated: raw.platformGenerated } : {}),
+    ...(typeof raw.userEditable === "boolean" ? { userEditable: raw.userEditable } : {}),
+    ...(typeof raw.sourceStatus === "string" ? { sourceStatus: raw.sourceStatus } : {}),
+  };
+}
+
+function naverSourceProfilesFromContracts(registry: Record<string, unknown>): NaverSourceProfile[] {
+  const profiles = Array.isArray(registry.profiles) ? registry.profiles : [];
+  return profiles.flatMap((entry) => {
+    const raw = asRecord(entry);
+    if (typeof raw.id !== "string") return [];
+    const materialized = materializePlatformComposedProfile(registry, raw.id);
+    if (!materialized) return [];
+    const fields = Array.isArray(raw.fields)
+      ? raw.fields.map((reference) => naverFieldRuleFromCatalog(registry, reference, materialized.fields.find((field) => field.aliases?.includes(String(reference)) || field.id === String(reference)))).filter((field): field is NaverFieldRule => Boolean(field))
+      : materialized.fields.map((field) => naverFieldRuleFromCatalog(registry, field.id, field)).filter((field): field is NaverFieldRule => Boolean(field));
+    const assets = [...materialized.assets].map((asset) => ({
+      id: asset.id ?? asset.assetRole,
+      assetRole: asset.assetRole,
+      ...(asset.required === undefined ? {} : { required: asset.required }),
+      ...(asset.canvas ? { canvas: asset.canvas } : {}),
+      ...(asset.mime ? { mime: asset.mime } : {}),
+      ...(asset.fileSize ? { fileSize: asset.fileSize } : {}),
+      ...(asset.alpha ? { alpha: asset.alpha } : {}),
+      ...(asset.safeArea ? { safeArea: asset.safeArea } : {}),
+    }));
+    const collection = materialized.collection
+      ? {
+          ...(materialized.collection.minimumItems === undefined ? {} : { minimumItems: materialized.collection.minimumItems }),
+          ...(materialized.collection.maximumItems === undefined ? {} : { maximumItems: materialized.collection.maximumItems }),
+          itemFields: (materialized.collection.itemFields ?? []).map((field) => naverFieldRuleFromCatalog(registry, field.id, field)).filter((field): field is NaverFieldRule => Boolean(field)),
+        }
+      : undefined;
+    return [{
+      id: raw.id,
+      placement: materialized.placement,
+      artifactCardinality: materialized.artifactCardinality,
+      ...(typeof materialized.runtimeStatus === "string" ? { runtime: materialized.runtimeStatus } : {}),
+      fields,
+      assets,
+      ...(collection ? { collection } : {}),
+    }];
+  });
+}
+
+function smartChannelTemplatesFromContracts(registry: Record<string, unknown>): NaverCatalog["templates"] {
+  return (Array.isArray(registry.templates) ? registry.templates : []).flatMap((entry) => {
+    const raw = asRecord(entry);
+    if (typeof raw.templateId !== "string") return [];
+    return [{
+      templateId: raw.templateId,
+      height: Number(raw.height),
+      family: String(raw.family),
+      objectKind: String(raw.objectKind),
+      side: String(raw.side),
+      textVariant: String(raw.textVariant),
+      affordance: String(raw.affordance),
+      objectPlacementToken: String(raw.objectPlacementToken),
+    }];
+  });
+}
+
+function smartChannelFontInfo(policy: Record<string, unknown>): NaverCatalog["fontPreflight"] {
+  const runtimeAssets = Array.isArray(policy.runtimeAssets) ? policy.runtimeAssets : [];
+  return {
+    configuredDirectory: null,
+    requiredAssets: runtimeAssets.flatMap((entry) => {
+      const raw = asRecord(entry);
+      if (typeof raw.token !== "string" || typeof raw.expectedFilename !== "string") return [];
+      return [{
+        token: raw.token,
+        expectedFilename: raw.expectedFilename,
+        expectedSha256: typeof raw.expectedSha256 === "string" ? raw.expectedSha256 : null,
+        requiredPostScriptName: String(raw.requiredPostScriptName ?? raw.expectedPostScriptName ?? raw.token),
+      }];
+    }),
+  };
+}
+
 function mapIntegrationIssues(
   issues: readonly { code: string; severity: "ERROR" | "WARNING" | "INFO"; messageKey: string; path?: string; imageSlotId?: string; slotRole?: "IMAGE" | "LOGO"; assetId?: string; expected?: unknown; actual?: unknown }[],
 ): ValidationIssue[] {
@@ -93,6 +218,43 @@ function mapIntegrationIssues(
     ...(entry.slotRole !== undefined ? { slotRole: entry.slotRole } : {}),
     ...(entry.assetId !== undefined ? { assetId: entry.assetId } : {}),
   }));
+}
+
+function mapNaverSourceIssues(
+  issues: readonly Readonly<{ code: string; severity: "ERROR" | "WARNING" | "INFO"; messageKey: string; path: string; expected?: unknown; actual?: unknown }>[],
+): ValidationIssue[] {
+  return issues.map((entry) => ({
+    code: entry.code,
+    severity: entry.severity,
+    messageKey: entry.messageKey,
+    path: entry.path,
+    ...(entry.expected === undefined ? {} : { expected: entry.expected }),
+    ...(entry.actual === undefined ? {} : { actual: entry.actual }),
+  }));
+}
+
+function naverPreviewFailure(
+  request: NaverPreviewRequest,
+  errors: ValidationIssue[],
+  warnings: ValidationIssue[] = [],
+): NaverPreviewResult {
+  const isSmartChannel = request.request.kind === "SMARTCHANNEL";
+  return {
+    requestSequence: request.requestSequence,
+    placement: isSmartChannel ? "SMARTCHANNEL" : request.request.placement,
+    compositionMode: isSmartChannel ? "RENDERER_COMPOSED" : "PLATFORM_COMPOSED",
+    artifactCardinality: isSmartChannel || !request.request.collectionItems ? "SINGLE" : "COLLECTION",
+    previewToken: null,
+    previewUrl: null,
+    validationStatus: "ERROR",
+    errors,
+    warnings,
+    normalizedPayload: null,
+    requestFingerprint: null,
+    collectionFingerprint: null,
+    finalUiRendered: false,
+    generatedAt: new Date().toISOString(),
+  };
 }
 
 function thumbnailManualAcceptanceStatus(): {
@@ -187,6 +349,424 @@ export class DesktopController {
 
   async clearLogo(): Promise<void> {
     await this.#session.clearProductForSlot("LOGO");
+  }
+
+  async getNaverCatalog(): Promise<NaverCatalog> {
+    const [capabilities, contracts] = await Promise.all([
+      readDesktopCapabilityRegistry(this.#projectRoot),
+      loadContracts(this.#projectRoot),
+    ]);
+    const fontPreflight = smartChannelFontInfo(contracts.naverRuntimeFontPolicy);
+    const configuredDirectory = process.env.NAVER_SMARTCHANNEL_FONT_DIR;
+    return {
+      capabilities,
+      sourceProfiles: naverSourceProfilesFromContracts(contracts.naverPlatformSourceProfiles),
+      templates: smartChannelTemplatesFromContracts(contracts.naverTemplateContract),
+      fontPreflight: { ...fontPreflight, configuredDirectory: configuredDirectory && path.isAbsolute(configuredDirectory) ? configuredDirectory : null },
+    };
+  }
+
+  #resolveNaverSourceAsset(
+    request: NaverPlatformSourceRequest,
+    assetToken: string,
+  ): SessionAsset {
+    const asset = this.#session.getAsset(assetToken);
+    if (!request.assets.some((entry) => entry.assetToken === assetToken)) {
+      throw new DesktopSecurityError("DESKTOP-ASSET-005", "Naver source asset token is not declared by the request");
+    }
+    return asset;
+  }
+
+  #sourceAssetDescriptor(
+    contracts: Awaited<ReturnType<typeof loadContracts>>,
+    sourceProfileId: string,
+    asset: NaverSourceAssetRequest,
+    sessionAsset: SessionAsset,
+  ) {
+    const profile = materializePlatformComposedProfile(contracts.naverPlatformSourceProfiles, sourceProfileId);
+    const rule = profile?.assets.find((entry) => entry.id === asset.sourceProfileId || entry.assetRole === asset.assetRole);
+    return {
+      assetId: asset.assetId,
+      assetRole: asset.assetRole,
+      sourceProfileId: asset.sourceProfileId,
+      mime: sessionAsset.detectedMimeType,
+      width: sessionAsset.width,
+      height: sessionAsset.height,
+      bytes: sessionAsset.bytes,
+      sha256: sessionAsset.sha256,
+      hasAlpha: sessionAsset.hasAlpha,
+      ...(rule?.safeArea ? { safeArea: rule.safeArea } : {}),
+      pathRef: sessionAsset.relativePath,
+    };
+  }
+
+  #buildNaverSourceSpec(
+    request: NaverPlatformSourceRequest,
+    contracts: Awaited<ReturnType<typeof loadContracts>>,
+  ): { spec: Record<string, unknown>; assets: Map<string, SessionAsset> } {
+    const assets = new Map<string, SessionAsset>();
+    const descriptors = request.assets.map((entry) => {
+      const asset = this.#resolveNaverSourceAsset(request, entry.assetToken);
+      assets.set(entry.assetId, asset);
+      return this.#sourceAssetDescriptor(contracts, request.sourceProfileId, entry, asset);
+    });
+    const spec: Record<string, unknown> = {
+      schemaVersion: "1.1.0",
+      channel: "NAVER_GFA",
+      placement: request.placement,
+      compositionMode: "PLATFORM_COMPOSED",
+      artifactCardinality: request.collectionItems ? "COLLECTION" : "SINGLE",
+      sourceProfileId: request.sourceProfileId,
+      fields: request.fields,
+      assets: descriptors,
+      ...(request.collectionItems ? { metadata: { itemCount: request.collectionItems.length } } : {}),
+    };
+    if (request.collectionItems) {
+      spec.collection = {
+        ordering: "INPUT_ORDER_PRESERVED",
+        items: request.collectionItems.map((item) => {
+          const descriptor = request.assets.find((candidate) => candidate.assetId === item.assetId);
+          if (!descriptor || descriptor.assetToken !== item.assetToken) throw new DesktopSecurityError("DESKTOP-ASSET-005", `Collection asset ${item.assetId} is not declared with the same session token`);
+          const asset = this.#resolveNaverSourceAsset(request, item.assetToken);
+          assets.set(item.assetId, asset);
+          return {
+            id: item.id,
+            assetId: item.assetId,
+            sourceProfileId: item.sourceProfileId,
+            fields: item.fields,
+          };
+        }),
+      };
+      const metadata = asRecord(spec.metadata);
+      spec.metadata = { ...metadata, itemCount: request.collectionItems.length };
+    }
+    return { spec, assets };
+  }
+
+  async #requestNaverSmartChannel(
+    input: NaverPreviewRequest,
+    request: Extract<NaverPreviewRequest["request"], { kind: "SMARTCHANNEL" }>,
+  ): Promise<NaverPreviewResult> {
+    const generatedAt = new Date().toISOString();
+    try {
+      const object = this.#session.getAsset(request.objectAssetToken);
+      const logo = request.advertiserLogoAssetToken ? this.#session.getAsset(request.advertiserLogoAssetToken) : undefined;
+      const coreRequest = {
+        schemaVersion: "1.0.0" as const,
+        channel: "NAVER_GFA" as const,
+        placement: "SMARTCHANNEL" as const,
+        layoutMode: "TEMPLATE_LOCKED" as const,
+        compositionMode: "RENDERER_COMPOSED" as const,
+        artifactCardinality: "SINGLE" as const,
+        templateId: request.templateId,
+        content: request.content,
+        assets: {
+          object: { path: object.relativePath, expectedSha256: object.sha256 },
+          ...(logo ? { advertiserLogo: { path: logo.relativePath, expectedSha256: logo.sha256 } } : {}),
+        },
+        output: { directory: ".", baseName: request.jobName, overwrite: false },
+      };
+      const contracts = await loadContracts(this.#projectRoot);
+      const result = await renderSmartChannel(coreRequest, {
+        projectRoot: this.#projectRoot,
+        inputRoot: this.#session.inputRoot,
+        outputRoot: this.#session.previewRoot,
+        contracts,
+        publish: false,
+      });
+      const errors = result.errors;
+      const warnings = result.warnings;
+      let previewToken: string | null = null;
+      let previewUrl: string | null = null;
+      if (result.png) {
+        const stored = await this.#session.storePreview(
+          result.png,
+          result.requestFingerprint ?? "",
+          object.sha256,
+          result.pngDigest ?? "",
+          { SMARTCHANNEL_OBJECT: object.sha256 },
+          { publishAllowed: errors.length === 0 },
+        );
+        previewToken = stored.token;
+        previewUrl = `kbr-preview://preview/${stored.token}`;
+      } else {
+        await this.#session.invalidatePreview();
+      }
+      return {
+        requestSequence: input.requestSequence,
+        placement: "SMARTCHANNEL",
+        compositionMode: "RENDERER_COMPOSED",
+        artifactCardinality: "SINGLE",
+        previewToken,
+        previewUrl,
+        validationStatus: errors.length > 0 ? "ERROR" : warnings.length > 0 ? "WARNING" : "PASS",
+        errors,
+        warnings,
+        normalizedPayload: { ...coreRequest, assets: { object: { path: object.relativePath }, ...(logo ? { advertiserLogo: { path: logo.relativePath } } : {}) } },
+        requestFingerprint: result.requestFingerprint ?? null,
+        collectionFingerprint: null,
+        finalUiRendered: false,
+        generatedAt,
+      };
+    } catch (error) {
+      await this.#session.invalidatePreview();
+      return {
+        ...naverPreviewFailure(input, [{ code: error instanceof DesktopSecurityError ? error.code : "DESKTOP-NAVER-999", severity: "ERROR", messageKey: "desktop.naver_internal_error", path: "/request", actual: error instanceof Error ? error.message : String(error) }]),
+        generatedAt,
+      };
+    }
+  }
+
+  async #requestNaverPlatformSource(
+    input: NaverPreviewRequest,
+    request: Extract<NaverPreviewRequest["request"], { kind: "PLATFORM_SOURCE" }>,
+  ): Promise<NaverPreviewResult> {
+    try {
+      const contracts = await loadContracts(this.#projectRoot);
+      const built = this.#buildNaverSourceSpec(request, contracts);
+      const profile = materializePlatformComposedProfile(contracts.naverPlatformSourceProfiles, request.sourceProfileId);
+      if (!profile) return naverPreviewFailure(input, [{ code: "KBR-NAVER-SOURCE-PROFILE", severity: "ERROR", messageKey: "naver_source.profile", path: "/request/sourceProfileId", actual: request.sourceProfileId }]);
+      if (request.collectionItems) {
+        const collectionResult = await renderNaverFeedCollection(built.spec as unknown as NaverFeedCollectionRenderRequest, {
+          projectRoot: this.#projectRoot,
+          inputRoot: this.#session.inputRoot,
+          outputRoot: this.#session.previewRoot,
+          contracts,
+          publish: false,
+        });
+        const errors = collectionResult.errors;
+        const warnings = collectionResult.warnings;
+        return {
+          requestSequence: input.requestSequence,
+          placement: request.placement,
+          compositionMode: "PLATFORM_COMPOSED",
+          artifactCardinality: "COLLECTION",
+          previewToken: null,
+          previewUrl: null,
+          validationStatus: errors.length > 0 ? "ERROR" : warnings.length > 0 ? "WARNING" : "PASS",
+          errors,
+          warnings,
+          normalizedPayload: collectionResult.manifest ? built.spec : null,
+          requestFingerprint: collectionResult.requestFingerprint,
+          collectionFingerprint: collectionResult.collectionFingerprint,
+          finalUiRendered: false,
+          generatedAt: new Date().toISOString(),
+        };
+      }
+      const validation = validatePlatformComposedSource(built.spec as PlatformComposedSourceSpec, profile);
+      const errors = mapNaverSourceIssues(validation.errors);
+      const warnings = mapNaverSourceIssues(validation.warnings);
+      const normalizedPayload = validation.normalized;
+      const requestFingerprint = normalizedPayload ? canonicalDigest(normalizedPayload) : null;
+      return {
+        requestSequence: input.requestSequence,
+        placement: request.placement,
+        compositionMode: "PLATFORM_COMPOSED",
+        artifactCardinality: request.collectionItems ? "COLLECTION" : "SINGLE",
+        previewToken: null,
+        previewUrl: null,
+        validationStatus: errors.length > 0 ? "ERROR" : warnings.length > 0 ? "WARNING" : "PASS",
+        errors,
+        warnings,
+        normalizedPayload,
+        requestFingerprint,
+        collectionFingerprint: null,
+        finalUiRendered: false,
+        generatedAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      return naverPreviewFailure(input, [{ code: error instanceof DesktopSecurityError ? error.code : "DESKTOP-NAVER-999", severity: "ERROR", messageKey: "desktop.naver_source_internal_error", path: "/request", actual: error instanceof Error ? error.message : String(error) }]);
+    }
+  }
+
+  async requestNaverPreview(input: NaverPreviewRequest): Promise<NaverPreviewResult> {
+    if (input.request.kind === "SMARTCHANNEL") return this.#requestNaverSmartChannel(input, input.request);
+    return this.#requestNaverPlatformSource(input, input.request);
+  }
+
+  async #exportNaverSmartChannel(
+    request: NaverExportRequest,
+    output: Awaited<ReturnType<DesktopSessionManager["getOutputDirectory"]>>,
+  ): Promise<NaverExportResult> {
+    try {
+      const smart = request.request;
+      if (smart.kind !== "SMARTCHANNEL") throw new DesktopSecurityError("DESKTOP-IPC-001", "SmartChannel request is required");
+      const object = this.#session.getAsset(smart.objectAssetToken);
+      const logo = smart.advertiserLogoAssetToken ? this.#session.getAsset(smart.advertiserLogoAssetToken) : undefined;
+      const contracts = await loadContracts(this.#projectRoot);
+      const coreRequest = {
+        schemaVersion: "1.0.0" as const,
+        channel: "NAVER_GFA" as const,
+        placement: "SMARTCHANNEL" as const,
+        layoutMode: "TEMPLATE_LOCKED" as const,
+        compositionMode: "RENDERER_COMPOSED" as const,
+        artifactCardinality: "SINGLE" as const,
+        templateId: smart.templateId,
+        content: smart.content,
+        assets: {
+          object: { path: object.relativePath, expectedSha256: object.sha256 },
+          ...(logo ? { advertiserLogo: { path: logo.relativePath, expectedSha256: logo.sha256 } } : {}),
+        },
+        output: { directory: ".", baseName: smart.jobName, overwrite: false },
+      };
+      const result = await renderSmartChannel(coreRequest, {
+        projectRoot: this.#projectRoot,
+        inputRoot: this.#session.inputRoot,
+        outputRoot: output.root,
+        contracts,
+        publish: true,
+      });
+      const requestFingerprint = result.requestFingerprint;
+      if (result.errors.length > 0 || !result.downloadAllowed || !result.pngPath || !result.manifestPath || !result.pngDigest || !result.manifestDigest || !requestFingerprint) {
+        return { status: "BLOCKED", code: "KBR-DOWNLOAD-001", message: "SmartChannel 최종 검증에 실패하여 Download가 차단되었습니다.", errors: result.errors, warnings: result.warnings };
+      }
+      if (request.previewFingerprint && requestFingerprint !== request.previewFingerprint) {
+        await Promise.allSettled([rm(result.pngPath, { force: true }), rm(result.manifestPath, { force: true })]);
+        return { status: "BLOCKED", code: "DESKTOP-EXPORT-003", message: "Preview와 현재 SmartChannel 입력이 일치하지 않습니다.", errors: [], warnings: result.warnings };
+      }
+      const exportToken = this.#session.registerExport(result.pngPath, result.manifestPath);
+      return {
+        status: "EXPORTED",
+        exportToken,
+        mode: "RENDERED",
+        jobName: smart.jobName,
+        manifestFileName: "render-manifest.json",
+        artifactFileNames: ["output.png", "render-manifest.json"],
+        pngDigest: result.pngDigest,
+        manifestDigest: result.manifestDigest,
+        requestFingerprint,
+        warnings: result.warnings,
+      };
+    } catch (error) {
+      return { status: "ERROR", code: error instanceof DesktopSecurityError ? error.code : "DESKTOP-NAVER-999", message: error instanceof Error ? error.message : "SmartChannel Export 중 오류가 발생했습니다.", errors: [], warnings: [] };
+    }
+  }
+
+  #finalizeSourceSpec(
+    source: Record<string, unknown>,
+    fileNames: ReadonlyMap<string, string>,
+  ): Record<string, unknown> {
+    const assets = Array.isArray(source.assets)
+      ? source.assets.map((entry) => {
+          const raw = asRecord(entry);
+          const assetId = String(raw.assetId ?? "");
+          const fileName = fileNames.get(assetId);
+          return fileName ? { ...raw, pathRef: fileName } : raw;
+        })
+      : [];
+    return {
+      ...source,
+      assets,
+    };
+  }
+
+  async #exportNaverSingleSource(
+    request: NaverExportRequest,
+    output: Awaited<ReturnType<DesktopSessionManager["getOutputDirectory"]>>,
+  ): Promise<NaverExportResult> {
+    try {
+      const sourceRequest = request.request;
+      if (sourceRequest.kind !== "PLATFORM_SOURCE" || sourceRequest.collectionItems) throw new DesktopSecurityError("DESKTOP-IPC-001", "Single platform source request is required");
+      const contracts = await loadContracts(this.#projectRoot);
+      const built = this.#buildNaverSourceSpec(sourceRequest, contracts);
+      const profile = materializePlatformComposedProfile(contracts.naverPlatformSourceProfiles, sourceRequest.sourceProfileId);
+      if (!profile) return { status: "BLOCKED", code: "KBR-NAVER-SOURCE-PROFILE", message: "Source profile을 찾을 수 없습니다.", errors: [], warnings: [] };
+      const validation = validatePlatformComposedSource(built.spec as PlatformComposedSourceSpec, profile);
+      const errors = mapNaverSourceIssues(validation.errors);
+      const warnings = mapNaverSourceIssues(validation.warnings);
+      if (!validation.normalized || errors.length > 0) return { status: "BLOCKED", code: "KBR-DOWNLOAD-001", message: "Source validation 오류로 Export가 차단되었습니다.", errors, warnings };
+      const fingerprint = canonicalDigest(validation.normalized);
+      if (request.previewFingerprint && request.previewFingerprint !== fingerprint) return { status: "BLOCKED", code: "DESKTOP-EXPORT-003", message: "Preview와 현재 Source 입력이 일치하지 않습니다.", errors, warnings };
+
+      const fileNames = new Map<string, string>();
+      const publishArtifacts: Array<{ fileName: string; bytes: Uint8Array }> = [];
+      for (const [assetId, asset] of built.assets) {
+        const extension = asset.detectedMimeType === "image/png" ? "png" : "jpg";
+        const fileName = `asset-${sha256Bytes(Buffer.from(assetId, "utf8")).slice(0, 16)}.${extension}`;
+        fileNames.set(assetId, fileName);
+        publishArtifacts.push({ fileName, bytes: await readFile(asset.absolutePath) });
+      }
+      const finalSpec = this.#finalizeSourceSpec(validation.normalized as unknown as Record<string, unknown>, fileNames);
+      const sourceSpecText = canonicalJson(finalSpec);
+      publishArtifacts.push({ fileName: "source-spec.json", bytes: Buffer.from(sourceSpecText, "utf8") });
+      const sourceManifest = {
+        schemaVersion: "1.0.0",
+        kind: "PLATFORM_SOURCE_MANIFEST",
+        channel: "NAVER_GFA",
+        placement: sourceRequest.placement,
+        compositionMode: "PLATFORM_COMPOSED",
+        artifactCardinality: "SINGLE",
+        sourceProfileId: sourceRequest.sourceProfileId,
+        requestFingerprint: fingerprint,
+        sourceSpecDigest: sha256Bytes(Buffer.from(sourceSpecText, "utf8")),
+        finalUiRendered: false,
+        validationResult: { errorCount: 0, warningCount: warnings.length, issues: [...warnings] },
+        artifactFileNames: publishArtifacts.map((entry) => entry.fileName),
+      };
+      const manifestText = canonicalJson(sourceManifest);
+      const manifestDigest = sha256Bytes(Buffer.from(manifestText, "utf8"));
+      const jobDirectory = await resolveTrustedJobDirectory(output.root, ".", sourceRequest.jobName);
+      const published = await publishCollectionArtifacts({ outputRoot: output.root, jobDirectory, artifacts: publishArtifacts, manifest: manifestText, manifestFileName: "source-manifest.json", overwrite: false });
+      const exportToken = this.#session.registerExport(published.artifactPaths[0] ?? published.manifestPath, published.manifestPath);
+      return { status: "EXPORTED", exportToken, mode: "SOURCE", jobName: sourceRequest.jobName, manifestFileName: "source-manifest.json", artifactFileNames: [...publishArtifacts.map((entry) => entry.fileName), "source-manifest.json"], manifestDigest, requestFingerprint: fingerprint, warnings };
+    } catch (error) {
+      return { status: "ERROR", code: error instanceof DesktopSecurityError ? error.code : error instanceof PublishError ? error.code : "DESKTOP-NAVER-999", message: error instanceof Error ? error.message : "Source Export 중 오류가 발생했습니다.", errors: [], warnings: [] };
+    }
+  }
+
+  async #exportNaverCollection(
+    request: NaverExportRequest,
+    output: Awaited<ReturnType<DesktopSessionManager["getOutputDirectory"]>>,
+  ): Promise<NaverExportResult> {
+    try {
+      const sourceRequest = request.request;
+      if (sourceRequest.kind !== "PLATFORM_SOURCE" || !sourceRequest.collectionItems) throw new DesktopSecurityError("DESKTOP-IPC-001", "Collection source request is required");
+      const contracts = await loadContracts(this.#projectRoot);
+      const built = this.#buildNaverSourceSpec(sourceRequest, contracts);
+      const source = built.spec as unknown as NaverFeedCollectionRenderRequest;
+      const result = await renderNaverFeedCollection(source, { projectRoot: this.#projectRoot, inputRoot: this.#session.inputRoot, outputRoot: output.root, contracts, publish: false });
+      if (result.errors.length > 0 || !result.manifest || !result.requestFingerprint) {
+        return { status: "BLOCKED", code: "KBR-DOWNLOAD-001", message: "Collection item validation 오류로 전체 Export가 차단되었습니다.", errors: result.errors, warnings: result.warnings };
+      }
+      if (request.previewFingerprint && request.previewFingerprint !== result.requestFingerprint) return { status: "BLOCKED", code: "DESKTOP-EXPORT-003", message: "Preview와 현재 Collection 순서/입력이 일치하지 않습니다.", errors: [], warnings: result.warnings };
+
+      const fileNames = new Map<string, string>();
+      const publishArtifacts: Array<{ fileName: string; bytes: Uint8Array }> = [];
+      for (const artifact of result.artifacts) {
+        fileNames.set(artifact.assetId, artifact.fileName);
+        publishArtifacts.push({ fileName: artifact.fileName, bytes: artifact.bytes });
+      }
+      for (const [assetId, asset] of built.assets) {
+        if (fileNames.has(assetId)) continue;
+        const extension = asset.detectedMimeType === "image/png" ? "png" : "jpg";
+        const fileName = `asset-${sha256Bytes(Buffer.from(assetId, "utf8")).slice(0, 16)}.${extension}`;
+        fileNames.set(assetId, fileName);
+        publishArtifacts.push({ fileName, bytes: await readFile(asset.absolutePath) });
+      }
+      const normalized = result.manifest;
+      const finalSpec = this.#finalizeSourceSpec(built.spec, fileNames);
+      const sourceSpecText = canonicalJson(finalSpec);
+      publishArtifacts.push({ fileName: "source-spec.json", bytes: Buffer.from(sourceSpecText, "utf8") });
+      const manifestText = canonicalJson(normalized);
+      const manifestDigest = sha256Bytes(Buffer.from(manifestText, "utf8"));
+      const jobDirectory = await resolveTrustedJobDirectory(output.root, ".", sourceRequest.jobName);
+      const published = await publishCollectionArtifacts({ outputRoot: output.root, jobDirectory, artifacts: publishArtifacts, manifest: manifestText, manifestFileName: "collection-manifest.json", overwrite: false });
+      const exportToken = this.#session.registerExport(published.artifactPaths[0] ?? published.manifestPath, published.manifestPath);
+      return { status: "EXPORTED", exportToken, mode: "COLLECTION", jobName: sourceRequest.jobName, manifestFileName: "collection-manifest.json", artifactFileNames: [...publishArtifacts.map((entry) => entry.fileName), "collection-manifest.json"], manifestDigest, requestFingerprint: result.requestFingerprint, ...(result.collectionFingerprint ? { collectionFingerprint: result.collectionFingerprint } : {}), warnings: result.warnings };
+    } catch (error) {
+      return { status: "ERROR", code: error instanceof DesktopSecurityError ? error.code : error instanceof PublishError ? error.code : "DESKTOP-NAVER-999", message: error instanceof Error ? error.message : "Collection Export 중 오류가 발생했습니다.", errors: [], warnings: [] };
+    }
+  }
+
+  async exportNaver(request: NaverExportRequest): Promise<NaverExportResult> {
+    try {
+      const output = this.#session.getOutputDirectory(request.outputDirectoryToken);
+      if (request.request.kind === "SMARTCHANNEL") return this.#exportNaverSmartChannel(request, output);
+      if (request.request.collectionItems) return this.#exportNaverCollection(request, output);
+      return this.#exportNaverSingleSource(request, output);
+    } catch (error) {
+      return { status: "ERROR", code: error instanceof DesktopSecurityError ? error.code : "DESKTOP-NAVER-999", message: error instanceof Error ? error.message : "Naver Export 중 오류가 발생했습니다.", errors: [], warnings: [] };
+    }
   }
 
   #buildInput(input: Omit<UiRenderInput, "requestSequence">, asset: SessionAsset): KakaoBizboardInputV1 {
@@ -1309,7 +1889,10 @@ export class DesktopController {
   }
 
   async getAppInfo(): Promise<AppInfo> {
-    const contracts = await loadContracts(this.#projectRoot);
+    const [contracts, capabilities] = await Promise.all([
+      loadContracts(this.#projectRoot),
+      readDesktopCapabilityRegistry(this.#projectRoot),
+    ]);
     return {
       name: "카카오 비즈보드 로컬 Renderer",
       version: this.#appVersion,
@@ -1325,6 +1908,7 @@ export class DesktopController {
         jobName: extractMaximum(contracts.inputSchema, ["properties", "output", "properties", "baseName", "maxLength"]),
       },
       blockedNetworkRequestCount: this.#blockedNetworkRequestCount(),
+      channels: capabilities,
     };
   }
 

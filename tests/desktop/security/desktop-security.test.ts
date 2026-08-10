@@ -38,6 +38,9 @@ describe("Electron and IPC security boundary", () => {
       DESKTOP_CHANNELS.requestPreview,
       DESKTOP_CHANNELS.selectOutputDirectory,
       DESKTOP_CHANNELS.exportRender,
+      DESKTOP_CHANNELS.getNaverCatalog,
+      DESKTOP_CHANNELS.requestNaverPreview,
+      DESKTOP_CHANNELS.exportNaver,
       DESKTOP_CHANNELS.revealExportedFile,
       DESKTOP_CHANNELS.getAppInfo,
     ]);

@@ -91,7 +91,7 @@ if (integrationSchemas.includes("1.8.0")) pass("integration_version_alignment", 
 else fail("integration_version_alignment", "v1.8.0 is absent from Integration schemas");
 
 const versions = await readJson("contracts/contract-versions.json");
-if (versions.documentVersion?.current === "1.21.0" && versions.integrationContract?.current === "1.8.0" && versions.templateContractVersion === "1.9.0" && versions.desktopAppVersion === "0.8.2" && versions.freeformFormatProfileRegistryVersion === "1.2.0") pass("version_policy", "Canonical 1.21.0 / Integration 1.8.0 / Template 1.9.0 / FREEFORM Profiles 1.2.0 / Desktop 0.8.2");
+if (versions.documentVersion?.current === "1.21.0" && versions.integrationContract?.current === "1.8.0" && versions.templateContractVersion === "1.9.0" && versions.desktopAppVersion === "0.9.0" && versions.freeformFormatProfileRegistryVersion === "1.2.0") pass("version_policy", "Canonical 1.21.0 / Integration 1.8.0 / Template 1.9.0 / FREEFORM Profiles 1.2.0 / Desktop 0.9.0");
 else fail("version_policy", JSON.stringify({ document: versions.documentVersion, integration: versions.integrationContract, template: versions.templateContractVersion, profiles: versions.freeformFormatProfileRegistryVersion, desktop: versions.desktopAppVersion }));
 if (versions.creativeLayoutPlan?.schemaVersion === "1.0.0" && versions.creativeLayoutPlan?.implementationStatus === "NOT_IMPLEMENTED") pass("implementation_boundary", "FREEFORM schema remains frozen; raster implementation is additive");
 else fail("implementation_boundary", "FREEFORM implementation status is not NOT_IMPLEMENTED");

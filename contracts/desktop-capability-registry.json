@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/desktop-capability-registry-v1.0.0.json",
+  "registryVersion": "1.0.0",
+  "channelFirst": true,
+  "modeIsNotUserPrimaryChoice": true,
+  "channels": [
+    {
+      "id": "KAKAO",
+      "label": "KAKAO",
+      "placements": [
+        {
+          "id": "KAKAO_BIZBOARD",
+          "label": "Bizboard",
+          "compositionMode": "RENDERER_COMPOSED",
+          "layoutMode": "TEMPLATE_LOCKED",
+          "artifactCardinality": "SINGLE",
+          "editorType": "TEMPLATE_LOCKED_EDITOR",
+          "renderable": true,
+          "templateRegistry": "KAKAO_BIZBOARD_TEMPLATE_REGISTRY"
+        },
+        {
+          "id": "KAKAO_FREEFORM",
+          "label": "Freeform",
+          "compositionMode": "RENDERER_COMPOSED",
+          "layoutMode": "FREEFORM",
+          "artifactCardinality": "SINGLE",
+          "editorType": "FREEFORM_EDITOR",
+          "renderable": true,
+          "freeformProfileRegistry": "contracts/freeform-format-profiles.json"
+        }
+      ]
+    },
+    {
+      "id": "NAVER",
+      "label": "NAVER",
+      "placements": [
+        {
+          "id": "NAVER_SMARTCHANNEL",
+          "label": "SmartChannel",
+          "compositionMode": "RENDERER_COMPOSED",
+          "layoutMode": "TEMPLATE_LOCKED",
+          "artifactCardinality": "SINGLE",
+          "editorType": "TEMPLATE_LOCKED_EDITOR",
+          "renderable": true,
+          "templateRegistry": "contracts/naver-smartchannel-template-contract.json",
+          "fontPreflight": true
+        },
+        {
+          "id": "NAVER_MOBILE_DA",
+          "label": "Mobile DA",
+          "compositionMode": "RENDERER_COMPOSED",
+          "layoutMode": "FREEFORM",
+          "artifactCardinality": "SINGLE",
+          "editorType": "FREEFORM_EDITOR",
+          "renderable": true,
+          "freeformProfileId": "NAVER_MOBILE_DA"
+        },
+        {
+          "id": "NAVER_IMAGE_BANNER_1_1",
+          "label": "Image Banner 1:1",
+          "compositionMode": "RENDERER_COMPOSED",
+          "layoutMode": "FREEFORM",
+          "artifactCardinality": "SINGLE",
+          "editorType": "FREEFORM_EDITOR",
+          "renderable": true,
+          "freeformProfileId": "NAVER_IMAGE_BANNER_1_1"
+        },
+        {
+          "id": "NAVER_MOBILE_NATIVE",
+          "label": "Mobile Native",
+          "compositionMode": "PLATFORM_COMPOSED",
+          "layoutMode": "PLATFORM_SOURCE",
+          "artifactCardinality": "SINGLE",
+          "editorType": "PLATFORM_SOURCE_EDITOR",
+          "renderable": true,
+          "sourceProfileId": "NAVER_MOBILE_NATIVE_SOURCE_V1"
+        },
+        {
+          "id": "NAVER_PC_NATIVE",
+          "label": "PC Native",
+          "compositionMode": "PLATFORM_COMPOSED",
+          "layoutMode": "PLATFORM_SOURCE",
+          "artifactCardinality": "SINGLE",
+          "editorType": "PLATFORM_SOURCE_EDITOR",
+          "renderable": true,
+          "sourceProfileId": "NAVER_PC_NATIVE_SOURCE_V1"
+        },
+        {
+          "id": "NAVER_SHOPPING_NEWS",
+          "label": "Shopping News",
+          "compositionMode": "PLATFORM_COMPOSED",
+          "layoutMode": "PLATFORM_SOURCE",
+          "artifactCardinality": "SINGLE",
+          "editorType": "PLATFORM_SOURCE_EDITOR",
+          "renderable": true,
+          "sourceProfileId": "NAVER_SHOPPING_NEWS_SOURCE_V1",
+          "platformOwnedFields": ["notificationState", "presentationVariant", "adMute"]
+        },
+        {
+          "id": "NAVER_COMMUNICATION_AD",
+          "label": "Communication Ad",
+          "compositionMode": "PLATFORM_COMPOSED",
+          "layoutMode": "PLATFORM_SOURCE",
+          "artifactCardinality": "SINGLE",
+          "editorType": "PLATFORM_SOURCE_EDITOR",
+          "renderable": true,
+          "sourceProfileIds": [
+            "NAVER_COMMUNICATION_AD_LIST_SOURCE_V1",
+            "NAVER_COMMUNICATION_AD_COMMENT_SOURCE_V1"
+          ]
+        },
+        {
+          "id": "NAVER_MOBILE_DA_FEED",
+          "label": "Mobile DA Feed",
+          "compositionMode": "PLATFORM_COMPOSED",
+          "layoutMode": "PLATFORM_SOURCE",
+          "artifactCardinality": "SINGLE_OR_COLLECTION",
+          "editorType": "PLATFORM_SOURCE_EDITOR",
+          "renderable": true,
+          "sourceProfileIds": [
+            "NAVER_FEED_IMAGE_SOURCE_V1",
+            "NAVER_FEED_2_3_IMAGE_SOURCE_V1",
+            "NAVER_FEED_COLLECTION_SOURCE_V1",
+            "NAVER_FEED_VIDEO_SOURCE_V1"
+          ],
+          "feedSubtypes": [
+            { "id": "IMAGE", "enabled": true, "sourceProfileId": "NAVER_FEED_IMAGE_SOURCE_V1" },
+            { "id": "COLLECTION", "enabled": true, "sourceProfileId": "NAVER_FEED_COLLECTION_SOURCE_V1" },
+            { "id": "VIDEO", "enabled": false, "sourceProfileId": "NAVER_FEED_VIDEO_SOURCE_V1", "disabledReason": "Out of static renderer scope" }
+          ]
+        }
+      ]
+    }
+  ]
+}

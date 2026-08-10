@@ -35,8 +35,6 @@ type OutputQuality = number | "AUTO_FIT";
 
 const formatCatalog = formatCatalogJson as unknown as { profiles: readonly FormatProfile[] };
 const fontRegistry = fontRegistryJson as unknown as FreeformFontRegistry;
-// Naver N4 profiles are Core/CLI runtime profiles only.  Desktop Naver
-// composition remains an explicit later phase and must not appear in this UI.
 const profiles = formatCatalog.profiles.filter((profile) => profile.channelNamespace !== "NAVER_GFA" && profile.implementationStatus === "IMPLEMENTED" && profile.catalogStatus !== "INTERNAL_TEST_ONLY");
 const catalogOnlyProfiles = formatCatalog.profiles.filter((profile) => profile.channelNamespace !== "NAVER_GFA" && (profile.implementationStatus !== "IMPLEMENTED" || profile.catalogStatus === "INTERNAL_TEST_ONLY")).filter((profile) => profile.catalogStatus !== "INTERNAL_TEST_ONLY");
 const defaultProfile = profiles[0];
@@ -157,12 +155,20 @@ function GeometryEditor({ element, onChange }: { element: EditableElement; onCha
   );
 }
 
-export function FreeformEditor() {
-  const [profileId, setProfileId] = useState(defaultProfile?.formatProfileId ?? "");
-  const profile = useMemo(() => formatCatalog.profiles.find((entry) => entry.formatProfileId === profileId) ?? defaultProfile, [profileId]);
+export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channel?: "KAKAO" | "NAVER"; initialProfileId?: string } = {}) {
+  const availableProfiles = useMemo(
+    () => channel === "NAVER"
+      ? formatCatalog.profiles.filter((profile) => profile.channelNamespace === "NAVER_GFA" && profile.implementationStatus === "IMPLEMENTED" && profile.catalogStatus !== "INTERNAL_TEST_ONLY")
+      : profiles,
+    [channel],
+  );
+  const availableCatalogOnlyProfiles = channel === "NAVER" ? [] : catalogOnlyProfiles;
+  const initialProfile = availableProfiles.find((entry) => entry.formatProfileId === initialProfileId) ?? availableProfiles[0] ?? defaultProfile;
+  const [profileId, setProfileId] = useState(initialProfile?.formatProfileId ?? "");
+  const profile = useMemo(() => formatCatalog.profiles.find((entry) => entry.formatProfileId === profileId) ?? initialProfile, [initialProfile, profileId]);
   const [plan, setPlan] = useState<CreativeLayoutPlan>(() => ({
     schemaVersion: "1.0.0",
-    formatProfileId: defaultProfile?.formatProfileId ?? "",
+    formatProfileId: initialProfile?.formatProfileId ?? "",
     source: "MANUAL",
     background: { type: "SOLID", color: "#FFFFFF" },
     elements: [],
@@ -382,8 +388,8 @@ export function FreeformEditor() {
       <aside className="freeform-sidebar" aria-label="FREEFORM editor">
         <div className="section-heading"><div><h2>FREEFORM Format Lab</h2><p className="hint">Registry-driven Thin Client · Core Validator가 Source of Truth</p></div><span className="capability-pill">FREEFORM</span></div>
         <label className="field-group"><span className="field-label">Format</span><select data-testid="freeform-format-select" value={profileId} onChange={(event) => { const value = event.currentTarget.value; setProfileId(value); updatePlan((current) => ({ ...current, formatProfileId: value })); }}>
-          {profiles.map((entry) => <option key={entry.formatProfileId} value={entry.formatProfileId}>{entry.displayName ?? `${entry.formatProfileId} — ${entry.canvas.width}×${entry.canvas.height}`}</option>)}
-          {catalogOnlyProfiles.map((entry) => <option key={entry.formatProfileId} value={entry.formatProfileId} disabled data-testid="freeform-scroll-option">{entry.displayName ?? entry.formatProfileId} · 지원 예정</option>)}
+          {availableProfiles.map((entry) => <option key={entry.formatProfileId} value={entry.formatProfileId}>{entry.displayName ?? `${entry.formatProfileId} — ${entry.canvas.width}×${entry.canvas.height}`}</option>)}
+          {availableCatalogOnlyProfiles.map((entry) => <option key={entry.formatProfileId} value={entry.formatProfileId} disabled data-testid="freeform-scroll-option">{entry.displayName ?? entry.formatProfileId} · 지원 예정</option>)}
         </select></label>
         {profile ? <div className="freeform-summary" data-testid="freeform-format-summary">
           <strong>{profile.displayName ?? profile.formatProfileId}</strong>

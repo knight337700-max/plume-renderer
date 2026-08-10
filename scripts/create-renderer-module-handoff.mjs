@@ -138,7 +138,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N6 handoff
+const readme = `# Renderer Module — N7 handoff
 
 ## Purpose
 
@@ -146,7 +146,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N6 completion commit: ${sourceSha}
+- N7 completion commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Runtime network access: PROHIBITED
 
@@ -158,7 +158,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER Platform-Composed: source contract only; final native/feed UI is NAVER-owned
 - NAVER Feed Collection: implemented source artifacts, ordered fingerprints, and atomic manifest publish; final Feed UI is not implemented
 - NAVER video runtime: not implemented
-- NAVER Desktop UI: not implemented
+- NAVER Desktop UI: implemented (capability-driven Channel → Placement → Editor)
 - Meta: not implemented
 - Google: not implemented
 
@@ -193,12 +193,14 @@ OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is N6 in docs/kakao-bizboard-renderer-spec-v1.md. N6 source contracts are
+The latest phase is N7 in docs/kakao-bizboard-renderer-spec-v1.md. N7 Desktop integration
+uses the capability registry and existing Core paths. N6 source contracts are
 contracts/naver-platform-composed-source.schema.json,
 contracts/naver-platform-composed-source-profiles.json, and
 contracts/naver-platform-composed-source-revision.json, plus the generic
-multi-artifact manifest schema. The next planned phase is
-N7_NAVER_DESKTOP_INTEGRATION_FULL_REGRESSION; it must not invent final NAVER UI geometry.
+multi-artifact manifest schema. N7 additions are
+contracts/desktop-capability-registry.json and tests/e2e/naver-desktop.spec.ts. The next
+planned phase is M0_NAVER_DESKTOP_HARDENING; it must not invent final NAVER UI geometry.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
 const readmeEntry = files.find((entry) => entry.path === "README.md");
@@ -206,7 +208,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N6_NAVER_COLLECTION_MULTI_ARTIFACT_CONTRACT",
+  handoffPhase: "N7_NAVER_DESKTOP_INTEGRATION_FULL_REGRESSION",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -221,15 +223,16 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN6.rendererCoreVersion,
+    rendererCore: canonicalDocument.canonicalPhaseN7.rendererCoreVersion,
     desktop: canonicalDocument.desktopAppVersion,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
     platformComposedSourceRegistry: canonicalDocument.platformComposedSourceRegistryVersion,
+    capabilityRegistry: canonicalDocument.canonicalPhaseN7.capabilityRegistryVersion,
   },
   channels: {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
-    NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED" },
+    NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", desktopIntegration: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED", video: "DISABLED_OUT_OF_STATIC_SCOPE" },
     META: "NOT_IMPLEMENTED",
     GOOGLE: "NOT_IMPLEMENTED",
   },
@@ -239,6 +242,8 @@ const manifest = {
     smartchannelPsdCount,
     officialNaverGuideDirectory: "source-guides/naver/platform-composed",
     collectionContract: "contracts/multi-artifact-manifest.schema.json",
+    desktopCapabilityRegistry: "contracts/desktop-capability-registry.json",
+    n7ImplementationRecord: "docs/implementation/naver-desktop-integration-n7.md",
   },
   externalRuntimeDependencies: [
     { kind: "font", directoryEnv: "NAVER_SMARTCHANNEL_FONT_DIR", manifest: "local-runtime-resources/fonts/font-manifest.json", bundled: false, licenseStatus: "NOT_CONFIRMED" },

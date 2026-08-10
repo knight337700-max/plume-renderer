@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useReducer, useState, type KeyboardEvent, type WheelEvent } from "react";
 
-import type { AppInfo, ExportRequest, ProductSelectionResult, UiLayoutMode, UiRenderInput, UiTemplate } from "../../../shared/src/index.js";
+import type { AppInfo, ExportRequest, ProductSelectionResult, UiChannel, UiLayoutMode, UiRenderInput, UiTemplate } from "../../../shared/src/index.js";
 import type { TextMeasurement } from "../../../../../src/core/types.js";
 import {
   INTEGRATION_SCHEMA_VERSION,
@@ -31,6 +31,7 @@ import {
 } from "../features/placement/crop-rect.js";
 import { fieldHasError, issueMessage } from "../features/validation/messages.js";
 import { FreeformEditor } from "../features/freeform/FreeformEditor.js";
+import { NaverDesktopEditor } from "../features/naver/NaverDesktopEditor.js";
 import { canExport, canRequestPreview, initialUiState, uiReducer, type UiField } from "./state.js";
 
 const fieldConfig: Array<{ id: UiField; label: string; pointer: string; multiline?: boolean }> = [
@@ -73,6 +74,7 @@ function defaultMultiPlan(imageSlotId: string, assetId: string): ImagePlacementP
 export function App() {
   const [state, dispatch] = useReducer(uiReducer, initialUiState);
   const [appInfo, setAppInfo] = useState<AppInfo | null>(null);
+  const [channel, setChannel] = useState<UiChannel>("KAKAO");
   const [layoutMode, setLayoutMode] = useState<UiLayoutMode>("TEMPLATE_LOCKED");
   const [template, setTemplate] = useState<UiTemplate>("OBJECT_RIGHT");
   const [secondaryProduct, setSecondaryProduct] = useState<SelectedProduct | null>(null);
@@ -621,17 +623,21 @@ export function App() {
       <header className="app-header">
         <div>
           <p className="eyebrow">비공식 내부 제작 도구</p>
-          <h1>카카오 비즈보드 로컬 Renderer</h1>
-          <p>{layoutMode === "TEMPLATE_LOCKED" ? `${template} · 1029×258 · CTA 없음` : "FREEFORM · Registry Format Catalog · Core Validator"} · Runtime network 0</p>
-          <div className="mode-selector" role="group" aria-label="Renderer Mode">
+          <h1>{channel === "KAKAO" ? "카카오 비즈보드 로컬 Renderer" : "NAVER Desktop Renderer Lab"}</h1>
+          <p>{channel === "KAKAO" ? (layoutMode === "TEMPLATE_LOCKED" ? `${template} · 1029×258 · CTA 없음` : "FREEFORM · Registry Format Catalog · Core Validator") : "NAVER · Channel → Placement → Capability Editor"} · Runtime network 0</p>
+          <div className="channel-selector" role="group" aria-label="Channel">
+            <button type="button" className={channel === "KAKAO" ? "channel-active" : ""} onClick={() => setChannel("KAKAO")} data-testid="channel-kakao">KAKAO</button>
+            <button type="button" className={channel === "NAVER" ? "channel-active" : ""} onClick={() => setChannel("NAVER")} data-testid="channel-naver">NAVER</button>
+          </div>
+          {channel === "KAKAO" ? <div className="mode-selector" role="group" aria-label="Renderer Mode">
             <button type="button" className={layoutMode === "TEMPLATE_LOCKED" ? "mode-active" : ""} onClick={() => setLayoutMode("TEMPLATE_LOCKED")} data-testid="mode-template-locked">Template Locked</button>
             <button type="button" className={layoutMode === "FREEFORM" ? "mode-active" : ""} onClick={() => setLayoutMode("FREEFORM")} data-testid="mode-freeform">Freeform</button>
-          </div>
+          </div> : null}
         </div>
         <div className="app-version">v{appInfo?.version ?? "…"}</div>
       </header>
 
-      {layoutMode === "FREEFORM" ? <FreeformEditor /> : <section className="workspace">
+      {channel === "NAVER" ? <NaverDesktopEditor /> : layoutMode === "FREEFORM" ? <FreeformEditor /> : <section className="workspace">
         <aside className="input-panel" aria-label="입력 패널">
           <div className="section-heading">
             <h2>입력</h2>
@@ -944,7 +950,7 @@ export function App() {
         </section>
       </section>}
 
-      {layoutMode === "TEMPLATE_LOCKED" ? <footer className="export-bar">
+      {channel === "KAKAO" && layoutMode === "TEMPLATE_LOCKED" ? <footer className="export-bar">
         <div>
           <strong>출력 폴더</strong>
           <span>{state.output?.displayName ?? "선택하지 않음"}</span>
