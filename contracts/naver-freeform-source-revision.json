@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-freeform-source-revision-v1.json",
+  "registryVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "sourceStatus": "SOURCE_CONFIRMED",
+  "retrievedAt": "2026-08-10",
+  "runtimeNetworkAccess": "PROHIBITED",
+  "sources": {
+    "mobileDa": {
+      "formatId": "NAVER_MOBILE_DA",
+      "placement": "MOBILE_DA",
+      "pageUrl": "https://ads.naver.com/adguide/1474",
+      "pageUpdate": "2025-04-08",
+      "attachmentUrl": "https://nosp.da.naver.com/center/api/dafile/download?fileNm=Image_M_DA_total_PF.pdf",
+      "attachmentFileName": "Image_M_DA_total_PF.pdf",
+      "attachmentSha256": "a5f61b376d4ae1f6eb0c187b2a55af229916e875959cf798d7cd1fe7fdc4d11f",
+      "attachmentStatus": "INSPECTED",
+      "attachmentPages": 17,
+      "canvas": { "width": 1250, "height": 560 },
+      "allowedOutputMimes": ["image/png", "image/jpeg"],
+      "fileSizeBytes": { "minimum": 50000, "maximum": 250000 },
+      "safeArea": {
+        "text": { "left": 240, "right": 240, "top": 50, "bottom": 35 },
+        "mainObject": { "left": 225, "right": 225 }
+      },
+      "textRules": { "maxFontSizePx": 52, "minRasterHeightPx": 22, "maxLines": 4, "maxDistinctColors": 3 },
+      "transparency": { "transparentPixelsAllowed": false, "status": "SOURCE_CONFIRMED" },
+      "whiteArea": { "rule": "white background below 50 percent", "status": "NON_MACHINE_ENFORCEABLE" }
+    },
+    "imageBanner1x1": {
+      "formatId": "NAVER_IMAGE_BANNER_1_1",
+      "placement": "IMAGE_BANNER_1_1",
+      "pageUrl": "https://ads.naver.com/adguide/1473",
+      "pageUpdate": "2023-12-20",
+      "attachmentUrl": "https://nosp.da.naver.com/center/api/dafile/download?fileNm=Webtoon_BigBanner_Guide_231220.pdf",
+      "attachmentFileName": "Webtoon_BigBanner_Guide_231220.pdf",
+      "attachmentSha256": "b71852dfcc62160633af96bffdd3aca990e8acf932ddf188b06a59aee942d30b",
+      "attachmentStatus": "INSPECTED",
+      "attachmentPages": 8,
+      "canvas": { "width": 1200, "height": 1200 },
+      "allowedOutputMimes": ["image/jpeg", "image/png"],
+      "fileSizeBytes": { "minimum": 80000, "maximum": 800000 },
+      "ratio": "1:1",
+      "sharedPlacement": "PC_AND_MOBILE",
+      "textRulesPt": { "TITLE": 32, "SUBCOPY": 16, "DISCLAIMER": 14 },
+      "transparency": { "transparentPixelsAllowed": "UNRESOLVED", "status": "UNRESOLVED" },
+      "designRules": { "status": "SOURCE_CONFIRMED_NON_MACHINE_ENFORCEABLE" }
+    },
+    "mobileDaFeed": {
+      "placement": "MOBILE_DA_FEED",
+      "pageUrl": "https://ads.naver.com/adguide/1480",
+      "pageUpdate": "2026-04-15",
+      "attachmentUrl": "https://nosp.da.naver.com/center/api/dafile/download?fileNm=FEED_AD_GUIDE.pdf",
+      "attachmentFileName": "FEED_AD_GUIDE.pdf",
+      "attachmentSha256": "0e45fdf9dda180551dde06bdef91e726f86823a405e62e00232db7ba407170ef",
+      "attachmentStatus": "INSPECTED",
+      "attachmentPages": 20,
+      "outerComposition": "PLATFORM_COMPOSED",
+      "singleImageProfiles": {
+        "FEED_1_1": { "canvas": { "width": 1200, "height": 1200 }, "minimumBytes": 80000, "maximumBytes": 800000, "status": "CATALOG_ONLY" },
+        "FEED_16_9": { "canvas": { "width": 1200, "height": 628 }, "minimumBytes": 50000, "maximumBytes": 500000, "status": "CATALOG_ONLY" }
+      },
+      "collection": { "canvas": { "width": 600, "height": 600 }, "minimumBytes": 20000, "maximumBytes": 500000, "runtimeStatus": "DEFERRED_TO_N6" },
+      "video": { "runtimeStatus": "OUT_OF_SCOPE_STATIC_RENDERER" }
+    }
+  }
+}

@@ -35,8 +35,8 @@
   ],
   "capabilities": [
     { "channel": "NAVER_GFA", "placement": "SMARTCHANNEL", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "TEMPLATE_LOCKED", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED" },
-    { "channel": "NAVER_GFA", "placement": "MOBILE_DA", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE", "runtimeStatus": "CONTRACT_ONLY" },
-    { "channel": "NAVER_GFA", "placement": "IMAGE_BANNER_1_1", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE", "runtimeStatus": "CONTRACT_ONLY" },
+    { "channel": "NAVER_GFA", "placement": "MOBILE_DA", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED" },
+    { "channel": "NAVER_GFA", "placement": "IMAGE_BANNER_1_1", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED" },
     { "channel": "NAVER_GFA", "placement": "MOBILE_NATIVE", "compositionMode": "PLATFORM_COMPOSED", "artifactCardinality": "SINGLE", "runtimeStatus": "DEFERRED" },
     { "channel": "NAVER_GFA", "placement": "PC_NATIVE", "compositionMode": "PLATFORM_COMPOSED", "artifactCardinality": "SINGLE", "runtimeStatus": "DEFERRED" },
     { "channel": "NAVER_GFA", "placement": "SHOPPING_NEWS", "compositionMode": "PLATFORM_COMPOSED", "artifactCardinality": "SINGLE", "runtimeStatus": "DEFERRED" },

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.2.0",
+  "layoutMode": "FREEFORM",
+  "formatProfileId": "NAVER_IMAGE_BANNER_1_1",
+  "creativeLayoutPlan": {
+    "schemaVersion": "1.0.0",
+    "formatProfileId": "NAVER_IMAGE_BANNER_1_1",
+    "source": "MANUAL",
+    "background": { "type": "SOLID", "color": "#FFFFFFFF" },
+    "elements": [
+      {
+        "id": "image-banner-primary",
+        "type": "IMAGE",
+        "assetId": "image-banner-primary",
+        "bounds": { "x": 0, "y": 0, "width": 1, "height": 1 },
+        "zIndex": 0,
+        "placement": { "policy": "MANUAL_CROP", "source": "MANUAL", "fitMode": "COVER", "cropRect": { "x": 0, "y": 0, "width": 1, "height": 1 }, "anchor": "CENTER", "subjectProtection": "NONE" }
+      },
+      {
+        "id": "image-banner-detail",
+        "type": "IMAGE",
+        "assetId": "image-banner-detail",
+        "bounds": { "x": 0.08, "y": 0.08, "width": 0.84, "height": 0.84 },
+        "zIndex": 1,
+        "placement": { "policy": "CENTER_CONTAIN", "source": "MANUAL", "fitMode": "CONTAIN", "anchor": "CENTER", "subjectProtection": "NONE" }
+      }
+    ]
+  },
+  "assets": [
+    { "assetId": "image-banner-primary", "path": "reference/kakao-tool/THUMBNAIL_MULTI_RIGHT.png", "mimeType": "image/png" },
+    { "assetId": "image-banner-detail", "path": "reference/kakao-tool/MASK_SEMICIRCLE_RIGHT.png", "mimeType": "image/png" }
+  ],
+  "output": { "format": "PNG", "mimeType": "image/png" }
+}

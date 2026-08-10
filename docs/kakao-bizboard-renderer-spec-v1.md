@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.18.0
-- **Status:** Frozen Implementation Contract — Phase N3 SmartChannel Core raster runtime for the complete 120-template source whitelist; Desktop SmartChannel UI and N4 expansion remain out of scope
+- **Document version:** 1.19.0
+- **Status:** Frozen Implementation Contract — Phase N4 NAVER_GFA FREEFORM constrained image profiles for Mobile DA and Image Banner 1:1; Desktop NAVER UI and PLATFORM_COMPOSED Feed wrapper remain out of scope
 - **Checked date:** 2026-08-10 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **35.9. Phase N3 runtime**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **36. Phase N4 NAVER FREEFORM runtime**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -2173,7 +2173,9 @@ Desktop Lab은 Capability, policy/fit/anchor/protection, crop/focal/candidate �
 현재 실제 렌더링 가능한 `IMPLEMENTED` 지면이다. `semanticPlacement`는 `REQUIRED`이고
 허용 정책은 `SEMANTIC_CROP_COVER`, `MANUAL_CROP`뿐이다. `CENTER_CONTAIN`으로
 자동 대체하지 않으며, 나머지 THUMBNAIL_MULTI_RIGHT, MASK_SEMICIRCLE_RIGHT,
-KAKAO_NATIVE_1200, NAVER_GFA_IMAGE_BANNER는 계속 `NOT_IMPLEMENTED`다.
+KAKAO_NATIVE_1200는 계속 `NOT_IMPLEMENTED`다. 이전 `NAVER_GFA_IMAGE_BANNER`
+문구는 N4 이전 snapshot이며, 현재 `NAVER_IMAGE_BANNER_1_1`은 §36의 source-confirmed
+FREEFORM profile로 supersede되었다.
 
 ### 18.2 측정 기준과 고정 좌표 [TOOL_OUTPUT][DERIVED][PROJECT]
 
@@ -3865,3 +3867,91 @@ N3 acceptance는 source inventory 120, placement token 39, template mapping 120,
 project-compatible font preflight, runtime network prohibition, N2 golden immutability를
 기계적으로 검사한다. 다음 단계는 Naver Freeform constrained format expansion이다.
 **[PROJECT]**
+
+## 36. Phase N4 — NAVER FREEFORM constrained format expansion [PROJECT] [OFFICIAL]
+
+N4는 새 `LayoutMode`를 만들지 않는다. 기존 `LayoutMode = TEMPLATE_LOCKED | FREEFORM`을
+유지하고, `NAVER_GFA`의 정적 이미지 배너는 `layoutMode: FREEFORM`,
+`compositionMode: RENDERER_COMPOSED`, `artifactCardinality: SINGLE`인 additive
+`FormatProfile`로 표현한다. Canvas의 소유자는 계속 FormatProfile이며
+`CreativeLayoutPlan`은 Canvas 필드를 갖지 않는다. **[PROJECT]**
+
+### 36.1 Official source revision [OFFICIAL] [TOOL_OUTPUT]
+
+공식 페이지와 다운로드 상세 가이드는 다음 registry에 기록한다.
+`contracts/naver-freeform-source-revision.json`. Runtime은 이 파일의 URL을 호출하지
+않고, 연구/build 단계에서만 확인한 source evidence를 사용한다. **[PROJECT]**
+
+| Profile | Official page | Page update | Download attachment | Attachment status |
+|---|---|---:|---|---|
+| `NAVER_MOBILE_DA` | [모바일 DA](https://ads.naver.com/adguide/1474) | 2025-04-08 | `Image_M_DA_total_PF.pdf` | INSPECTED |
+| `NAVER_IMAGE_BANNER_1_1` | [이미지 배너형 1:1](https://ads.naver.com/adguide/1473) | 2023-12-20 | `Webtoon_BigBanner_Guide_231220.pdf` | INSPECTED |
+| `MOBILE_DA_FEED` boundary | [모바일 DA 피드](https://ads.naver.com/adguide/1480) | 2026-04-15 | `FEED_AD_GUIDE.pdf` | INSPECTED |
+
+SAFE AREA와 최소/최대 용량의 현재 플랫폼 적용 공지는 [모바일DA 여백 및 최소 용량
+공지](https://ads.naver.com/notice/18556)다. 다운로드 URL, SHA-256, 페이지 수 및
+source classification은 source revision registry를 따른다. **[OFFICIAL] [TOOL_OUTPUT]**
+
+### 36.2 Mobile DA profile [OFFICIAL] [PROJECT]
+
+`NAVER_MOBILE_DA`는 `1250×560`, `PNG/JPEG`, decimal byte `50000 ≤ bytes ≤ 250000`,
+완전 불투명 output을 요구한다. 공식 첨부에서 확인된 text/logo/button safe area는
+`x=240..1010`, `y=50..525`이며 main object safe area는 `x=225..1025`다.
+Validator는 `alpha >= 8` 실제 raster bounds를 검사하고, Renderer는 입력 Plan의
+위치·크기·crop을 자동 변경하지 않는다. **[OFFICIAL] [DERIVED]**
+
+첨부에서 확인된 machine-enforceable text 값은 최대 52px, 최소 실제 raster 높이 22px,
+최대 4줄, declared text style 색상 최대 3개다. anti-aliasing 픽셀 색상은 색상 수에
+포함하지 않는다. 흰색 배경 면적 50% 미만 규칙은 정확한 계산 알고리즘이 동결되지
+않았으므로 `NON_MACHINE_ENFORCEABLE` WARNING metadata로만 보존한다. **[OFFICIAL] [PROJECT]**
+
+투명 픽셀 금지는 실제 최종 artifact alpha로 검사한다. PNG 자체는 허용 MIME이므로
+opaque PNG는 PASS이고, transparent PNG는 ERROR다. **[OFFICIAL] [PROJECT]**
+
+### 36.3 Image Banner 1:1 profile [OFFICIAL] [PROJECT]
+
+`NAVER_IMAGE_BANNER_1_1`은 `1200×1200`, `PNG/JPEG`, decimal byte
+`80000 ≤ bytes ≤ 800000`, PC/Mobile 공용 단일 artifact다. 상세 가이드의 title/subcopy/
+disclaimer 최소값 `32pt/16pt/14pt`는 pt 단위 그대로 registry에 기록하며 px로 환산하지
+않는다. transparency와 gradient/white-area의 exact machine algorithm은 source에서
+확정되지 않았으므로 `UNRESOLVED` 또는 `NON_MACHINE_ENFORCEABLE` metadata로 둔다.
+**[OFFICIAL] [PROJECT]**
+
+### 36.4 Validator and deterministic encoding [PROJECT] [DERIVED]
+
+PRE_RENDER는 profile 존재, FREEFORM mode, profile Canvas, allowed element type, font,
+requested MIME, source-backed text bounds를 검사한다. POST_RENDER는 decode, exact
+dimensions, actual alpha, actual bytes, actual text raster bounds, safe area, checksum 및
+fingerprint를 검사한다. Safe area 오류가 있어도 Renderer는 auto reposition/scale/shrink/
+crop하지 않는다. **[PROJECT]**
+
+기존 deterministic PNG/JPEG encoder와 JPEG quality ladder를 재사용한다. 최소 용량을
+맞추기 위해 padding/noise/hidden data를 추가하지 않는다. `pixelFingerprint`에는 profile
+ID/version, Canvas, pixel-affecting plan, asset/font digest, encoding parameters만 포함하고
+compliance-only metadata는 제외한다. 기존 artifact checksum/pixel/request fingerprint
+triad와 Kakao/SmartChannel fingerprint는 변경하지 않는다. **[PROJECT] [DERIVED]**
+
+### 36.5 Feed boundary [OFFICIAL] [PROJECT]
+
+현재 Feed source는 IMAGE/VIDEO/COLLECTION을 설명하지만 outer wrapper는
+`PLATFORM_COMPOSED`다. N4는 wrapper를 rasterize하지 않는다. Feed single-image source
+profile은 `CATALOG_ONLY`, collection은 N6까지 runtime 제외, video는 static renderer
+범위 밖으로 기록한다. 다음 대상은 N5 `NAVER_PLATFORM_COMPOSED_SOURCE_CONTRACT`다.
+**[OFFICIAL] [PROJECT]**
+
+### 36.6 Version and acceptance boundary [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.18.0 | 1.19.0 | source-confirmed Naver FREEFORM profiles and compliance boundary |
+| Global template contract | 1.9.0 | 1.9.0 | coordinates and legacy semantics unchanged |
+| FREEFORM FormatProfile registry | 1.1.0 | 1.2.0 | additive Naver profiles and source-backed constraints |
+| Renderer Core | 0.6.0 | 0.7.0 | existing FREEFORM Core dispatch/validation for two Naver profiles |
+| Integration Contract | 1.8.0 | 1.8.0 | generic FREEFORM plan remains sufficient |
+| CreativeLayoutPlan | 1.0.0 | 1.0.0 | schema unchanged |
+| Desktop | 0.8.2 | 0.8.2 | Naver selector/UI remains unimplemented |
+
+Representative goldens are one Mobile DA JPEG and one 1:1 PNG. Each is rendered three
+times on Windows 10/11 x64 and must be byte-equal. Existing Kakao goldens, six N2 goldens,
+N3 120-template exhaustive checks, PNG/JPEG tests, legacy serialization and fingerprints
+remain regression gates. **[PROJECT]**

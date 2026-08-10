@@ -217,6 +217,7 @@
         "elementType": { "enum": ["IMAGE", "TEXT", "LOGO"] },
         "normalizedBounds": { "$ref": "#/$defs/normalizedRect" },
         "destinationPixelRect": { "$ref": "#/$defs/pixelRect" },
+        "actualRasterBounds": { "$ref": "#/$defs/pixelRect" },
         "zIndex": { "type": "integer" },
         "originalArrayIndex": { "type": "integer", "minimum": 0 },
         "opacity": { "type": "number", "minimum": 0, "maximum": 1 },

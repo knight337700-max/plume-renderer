@@ -89,11 +89,11 @@ describe("N1A channel namespace and orthogonal capability axes", () => {
     expect(COMPOSITION_MODES).toEqual(["RENDERER_COMPOSED", "PLATFORM_COMPOSED"]);
   });
 
-  it("maps every existing Kakao/FREEFORM profile without changing its layout", async () => {
+  it("maps every catalog FREEFORM profile without changing its layout", async () => {
     const registry = await readJson<{ profiles: FormatProfile[] }>("contracts/freeform-format-profiles.json");
     for (const rawProfile of registry.profiles as FormatProfile[]) {
       const materialized = materializeFormatProfileCapability(rawProfile);
-      expect(materialized.channelNamespace).toBe("KAKAO_MOMENT");
+      expect(materialized.channelNamespace).toBe(rawProfile.channelNamespace ?? "KAKAO_MOMENT");
       expect(materialized.compositionMode).toBe("RENDERER_COMPOSED");
       expect(materialized.artifactCardinality).toBe("SINGLE");
       expect(materialized.layoutMode).toBe(rawProfile.layoutMode);

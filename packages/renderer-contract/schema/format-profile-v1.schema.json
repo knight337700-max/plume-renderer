@@ -7,6 +7,7 @@
   "required": ["formatProfileId", "canvas", "layoutMode", "allowedOutputFormats", "implementationStatus"],
   "properties": {
     "formatProfileId": { "type": "string", "minLength": 1 },
+    "profileVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
     "displayName": { "type": "string", "minLength": 1 },
     "channel": { "type": "string", "minLength": 1 },
     "channelNamespace": { "enum": ["KAKAO_MOMENT", "NAVER_GFA"] },
@@ -28,11 +29,27 @@
       "required": ["allowedFormats", "requiresOpaqueOutput"],
       "properties": {
         "allowedFormats": { "type": "array", "items": { "enum": ["PNG", "JPEG"] }, "minItems": 1 },
+        "minimumBytes": { "type": "integer", "minimum": 1 },
         "maximumBytes": { "type": "integer", "minimum": 1 },
+        "minimumBytesComparator": { "enum": ["GTE", "GT"] },
         "maximumBytesComparator": { "enum": ["LTE", "LT"] },
         "requiresOpaqueOutput": { "enum": [true, false, "UNSPECIFIED"] }
       }
     },
+    "textConstraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maxLines": { "type": "integer", "minimum": 1 },
+        "maxFontSizePx": { "type": "number", "exclusiveMinimum": 0 },
+        "minRasterHeightPx": { "type": "number", "exclusiveMinimum": 0 },
+        "maxDistinctColors": { "type": "integer", "minimum": 1 },
+        "enforcement": { "enum": ["MACHINE", "NON_MACHINE_ENFORCEABLE"] },
+        "sourceStatus": { "enum": ["SOURCE_CONFIRMED", "UNRESOLVED"] },
+        "minimumFontSizePtByRole": { "type": "object", "additionalProperties": { "type": "number", "exclusiveMinimum": 0 } }
+      }
+    },
+    "complianceMetadata": {},
     "elementConstraints": {
       "type": "object",
       "additionalProperties": false,

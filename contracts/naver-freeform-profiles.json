@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-freeform-profiles-v1.json",
+  "registryVersion": "1.0.0",
+  "profileRegistry": "contracts/freeform-format-profiles.json",
+  "sourceRevision": "contracts/naver-freeform-source-revision.json",
+  "runtimeProfiles": [
+    { "formatProfileId": "NAVER_MOBILE_DA", "channel": "NAVER_GFA", "placement": "MOBILE_DA", "layoutMode": "FREEFORM", "compositionMode": "RENDERER_COMPOSED", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED" },
+    { "formatProfileId": "NAVER_IMAGE_BANNER_1_1", "channel": "NAVER_GFA", "placement": "IMAGE_BANNER_1_1", "layoutMode": "FREEFORM", "compositionMode": "RENDERER_COMPOSED", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED" }
+  ],
+  "feedBoundary": {
+    "placement": "MOBILE_DA_FEED",
+    "outerComposition": "PLATFORM_COMPOSED",
+    "outerWrapperRuntime": "NOT_IMPLEMENTED",
+    "singleImageSourceProfiles": "CATALOG_ONLY",
+    "collectionRuntime": "NOT_IMPLEMENTED",
+    "videoRuntime": "NOT_IMPLEMENTED",
+    "nextPhase": "N5_NAVER_PLATFORM_COMPOSED_SOURCE_CONTRACT"
+  }
+}

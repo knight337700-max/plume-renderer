@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "1.2.0",
+  "layoutMode": "FREEFORM",
+  "formatProfileId": "NAVER_MOBILE_DA",
+  "creativeLayoutPlan": {
+    "schemaVersion": "1.0.0",
+    "formatProfileId": "NAVER_MOBILE_DA",
+    "source": "MANUAL",
+    "background": { "type": "SOLID", "color": "#FFFFFFFF" },
+    "elements": [
+      {
+        "id": "mobile-image-1",
+        "type": "IMAGE",
+        "assetId": "mobile-image-1",
+        "bounds": { "x": 0.18, "y": 0.08, "width": 0.64, "height": 0.84 },
+        "zIndex": 0,
+        "placement": { "policy": "CENTER_CONTAIN", "source": "MANUAL", "fitMode": "CONTAIN", "anchor": "CENTER", "subjectProtection": "NONE" }
+      },
+      {
+        "id": "mobile-image-2",
+        "type": "IMAGE",
+        "assetId": "mobile-image-2",
+        "bounds": { "x": 0.18, "y": 0.12, "width": 0.64, "height": 0.76 },
+        "zIndex": 1,
+        "placement": { "policy": "CENTER_CONTAIN", "source": "MANUAL", "fitMode": "CONTAIN", "anchor": "CENTER", "subjectProtection": "NONE" }
+      },
+      {
+        "id": "mobile-image-3",
+        "type": "IMAGE",
+        "assetId": "mobile-image-3",
+        "bounds": { "x": 0.18, "y": 0.16, "width": 0.64, "height": 0.68 },
+        "zIndex": 2,
+        "placement": { "policy": "CENTER_CONTAIN", "source": "MANUAL", "fitMode": "CONTAIN", "anchor": "CENTER", "subjectProtection": "NONE" }
+      },
+      {
+        "id": "mobile-image-4",
+        "type": "IMAGE",
+        "assetId": "mobile-image-4",
+        "bounds": { "x": 0.18, "y": 0.2, "width": 0.64, "height": 0.6 },
+        "zIndex": 3,
+        "placement": { "policy": "CENTER_CONTAIN", "source": "MANUAL", "fitMode": "CONTAIN", "anchor": "CENTER", "subjectProtection": "NONE" }
+      },
+      {
+        "id": "mobile-headline",
+        "type": "TEXT",
+        "text": "네이버 모바일 DA",
+        "fontId": "SPOQA_HAN_SANS_BOLD",
+        "fontSizePx": 48,
+        "color": "#163A5FFF",
+        "lineHeightPx": 58,
+        "textAlign": "LEFT",
+        "verticalAlign": "TOP",
+        "wrapMode": "NO_WRAP",
+        "overflowMode": "ERROR",
+        "bounds": { "x": 0.192, "y": 0.12, "width": 0.56, "height": 0.16 },
+        "zIndex": 20
+      },
+      {
+        "id": "mobile-subcopy",
+        "type": "TEXT",
+        "text": "Source-confirmed 1250 x 560",
+        "fontId": "SPOQA_HAN_SANS_REGULAR",
+        "fontSizePx": 28,
+        "color": "#345B7DFF",
+        "lineHeightPx": 36,
+        "textAlign": "LEFT",
+        "verticalAlign": "TOP",
+        "wrapMode": "NO_WRAP",
+        "overflowMode": "ERROR",
+        "bounds": { "x": 0.192, "y": 0.52, "width": 0.56, "height": 0.12 },
+        "zIndex": 21
+      }
+    ]
+  },
+  "assets": [
+    { "assetId": "mobile-image-1", "path": "reference/kakao-tool/OBJECT_RIGHT.png", "mimeType": "image/png" },
+    { "assetId": "mobile-image-2", "path": "reference/kakao-tool/MASK_SEMICIRCLE_RIGHT.png", "mimeType": "image/png" },
+    { "assetId": "mobile-image-3", "path": "reference/kakao-tool/THUMBNAIL_BOX_RIGHT.png", "mimeType": "image/png" },
+    { "assetId": "mobile-image-4", "path": "reference/kakao-tool/THUMBNAIL_MULTI_RIGHT.png", "mimeType": "image/png" }
+  ],
+  "output": { "format": "JPEG", "mimeType": "image/jpeg", "quality": 100 }
+}

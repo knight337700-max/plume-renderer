@@ -291,6 +291,46 @@ function insideMargins(rect: { x: number; y: number; width: number; height: numb
   return rect.x >= left && rect.y >= top && rect.x + rect.width <= canvas.width - right && rect.y + rect.height <= canvas.height - bottom;
 }
 
+function validateMachineTextConstraints(
+  plan: CreativeLayoutPlan,
+  profile: FormatProfile,
+  contracts: ContractBundle,
+): ValidationIssue[] {
+  const constraints = profile.textConstraints;
+  if (!constraints || constraints.enforcement !== "MACHINE") return [];
+  const issues: ValidationIssue[] = [];
+  const declaredColors = new Set<string>();
+  plan.elements.forEach((element, index) => {
+    if (element.type !== "TEXT") return;
+    const lineCount = element.wrapMode === "EXPLICIT_NEWLINES" ? element.text.split("\n").length : 1;
+    if (constraints.maxLines !== undefined && lineCount > constraints.maxLines) {
+      issues.push(issue(contracts, "KBR-FREEFORM-TEXT-LINES-EXCEEDED", `/creativeLayoutPlan/elements/${index}/text`, {
+        elementId: element.id,
+        actual: lineCount,
+        expected: constraints.maxLines,
+        formatProfileId: profile.formatProfileId,
+      }));
+    }
+    if (constraints.maxFontSizePx !== undefined && element.fontSizePx > constraints.maxFontSizePx) {
+      issues.push(issue(contracts, "KBR-FREEFORM-TEXT-FONT-SIZE-EXCEEDED", `/creativeLayoutPlan/elements/${index}/fontSizePx`, {
+        elementId: element.id,
+        actual: element.fontSizePx,
+        expected: constraints.maxFontSizePx,
+        formatProfileId: profile.formatProfileId,
+      }));
+    }
+    declaredColors.add(element.color.toUpperCase());
+  });
+  if (constraints.maxDistinctColors !== undefined && declaredColors.size > constraints.maxDistinctColors) {
+    issues.push(issue(contracts, "KBR-FREEFORM-TEXT-COLORS-EXCEEDED", "/creativeLayoutPlan/elements", {
+      actual: declaredColors.size,
+      expected: constraints.maxDistinctColors,
+      formatProfileId: profile.formatProfileId,
+    }));
+  }
+  return issues;
+}
+
 function validateManagedSafeZones(
   plan: CreativeLayoutPlan,
   profile: FormatProfile,
@@ -319,11 +359,16 @@ function validateManagedSafeZones(
       if (!insideMargins(rect, canvas, margins)) emit(severityCode, element, index, rect, { label, margins, canvas });
     }
   };
-  checkMargins(policy.required, "KBR-FREEFORM-SAFE-ZONE-VIOLATION", "required");
-  checkMargins(policy.avoid, "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", "recommended");
-  checkMargins(policy.lowResolutionRecommended, "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", "lowResolutionRecommended");
-  checkMargins(policy.edgeSafeZone, "KBR-FREEFORM-SAFE-ZONE-VIOLATION", "edgeSafeZone");
-  if (isRecord(policy.closeButtonArea) && policy.closeButtonArea.position === "TOP_RIGHT") {
+  // ACTUAL_RASTER_BOUNDS policies are deliberately checked only after the
+  // isolated element has been rasterized.  Bounds in the input plan are not
+  // allowed to move, scale, crop, or otherwise alter the creative.
+  if (policy.enforcement !== "ACTUAL_RASTER_BOUNDS") {
+    checkMargins(policy.required, "KBR-FREEFORM-SAFE-ZONE-VIOLATION", "required");
+    checkMargins(policy.avoid, "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", "recommended");
+    checkMargins(policy.lowResolutionRecommended, "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", "lowResolutionRecommended");
+    checkMargins(policy.edgeSafeZone, "KBR-FREEFORM-SAFE-ZONE-VIOLATION", "edgeSafeZone");
+  }
+  if (policy.enforcement !== "ACTUAL_RASTER_BOUNDS" && isRecord(policy.closeButtonArea) && policy.closeButtonArea.position === "TOP_RIGHT") {
     const width = typeof policy.closeButtonArea.width === "number" ? policy.closeButtonArea.width : 0;
     const height = typeof policy.closeButtonArea.height === "number" ? policy.closeButtonArea.height : 0;
     const closeArea = { x: canvas.width - width, y: 0, width, height };
@@ -346,6 +391,63 @@ function validateManagedSafeZones(
       formatProfileId: profile.formatProfileId,
     }));
   }
+  return issues;
+}
+
+function validateActualRasterConstraints(
+  plan: CreativeLayoutPlan,
+  profile: FormatProfile,
+  appliedElements: readonly FreeformAppliedElement[],
+  contracts: ContractBundle,
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  const textConstraints = profile.textConstraints;
+  const policy = isRecord(profile.safeZonePolicy) ? profile.safeZonePolicy : null;
+  const actualSafeZone = policy?.enforcement === "ACTUAL_RASTER_BOUNDS";
+  const managedTypes = policy && Array.isArray(policy.managedElementTypes)
+    ? policy.managedElementTypes.filter((value): value is "TEXT" | "LOGO" => value === "TEXT" || value === "LOGO")
+    : ["TEXT", "LOGO"] as const;
+  const requiredMargins = marginValues(policy?.required);
+  const imageMargins = marginValues(policy?.imageRequired);
+  plan.elements.forEach((element) => {
+    const appliedIndex = appliedElements.findIndex((candidate) => candidate.elementId === element.id);
+    const applied = appliedIndex >= 0 ? appliedElements[appliedIndex] : undefined;
+    if (!applied) return;
+    const raster = applied.actualRasterBounds ?? applied.destinationPixelRect;
+    if (element.type === "TEXT" && textConstraints?.enforcement === "MACHINE" && textConstraints.minRasterHeightPx !== undefined) {
+      const actualRasterHeight = applied.actualRasterBounds?.height ?? 0;
+      if (actualRasterHeight < textConstraints.minRasterHeightPx) {
+        issues.push(issue(contracts, "KBR-FREEFORM-TEXT-RASTER-HEIGHT-BELOW-MINIMUM", `/appliedElements/${appliedIndex}/actualRasterBounds`, {
+          elementId: element.id,
+          actual: actualRasterHeight,
+          expected: textConstraints.minRasterHeightPx,
+          formatProfileId: profile.formatProfileId,
+          stage: "POST_RENDER",
+        }));
+      }
+    }
+    if (!actualSafeZone) return;
+    const shouldCheckManaged = (element.type === "TEXT" || element.type === "LOGO") && managedTypes.includes(element.type);
+    const shouldCheckImage = (element.type === "IMAGE" || element.type === "LOGO") && imageMargins !== null;
+    if (shouldCheckManaged && requiredMargins && !insideMargins(raster, profile.canvas, requiredMargins)) {
+      issues.push(issue(contracts, "KBR-FREEFORM-SAFE-ZONE-VIOLATION", `/appliedElements/${appliedIndex}/actualRasterBounds`, {
+        elementId: element.id,
+        actual: raster,
+        expected: { label: "required", margins: requiredMargins, canvas: profile.canvas },
+        formatProfileId: profile.formatProfileId,
+        stage: "POST_RENDER",
+      }));
+    }
+    if (shouldCheckImage && imageMargins && !insideMargins(raster, profile.canvas, imageMargins)) {
+      issues.push(issue(contracts, "KBR-FREEFORM-SAFE-ZONE-VIOLATION", `/appliedElements/${appliedIndex}/actualRasterBounds`, {
+        elementId: element.id,
+        actual: raster,
+        expected: { label: "imageRequired", margins: imageMargins, canvas: profile.canvas },
+        formatProfileId: profile.formatProfileId,
+        stage: "POST_RENDER",
+      }));
+    }
+  });
   return issues;
 }
 
@@ -404,7 +506,11 @@ function validateProfileAndPlan(
           }
         }
       });
-      if (profile) issues.push(...validateManagedSafeZones(request.creativeLayoutPlan as unknown as CreativeLayoutPlan, profile, contracts));
+      if (profile) {
+        const typedPlan = request.creativeLayoutPlan as unknown as CreativeLayoutPlan;
+        issues.push(...validateManagedSafeZones(typedPlan, profile, contracts));
+        issues.push(...validateMachineTextConstraints(typedPlan, profile, contracts));
+      }
     }
   }
   return sortAndDedupeIssues(issues);
@@ -587,6 +693,7 @@ export function validateFreeformAppliedElements(
 
 export async function validateFreeformPostRender(options: FreeformPostRenderValidationOptions): Promise<ValidationIssue[]> {
   const issues = validateFreeformAppliedElements(options.plan, options.profile, options.appliedElements, options.contracts, options);
+  issues.push(...validateActualRasterConstraints(options.plan, options.profile, options.appliedElements, options.contracts));
   const artifact = options.artifact ?? options.png;
   const artifactFormat = options.artifactFormat ?? "PNG";
   if (artifact === null || artifact === undefined || artifact.byteLength === 0) {
@@ -594,14 +701,54 @@ export async function validateFreeformPostRender(options: FreeformPostRenderVali
   } else {
     const actualDigest = sha256Bytes(artifact);
     if (options.expectedArtifactChecksumSha256 !== undefined && actualDigest !== options.expectedArtifactChecksumSha256) issues.push(issue(options.contracts, "KBR-FREEFORM-VALIDATION-INTERNAL-MISMATCH", "/artifactChecksumSha256", { actual: actualDigest, expected: options.expectedArtifactChecksumSha256, stage: "POST_RENDER" }));
+    const outputConstraints = options.profile.outputConstraints;
+    const outputPath = artifactFormat === "JPEG" ? "/output.jpg" : "/output.png";
+    if (outputConstraints?.minimumBytes !== undefined) {
+      const meetsMinimum = outputConstraints.minimumBytesComparator === "GT"
+        ? artifact.byteLength > outputConstraints.minimumBytes
+        : artifact.byteLength >= outputConstraints.minimumBytes;
+      if (!meetsMinimum) issues.push(issue(options.contracts, "KBR-FREEFORM-FILE-SIZE-BELOW-MINIMUM", outputPath, {
+        actual: { bytes: artifact.byteLength },
+        expected: { minimumBytes: outputConstraints.minimumBytes, comparator: outputConstraints.minimumBytesComparator ?? "GTE" },
+        formatProfileId: options.profile.formatProfileId,
+        stage: "POST_RENDER",
+      }));
+    }
+    if (outputConstraints?.maximumBytes !== undefined) {
+      const withinMaximum = outputConstraints.maximumBytesComparator === "LT"
+        ? artifact.byteLength < outputConstraints.maximumBytes
+        : artifact.byteLength <= outputConstraints.maximumBytes;
+      if (!withinMaximum) issues.push(issue(options.contracts, "KBR-FREEFORM-FILE-SIZE-EXCEEDED", outputPath, {
+        actual: { bytes: artifact.byteLength },
+        expected: { maximumBytes: outputConstraints.maximumBytes, comparator: outputConstraints.maximumBytesComparator ?? "LTE" },
+        formatProfileId: options.profile.formatProfileId,
+        stage: "POST_RENDER",
+      }));
+    }
     if (artifactFormat === "PNG") {
       const ihdr = inspectPngIhdr(artifact);
       if (!ihdr) issues.push(issue(options.contracts, "KBR-OUTPUT-003", "/output.png", { expected: { format: "PNG", signature: true }, stage: "POST_RENDER" }));
       else if (ihdr.width !== options.profile.canvas.width || ihdr.height !== options.profile.canvas.height) issues.push(issue(options.contracts, "KBR-OUTPUT-002", "/output.png", { actual: { width: ihdr.width, height: ihdr.height }, expected: options.profile.canvas, stage: "POST_RENDER" }));
+      else if (ihdr.bitDepth !== 8 || ihdr.colorType !== 6) issues.push(issue(options.contracts, "KBR-OUTPUT-003", "/output.png", { actual: { bitDepth: ihdr.bitDepth, colorType: ihdr.colorType }, expected: { bitDepth: 8, colorType: 6 }, stage: "POST_RENDER" }));
     } else {
       const inspected = await inspectRenderedArtifact(artifact, "JPEG", options.profile.canvas);
       if (!inspected.metadata || inspected.metadata.format !== "jpeg") issues.push(issue(options.contracts, "KBR-OUTPUT-003", "/output.jpg", { expected: { format: "JPEG" }, actual: inspected.metadata?.format, stage: "POST_RENDER" }));
       else if (inspected.width !== options.profile.canvas.width || inspected.height !== options.profile.canvas.height) issues.push(issue(options.contracts, "KBR-OUTPUT-002", "/output.jpg", { actual: { width: inspected.width, height: inspected.height }, expected: options.profile.canvas, stage: "POST_RENDER" }));
+      if (outputConstraints?.requiresOpaqueOutput === true && inspected.metadata && !inspected.opaque) issues.push(issue(options.contracts, "KBR-FREEFORM-OPAQUE-OUTPUT-REQUIRED", "/output.jpg", {
+        expected: "all final pixels alpha=255",
+        actual: { hasAlpha: inspected.hasAlpha, opaque: inspected.opaque },
+        formatProfileId: options.profile.formatProfileId,
+        stage: "POST_RENDER",
+      }));
+    }
+    if (artifactFormat === "PNG" && outputConstraints?.requiresOpaqueOutput === true) {
+      const inspected = await inspectRenderedArtifact(artifact, "PNG", options.profile.canvas);
+      if (inspected.metadata && !inspected.opaque) issues.push(issue(options.contracts, "KBR-FREEFORM-OPAQUE-OUTPUT-REQUIRED", "/output.png", {
+        expected: "all final pixels alpha=255",
+        actual: { hasAlpha: inspected.hasAlpha, opaque: inspected.opaque },
+        formatProfileId: options.profile.formatProfileId,
+        stage: "POST_RENDER",
+      }));
     }
   }
   return sortAndDedupeIssues(issues);

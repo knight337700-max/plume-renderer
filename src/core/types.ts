@@ -39,6 +39,8 @@ export type FreeformAppliedElement = {
     height: number;
   };
   destinationPixelRect: BBox;
+  /** Alpha>=8 raster bounds captured from the isolated element render. */
+  actualRasterBounds?: BBox;
   zIndex: number;
   originalArrayIndex: number;
   opacity: number;

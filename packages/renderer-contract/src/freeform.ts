@@ -117,6 +117,8 @@ export type CreativeLayoutPlan = Readonly<{
 
 export type FormatProfile = Readonly<{
   formatProfileId: string;
+  /** Additive profile revision used in deterministic pixel fingerprint material. */
+  profileVersion?: string;
   /** Registry-provided human label for Renderer Lab selectors. */
   displayName?: string;
   /** Legacy catalog-family label; do not reinterpret it as the top-level channel namespace. */
@@ -140,10 +142,24 @@ export type FormatProfile = Readonly<{
   officialRatio?: string;
   outputConstraints?: Readonly<{
     allowedFormats: readonly ("PNG" | "JPEG")[];
+    minimumBytes?: number;
     maximumBytes?: number;
+    minimumBytesComparator?: "GTE" | "GT";
     maximumBytesComparator?: "LTE" | "LT";
     requiresOpaqueOutput: boolean | "UNSPECIFIED";
   }>;
+  /** Source-backed text bounds. Omitted fields are not machine-enforced. */
+  textConstraints?: Readonly<{
+    maxLines?: number;
+    maxFontSizePx?: number;
+    minRasterHeightPx?: number;
+    maxDistinctColors?: number;
+    enforcement?: "MACHINE" | "NON_MACHINE_ENFORCEABLE";
+    sourceStatus?: "SOURCE_CONFIRMED" | "UNRESOLVED";
+    minimumFontSizePtByRole?: Readonly<Record<string, number>>;
+  }>;
+  /** Additive source/compliance evidence; it never changes pixels. */
+  complianceMetadata?: unknown;
   elementConstraints?: Readonly<{
     allowImage: boolean;
     allowText: boolean;
@@ -377,6 +393,7 @@ function pixelFingerprintMaterial(plan: CreativeLayoutPlan, assetDigests: Readon
   const background = plan.background.type === "SOLID" ? { type: "SOLID", color: plan.background.color.toUpperCase() } : plan.background;
   return {
     formatProfileId: plan.formatProfileId,
+    ...(profile?.profileVersion !== undefined ? { profileVersion: profile.profileVersion } : {}),
     canvas: profile?.canvas,
     ...(outputEncoding !== undefined ? { outputEncoding } : {}),
     background,

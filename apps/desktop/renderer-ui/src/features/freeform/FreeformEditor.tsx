@@ -35,8 +35,10 @@ type OutputQuality = number | "AUTO_FIT";
 
 const formatCatalog = formatCatalogJson as unknown as { profiles: readonly FormatProfile[] };
 const fontRegistry = fontRegistryJson as unknown as FreeformFontRegistry;
-const profiles = formatCatalog.profiles.filter((profile) => profile.implementationStatus === "IMPLEMENTED" && profile.catalogStatus !== "INTERNAL_TEST_ONLY");
-const catalogOnlyProfiles = formatCatalog.profiles.filter((profile) => profile.implementationStatus !== "IMPLEMENTED" || profile.catalogStatus === "INTERNAL_TEST_ONLY").filter((profile) => profile.catalogStatus !== "INTERNAL_TEST_ONLY");
+// Naver N4 profiles are Core/CLI runtime profiles only.  Desktop Naver
+// composition remains an explicit later phase and must not appear in this UI.
+const profiles = formatCatalog.profiles.filter((profile) => profile.channelNamespace !== "NAVER_GFA" && profile.implementationStatus === "IMPLEMENTED" && profile.catalogStatus !== "INTERNAL_TEST_ONLY");
+const catalogOnlyProfiles = formatCatalog.profiles.filter((profile) => profile.channelNamespace !== "NAVER_GFA" && (profile.implementationStatus !== "IMPLEMENTED" || profile.catalogStatus === "INTERNAL_TEST_ONLY")).filter((profile) => profile.catalogStatus !== "INTERNAL_TEST_ONLY");
 const defaultProfile = profiles[0];
 
 function placementFor(type: "IMAGE" | "LOGO", policy: ImagePlacementSpec["policy"] = type === "LOGO" ? "ALPHA_TRIM_CONTAIN" : "CENTER_CONTAIN"): ImagePlacementSpec {

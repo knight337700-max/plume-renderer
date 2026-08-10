@@ -32,7 +32,7 @@ import {
   resolveTrustedJobDirectory,
 } from "./path-security.js";
 import { publishArtifacts, PublishError } from "./publish.js";
-import { encodeFreeformArtifact, inspectRenderedArtifact, validateRenderedPng } from "./raster.js";
+import { encodeFreeformArtifact, inspectPngIhdr, inspectRenderedArtifact, validateRenderedPng } from "./raster.js";
 import { SchemaValidators } from "./schema-validation.js";
 import {
   validateFreeformPostRender,
@@ -417,6 +417,16 @@ function meaningfulAlphaBox(data: AlphaData, width: number, height: number): Pix
   return selected.length > 0 ? unionBoxes(selected) : null;
 }
 
+function layoutVisibleAlphaBox(data: AlphaData, width: number, height: number): PixelRect | null {
+  const components = visibleComponents(data, width, height).sort(
+    (left, right) => right.count - left.count || left.y - right.y || left.x - right.x,
+  );
+  const main = components[0];
+  if (!main) return null;
+  const selected = components.filter((component) => component.count / main.count >= 0.0005);
+  return selected.length > 0 ? unionBoxes(selected) : null;
+}
+
 function cropRectToPixels(rect: NormalizedRect, width: number, height: number): PixelRect | null {
   const crop = normalizedRectToPixelRect(rect, { width, height });
   if (crop.x < 0 || crop.y < 0 || crop.x + crop.width > width || crop.y + crop.height > height) return null;
@@ -719,6 +729,11 @@ async function renderImageElement(
     ? { x: slot.x, y: slot.y }
     : anchorOffset(element.placement.anchor, slot, resizedWidth, resizedHeight);
   const resizedRgba = await resizeCrop(asset.image, crop, resizedWidth, resizedHeight);
+  // Capture the post-resize layout-visible (alpha>=8) bounds without changing
+  // the source asset.  The component rule prevents a tiny isolated island
+  // from expanding the layout bbox.
+  const resizedVisible = layoutVisibleAlphaBox(resizedRgba, resizedWidth, resizedHeight)
+    ?? alphaBox(resizedRgba, resizedWidth, resizedHeight, 8);
   const resizedCanvas = createCanvas(resizedWidth, resizedHeight);
   resizedCanvas.getContext("2d").putImageData(
     new ImageData(new Uint8ClampedArray(resizedRgba.buffer, resizedRgba.byteOffset, resizedRgba.byteLength), resizedWidth, resizedHeight),
@@ -734,6 +749,25 @@ async function renderImageElement(
   }
   context.drawImage(resizedCanvas, destination.x, destination.y, resizedWidth, resizedHeight);
   context.restore();
+  const rasterBounds = resizedVisible
+    ? {
+        x: destination.x + resizedVisible.x,
+        y: destination.y + resizedVisible.y,
+        width: resizedVisible.width,
+        height: resizedVisible.height,
+      }
+    : undefined;
+  const clippedRasterBounds = rasterBounds && cover
+    ? (() => {
+        const left = Math.max(slot.x, rasterBounds.x);
+        const top = Math.max(slot.y, rasterBounds.y);
+        const right = Math.min(slot.x + slot.width, rasterBounds.x + rasterBounds.width);
+        const bottom = Math.min(slot.y + slot.height, rasterBounds.y + rasterBounds.height);
+        return right > left && bottom > top
+          ? { x: left, y: top, width: right - left, height: bottom - top }
+          : undefined;
+      })()
+    : rasterBounds;
   return {
     applied: {
       elementId: element.id,
@@ -745,6 +779,7 @@ async function renderImageElement(
       opacity: element.opacity ?? 1,
       assetId: element.assetId,
       assetDigest: asset.digest,
+      ...(clippedRasterBounds ? { actualRasterBounds: clippedRasterBounds } : {}),
       placementPolicy: element.placement.policy,
       fitMode: element.placement.fitMode,
       ...(placement.requestedCrop ? { requestedCropRect: placement.requestedCrop } : {}),
@@ -836,6 +871,17 @@ function renderTextElement(
     clipped = outside && element.overflowMode === "CLIP";
   }
   if (errors.length > 0) return { errors };
+  const appliedVisible = visible && element.overflowMode === "CLIP"
+    ? (() => {
+        const left = Math.max(slot.x, visible.x);
+        const top = Math.max(slot.y, visible.y);
+        const right = Math.min(slot.x + slot.width, visible.x + visible.width);
+        const bottom = Math.min(slot.y + slot.height, visible.y + visible.height);
+        return right > left && bottom > top
+          ? { x: left, y: top, width: right - left, height: bottom - top }
+          : undefined;
+      })()
+    : visible;
   mainContext.save();
   mainContext.globalAlpha = element.opacity ?? 1;
   if (element.overflowMode === "CLIP") {
@@ -862,6 +908,7 @@ function renderTextElement(
       overflowMode: element.overflowMode,
       overflowDetected,
       clipped,
+      ...(appliedVisible ? { actualRasterBounds: appliedVisible } : {}),
     },
     errors,
   };
@@ -913,7 +960,30 @@ async function validateFreeformArtifact(
       stage: "POST_RENDER",
     }));
   }
+  if (format === "PNG") {
+    const ihdr = inspectPngIhdr(artifact);
+    if (!ihdr || ihdr.bitDepth !== 8 || ihdr.colorType !== 6) {
+      issues.push(issue(contracts, "KBR-OUTPUT-003", pathValue, {
+        expected: { format: "PNG", bitDepth: 8, colorType: 6 },
+        actual: ihdr ? { bitDepth: ihdr.bitDepth, colorType: ihdr.colorType } : "invalid PNG IHDR",
+        stage: "POST_RENDER",
+      }));
+    }
+  }
   const constraints = profile.outputConstraints;
+  if (constraints?.minimumBytes !== undefined) {
+    const meetsMinimum = constraints.minimumBytesComparator === "GT"
+      ? artifact.byteLength > constraints.minimumBytes
+      : artifact.byteLength >= constraints.minimumBytes;
+    if (!meetsMinimum) {
+      issues.push(issue(contracts, "KBR-FREEFORM-FILE-SIZE-BELOW-MINIMUM", pathValue, {
+        expected: { minimumBytes: constraints.minimumBytes, comparator: constraints.minimumBytesComparator ?? "GTE" },
+        actual: { bytes: artifact.byteLength },
+        formatProfileId: profile.formatProfileId,
+        stage: "POST_RENDER",
+      }));
+    }
+  }
   if (constraints?.maximumBytes !== undefined) {
     const withinLimit = constraints.maximumBytesComparator === "LT"
       ? artifact.byteLength < constraints.maximumBytes

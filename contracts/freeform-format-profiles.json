@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.1.0",
+  "registryVersion": "1.2.0",
   "layoutMode": "FREEFORM",
   "catalogStatus": "READY",
   "outputFormats": {
@@ -310,6 +310,93 @@
       "implementationStatus": "CONTRACT_BLOCKED_VARIABLE_CANVAS",
       "catalogStatus": "CATALOG_NOT_READY",
       "classification": "CATALOG_ONLY_VARIABLE_CANVAS"
+    },
+    {
+      "formatProfileId": "NAVER_MOBILE_DA",
+      "profileVersion": "1.0.0",
+      "channel": "NAVER_GFA",
+      "channelNamespace": "NAVER_GFA",
+      "placement": "MOBILE_DA",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "displayName": "네이버 모바일 DA 이미지배너형 — 1250×560",
+      "canvas": { "width": 1250, "height": 560 },
+      "layoutMode": "FREEFORM",
+      "officialSizeRule": "EXACT",
+      "officialRatio": "1250:560",
+      "allowedOutputFormats": ["PNG", "JPEG"],
+      "outputConstraints": {
+        "allowedFormats": ["PNG", "JPEG"],
+        "minimumBytes": 50000,
+        "minimumBytesComparator": "GTE",
+        "maximumBytes": 250000,
+        "maximumBytesComparator": "LTE",
+        "requiresOpaqueOutput": true
+      },
+      "elementConstraints": { "allowImage": true, "allowText": true, "allowLogo": true, "allowShape": false },
+      "safeZonePolicy": {
+        "enforcement": "ACTUAL_RASTER_BOUNDS",
+        "required": { "top": 50, "right": 240, "bottom": 35, "left": 240 },
+        "imageRequired": { "left": 225, "right": 225 },
+        "managedElementTypes": ["TEXT", "LOGO"],
+        "sourceStatus": "SOURCE_CONFIRMED"
+      },
+      "textConstraints": {
+        "maxLines": 4,
+        "maxFontSizePx": 52,
+        "minRasterHeightPx": 22,
+        "maxDistinctColors": 3,
+        "enforcement": "MACHINE",
+        "sourceStatus": "SOURCE_CONFIRMED"
+      },
+      "complianceMetadata": {
+        "sourceRevisionRef": "contracts/naver-freeform-source-revision.json#/sources/mobileDa",
+        "transparency": { "transparentPixelsAllowed": false, "enforcement": "MACHINE_POST_RENDER" },
+        "whiteArea": { "rule": "white background area below 50 percent", "enforcement": "NON_MACHINE_ENFORCEABLE", "severity": "WARNING" },
+        "autoLayoutAdjustment": false
+      },
+      "implementationStatus": "IMPLEMENTED",
+      "catalogStatus": "READY",
+      "classification": "OFFICIAL_SOURCE_CONFIRMED_RUNTIME"
+    },
+    {
+      "formatProfileId": "NAVER_IMAGE_BANNER_1_1",
+      "profileVersion": "1.0.0",
+      "channel": "NAVER_GFA",
+      "channelNamespace": "NAVER_GFA",
+      "placement": "IMAGE_BANNER_1_1",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "displayName": "네이버 이미지 배너형 1:1 — 1200×1200",
+      "canvas": { "width": 1200, "height": 1200 },
+      "layoutMode": "FREEFORM",
+      "officialSizeRule": "EXACT",
+      "officialRatio": "1:1",
+      "allowedOutputFormats": ["PNG", "JPEG"],
+      "outputConstraints": {
+        "allowedFormats": ["PNG", "JPEG"],
+        "minimumBytes": 80000,
+        "minimumBytesComparator": "GTE",
+        "maximumBytes": 800000,
+        "maximumBytesComparator": "LTE",
+        "requiresOpaqueOutput": "UNSPECIFIED"
+      },
+      "elementConstraints": { "allowImage": true, "allowText": true, "allowLogo": true, "allowShape": false },
+      "textConstraints": {
+        "enforcement": "NON_MACHINE_ENFORCEABLE",
+        "sourceStatus": "SOURCE_CONFIRMED",
+        "minimumFontSizePtByRole": { "TITLE": 32, "SUBCOPY": 16, "DISCLAIMER": 14 }
+      },
+      "complianceMetadata": {
+        "sourceRevisionRef": "contracts/naver-freeform-source-revision.json#/sources/imageBanner1x1",
+        "supportedInputMimes": ["image/jpeg", "image/png"],
+        "transparency": { "transparentPixelsAllowed": "UNRESOLVED", "enforcement": "NON_MACHINE_ENFORCEABLE" },
+        "designRules": { "background": "image_or_solid_or_pattern", "gradient": "two-tone guidance", "enforcement": "NON_MACHINE_ENFORCEABLE" },
+        "autoLayoutAdjustment": false
+      },
+      "implementationStatus": "IMPLEMENTED",
+      "catalogStatus": "READY",
+      "classification": "OFFICIAL_SOURCE_CONFIRMED_RUNTIME"
     }
   ],
   "native1200": {
