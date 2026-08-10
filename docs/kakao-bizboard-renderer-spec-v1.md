@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.19.0
-- **Status:** Frozen Implementation Contract — Phase N4 NAVER_GFA FREEFORM constrained image profiles for Mobile DA and Image Banner 1:1; Desktop NAVER UI and PLATFORM_COMPOSED Feed wrapper remain out of scope
+- **Document version:** 1.20.0
+- **Status:** Frozen Implementation Contract — Phase N5 NAVER_GFA PLATFORM_COMPOSED source contracts for Mobile Native, PC Native, Shopping News, Communication Ad, and Mobile DA Feed; final NAVER UI remains platform-owned
 - **Checked date:** 2026-08-10 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **36. Phase N4 NAVER FREEFORM runtime**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **37. Phase N5 NAVER PLATFORM_COMPOSED source contract**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -3955,3 +3955,130 @@ Representative goldens are one Mobile DA JPEG and one 1:1 PNG. Each is rendered 
 times on Windows 10/11 x64 and must be byte-equal. Existing Kakao goldens, six N2 goldens,
 N3 120-template exhaustive checks, PNG/JPEG tests, legacy serialization and fingerprints
 remain regression gates. **[PROJECT]**
+
+## 37. Phase N5 — NAVER PLATFORM_COMPOSED source contract [PROJECT] [OFFICIAL]
+
+N5는 NAVER GFA의 플랫폼 조합형 입력(SourceSpec)을 동결한다. 이 단계의 산출물은
+최종 native/feed UI 또는 최종 PNG가 아니다. SourceSpec은 광고주가 제공하는 원문 카피,
+플랫폼 필드, 원본 자산 메타데이터와 출처를 검증하고, 최종 프레젠테이션과 픽셀 좌표의
+소유자를 NAVER 플랫폼으로 남긴다. `PLATFORM_COMPOSED`는 기존
+`LayoutMode = TEMPLATE_LOCKED | FREEFORM` 축과 직교하며 새 LayoutMode를 추가하지
+않는다. **[PROJECT]**
+
+### 37.1 Official source revision and attachment provenance [OFFICIAL] [TOOL_OUTPUT]
+
+공식 페이지와 페이지에서 연결된 PDF를 실제로 다운로드·검사했다. Runtime은 아래 URL을
+호출하지 않으며, 저장된 PDF와 registry가 build/review 시점의 provenance다.
+`contracts/naver-platform-composed-source-revision.json`에 페이지 갱신일, 첨부 파일명,
+SHA-256, 바이트 수, 페이지 수, PDF 인쇄 갱신일을 함께 기록한다. **[PROJECT]**
+
+| Placement | Official page | Page update | Attachment | SHA-256 | Pages | Printed PDF update |
+|---|---|---:|---|---|---:|---:|
+| `MOBILE_NATIVE` | https://ads.naver.com/adguide/1479 | 2026-02-24 | `Native_M_DA_total_PF.pdf` | `e4c944b2153d56692d57a2951715dd108136dbf8aaaea204254f2466cb45f738` | 13 | 2026-02-24 |
+| `PC_NATIVE` | https://ads.naver.com/adguide/1478 | 2026-01-07 | `Native_P_DA_total_PF.pdf` | `f9453631e223cf00a3e99f8b28b5aa68b0c6d55e4315e060aac30c94f504dd75` | 28 | 2026-04-06 |
+| `SHOPPING_NEWS` | https://ads.naver.com/adguide/1477 | 2025-09-09 | `shoppinginformAD.pdf` | `29aedba675ad2dbec3e3fc40ff5937016bae58faecbb91f2d6d65fcc7bc75d6c` | 12 | 2025-09-08 |
+| `COMMUNICATION_AD` | https://ads.naver.com/adguide/1476 | 2023-04-25 | `naver_communication_ad.pdf` | `8e58032444e1cfd6ddd1cfa1b32f5ee901133f30ff9ecacc3883ae32bfe6b616` | 3 | 2023-08-01 |
+| `MOBILE_DA_FEED` | https://ads.naver.com/adguide/1480 | 2026-04-15 | `FEED_AD_GUIDE.pdf` | `0e45fdf9dda180551dde06bdef91e726f86823a405e62e00232db7ba407170ef` | 20 | 2026-04-15 |
+
+페이지 갱신일과 PDF 내부 인쇄 갱신일이 다른 세 출처(PC Native, Shopping News,
+Communication Ad)는 둘 다 보존한다. 어느 날짜가 더 최신이라는 추론으로 값을 덮어쓰지
+않는다. **[TOOL_OUTPUT] [INFERRED]**
+
+### 37.2 SourceSpec boundary and deterministic validation [PROJECT]
+
+공개 SourceSpec은 `schemaVersion: "1.0.0"`, `channel: "NAVER_GFA"`,
+`compositionMode: "PLATFORM_COMPOSED"`, 배치, `artifactCardinality`,
+`sourceProfileId`, `fields`, `assets`를 가진다. JSON Schema는 unknown top-level field를
+거부하며 `finalCanvas`, `finalCoordinates`, `finalUi`, `pixelFingerprint`를 거부한다.
+검증기는 다음만 수행한다.
+
+1. Schema/identity/profile/cardinality 검증
+2. 출처가 제공한 필드 타입·문자 수·허용 enum 검증
+3. MIME, source pixel dimensions, aspect ratio, decimal byte 범위, 명시된 alpha 규칙 검증
+4. collection item count(4–10) 검증
+5. NFC normalization과 결정적 오류 정렬
+
+검증기는 텍스트를 trim·축약·줄바꿈하지 않고 CTA를 선택하지 않는다. 결과에는
+`finalUiRendered: false`, `pixelFingerprint: null`을 항상 반환한다. Runtime이 아직
+구현되지 않은 profile은 source validation이 성공해도
+`KBR-NAVER-SOURCE-RUNTIME-DEFERRED` WARNING을 낸다. **[PROJECT]**
+
+### 37.3 Placement source profiles [OFFICIAL] [PROJECT]
+
+`contracts/naver-platform-composed-source-profiles.json`의 9개 profile이 아래 다섯
+placement를 표현한다. 최종 UI의 카드·목록·버튼·신고/뮤트·프로필 배치는 모두
+`finalPresentationOwner: NAVER_PLATFORM`이다.
+
+| Placement/profile | Frozen source fields and assets | Final UI / runtime |
+|---|---|---|
+| `MOBILE_NATIVE` | Native thumbnail `342×228`, profile `300×300`, JPEG/PNG; advertiser name 14, headline 20, description up to 3×12 (36 total), profile name 14, disclosure 45, source landing-label registry | Platform-owned; source contract only |
+| `PC_NATIVE` | Native thumbnail/profile dimensions and MIME; headline 20, short description 12, PC long description 28, advertiser/profile/disclosure boundaries | Platform-owned; side/placement UI varies by platform |
+| `SHOPPING_NEWS` | Ad image `750×500`, JPEG/PNG, 20,000–500,000 bytes; profile name 19, ad description ≤57 and ≤3 lines; notification state, benefit icon, promotion icon, landing labels | Subscription state controls platform variant; source contract only |
+| `COMMUNICATION_AD` LIST | Ad image `112×112`, copy ≤40 (recommended 33, ≤2 lines), profile name 14, disclosure 45 | Platform LIST shape; source contract only |
+| `COMMUNICATION_AD` COMMENT | Profile image `300×300`, copy ≤50 (recommended 43, ≤2 lines), profile name 14, disclosure 45 | Platform COMMENT shape; source contract only |
+| `MOBILE_DA_FEED` IMAGE | Profile `300×300`; image 1:1 `1200×1200`, 16:9 `1200×628`, 2:3 `1200×1800`; profile name 19, ad copy 65 | Platform feed wrapper; source contract only |
+| `MOBILE_DA_FEED` VIDEO | Video ≥600px wide, 5s–10m, ≤1GB, MP4/AVI/MOV/WMV, 1:1 or 16:9; optional still-image rule | Static Renderer runtime NOT_IMPLEMENTED |
+| `MOBILE_DA_FEED` COLLECTION | 4–10 ordered items; item image `600×600`, item description ≤28, landing URL; video/still alternatives recorded | Multi-artifact runtime DEFERRED_TO_N6 |
+
+PDF 단위가 KB/MB로 표현된 값은 registry에서 decimal byte 상수로 물질화했다. 이는 단위
+변환의 [DERIVED] 값이며, 최종 UI 좌표로 해석하지 않는다. **[DERIVED]**
+
+### 37.4 Feed safe areas and platform crop [OFFICIAL] [PROJECT]
+
+Feed에서 source PDF가 제공한 safe area는 source pixel 좌표로만 보존한다.
+프로필 safe area는 `x=27,y=27,w=246,h=246`, 1:1 이미지는 `60,60,1080,1080`,
+16:9 이미지는 `60,60,1080,508`, 2:3 이미지는 `60,300,1080,1200`이다.
+Collection item source는 `600×600`과 source crop guidance를 보존한다. 이 값들은
+플랫폼이 입력을 자르는 경우의 참고 경계이지, Renderer가 최종 canvas에 배치할 좌표가
+아니다. Renderer는 좌우/상하 crop, auto reposition, resize 또는 final UI geometry를
+추론하지 않는다. **[OFFICIAL] [PROJECT]**
+
+### 37.5 CTA and platform-generated controls [OFFICIAL] [PROJECT] [INFERRED]
+
+Native와 Shopping News에서 첨부가 명시한 landing-label 목록은 registry에 보존한다.
+Communication Ad와 Feed의 CTA는 가이드가 완전한 label 목록을 공개하지 않아
+`PLATFORM_DEFINED`/`UNRESOLVED_ALLOWED_VALUE_LIST`로 기록한다. Promotion icon은
+14개라는 개수만 확인되어 전체 label enum을 만들지 않는다. 승인되지 않은 카카오/NAVER
+아이콘을 제작·다운로드·대체하지 않는다. 알림 수신 상태, AD mute, notification 문구와
+카드 affordance는 platform-generated 필드로만 기록하며 source asset으로 렌더링하지
+않는다. **[OFFICIAL] [PROJECT] [INFERRED]**
+
+### 37.6 Version policy and compatibility [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.19.0 | 1.20.0 | Additive N5 PLATFORM_COMPOSED source provenance, fields, assets, and feed boundary |
+| Template contract | 1.9.0 | 1.9.0 | No Kakao coordinates changed |
+| Input Schema | 1.2.0 | 1.2.0 | N5 uses a separate SourceSpec schema; existing Kakao input remains compatible |
+| Output Schema | 2.0.0 | 2.0.0 | No final raster response change |
+| Integration Contract | 1.8.0 | 1.8.0 | Existing raster Input/Output shape and fingerprints remain unchanged |
+| Integration error registry | 1.8.0 | 1.9.0 | Additive deterministic N5 source error codes |
+| Platform-Composed SourceSpec | — | 1.0.0 | New standalone public source payload |
+| Platform-Composed source registry | — | 1.0.0 | Five frozen official source revisions and nine profiles |
+| Renderer Core | 0.7.0 | 0.7.0 | Source validation only; no native/feed raster |
+| Desktop | 0.8.2 | 0.8.2 | No Desktop UI in N5 |
+
+The separate SourceSpec avoids changing the legacy raster Integration Contract. Existing
+Kakao Template-locked, Kakao FREEFORM, SmartChannel 120-template, and N4 FREEFORM
+fingerprints remain regression gates. **[PROJECT]**
+
+### 37.7 Runtime, fonts, and acceptance boundary [PROJECT]
+
+Runtime network access is prohibited: no Naver API, CDN, remote font, telemetry, update
+check, or upload. Build dependency resolution remains lockfile-based; offline install is
+guaranteed only when the pnpm store is already prepared. Spoqa and SmartChannel font policies
+remain those of earlier phases; N5 does not add a font fallback or download. **[PROJECT]**
+
+Official N5 acceptance is Windows 10/11 x64. It checks source PDF SHA-256/page provenance,
+JSON/schema/error-code uniqueness, SourceSpec final-geometry rejection, deterministic NFC
+normalization/error ordering, feed safe areas, no new LayoutMode, and no final PNG/pixel
+fingerprint. Three-run byte equality applies to implemented raster profiles only; N5 native
+and feed profiles are source-contract checks, not pixel goldens. **[PROJECT]**
+
+The N5 fixture minimum is one valid Mobile Native SourceSpec, one OBJECT/source reference
+fixture, one final-geometry invalid fixture, CTA/platform-defined boundary coverage, feed
+safe-area boundary cases, and one invalid fixture per registered N5 error code. Large fixture
+datasets are implementation work, not Contract Freeze prerequisites. **[PROJECT]**
+
+N5's next phase is `N6_NAVER_COLLECTION_MULTI_ARTIFACT_CONTRACT`. Collection and video remain
+explicitly deferred; final NAVER UI geometry and upload approval are not claimed. **[PROJECT]**

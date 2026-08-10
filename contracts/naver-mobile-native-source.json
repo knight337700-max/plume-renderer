@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-mobile-native-source-v1.json",
+  "schemaVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "placement": "MOBILE_NATIVE",
+  "compositionMode": "PLATFORM_COMPOSED",
+  "artifactCardinality": "SINGLE",
+  "sourceRevisionRef": "contracts/naver-platform-composed-source-revision.json#/sources/MOBILE_NATIVE",
+  "profileRef": "contracts/naver-platform-composed-source-profiles.json#/profiles/0",
+  "sourceFields": [
+    "advertiserName",
+    "headline",
+    "description",
+    "profileName",
+    "landingButton",
+    "disclosureCopy",
+    "adMute"
+  ],
+  "sourceAssets": ["NAVER_NATIVE_THUMBNAIL_342X228", "NAVER_NATIVE_PROFILE_300X300"],
+  "presentation": {
+    "finalPresentationOwner": "NAVER_PLATFORM",
+    "finalPixelGeometry": "NOT_APPLICABLE",
+    "platformCropPossible": true,
+    "finalUiRuntime": "NOT_IMPLEMENTED"
+  },
+  "sourceStatus": "SOURCE_CONFIRMED"
+}

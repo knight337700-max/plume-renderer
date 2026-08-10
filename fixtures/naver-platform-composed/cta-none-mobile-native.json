@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "placement": "MOBILE_NATIVE",
+  "compositionMode": "PLATFORM_COMPOSED",
+  "artifactCardinality": "SINGLE",
+  "sourceProfileId": "NAVER_MOBILE_NATIVE_SOURCE_V1",
+  "fields": {
+    "advertiserName": "로컬 광고주",
+    "headline": "버튼 없는 원문",
+    "description": "자세한 내용 확인",
+    "profileName": "로컬 광고주",
+    "landingButton": "NONE",
+    "adMute": true
+  },
+  "assets": [
+    { "assetId": "native-thumbnail", "assetRole": "thumbnail", "sourceProfileId": "NAVER_NATIVE_THUMBNAIL_342X228", "mime": "image/jpeg", "width": 342, "height": 228, "bytes": 10000 },
+    { "assetId": "native-profile", "assetRole": "profileImage", "sourceProfileId": "NAVER_NATIVE_PROFILE_300X300", "mime": "image/png", "width": 300, "height": 300, "bytes": 200000 }
+  ]
+}

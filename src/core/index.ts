@@ -91,6 +91,21 @@ export {
   NAVER_SMARTCHANNEL_FONT_ERROR_CODES,
   preflightExternalExactFont,
 } from "./naver-smartchannel-font-preflight.js";
+export {
+  NAVER_PLATFORM_SOURCE_SCHEMA_VERSION,
+  normalizePlatformComposedSource,
+  platformComposedSourceHasFinalPixelOutput,
+  validatePlatformComposedSource,
+} from "./naver-platform-composed.js";
+export type {
+  PlatformComposedProfile,
+  PlatformComposedSourceSpec,
+  PlatformSourceAsset,
+  PlatformSourceAssetRule,
+  PlatformSourceFieldRule,
+  PlatformSourceValidationIssue,
+  PlatformSourceValidationResult,
+} from "./naver-platform-composed.js";
 export type {
   ExternalExactFontResource,
   FontPreflightIssue,

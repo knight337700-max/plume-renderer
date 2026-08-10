@@ -57,6 +57,8 @@ else fail("schema_versioning", "one or more schemas do not declare v1.8.0");
 
 const registry = await readJson(path.join(root, "contracts", "integration-error-registry.json"));
 const registryCodes = registry.codes.map((entry) => entry.code);
+if (registry.registryVersion === "1.9.0") pass("error_registry_version", "Integration error registry is v1.9.0");
+else fail("error_registry_version", `expected v1.9.0, got ${registry.registryVersion ?? "missing"}`);
 if (new Set(registryCodes).size === registryCodes.length) pass("error_code_uniqueness", `${registryCodes.length}/${registryCodes.length} integration error codes are unique`);
 else fail("error_code_uniqueness", "duplicate integration error code found");
 

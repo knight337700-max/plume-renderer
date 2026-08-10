@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-shopping-news-source-v1.json",
+  "schemaVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "placement": "SHOPPING_NEWS",
+  "compositionMode": "PLATFORM_COMPOSED",
+  "artifactCardinality": "SINGLE",
+  "sourceRevisionRef": "contracts/naver-platform-composed-source-revision.json#/sources/SHOPPING_NEWS",
+  "profileRef": "contracts/naver-platform-composed-source-profiles.json#/profiles/2",
+  "sourceFields": [
+    "profileName",
+    "adDescription",
+    "notificationSubscriptionState",
+    "benefitIcon",
+    "promotionIcon",
+    "landingButton",
+    "adMute",
+    "presentationVariant"
+  ],
+  "sourceAssets": ["NAVER_SHOPPING_NEWS_IMAGE_750X500"],
+  "presentation": {
+    "finalPresentationOwner": "NAVER_PLATFORM",
+    "controlledByPlatform": true,
+    "condition": "notificationSubscriptionState",
+    "finalPixelGeometry": "NOT_APPLICABLE",
+    "platformCropPossible": true,
+    "finalUiRuntime": "NOT_IMPLEMENTED"
+  },
+  "sourceStatus": "SOURCE_CONFIRMED"
+}

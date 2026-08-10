@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.8.0",
+  "registryVersion": "1.9.0",
   "namespace": "renderer-integration",
   "codes": [
     { "code": "KBR-PLACEMENT-PLAN-MISSING", "severity": "ERROR", "messageKey": "placement.plan_missing", "condition": "A required image slot has no placement plan" },
@@ -85,6 +85,28 @@
     { "code": "KBR-FREEFORM-JPEG-TARGET-SIZE-NOT-ACHIEVABLE", "severity": "ERROR", "messageKey": "freeform.jpeg_target_size_not_achievable", "condition": "The deterministic JPEG quality ladder cannot satisfy the selected profile byte limit" },
     { "code": "KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED", "severity": "ERROR", "messageKey": "freeform.format_not_implemented", "condition": "The selected FREEFORM catalog entry is catalog-only or blocked by an unsupported canvas contract" },
     { "code": "KBR-COMPOSITION-MODE-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "composition.platform_composed_not_supported", "condition": "A PLATFORM_COMPOSED capability was dispatched to the raster renderer before its platform runtime was implemented" },
-    { "code": "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "severity": "WARNING", "messageKey": "freeform.manual_review_required", "condition": "A catalog rule requires human review because baked image semantics or an unlocated safe-zone geometry cannot be inferred" }
+    { "code": "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "severity": "WARNING", "messageKey": "freeform.manual_review_required", "condition": "A catalog rule requires human review because baked image semantics or an unlocated safe-zone geometry cannot be inferred" },
+    { "code": "KBR-NAVER-SOURCE-SCHEMA-VERSION", "severity": "ERROR", "messageKey": "naver_source.schema_version", "condition": "A NAVER Platform-Composed SourceSpec does not declare the supported source schema version" },
+    { "code": "KBR-NAVER-SOURCE-CHANNEL", "severity": "ERROR", "messageKey": "naver_source.channel", "condition": "A Platform-Composed SourceSpec is not scoped to NAVER_GFA" },
+    { "code": "KBR-NAVER-SOURCE-COMPOSITION", "severity": "ERROR", "messageKey": "naver_source.composition_mode", "condition": "A source payload does not declare PLATFORM_COMPOSED" },
+    { "code": "KBR-NAVER-SOURCE-PLACEMENT", "severity": "ERROR", "messageKey": "naver_source.placement", "condition": "The source placement does not match the selected frozen Naver source profile" },
+    { "code": "KBR-NAVER-SOURCE-PROFILE", "severity": "ERROR", "messageKey": "naver_source.profile", "condition": "sourceProfileId is unknown or does not match the selected source profile" },
+    { "code": "KBR-NAVER-SOURCE-CARDINALITY", "severity": "ERROR", "messageKey": "naver_source.cardinality", "condition": "The source artifact cardinality does not match the selected profile" },
+    { "code": "KBR-NAVER-SOURCE-FINAL-GEOMETRY-FORBIDDEN", "severity": "ERROR", "messageKey": "naver_source.final_geometry_forbidden", "condition": "A source payload contains final canvas, final coordinates, or pixel fingerprint data owned by the platform" },
+    { "code": "KBR-NAVER-SOURCE-FIELD-REQUIRED", "severity": "ERROR", "messageKey": "naver_source.field_required", "condition": "A source-backed required field is missing" },
+    { "code": "KBR-NAVER-SOURCE-FIELD-TYPE", "severity": "ERROR", "messageKey": "naver_source.field_type", "condition": "A source field value has the wrong type" },
+    { "code": "KBR-NAVER-SOURCE-FIELD-LENGTH", "severity": "ERROR", "messageKey": "naver_source.field_length", "condition": "A source field exceeds its source-backed character boundary" },
+    { "code": "KBR-NAVER-SOURCE-FIELD-ENUM", "severity": "ERROR", "messageKey": "naver_source.field_enum", "condition": "A source field value is not in its source-backed allowed-value list" },
+    { "code": "KBR-NAVER-SOURCE-FIELD-UNKNOWN", "severity": "ERROR", "messageKey": "naver_source.field_unknown", "condition": "A source payload includes a field not declared by the selected source profile" },
+    { "code": "KBR-NAVER-SOURCE-ASSET-REQUIRED", "severity": "ERROR", "messageKey": "naver_source.asset_required", "condition": "A source-backed required asset role is missing" },
+    { "code": "KBR-NAVER-SOURCE-ASSET-UNKNOWN", "severity": "ERROR", "messageKey": "naver_source.asset_unknown", "condition": "A source payload includes an asset role not declared by the selected source profile" },
+    { "code": "KBR-NAVER-SOURCE-ASSET-PROFILE", "severity": "ERROR", "messageKey": "naver_source.asset_profile", "condition": "An asset does not reference a source asset profile allowed by the selected source profile" },
+    { "code": "KBR-NAVER-SOURCE-ASSET-DIMENSION", "severity": "ERROR", "messageKey": "naver_source.asset_dimension", "condition": "A source asset does not match its source-backed dimensions or minimum width" },
+    { "code": "KBR-NAVER-SOURCE-ASSET-ASPECT-RATIO", "severity": "ERROR", "messageKey": "naver_source.asset_aspect_ratio", "condition": "A source asset does not match its source-backed aspect ratio" },
+    { "code": "KBR-NAVER-SOURCE-ASSET-MIME", "severity": "ERROR", "messageKey": "naver_source.asset_mime", "condition": "A source asset MIME is not allowed by its source-backed asset profile" },
+    { "code": "KBR-NAVER-SOURCE-ASSET-FILESIZE", "severity": "ERROR", "messageKey": "naver_source.asset_filesize", "condition": "A source asset byte size is outside its source-backed range" },
+    { "code": "KBR-NAVER-SOURCE-ASSET-ALPHA", "severity": "ERROR", "messageKey": "naver_source.asset_alpha", "condition": "A source asset alpha state conflicts with an explicit source-backed alpha rule" },
+    { "code": "KBR-NAVER-SOURCE-COLLECTION-COUNT", "severity": "ERROR", "messageKey": "naver_source.collection_count", "condition": "A collection source has no item count or is outside the source-backed item range" },
+    { "code": "KBR-NAVER-SOURCE-RUNTIME-DEFERRED", "severity": "WARNING", "messageKey": "naver_source.runtime_deferred", "condition": "The source contract is valid but its final platform UI or collection/video runtime is not implemented" }
   ]
 }

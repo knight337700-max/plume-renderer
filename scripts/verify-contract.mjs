@@ -73,7 +73,7 @@ check(
 );
 check(
   "error_registry_version",
-  errorRegistry?.registryVersion === "1.4.0",
+  errorRegistry?.registryVersion === "1.5.0",
   `errorRegistry=${errorRegistry?.registryVersion ?? "missing"}`,
 );
 
@@ -417,6 +417,11 @@ check(
   new Set(integrationCodes).size === integrationCodes.length && integrationCodes.length >= 24,
   `${new Set(integrationCodes).size}/${integrationCodes.length} integration error codes are unique`,
 );
+check(
+  "integration_error_registry_version",
+  integrationErrors?.registryVersion === "1.9.0" && versions?.integrationErrorRegistryVersion === "1.9.0",
+  `integrationErrorRegistry=${integrationErrors?.registryVersion ?? "missing"}`,
+);
 const capabilityRegistry = contracts.get("template-capabilities.json");
 const implementedCapabilities = capabilityRegistry?.capabilities?.filter(({ implementationStatus }) => implementationStatus === "IMPLEMENTED") ?? [];
 check(
@@ -465,7 +470,7 @@ check(
 );
 check(
   "canonical_document_version",
-    versions?.documentVersion?.previous === "1.18.0" && versions?.documentVersion?.current === "1.19.0" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
+    versions?.documentVersion?.previous === "1.19.0" && versions?.documentVersion?.current === "1.20.0" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
     `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

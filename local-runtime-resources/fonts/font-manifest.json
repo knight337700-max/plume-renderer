@@ -1,0 +1,18 @@
+{
+  "manifestVersion": "1.0.0",
+  "resourceKind": "NAVER_SMARTCHANNEL_EXTERNAL_FONT",
+  "bundled": false,
+  "commitBinaries": false,
+  "publishBinaries": false,
+  "licenseStatus": "NOT_CONFIRMED",
+  "redistributionClaim": "NOT_MADE",
+  "runtimeNetworkAccess": "PROHIBITED",
+  "directoryEnv": "NAVER_SMARTCHANNEL_FONT_DIR",
+  "source": "https://github.com/fonts-archive/AppleSDGothicNeo",
+  "files": [
+    { "fileName": "AppleSDGothicNeo-Bold.ttf", "runtimePostScriptName": "AppleSDGothicNeoB00", "weight": 700, "sha256": "a652ea0a3c4bf8658845f044b5d6f40c39ecf03207e43f325c1451127528402b", "byteLength": 3817104, "status": "PROJECT_COMPATIBLE_VERIFIED" },
+    { "fileName": "AppleSDGothicNeo-Medium.ttf", "runtimePostScriptName": "AppleSDGothicNeoM00", "weight": 500, "sha256": "0ab8f4045a0c5ac30eee01da33f75998c0a8f6f3d65b0952be8dc9ece63bde29", "byteLength": 3791636, "status": "PROJECT_COMPATIBLE_VERIFIED" },
+    { "fileName": "AppleSDGothicNeo-Regular.ttf", "runtimePostScriptName": "AppleSDGothicNeoR00", "weight": 400, "sha256": "f44eec027992b99dc25de0229c5726fe209a6cb80761aaef98d050cdc0bc6cfe", "byteLength": 3853124, "status": "PROJECT_COMPATIBLE_VERIFIED" },
+    { "fileName": "AppleSDGothicNeo-SemiBold.ttf", "runtimePostScriptName": "AppleSDGothicNeoSB00", "weight": 600, "sha256": "a9c5ffb4dadce253d8748b18019954a8af19b7cfcc3b586fce64ef1f6bd71492", "byteLength": 3705352, "status": "PROJECT_COMPATIBLE_VERIFIED" }
+  ]
+}

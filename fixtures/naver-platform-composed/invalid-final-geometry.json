@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "placement": "MOBILE_NATIVE",
+  "compositionMode": "PLATFORM_COMPOSED",
+  "artifactCardinality": "SINGLE",
+  "sourceProfileId": "NAVER_MOBILE_NATIVE_SOURCE_V1",
+  "fields": {},
+  "assets": [],
+  "finalCanvas": { "width": 1029, "height": 258 }
+}

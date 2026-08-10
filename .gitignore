@@ -4,6 +4,7 @@ dist-desktop/
 release/
 out/
 .out-staging/
+.tmp-n2-runtime-verification/
 coverage/
 *.log
 playwright-report/

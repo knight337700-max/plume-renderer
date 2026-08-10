@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.11.0`과 Template Contract `1.6.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하며 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.6.0`은 기존 Template 입력을 유지하면서 additive `LayoutMode`/`CreativeLayoutPlan v1.0.0`과 FREEFORM profile/output metadata를 제공한다. F3A에서 카카오모먼트 fixed FREEFORM Profile 14개와 deterministic JPEG output을 추가했고, F4/F4B Desktop Renderer Lab은 PNG/JPEG Preview와 PRE_RENDER/POST_RENDER별 publish gate를 제공한다. F4C Desktop `0.8.2`는 신규 IMAGE의 중립 full-canvas 기본값과 명시적 Fit/Fill/Reset one-shot 배치 프리셋을 제공한다. Variable-canvas와 collection 편집은 후속 Phase다.
+Canonical 계약 `1.20.0`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원하며, NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.8.0`과 기존 Kakao/SmartChannel fingerprints는 유지된다. Variable-canvas, NAVER video/collection runtime, Meta/Google은 후속 Phase다.
 
 ## 요구 환경
 
@@ -18,6 +18,10 @@ pnpm check
 ```
 
 `pnpm check`는 기존 계약과 Integration Contract 무결성, TypeScript, lint, Core·Desktop build, 단위·통합·보안·Golden·Electron E2E 테스트를 순서대로 실행한다. Integration 전용 검증은 `pnpm test:integration-contract`다.
+
+N5 NAVER Platform-Composed source provenance와 field/asset validator는
+`pnpm verify:naver-platform`으로 검사한다. Desktop handoff 복사본은
+`node scripts/verify-renderer-module-handoff.mjs`로 별도 검증한다.
 
 FREEFORM Contract 전용 검증은 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`다. F1 Core Raster 검증은 `pnpm test:freeform-core`이며 기존 Template Golden 회귀와 함께 실행한다. F3A 카탈로그/프로파일 검증은 `pnpm test:kakao-freeform-profiles`, JPEG 결정성 검증은 `pnpm test:jpeg-determinism`, F4C Desktop 배치 검증은 `pnpm test:freeform-presets`다.
 
