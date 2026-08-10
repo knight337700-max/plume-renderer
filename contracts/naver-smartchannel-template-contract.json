@@ -5999,6 +5999,7 @@
     "classification": "PROJECT_COMPATIBILITY_VERIFIED"
   },
   "fontCompatibilityRef": "contracts/naver-smartchannel-font-compatibility.json",
+  "fontContractRef": "contracts/naver-smartchannel-font-contract.json",
   "metricFixturesRef": "contracts/naver-smartchannel-font-metric-fixtures.json",
   "n2Readiness": {
     "ready": true,

@@ -352,8 +352,8 @@
         },
         "object": {
           "type": "object", "additionalProperties": false,
-          "required": ["placementToken", "expectedRegion", "actualRasterBounds", "sourceRuleId", "sourceMimeType", "sourceDigest", "frame", "transform"],
-          "properties": { "placementToken": { "type": "string" }, "expectedRegion": { "$ref": "#/$defs/pixelRect" }, "actualRasterBounds": { "anyOf": [{ "$ref": "#/$defs/pixelRect" }, { "type": "null" }] }, "sourceRuleId": { "type": "string" }, "sourceMimeType": { "enum": ["image/png", "image/jpeg"] }, "sourceDigest": { "$ref": "#/$defs/sha256" }, "frame": { "$ref": "#/$defs/pixelRect" }, "transform": { "enum": ["NONE", "SOURCE_TRANSFORM"] } }
+          "required": ["placementToken", "expectedRegion", "actualRasterBounds", "sourceRuleId", "sourceMimeType", "sourceDigest", "frame", "transform", "sourceCanvas", "alphaBounds", "normalizedSize", "finalBounds", "targetRegion", "opaquePixelCount", "maxOpaquePixelCount"],
+          "properties": { "placementToken": { "type": "string" }, "expectedRegion": { "$ref": "#/$defs/pixelRect" }, "actualRasterBounds": { "anyOf": [{ "$ref": "#/$defs/pixelRect" }, { "type": "null" }] }, "sourceRuleId": { "type": "string" }, "sourceMimeType": { "enum": ["image/png", "image/jpeg"] }, "sourceDigest": { "$ref": "#/$defs/sha256" }, "frame": { "$ref": "#/$defs/pixelRect" }, "transform": { "enum": ["NONE", "SOURCE_TRANSFORM"] }, "sourceCanvas": { "$ref": "#/$defs/sourceCanvas" }, "alphaBounds": { "anyOf": [{ "$ref": "#/$defs/pixelRect" }, { "type": "null" }] }, "normalizedSize": { "$ref": "#/$defs/normalizedSize" }, "finalBounds": { "anyOf": [{ "$ref": "#/$defs/pixelRect" }, { "type": "null" }] }, "targetRegion": { "$ref": "#/$defs/pixelRect" }, "opaquePixelCount": { "type": "integer", "minimum": 0 }, "maxOpaquePixelCount": { "const": 29120 } }
         },
         "textRoles": {
           "type": "array",
@@ -377,6 +377,8 @@
         },
         "artifact": { "type": "object", "additionalProperties": false, "required": ["pngDigest", "bytes"], "properties": { "pngDigest": { "$ref": "#/$defs/sha256" }, "bytes": { "type": "integer", "minimum": 1 } } }
       }
-    }
+    },
+    "sourceCanvas": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 } } },
+    "normalizedSize": { "type": "object", "additionalProperties": false, "required": ["width", "height", "scale"], "properties": { "width": { "type": "integer", "minimum": 0 }, "height": { "type": "integer", "minimum": 0 }, "scale": { "type": "number", "minimum": 0 } } }
   }
 }

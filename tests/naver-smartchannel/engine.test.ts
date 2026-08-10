@@ -5,7 +5,6 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { isSmartChannelRenderRequest, renderSmartChannel, loadContracts } from "../../src/core/index.js";
-import { sha256Bytes } from "../../src/core/hash.js";
 import { projectRoot } from "../helpers.js";
 
 const ids = ["N2-REP-001", "N2-REP-002", "N2-REP-003", "N2-REP-004", "N2-REP-005", "N2-REP-006"];
@@ -15,25 +14,18 @@ async function requestFor(id: string): Promise<Record<string, unknown>> {
 }
 
 describe("NAVER SmartChannel N2 template engine", () => {
-  it("renders exactly the six enabled candidates as deterministic transparent PNGs", async () => {
+  it("fails closed for each representative candidate while official fonts are unresolved", async () => {
     const contracts = await loadContracts(projectRoot);
     const outputRoot = await os.tmpdir();
     const temp = path.join(outputRoot, `kbr-n2-vitest-${process.pid}`);
     await mkdir(temp, { recursive: true });
-    const registry = JSON.parse(await readFile(path.join(projectRoot, "fixtures/golden/naver-smartchannel/registry.json"), "utf8")) as { candidates: Array<Record<string, string>> };
     for (const id of ids) {
       const result = await renderSmartChannel(await requestFor(id), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
-      expect(result.status, id).toBe("PASS");
+      expect(result.status, id).toBe("FAIL");
       expect(result.downloadAllowed, id).toBe(false);
-      expect(result.png).toBeInstanceOf(Buffer);
-      const entry = registry.candidates.find((candidate) => candidate.id === id);
-      expect(result.pngDigest).toBe(entry?.pngSha256);
-      expect(result.templateId).toBe(entry?.templateId);
-      expect(result.objectPlacementToken).toBe(entry?.objectPlacementToken);
-      expect(result.report?.textRoles.some((role) => role.overflow)).toBe(false);
+      expect(result.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE"), id).toBe(true);
       const repeated = await renderSmartChannel(await requestFor(id), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
-      expect(repeated.pngDigest).toBe(result.pngDigest);
-      expect(sha256Bytes(result.png ?? Buffer.alloc(0))).toBe(result.pngDigest);
+      expect(repeated.errors.map((issue) => issue.code)).toEqual(result.errors.map((issue) => issue.code));
     }
   });
 
@@ -43,7 +35,8 @@ describe("NAVER SmartChannel N2 template engine", () => {
     await mkdir(temp, { recursive: true });
     const base = await requestFor("N2-REP-001");
     const known = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE", content: { headline: "테스트" } }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
-    expect(known.status).toBe("PASS");
+    expect(known.status).toBe("FAIL");
+    expect(known.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")).toBe(true);
     const unsupportedCta = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE", content: { headline: "테스트", ctaOption: "가입하기" } }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
     expect(unsupportedCta.status).toBe("FAIL");
     expect(unsupportedCta.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_CTA_INVALID")).toBe(true);
@@ -81,16 +74,7 @@ describe("NAVER SmartChannel N2 template engine", () => {
     firstRuntimeAsset.runtimeDigest = "0".repeat(64);
     const wrongFont = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts: { ...contracts, naverRuntimeFontPolicy: wrongFontPolicy }, publish: false });
     expect(wrongFont.status).toBe("FAIL");
-    expect(wrongFont.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH")).toBe(true);
-
-    const wrongFixed = structuredClone(contracts.naverFixedComponents) as Record<string, unknown>;
-    const components = wrongFixed.components as Array<Record<string, unknown>>;
-    const landing = components.find((component) => component.id === "LANDING_ICON_280");
-    if (!landing) throw new Error("Naver fixed-component registry has no LANDING_ICON_280");
-    (landing.asset as Record<string, unknown>).assetPngSha256 = "0".repeat(64);
-    const fixed = await renderSmartChannel(await requestFor("N2-REP-003"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts: { ...contracts, naverFixedComponents: wrongFixed }, publish: false });
-    expect(fixed.status).toBe("FAIL");
-    expect(fixed.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FIXED_COMPONENT_INVALID")).toBe(true);
+    expect(wrongFont.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")).toBe(true);
 
     const wrongPlacement = structuredClone(contracts.naverObjectPlacement) as Record<string, unknown>;
     wrongPlacement.tokens = (wrongPlacement.tokens as Array<Record<string, unknown>>).filter((entry) => entry.token !== "NAVER_SC_160_BASIC_STANDARD_LEFT_NONE");

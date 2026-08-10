@@ -44,16 +44,36 @@ N1D.1의 사용자 지정 AppleSDGothicNeo TTF는 `.local-fonts/naver-smartchann
 등으로 source exact name과 달라 SmartChannel 승인 자산이 아니다. SFPro/SFUI는 PSD의
 export-capable hidden English text variants로 감사되어 source required 상태를 유지한다.
 
-## NAVER SmartChannel N1D.2 compatibility update
+## NAVER SmartChannel N1D.2 compatibility update (historical, superseded by N7.4)
 
 위 N1D.1 판정은 historical exact-identity 정책이다. 현재 정책은 source identity와 runtime
 compatibility를 분리한다. 네 local archive 파일은 source exact가 아닌
 `SOURCE_DIFFERENT_BUILD`로 기록되지만, controlled alias, SHA-256, SFNT tables, glyph
 coverage, style separation, representative metric fixtures를 모두 통과하여
-`PROJECT_COMPATIBLE_VERIFIED`로 승인된다. runtime lookup key는 `fontToken`이며 arbitrary
-fallback은 계속 금지된다. Photoshop byte/pixel parity와 재배포 권한은 주장하지 않는다.
+`PROJECT_COMPATIBLE_VERIFIED`로 승인되었던 historical projection이다. N7.4에서 SmartChannel
+공식 runtime role은 NanumBarunGothic/Sandoll 공식 자산으로 다시 동결되었으며, 이 archive는
+현재 runtime dependency가 아니다. runtime lookup key는 `fontToken`이며 arbitrary fallback은
+계속 금지된다. Photoshop byte/pixel parity와 재배포 권한은 주장하지 않는다.
 
 SF effective audit 결과 SFPro/SFUI layer는 `HIDDEN_SOURCE_TEXT`이고 composite contribution이
 0이므로 runtime required set에서 제외된다. 자세한 기준은
 [`contracts/naver-smartchannel-font-compatibility.json`](../../contracts/naver-smartchannel-font-compatibility.json)
 및 [`contracts/naver-smartchannel-sf-font-audit.json`](../../contracts/naver-smartchannel-sf-font-audit.json)에 있다.
+
+## NAVER SmartChannel N7.4 official font contract
+
+SmartChannel은 Apple SD Gothic Neo를 공식 허용 폰트 또는 runtime dependency로 취급하지
+않는다. Source PSD에 남아 있는 Apple 이름은 source metadata 기록일 뿐이다. 현재 저장소에는
+합법적으로 확인된 `NanumBarunGothic` 또는 `Sandoll Neo Gothic` Bold/Regular runtime asset이
+없으므로 SmartChannel 공식 role은 `UNRESOLVED_ASSET`으로 fail-closed 기록되어 있다.
+
+필요 조건은 다음과 같다.
+
+- `NAVER_SC_NANUM_BARUN_GOTHIC_BOLD`: weight 700, Main
+- `NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR`: weight 400, Sub/Disclaimer
+- 선택적 `NAVER_SC_SAN_FRANCISCO_BOLD`: 영문 전용 Main 1행
+
+Medium/SemiBold를 unconditional dependency로 추가하지 않으며, 시스템 폰트 fallback,
+가짜 파일명·SHA-256, 네트워크 다운로드, Apple 파일의 재사용은 금지한다. 실제 asset을
+추가하려면 라이선스 확인, 파일 SHA-256, 내부 PostScript identity를
+`contracts/naver-smartchannel-font-contract.json`과 runtime policy에 1:1로 등록해야 한다.

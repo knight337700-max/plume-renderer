@@ -137,6 +137,23 @@ try {
   const prepared = [];
   let templatesPassed = 0;
 
+  const runtimeFontPolicy = jsonObject(contracts.naverRuntimeFontPolicy);
+  if (runtimeFontPolicy.runtimeStatus === "BLOCKED_UNRESOLVED_OFFICIAL_ASSET") {
+    for (let index = 0; index < templates.length; index += 1) {
+      const template = templates[index];
+      const token = placementTokens.get(String(template.objectPlacementToken));
+      if (!token) throw new Error(`${template.templateId}: missing placement token`);
+      const fileName = `${String(index).padStart(3, "0")}-${template.templateId}.png`;
+      await writeObjectAsset(path.join(inputRoot, fileName), token, template);
+      const content = contentFor(template, metadata);
+      const result = await renderOne(contracts, requestFor({ ...template, content }, fileName));
+      if (result.status !== "FAIL" || result.downloadAllowed || result.pngPath !== null || !result.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")) throw new Error(`${template.templateId}: unresolved official font did not fail closed`);
+    }
+    console.log(JSON.stringify({ status: "BLOCKED_EXPECTED", templatesAttempted: templates.length, templatesPassed: 0, threeRunDeterminism: false, reason: "OFFICIAL_SMARTCHANNEL_FONT_ASSETS_UNRESOLVED", failures: [] }, null, 2));
+    process.exitCode = 0;
+    process.exit(0);
+  }
+
   for (let index = 0; index < templates.length; index += 1) {
     const failureCountBeforeTemplate = failures.length;
     const template = templates[index];

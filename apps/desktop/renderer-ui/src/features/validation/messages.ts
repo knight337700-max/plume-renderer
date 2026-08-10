@@ -33,6 +33,29 @@ export function issueMessage(issue: ValidationIssue): string {
       return `${base} 현재 ${actual.bytes} bytes / 최대 ${expected.maximumBytes} bytes입니다.`;
     }
   }
+  if (issue.code === "NAVER_SMARTCHANNEL_ASSET_DIMENSION_MISMATCH") {
+    const normalized = actual.normalizedSize;
+    const finalBounds = actual.finalBounds;
+    if (normalized && typeof normalized === "object") {
+      const size = normalized as Record<string, unknown>;
+      const finalSize = finalBounds && typeof finalBounds === "object" ? finalBounds as Record<string, unknown> : {};
+      return `${base} 정규화 ${String(size.width ?? "?")}×${String(size.height ?? "?")}px, 최종 ${String(finalSize.width ?? "?")}×${String(finalSize.height ?? "?")}px입니다.`;
+    }
+  }
+  if (issue.code === "NAVER_SMARTCHANNEL_OBJECT_OUT_OF_REGION") {
+    const finalBounds = actual.finalBounds;
+    const targetRegion = actual.targetRegion;
+    if (finalBounds && typeof finalBounds === "object" && targetRegion && typeof targetRegion === "object") {
+      const bounds = finalBounds as Record<string, unknown>;
+      const region = targetRegion as Record<string, unknown>;
+      return `${base} 최종 bounds (${String(bounds.x ?? "?")},${String(bounds.y ?? "?")},${String(bounds.width ?? "?")}×${String(bounds.height ?? "?")}), 지정 영역 (${String(region.x ?? "?")},${String(region.y ?? "?")},${String(region.width ?? "?")}×${String(region.height ?? "?")})입니다.`;
+    }
+  }
+  if (issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE") {
+    const expected = issue.expected && typeof issue.expected === "object" ? issue.expected as Record<string, unknown> : {};
+    const expectedId = expected.fontId ?? expected.requiredFont;
+    if (expectedId !== undefined) return `${base} 필요 폰트: ${String(expectedId)}.`;
+  }
   return base;
 }
 

@@ -63,6 +63,7 @@ for (const code of [
   "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE",
   "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH",
   "NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH",
+  "NAVER_SMARTCHANNEL_OBJECT_OPAQUE_PIXEL_LIMIT",
 ]) {
   check(`error_code_${code}`, errorCodes.includes(code), `${code} is present`);
 }
@@ -73,7 +74,7 @@ check(
 );
 check(
   "error_registry_version",
-  errorRegistry?.registryVersion === "1.6.0",
+  errorRegistry?.registryVersion === "1.7.0",
   `errorRegistry=${errorRegistry?.registryVersion ?? "missing"}`,
 );
 
@@ -470,8 +471,35 @@ check(
 );
 check(
   "canonical_document_version",
-    versions?.documentVersion?.previous === "1.20.0" && versions?.documentVersion?.current === "1.21.0" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
+    versions?.documentVersion?.previous === "1.21.0" && versions?.documentVersion?.current === "1.21.1" && versions?.canonicalPhaseN7_4?.documentCurrent === "1.21.1" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
     `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
+);
+
+const assetNormalization = contracts.get("naver-smartchannel-asset-normalization.json");
+const fontContract = contracts.get("naver-smartchannel-font-contract.json");
+const typographyContract = contracts.get("naver-smartchannel-typography.json");
+const runtimeFontPolicy = contracts.get("naver-smartchannel-runtime-font-policy.json");
+const fontCompatibility = contracts.get("naver-smartchannel-font-compatibility.json");
+check(
+  "naver_smartchannel_asset_normalization",
+  assetNormalization?.object?.maxWidth === 260 && assetNormalization?.object?.maxHeight === 160 && assetNormalization?.object?.maxOpaquePixelCount === 29120 && assetNormalization?.alpha?.trimPreserveThreshold === 1 && assetNormalization?.alpha?.layoutVisibleThreshold === 8 && assetNormalization?.alpha?.connectivity === 8 && Array.isArray(assetNormalization?.pipeline) && assetNormalization.pipeline.join("→") === "DECODE→ALPHA_BOUNDS→ALPHA_TRIM→PLACEMENT_POLICY→CONTAIN_SCALE→FINAL_RENDERED_BOUNDS→REGION_VALIDATION→RENDERED_ALPHA_PIXEL_COUNT",
+  "pipeline=decode→alpha bounds→alpha trim→placement policy→contain scale→final rendered bounds→region validation→rendered alpha pixel count",
+);
+check(
+  "naver_smartchannel_official_font_contract",
+  fontContract?.fallbackAllowed === false &&
+    fontContract?.mediumRequired === false &&
+    fontContract?.semiBoldRequired === false &&
+    JSON.stringify(fontContract?.roles?.filter(({ required }) => required).map(({ id }) => id)) === JSON.stringify(["NAVER_SC_NANUM_BARUN_GOTHIC_BOLD", "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR"]) &&
+    runtimeFontPolicy?.runtimeStatus === "BLOCKED_UNRESOLVED_OFFICIAL_ASSET" &&
+    runtimeFontPolicy?.runtimeAssets?.filter(({ required }) => required).length === 2 &&
+    runtimeFontPolicy?.runtimeAssets?.filter(({ required }) => required).every(({ relativePath, runtimeDigest }) => relativePath === null && runtimeDigest === null) &&
+    typographyContract?.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" &&
+    JSON.stringify(typographyContract?.sfRuntimeFonts ?? []) === JSON.stringify([]) &&
+    fontCompatibility?.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" &&
+    fontCompatibility?.approvedDigestAllowlist && Object.keys(fontCompatibility.approvedDigestAllowlist).length === 0 &&
+    !runtimeFontPolicy?.runtimeAssets?.some(({ id }) => String(id).includes("APPLE_SD_GOTHIC_NEO")),
+  "official roles=Bold+Regular; optional SF; no Apple runtime IDs; no fake digests",
 );
 
 for (const result of results) {

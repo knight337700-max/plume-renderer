@@ -42,6 +42,8 @@ export type ContractBundle = {
   naverCtaOptions: Record<string, unknown>;
   naverN2Candidates: Record<string, unknown>;
   naverRuntimeFontPolicy: Record<string, unknown>;
+  naverFontContract: Record<string, unknown>;
+  naverAssetNormalization: Record<string, unknown>;
   naverFontCompatibility: Record<string, unknown>;
   naverMetricFixtures: Record<string, unknown>;
   naverObjectPlacement: Record<string, unknown>;
@@ -76,6 +78,8 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     naverCtaOptions,
     naverN2Candidates,
     naverRuntimeFontPolicy,
+    naverFontContract,
+    naverAssetNormalization,
     naverFontCompatibility,
     naverMetricFixtures,
     naverObjectPlacement,
@@ -102,6 +106,8 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-cta-options.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-n2-candidates.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-runtime-font-policy.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-font-contract.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-asset-normalization.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-font-compatibility.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-font-metric-fixtures.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-object-placement.json"),
@@ -130,6 +136,8 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     naverCtaOptions,
     naverN2Candidates,
     naverRuntimeFontPolicy,
+    naverFontContract,
+    naverAssetNormalization,
     naverFontCompatibility,
     naverMetricFixtures,
     naverObjectPlacement,

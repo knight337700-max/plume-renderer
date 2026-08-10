@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-font-contract-v1.0.0.json",
+  "registryVersion": "1.0.0",
+  "status": "FROZEN_FAIL_CLOSED",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "allowedFamilies": ["Sandoll Neo Gothic", "NanumBarunGothic", "San Francisco"],
+  "forbiddenCanonicalIds": [
+    "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+    "NAVER_SC_APPLE_SD_GOTHIC_NEO_MEDIUM",
+    "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
+    "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD"
+  ],
+  "fallbackAllowed": false,
+  "roles": [
+    {
+      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
+      "role": "MAIN",
+      "family": "NanumBarunGothic",
+      "weight": 700,
+      "required": true,
+      "allowedLanguages": ["ko", "en", "numeric"],
+      "use": "Main copy",
+      "assetStatus": "UNRESOLVED_ASSET",
+      "assetPath": null,
+      "sha256": null,
+      "licenseStatus": "UNRESOLVED"
+    },
+    {
+      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
+      "role": "SUB_AND_DISCLAIMER",
+      "family": "NanumBarunGothic",
+      "weight": 400,
+      "required": true,
+      "allowedLanguages": ["ko", "en", "numeric"],
+      "use": "Sub and Disclaimer copy",
+      "assetStatus": "UNRESOLVED_ASSET",
+      "assetPath": null,
+      "sha256": null,
+      "licenseStatus": "UNRESOLVED"
+    },
+    {
+      "id": "NAVER_SC_SAN_FRANCISCO_BOLD",
+      "role": "MAIN_ENGLISH_ONLY",
+      "family": "San Francisco",
+      "weight": 700,
+      "required": false,
+      "allowedLanguages": ["en", "numeric"],
+      "use": "Optional English-only Main copy, one line",
+      "assetStatus": "UNRESOLVED_ASSET",
+      "assetPath": null,
+      "sha256": null,
+      "licenseStatus": "UNRESOLVED"
+    }
+  ],
+  "unconditionalRequiredWeights": [400, 700],
+  "mediumRequired": false,
+  "semiBoldRequired": false,
+  "runtimeResolution": "APPROVED_ASSET_AND_CANONICAL_ID_1_TO_1",
+  "runtimeNetworkAccess": "PROHIBITED"
+}

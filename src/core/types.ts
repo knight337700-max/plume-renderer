@@ -289,7 +289,23 @@ export type SmartChannelReport = {
   templateId: string;
   objectPlacementToken: string;
   canvas: { width: number; height: number; format: "PNG"; colorType: "RGBA"; bitDepth: 8; hasAlpha: true };
-  object: { placementToken: string; expectedRegion: BBox; actualRasterBounds: BBox | null; sourceRuleId: string; sourceMimeType: "image/png" | "image/jpeg"; sourceDigest: string; frame: BBox; transform: "NONE" | "SOURCE_TRANSFORM" };
+  object: {
+    placementToken: string;
+    expectedRegion: BBox;
+    actualRasterBounds: BBox | null;
+    sourceRuleId: string;
+    sourceMimeType: "image/png" | "image/jpeg";
+    sourceDigest: string;
+    frame: BBox;
+    transform: "NONE" | "SOURCE_TRANSFORM";
+    sourceCanvas: { width: number; height: number };
+    alphaBounds: BBox | null;
+    normalizedSize: { width: number; height: number; scale: number };
+    finalBounds: BBox | null;
+    targetRegion: BBox;
+    opaquePixelCount: number;
+    maxOpaquePixelCount: number;
+  };
   textRoles: SmartChannelTextRoleReport[];
   fixedComponents: Array<{ id: string; digest: string; x: number; y: number; width: number; height: number }>;
   fonts: Array<{ token: string; runtimePostScriptName: string; digest: string }>;

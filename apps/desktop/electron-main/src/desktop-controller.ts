@@ -193,12 +193,14 @@ function smartChannelFontInfo(policy: Record<string, unknown>): NaverCatalog["fo
     configuredDirectory: null,
     requiredAssets: runtimeAssets.flatMap((entry) => {
       const raw = asRecord(entry);
-      if (typeof raw.token !== "string" || typeof raw.expectedFilename !== "string") return [];
+      if (raw.required === false || typeof raw.id !== "string") return [];
+      const relativePath = typeof raw.relativePath === "string" ? raw.relativePath : "";
+      const expectedFilename = relativePath ? path.basename(relativePath) : `${raw.id}.ttf`;
       return [{
-        token: raw.token,
-        expectedFilename: raw.expectedFilename,
-        expectedSha256: typeof raw.expectedSha256 === "string" ? raw.expectedSha256 : null,
-        requiredPostScriptName: String(raw.requiredPostScriptName ?? raw.expectedPostScriptName ?? raw.token),
+        token: raw.id,
+        expectedFilename,
+        expectedSha256: typeof raw.runtimeDigest === "string" ? raw.runtimeDigest : null,
+        requiredPostScriptName: String(raw.runtimePostScriptName ?? raw.id),
       }];
     }),
   };

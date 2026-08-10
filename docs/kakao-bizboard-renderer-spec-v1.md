@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.21.0
-- **Status:** Frozen Implementation Contract — Phase N6 NAVER_GFA MOBILE_DA_FEED COLLECTION ordered source artifacts and multi-artifact manifest; final NAVER UI remains platform-owned
+- **Document version:** 1.21.1
+- **Status:** Frozen Implementation Contract — Phase N7.4 SmartChannel final-alpha asset normalization and official-font fail-closed hotfix; required official runtime assets remain unresolved
 - **Checked date:** 2026-08-10 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -4454,3 +4454,69 @@ N7.3 acceptance는 다음을 포함한다.
 
 N7.3 root-cause evidence, clarification, and implementation are recorded in the N7.3 documents
 and ADR-0055. The next phase remains `M0_NAVER_DESKTOP_HARDENING`. **[PROJECT]**
+
+---
+
+## 43. Phase N7.4 — SmartChannel Asset Normalization and Official Font Contract Hotfix
+
+N7.4는 SmartChannel 실사용에서 raw transparent source canvas가 750×160 또는 source-frame
+크기와 다르다는 이유로 거부되던 자산 검증과, Apple SD Gothic Neo를 runtime approved font처럼
+취급하던 이전 호환성 계약을 교정한다. 이 절은 N7.4 hotfix의 현재 계약이며 source PSD에
+남은 Apple 이름은 provenance metadata로만 보존한다. **[PROJECT]**
+
+### 43.1 Object validation pipeline [OFFICIAL] [PROJECT]
+
+SmartChannel object의 검증 순서는 `decode → alpha bounds → alpha trim → placement policy →
+contain scale → final rendered bounds → region validation → rendered alpha pixel count`로
+고정한다. raw source canvas, 투명 padding, pre-scale coordinate, source-space placement를
+최종 object limit 또는 region 판정에 사용하지 않는다. 기존 precomposed full-canvas input은
+source canvas가 template canvas와 일치할 때만 legacy compatibility로 인식하며, 이 경우에도
+최종 alpha bounds만 검사한다. **[PROJECT]**
+
+DA 160 object limit은 width 260px, height 160px, area 41,600px, non-transparent pixel
+최대 70%(29,120px)다. alpha trim 보존 임계치는 `alpha >= 1`, layout-visible/연결요소 임계치는
+`alpha >= 8`로 고정한다. 8-connected layout-visible 주 연결요소 중 가장 큰 요소를 기준
+콘텐츠로 선택하고, 무관한 극소 고립 픽셀은 bbox를 확장하지 않는다. resize 후 alpha를
+이진화하지 않으며 완전 투명 픽셀의 RGB는 무시한다. **[OFFICIAL] [PROJECT]**
+
+Contain scale은 최대 1.5×를 유지한다. `round(trimmed×scale)`로 최소 1px을 보장하고,
+slot 중앙 배치는 `floor((slot−resized)/2)`를 사용한다. 좌우/상하 crop은 수행하지 않는다.
+진단에는 `sourceCanvas`, `alphaBounds`, `normalizedSize`, `finalBounds`, `targetRegion`,
+`opaquePixelCount`, `maxOpaquePixelCount`를 포함한다. **[PROJECT]**
+
+### 43.2 Official font roles and blocker [OFFICIAL] [PROJECT]
+
+허용 family는 Sandoll Neo Gothic, NanumBarunGothic, San Francisco다. 기본 deterministic
+profile은 Main Bold와 Sub/Disclaimer Regular이며 San Francisco Bold는 영문 전용 Main
+1행 선택 사항이다. Medium/SemiBold는 unconditional dependency가 아니다. Apple SD Gothic
+Neo canonical IDs 네 개는 runtime registry에서 제거하고, source metadata에서만 historical
+identity로 남긴다. **[OFFICIAL] [PROJECT]**
+
+현재 공식 Nanum/Sandoll runtime binary와 합법적인 SHA-256/라이선스 증거가 저장소에 없기
+때문에 `NAVER_SC_NANUM_BARUN_GOTHIC_BOLD`와 `..._REGULAR`는 `UNRESOLVED_ASSET`이다.
+시스템 fallback, Spoqa/Noto 대체, fake filename/SHA, 네트워크 다운로드는 금지하며,
+approved asset과 canonical Font ID가 1:1로 확인되기 전 SmartChannel render/download는
+`NAVER_SMARTCHANNEL_FONT_UNAVAILABLE`로 fail-closed 한다. **[PROJECT]**
+
+### 43.3 Error i18n and regression boundary [PROJECT]
+
+`naver_smartchannel.asset_dimension_mismatch`, `naver_smartchannel.object_out_of_region`,
+`naver_smartchannel.object_opaque_pixel_limit`, `naver_smartchannel.font_unavailable`의
+한국어 번역을 등록하고, object 오류에는 가능할 때 actual/expected 진단을 표시한다.
+G1 large-transparent, G2 sofa ratio, G3 logo ratio, G4 oversized, G5 translated region,
+G6 70% pixel, G7 font registry, G8 i18n fixture를 추가한다. N7.2/N7.3 editor state와
+Kakao/FREEFORM/다른 NAVER source 계약은 변경하지 않는다. **[PROJECT]**
+
+### 43.4 Version and implementation status [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.21.0 | 1.21.1 | SmartChannel normalization/font/i18n hotfix |
+| Template contract | 1.9.0 | 1.9.0 | Coordinates and template contract unchanged |
+| Renderer Core | 0.8.0 | 0.8.1 | Final alpha normalization and diagnostics |
+| Desktop | 0.9.3 | 0.9.4 | Official font preflight catalog and validator messages |
+| Error Registry | 1.6.0 | 1.7.0 | Add final opaque-pixel limit error code |
+
+N7.4 implementation is independent of plume, remote services, upload, telemetry, and runtime
+network access. The code path is implemented, but the phase remains **BLOCKED** until the two
+required official Bold/Regular runtime assets are legally verified and registered. **[PROJECT]**

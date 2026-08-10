@@ -32,6 +32,12 @@ import type {
 export const NAVER_SMARTCHANNEL_FORMAT_PROFILE_ID = "NAVER_GFA_SMARTCHANNEL";
 export const NAVER_SMARTCHANNEL_CANVAS_WIDTH = 750;
 export const NAVER_SMARTCHANNEL_HEIGHTS = [160, 200, 280] as const;
+export const NAVER_SMARTCHANNEL_OBJECT_MAX_WIDTH = 260;
+export const NAVER_SMARTCHANNEL_OBJECT_MAX_HEIGHT = 160;
+export const NAVER_SMARTCHANNEL_OBJECT_MAX_OPAQUE_PIXELS = 29120;
+export const NAVER_SMARTCHANNEL_TRIM_PRESERVE_THRESHOLD = 1;
+export const NAVER_SMARTCHANNEL_LAYOUT_VISIBLE_THRESHOLD = 8;
+export const NAVER_SMARTCHANNEL_MAX_UPSCALE = 1.5;
 const NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION = "napi-rs-canvas-png-v1";
 
 type SmartChannelJson = Record<string, unknown>;
@@ -107,7 +113,25 @@ type NaverTextLayer = {
 };
 
 type ResolvedFont = { token: string; path: string; digest: string; runtimePostScriptName: string };
-type DecodedRgba = { bytes: Buffer; width: number; height: number };
+export type DecodedRgba = { bytes: Buffer; width: number; height: number };
+
+export type SmartChannelObjectDiagnostics = {
+  sourceCanvas: { width: number; height: number };
+  alphaBounds: BBox | null;
+  normalizedSize: { width: number; height: number; scale: number };
+  finalBounds: BBox | null;
+  targetRegion: BBox;
+  opaquePixelCount: number;
+  maxOpaquePixelCount: number;
+};
+
+type SmartChannelObjectRaster = {
+  image: DecodedRgba;
+  destination: { x: number; y: number };
+  finalBounds: BBox | null;
+  diagnostics: SmartChannelObjectDiagnostics;
+  legacyPrecomposed: boolean;
+};
 
 const registeredNaverFonts = new Set<string>();
 
@@ -208,7 +232,13 @@ function parseFillColor(value: string | undefined): string {
 }
 
 function sourceFontToToken(fontName: string, compatibility: Record<string, unknown>): string | undefined {
-  const match = jsonArray(compatibility.fonts).find((entry) => String(jsonObject(entry.source).expectedPostScriptName) === fontName);
+  const match = jsonArray(compatibility.fonts).find((entry) => {
+    const source = jsonObject(entry.source);
+    const names = Array.isArray(entry.sourcePostScriptNames)
+      ? entry.sourcePostScriptNames.filter((name): name is string => typeof name === "string")
+      : [String(source.expectedPostScriptName ?? "")];
+    return names.includes(fontName);
+  });
   return match ? String(match.fontToken) : undefined;
 }
 
@@ -239,31 +269,40 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle): P
     }
   }
   const fonts: ResolvedFont[] = [];
-  const glyphCoverage = jsonObject(contracts.naverFontCompatibility.glyphCoverage);
-  if (glyphCoverage.allFontsCovered !== true || jsonArray(glyphCoverage.perFont).some((entry) => entry.coverageStatus !== "PASS")) {
-    issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", "/fonts/glyphCoverage", "all approved runtime fonts cover the frozen code points", glyphCoverage));
-  }
   for (const asset of runtimeAssets) {
     const token = String(asset.id);
-    const relativePath = String(asset.relativePath);
-    const fileName = path.basename(relativePath);
+    if (asset.required === false) continue;
+    const relativePath = typeof asset.relativePath === "string" ? asset.relativePath : "";
+    const fileName = relativePath ? path.basename(relativePath) : "";
+    const runtimeDigest = typeof asset.runtimeDigest === "string" ? asset.runtimeDigest : "";
+    const runtimePostScriptName = String(asset.runtimePostScriptName ?? token);
+    if (!relativePath || !runtimeDigest || asset.assetStatus === "UNRESOLVED_ASSET" || asset.smartChannelAllowed === false) {
+      issues.push(issueFor(
+        contracts,
+        "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE",
+        `/fonts/${token}`,
+        { fontId: token, status: "approved runtime asset with canonical digest" },
+        { assetStatus: String(asset.assetStatus ?? "UNRESOLVED_ASSET"), relativePath: relativePath || null, runtimeDigest: runtimeDigest || null },
+      ));
+      continue;
+    }
     if (!fontRoot) {
-      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, "trusted local font directory", "missing"));
+      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "trusted local font directory" }, "missing"));
       continue;
     }
     const requirement: SmartChannelFontRequirement = {
-      requiredPostScriptName: String(asset.runtimePostScriptName),
-      runtimePostScriptName: String(asset.runtimePostScriptName),
+      requiredPostScriptName: runtimePostScriptName,
+      runtimePostScriptName,
       fontToken: token,
-      sourceIdentityStatus: "SOURCE_DIFFERENT_BUILD",
+      sourceIdentityStatus: "SOURCE_EXACT",
       compatibilityStatus: "PROJECT_COMPATIBLE_VERIFIED",
       allowedResolutionModes: ["EXTERNAL_EXACT"],
-      expectedSha256: String(asset.runtimeDigest),
+      expectedSha256: runtimeDigest,
     };
     const result = await preflightExternalExactFont(requirement, {
       path: fileName,
-      expectedPostScriptName: String(asset.runtimePostScriptName),
-      expectedSha256: String(asset.runtimeDigest),
+      expectedPostScriptName: runtimePostScriptName,
+      expectedSha256: runtimeDigest,
     }, { trustedRoot: fontRoot });
     if (result.status !== "PASS" || !result.resolvedPath || !result.digest) {
       for (const preflightIssue of result.issues) issues.push(issueFor(contracts, preflightIssue.code, `/fonts/${token}`, preflightIssue.expected, preflightIssue.actual));
@@ -272,7 +311,7 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle): P
     const bytes = await readFile(result.resolvedPath);
     const identity = inspectFontIdentity(bytes);
     if (!identity) {
-      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, "decodable font", "undecodable"));
+      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "decodable font" }, "undecodable"));
       continue;
     }
     const identityResult = evaluateFontIdentity(requirement, "EXTERNAL_EXACT", { postScriptNames: identity.postScriptNames, digest: result.digest, versions: identity.versions });
@@ -283,12 +322,12 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle): P
     if (!registeredNaverFonts.has(String(asset.runtimePostScriptName))) {
       const registered = GlobalFonts.registerFromPath(result.resolvedPath, String(asset.runtimePostScriptName));
       if (registered === null) {
-        issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, "registered font", "registerFromPath returned null"));
+        issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "registered font" }, "registerFromPath returned null"));
         continue;
       }
       registeredNaverFonts.add(String(asset.runtimePostScriptName));
     }
-    fonts.push({ token, path: result.resolvedPath, digest: result.digest, runtimePostScriptName: String(asset.runtimePostScriptName) });
+    fonts.push({ token, path: result.resolvedPath, digest: result.digest, runtimePostScriptName });
   }
   return { fonts, issues: sortAndDedupeIssues(issues) };
 }
@@ -302,25 +341,143 @@ function putImageData(canvas: Canvas, image: DecodedRgba, x: number, y: number):
   canvas.getContext("2d").putImageData(new ImageData(new Uint8ClampedArray(image.bytes.buffer, image.bytes.byteOffset, image.bytes.byteLength), image.width, image.height), x, y);
 }
 
-function alphaBounds(image: DecodedRgba, threshold = 8): BBox | null {
+type AlphaComponent = { count: number; bounds: BBox; pixels: number[] };
+
+function connectedAlphaComponents(image: DecodedRgba, threshold = NAVER_SMARTCHANNEL_LAYOUT_VISIBLE_THRESHOLD): AlphaComponent[] {
+  const visited = new Uint8Array(image.width * image.height);
+  const components: AlphaComponent[] = [];
+  const offsets = [-1, 0, 1];
+  for (let y = 0; y < image.height; y += 1) {
+    for (let x = 0; x < image.width; x += 1) {
+      const start = y * image.width + x;
+      if (visited[start] === 1 || (image.bytes[start * 4 + 3] ?? 0) < threshold) continue;
+      const queue: number[] = [start];
+      const pixels: number[] = [];
+      visited[start] = 1;
+      let count = 0;
+      let minX = x;
+      let minY = y;
+      let maxX = x;
+      let maxY = y;
+      for (let index = 0; index < queue.length; index += 1) {
+        const currentIndex = queue[index] as number;
+        const currentX = currentIndex % image.width;
+        const currentY = Math.floor(currentIndex / image.width);
+        pixels.push(currentIndex);
+        count += 1;
+        minX = Math.min(minX, currentX);
+        minY = Math.min(minY, currentY);
+        maxX = Math.max(maxX, currentX);
+        maxY = Math.max(maxY, currentY);
+        for (const deltaY of offsets) {
+          for (const deltaX of offsets) {
+            if (deltaX === 0 && deltaY === 0) continue;
+            const nextX = currentX + deltaX;
+            const nextY = currentY + deltaY;
+            if (nextX < 0 || nextX >= image.width || nextY < 0 || nextY >= image.height) continue;
+            const nextIndex = nextY * image.width + nextX;
+            if (visited[nextIndex] === 1 || (image.bytes[nextIndex * 4 + 3] ?? 0) < threshold) continue;
+            visited[nextIndex] = 1;
+            queue.push(nextIndex);
+          }
+        }
+      }
+      components.push({ count, bounds: { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 }, pixels });
+    }
+  }
+  return components;
+}
+
+function componentOrder(left: AlphaComponent, right: AlphaComponent): number {
+  if (left.count !== right.count) return right.count - left.count;
+  if (left.bounds.y !== right.bounds.y) return left.bounds.y - right.bounds.y;
+  return left.bounds.x - right.bounds.x;
+}
+
+function contentAlphaBounds(image: DecodedRgba): BBox | null {
+  const primary = connectedAlphaComponents(image, NAVER_SMARTCHANNEL_LAYOUT_VISIBLE_THRESHOLD).sort(componentOrder)[0];
+  if (!primary) return null;
+
+  // Preserve antialiased alpha >= 1 pixels that are connected to the selected
+  // layout-visible component, while excluding unrelated isolated noise from
+  // the trim bbox. The original RGBA values remain untouched.
+  const visited = new Uint8Array(image.width * image.height);
+  const queue = [...primary.pixels];
+  for (const pixel of queue) visited[pixel] = 1;
+  const offsets = [-1, 0, 1];
   let minX = image.width;
   let minY = image.height;
   let maxX = -1;
   let maxY = -1;
-  for (let y = 0; y < image.height; y += 1) {
-    for (let x = 0; x < image.width; x += 1) {
-      if ((image.bytes[(y * image.width + x) * 4 + 3] ?? 0) < threshold) continue;
-      minX = Math.min(minX, x);
-      minY = Math.min(minY, y);
-      maxX = Math.max(maxX, x);
-      maxY = Math.max(maxY, y);
+  for (let index = 0; index < queue.length; index += 1) {
+    const pixel = queue[index] as number;
+    const x = pixel % image.width;
+    const y = Math.floor(pixel / image.width);
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x);
+    maxY = Math.max(maxY, y);
+    for (const deltaY of offsets) {
+      for (const deltaX of offsets) {
+        if (deltaX === 0 && deltaY === 0) continue;
+        const nextX = x + deltaX;
+        const nextY = y + deltaY;
+        if (nextX < 0 || nextX >= image.width || nextY < 0 || nextY >= image.height) continue;
+        const nextIndex = nextY * image.width + nextX;
+        if (visited[nextIndex] === 1 || (image.bytes[nextIndex * 4 + 3] ?? 0) < NAVER_SMARTCHANNEL_TRIM_PRESERVE_THRESHOLD) continue;
+        visited[nextIndex] = 1;
+        queue.push(nextIndex);
+      }
     }
   }
   return maxX < minX ? null : { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
 }
 
+function opaquePixelCount(image: DecodedRgba, threshold = NAVER_SMARTCHANNEL_TRIM_PRESERVE_THRESHOLD): number {
+  let count = 0;
+  for (let index = 3; index < image.bytes.length; index += 4) if ((image.bytes[index] ?? 0) >= threshold) count += 1;
+  return count;
+}
+
+function cropRgba(image: DecodedRgba, bounds: BBox): DecodedRgba {
+  const bytes = Buffer.alloc(bounds.width * bounds.height * 4);
+  for (let y = 0; y < bounds.height; y += 1) {
+    const sourceStart = ((bounds.y + y) * image.width + bounds.x) * 4;
+    const targetStart = y * bounds.width * 4;
+    image.bytes.copy(bytes, targetStart, sourceStart, sourceStart + bounds.width * 4);
+  }
+  return { bytes, width: bounds.width, height: bounds.height };
+}
+
+async function resizeRgba(image: DecodedRgba, width: number, height: number): Promise<DecodedRgba> {
+  const resized = await sharp(image.bytes, { raw: { width: image.width, height: image.height, channels: 4 } })
+    .resize({ width, height, fit: "fill", kernel: "lanczos3" })
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  return { bytes: Buffer.from(resized.data), width: resized.info.width, height: resized.info.height };
+}
+
+function placedBounds(image: DecodedRgba, x: number, y: number): BBox | null {
+  const bounds = contentAlphaBounds(image);
+  return bounds ? { ...bounds, x: bounds.x + x, y: bounds.y + y } : null;
+}
+
+function countAlphaInside(image: DecodedRgba, x: number, y: number, region: BBox): number {
+  let count = 0;
+  const left = Math.max(0, region.x - x);
+  const top = Math.max(0, region.y - y);
+  const right = Math.min(image.width, region.x + region.width - x);
+  const bottom = Math.min(image.height, region.y + region.height - y);
+  for (let currentY = top; currentY < bottom; currentY += 1) {
+    for (let currentX = left; currentX < right; currentX += 1) {
+      if ((image.bytes[(currentY * image.width + currentX) * 4 + 3] ?? 0) >= NAVER_SMARTCHANNEL_TRIM_PRESERVE_THRESHOLD) count += 1;
+    }
+  }
+  return count;
+}
+
 function transformedAlphaBounds(image: DecodedRgba, token: NaverPlacementToken): BBox | null {
-  const source = alphaBounds(image);
+  const source = contentAlphaBounds(image);
   if (!source) return null;
   if (token.coordinateSpace.type === "FULL_CANVAS_SOURCE") return source;
   if (token.coordinateSpace.type === "SLOT_LOCAL_SOURCE") return { ...source, x: source.x + Number(token.placementFrame.x), y: source.y + Number(token.placementFrame.y ?? 0) };
@@ -367,6 +524,60 @@ function requiredSourceDimensions(token: NaverPlacementToken, height: number): {
   if (token.coordinateSpace.type === "FULL_CANVAS_SOURCE") return { width: NAVER_SMARTCHANNEL_CANVAS_WIDTH, height };
   if (token.coordinateSpace.type === "SLOT_LOCAL_SOURCE") return { width: Number(token.coordinateSpace.width), height: Number(token.coordinateSpace.height) };
   return { width: Number(token.sourceFrame?.width), height: Number(token.sourceFrame?.height) };
+}
+
+export type SmartChannelObjectNormalizationOptions = {
+  contain?: boolean;
+  offsetX?: number;
+  offsetY?: number;
+};
+
+export async function normalizeSmartChannelObject(
+  image: DecodedRgba,
+  targetRegion: BBox,
+  options: SmartChannelObjectNormalizationOptions = {},
+): Promise<SmartChannelObjectRaster> {
+  const alpha = contentAlphaBounds(image);
+  if (!alpha) {
+    return {
+      image: { bytes: Buffer.alloc(0), width: 0, height: 0 },
+      destination: { x: targetRegion.x, y: targetRegion.y },
+      finalBounds: null,
+      legacyPrecomposed: false,
+      diagnostics: {
+        sourceCanvas: { width: image.width, height: image.height },
+        alphaBounds: null,
+        normalizedSize: { width: 0, height: 0, scale: 0 },
+        finalBounds: null,
+        targetRegion,
+        opaquePixelCount: 0,
+        maxOpaquePixelCount: NAVER_SMARTCHANNEL_OBJECT_MAX_OPAQUE_PIXELS,
+      },
+    };
+  }
+  const trimmed = cropRgba(image, alpha);
+  const contain = options.contain !== false;
+  const regionWidth = Math.min(NAVER_SMARTCHANNEL_OBJECT_MAX_WIDTH, Math.max(1, Math.round(targetRegion.width)));
+  const regionHeight = Math.min(NAVER_SMARTCHANNEL_OBJECT_MAX_HEIGHT, Math.max(1, Math.round(targetRegion.height)));
+  const scale = contain
+    ? Math.min(NAVER_SMARTCHANNEL_OBJECT_MAX_WIDTH / trimmed.width, NAVER_SMARTCHANNEL_OBJECT_MAX_HEIGHT / trimmed.height, regionWidth / trimmed.width, regionHeight / trimmed.height, NAVER_SMARTCHANNEL_MAX_UPSCALE)
+    : 1;
+  const normalizedWidth = Math.max(1, Math.round(trimmed.width * scale));
+  const normalizedHeight = Math.max(1, Math.round(trimmed.height * scale));
+  const normalized = await resizeRgba(trimmed, normalizedWidth, normalizedHeight);
+  const destinationX = targetRegion.x + Math.floor((targetRegion.width - normalized.width) / 2) + Math.trunc(options.offsetX ?? 0);
+  const destinationY = targetRegion.y + Math.floor((targetRegion.height - normalized.height) / 2) + Math.trunc(options.offsetY ?? 0);
+  const finalBounds = placedBounds(normalized, destinationX, destinationY);
+  const diagnostics: SmartChannelObjectDiagnostics = {
+    sourceCanvas: { width: image.width, height: image.height },
+    alphaBounds: alpha,
+    normalizedSize: { width: normalizedWidth, height: normalizedHeight, scale },
+    finalBounds,
+    targetRegion,
+    opaquePixelCount: opaquePixelCount(normalized),
+    maxOpaquePixelCount: NAVER_SMARTCHANNEL_OBJECT_MAX_OPAQUE_PIXELS,
+  };
+  return { image: normalized, destination: { x: destinationX, y: destinationY }, finalBounds, diagnostics, legacyPrecomposed: false };
 }
 
 function drawSourceObject(canvas: Canvas, image: DecodedRgba, token: NaverPlacementToken): void {
@@ -562,15 +773,47 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
   const actualDimensions = { width: objectAsset.image.width, height: objectAsset.image.height };
   const assetIssues: ValidationIssue[] = [];
   if (!expectedMime.includes(objectAsset.mime)) assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_ASSET_MIME_INVALID", "/assets/object", expectedMime, objectAsset.mime));
-  if (actualDimensions.width !== expectedDimensions.width || actualDimensions.height !== expectedDimensions.height) assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_ASSET_DIMENSION_MISMATCH", "/assets/object", expectedDimensions, actualDimensions));
   const expectedObjectRegion = normalizedPlacementFrame(token, template.height);
-  const actualObjectBounds = transformedAlphaBounds(objectAsset.image, token);
-  if (!containedBy(actualObjectBounds, expectedObjectRegion)) assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_OBJECT_OUT_OF_REGION", "/assets/object", expectedObjectRegion, actualObjectBounds));
+  const isLegacyPrecomposed = actualDimensions.width === expectedDimensions.width
+    && actualDimensions.height === expectedDimensions.height
+    && (token.placementPolicy === "PRECOMPOSED_CANVAS_1_TO_1" || token.coordinateSpace.type === "FULL_CANVAS_SOURCE");
+  let objectRaster: SmartChannelObjectRaster;
+  if (isLegacyPrecomposed) {
+    const actualObjectBounds = transformedAlphaBounds(objectAsset.image, token);
+    const sourceX = token.coordinateSpace.type === "SLOT_LOCAL_SOURCE" ? Number(token.placementFrame.x) : 0;
+    const sourceY = token.coordinateSpace.type === "SLOT_LOCAL_SOURCE" ? Number(token.placementFrame.y ?? 0) : 0;
+    const sourceAlpha = contentAlphaBounds(objectAsset.image);
+    const legacyDiagnostics: SmartChannelObjectDiagnostics = {
+      sourceCanvas: actualDimensions,
+      alphaBounds: sourceAlpha,
+      normalizedSize: { width: actualObjectBounds?.width ?? 0, height: actualObjectBounds?.height ?? 0, scale: 1 },
+      finalBounds: actualObjectBounds,
+      targetRegion: expectedObjectRegion,
+      opaquePixelCount: countAlphaInside(objectAsset.image, sourceX, sourceY, expectedObjectRegion),
+      maxOpaquePixelCount: NAVER_SMARTCHANNEL_OBJECT_MAX_OPAQUE_PIXELS,
+    };
+    objectRaster = { image: objectAsset.image, destination: { x: sourceX, y: sourceY }, finalBounds: actualObjectBounds, diagnostics: legacyDiagnostics, legacyPrecomposed: true };
+  } else {
+    objectRaster = await normalizeSmartChannelObject(objectAsset.image, expectedObjectRegion);
+  }
+  const diagnostics = objectRaster.diagnostics;
+  if (!diagnostics.alphaBounds) assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_ASSET_MISSING", "/assets/object", "visible alpha object", diagnostics));
+  if (diagnostics.normalizedSize.width > NAVER_SMARTCHANNEL_OBJECT_MAX_WIDTH
+    || diagnostics.normalizedSize.height > NAVER_SMARTCHANNEL_OBJECT_MAX_HEIGHT
+    || (diagnostics.finalBounds !== null && (diagnostics.finalBounds.width > NAVER_SMARTCHANNEL_OBJECT_MAX_WIDTH || diagnostics.finalBounds.height > NAVER_SMARTCHANNEL_OBJECT_MAX_HEIGHT))) {
+    assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_ASSET_DIMENSION_MISMATCH", "/assets/object", {
+      maxWidth: NAVER_SMARTCHANNEL_OBJECT_MAX_WIDTH,
+      maxHeight: NAVER_SMARTCHANNEL_OBJECT_MAX_HEIGHT,
+    }, diagnostics));
+  }
+  if (!containedBy(diagnostics.finalBounds, expectedObjectRegion)) assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_OBJECT_OUT_OF_REGION", "/assets/object", expectedObjectRegion, diagnostics));
+  if (diagnostics.opaquePixelCount > NAVER_SMARTCHANNEL_OBJECT_MAX_OPAQUE_PIXELS) assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_OBJECT_OPAQUE_PIXEL_LIMIT", "/assets/object", { maxOpaquePixelCount: NAVER_SMARTCHANNEL_OBJECT_MAX_OPAQUE_PIXELS }, diagnostics));
   if (assetIssues.length > 0 || preIssues.some(({ severity }) => severity === "ERROR")) return failure(contracts, [...preIssues, ...assetIssues]);
 
   const content = request.content;
   const canvas = createCanvas(NAVER_SMARTCHANNEL_CANVAS_WIDTH, template.height);
-  drawSourceObject(canvas, objectAsset.image, token);
+  if (objectRaster.legacyPrecomposed) drawSourceObject(canvas, objectAsset.image, token);
+  else putImageData(canvas, objectRaster.image, objectRaster.destination.x, objectRaster.destination.y);
   const context = canvas.getContext("2d");
   const layers = visibleTextLayers(metadata, request.templateId);
   const textReports: SmartChannelTextRoleReport[] = [];
@@ -694,10 +937,10 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
 
   const requestFingerprint = canonicalDigest(request);
   const fixedDigestInputs = fixedComponents.map((entry) => ({ id: entry.id, digest: entry.digest, x: entry.x, y: entry.y, width: entry.width, height: entry.height }));
-  const objectFrame = normalizedPlacementFrame(token, template.height);
-  const pixelFingerprint = canonicalDigest({ rendererPixelContract: "naver-smartchannel-raster-v1", encoderVersion: NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION, templateContractVersion: String(templateRegistry.templateContractVersion), templateId: request.templateId, objectPlacementToken: token.token, objectDigest: objectAsset.digest, objectFrame: token.placementFrame, text: content, textMetadata: textReports.map((entry) => ({ role: entry.role, sourceLayer: entry.sourceLayer, typographyTokenId: entry.typographyTokenId, box: entry.box, baselineY: entry.baselineY })), fixedComponents: fixedDigestInputs, fonts: preflight.fonts.map((font) => ({ token: font.token, digest: font.digest, runtimePostScriptName: font.runtimePostScriptName })) });
+  const objectFrame = expectedObjectRegion;
+  const pixelFingerprint = canonicalDigest({ rendererPixelContract: "naver-smartchannel-raster-v1", encoderVersion: NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION, assetNormalizationContract: "naver-smartchannel-asset-normalization-v1.0.0", templateContractVersion: String(templateRegistry.templateContractVersion), templateId: request.templateId, objectPlacementToken: token.token, objectDigest: objectAsset.digest, objectFrame: token.placementFrame, objectDiagnostics: diagnostics, text: content, textMetadata: textReports.map((entry) => ({ role: entry.role, sourceLayer: entry.sourceLayer, typographyTokenId: entry.typographyTokenId, box: entry.box, baselineY: entry.baselineY })), fixedComponents: fixedDigestInputs, fonts: preflight.fonts.map((font) => ({ token: font.token, digest: font.digest, runtimePostScriptName: font.runtimePostScriptName })) });
   const renderFingerprint = pixelFingerprint;
-  const report: SmartChannelReport = { templateId: request.templateId, objectPlacementToken: token.token, canvas: { width: NAVER_SMARTCHANNEL_CANVAS_WIDTH, height: template.height, format: "PNG", colorType: "RGBA", bitDepth: 8, hasAlpha: true }, object: { placementToken: token.token, expectedRegion: objectFrame, actualRasterBounds: transformedAlphaBounds(objectAsset.image, token), sourceRuleId: token.sourceAssetRuleId, sourceMimeType: objectAsset.mime, sourceDigest: objectAsset.digest, frame: { x: objectFrame.x, y: objectFrame.y, width: expectedDimensions.width, height: expectedDimensions.height }, transform: token.coordinateSpace.type === "SMART_OBJECT_FRAME_SOURCE" ? "SOURCE_TRANSFORM" : "NONE" }, textRoles: textReports, fixedComponents, fonts: preflight.fonts.map((font) => ({ token: font.token, runtimePostScriptName: font.runtimePostScriptName, digest: font.digest })), artifact: { pngDigest, bytes: png.byteLength } };
+  const report: SmartChannelReport = { templateId: request.templateId, objectPlacementToken: token.token, canvas: { width: NAVER_SMARTCHANNEL_CANVAS_WIDTH, height: template.height, format: "PNG", colorType: "RGBA", bitDepth: 8, hasAlpha: true }, object: { placementToken: token.token, expectedRegion: objectFrame, actualRasterBounds: diagnostics.finalBounds, sourceRuleId: token.sourceAssetRuleId, sourceMimeType: objectAsset.mime, sourceDigest: objectAsset.digest, frame: { x: objectFrame.x, y: objectFrame.y, width: diagnostics.normalizedSize.width, height: diagnostics.normalizedSize.height }, transform: token.coordinateSpace.type === "SMART_OBJECT_FRAME_SOURCE" ? "SOURCE_TRANSFORM" : "NONE", sourceCanvas: diagnostics.sourceCanvas, alphaBounds: diagnostics.alphaBounds, normalizedSize: diagnostics.normalizedSize, finalBounds: diagnostics.finalBounds, targetRegion: diagnostics.targetRegion, opaquePixelCount: diagnostics.opaquePixelCount, maxOpaquePixelCount: diagnostics.maxOpaquePixelCount }, textRoles: textReports, fixedComponents, fonts: preflight.fonts.map((font) => ({ token: font.token, runtimePostScriptName: font.runtimePostScriptName, digest: font.digest })), artifact: { pngDigest, bytes: png.byteLength } };
   const issueGroups = splitIssues(sortAndDedupeIssues([...preIssues, ...assetIssues, ...textIssues, ...postIssues]));
   const manifest: RenderManifest = {
     schemaVersion: "1.0.0",

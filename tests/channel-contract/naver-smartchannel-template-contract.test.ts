@@ -14,7 +14,7 @@ type TypographyRecord = {
   sourceFonts: Array<{ postScriptName: string; classification: string }>;
   tokens: Array<{ classification: string }>;
   runtimeResolution: string;
-  runtimeFontAssets: Array<{ resolution: string; sourceIdentityToPSD: string; bundleAllowed?: boolean }>;
+  runtimeFontAssets: Array<{ resolution: string; sourceIdentityToPSD: string; bundleAllowed?: boolean; required?: boolean }>;
   n2Blocking: boolean;
 };
 type FixedRecord = {
@@ -86,10 +86,11 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
     expect(typography.sourceFonts.every((font) => font.classification === "SOURCE_CONFIRMED")).toBe(true);
     expect(typography.tokens).toHaveLength(25);
     expect(typography.tokens.every((token) => token.classification === "DERIVED_FROM_EXACT_SOURCE_METADATA")).toBe(true);
-    expect(typography.runtimeResolution).toBe("PROJECT_COMPATIBLE_VERIFIED");
-    expect(typography.runtimeFontAssets).toHaveLength(4);
-    expect(typography.runtimeFontAssets.every((asset) => asset.resolution === "PROJECT_COMPATIBLE_VERIFIED" && asset.sourceIdentityToPSD === "NO_EXACT_MATCH" && asset.bundleAllowed === false)).toBe(true);
-    expect(typography.n2Blocking).toBe(false);
+    expect(typography.runtimeResolution).toBe("OFFICIAL_ASSET_REQUIRED");
+    expect(typography.runtimeFontAssets).toHaveLength(3);
+    expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false)).toHaveLength(2);
+    expect(typography.runtimeFontAssets.every((asset) => asset.resolution !== "PROJECT_COMPATIBLE_VERIFIED" && asset.bundleAllowed === false)).toBe(true);
+    expect(typography.n2Blocking).toBe(true);
     const fixedAffordances = fixed.components.filter((entry) => entry.id.startsWith("LANDING_ICON") || entry.id.startsWith("APP_CTA"));
     expect(fixedAffordances.every((entry) => entry.status === "FROZEN")).toBe(true);
     expect(fixed.specialGeometry.disclosure160TwoLine.status).toBe("FROZEN");

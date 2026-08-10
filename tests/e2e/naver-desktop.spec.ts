@@ -82,22 +82,20 @@ test("NAVER SmartChannel is registry-driven and exports a renderer-composed PNG"
     const placementOptions = await launched.page.getByTestId("naver-placement-select").locator("option").count();
     expect(placementOptions).toBe(8);
     await expect(launched.page.getByTestId("naver-smartchannel-template-select").locator("option")).toHaveCount(120);
-    await expect(launched.page.getByTestId("naver-smartchannel-font-preflight")).toContainText("configured local font directory required");
+    await expect(launched.page.getByTestId("naver-smartchannel-font-preflight")).toContainText("공식 NanumBarunGothic/Sandoll runtime asset 필요");
     await launched.page.getByTestId("naver-smartchannel-select-object").click();
     await expect(launched.page.getByTestId("naver-smartchannel-editor")).toContainText("N2-REP-001-object.png");
     await expect(launched.page.getByTestId("naver-editor")).toHaveAttribute("data-primary-selected", "true");
     await launched.page.getByTestId("naver-request-preview").click();
-    await expect(launched.page.getByTestId("naver-validation-status")).toHaveText("PASS");
-    await expect(launched.page.getByTestId("naver-preview-image")).toBeVisible();
+    await expect(launched.page.getByTestId("naver-validation-status")).toHaveText("ERROR");
+    await expect(launched.page.getByTestId("naver-validation-panel")).toContainText("NAVER_SMARTCHANNEL_FONT_UNAVAILABLE");
+    await expect(launched.page.getByTestId("naver-preview-image")).toHaveCount(0);
     await expect(launched.page.locator(".naver-preview-panel")).toContainText("Final UI");
 
     await launched.page.getByTestId("naver-select-output").click();
-    await launched.page.getByTestId("naver-export").click();
-    await expect(launched.page.getByTestId("naver-export-result")).toContainText("RENDERED");
-    await expect.poll(async () => {
-      try { await access(path.join(launched.outputRoot, "naver-render", "output.png")); return true; } catch { return false; }
-    }).toBe(true);
-    await expect(access(path.join(launched.outputRoot, "naver-render", "render-manifest.json"))).resolves.toBeUndefined();
+    await expect(launched.page.getByTestId("naver-export")).toBeDisabled();
+    await expect(access(path.join(launched.outputRoot, "naver-render", "output.png"))).rejects.toBeDefined();
+    await expect(access(path.join(launched.outputRoot, "naver-render", "render-manifest.json"))).rejects.toBeDefined();
   } finally {
     await close(launched);
   }

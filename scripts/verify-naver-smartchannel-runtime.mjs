@@ -12,6 +12,16 @@ const outputRoot = path.join(root, ".tmp-n2-runtime-verification");
 await mkdir(outputRoot, { recursive: true });
 const renderer = await createKakaoBizboardRenderer({ projectRoot: root, inputRoot: root, outputRoot });
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const runtimeFontPolicy = JSON.parse(await readFile(path.join(root, "contracts/naver-smartchannel-runtime-font-policy.json"), "utf8"));
+if (runtimeFontPolicy.runtimeStatus === "BLOCKED_UNRESOLVED_OFFICIAL_ASSET") {
+  for (const entry of registry.candidates) {
+    const input = JSON.parse(await readFile(path.join(root, "fixtures/valid/naver-smartchannel", `${entry.id}.input.json`), "utf8"));
+    const result = await renderer.render(input);
+    if (result.status !== "FAIL" || result.downloadAllowed || result.pngPath !== null || !result.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")) throw new Error(`${entry.id} did not fail closed for unresolved official fonts`);
+  }
+  console.log(`BLOCKED_EXPECTED naver_smartchannel_runtime: ${registry.candidates.length}/${expectedIds.length} representative requests rejected with FONT_UNAVAILABLE; no PNG publish`);
+  process.exit(0);
+}
 for (const entry of registry.candidates) {
   const goldenBytes = await readFile(path.join(root, entry.path));
   if (sha256(goldenBytes) !== entry.pngSha256) throw new Error(`${entry.id} golden SHA-256 mismatch`);

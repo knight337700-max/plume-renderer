@@ -10,8 +10,17 @@ export {
   NAVER_SMARTCHANNEL_CANVAS_WIDTH,
   NAVER_SMARTCHANNEL_FORMAT_PROFILE_ID,
   NAVER_SMARTCHANNEL_HEIGHTS,
+  NAVER_SMARTCHANNEL_OBJECT_MAX_WIDTH,
+  NAVER_SMARTCHANNEL_OBJECT_MAX_HEIGHT,
+  NAVER_SMARTCHANNEL_OBJECT_MAX_OPAQUE_PIXELS,
+  NAVER_SMARTCHANNEL_TRIM_PRESERVE_THRESHOLD,
+  NAVER_SMARTCHANNEL_LAYOUT_VISIBLE_THRESHOLD,
+  normalizeSmartChannelObject,
 } from "./naver-smartchannel.js";
 export type {
+  DecodedRgba,
+  SmartChannelObjectDiagnostics,
+  SmartChannelObjectNormalizationOptions,
   SmartChannelRenderOptions,
   SmartChannelRenderRequest,
   SmartChannelRenderResult,

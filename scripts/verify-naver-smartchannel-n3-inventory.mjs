@@ -51,7 +51,12 @@ expect(new Set(mappings.map((entry) => entry.templateId)).size === mappings.leng
 expect(tokens.length === 39 && tokens.every((entry) => entry.runtimeEnabled === true), "all 39 placement tokens must be runtime-enabled");
 expect(metadataById.size === 120, "PSD metadata is not complete for all 120 templates");
 expect(typographyIds.size === 25, "typography token inventory is not 25");
-expect((compatibility.fonts ?? []).length === 4, "runtime font compatibility inventory is not four local fonts");
+const runtimeFontPolicy = readJson("contracts/naver-smartchannel-runtime-font-policy.json");
+const runtimeFontIds = new Set((runtimeFontPolicy.runtimeAssets ?? []).map((entry) => entry.id));
+const requiredRuntimeFontIds = new Set((runtimeFontPolicy.runtimeAssets ?? []).filter((entry) => entry.required === true).map((entry) => entry.id));
+expect((compatibility.fonts ?? []).length === runtimeFontIds.size, "runtime font compatibility inventory does not match the official runtime asset registry");
+expect((compatibility.fonts ?? []).every((entry) => runtimeFontIds.has(entry.fontToken)), "runtime font compatibility contains an unregistered runtime font");
+expect((compatibility.fonts ?? []).filter((entry) => entry.required === true).every((entry) => requiredRuntimeFontIds.has(entry.fontToken)), "runtime font compatibility contains an unregistered required runtime font");
 
 for (const template of templates) {
   const key = `${template.height}/${template.family}`;
