@@ -128,6 +128,59 @@ test("NAVER SmartChannel filter changes keep the editor mounted", async () => {
   }
 });
 
+test("NAVER SmartChannel headline preserves custom and explicit empty values across render wait", async () => {
+  const launched = await launch(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", "N2-REP-001-object.png"));
+  try {
+    const headline = launched.page.getByTestId("naver-smartchannel-field-headline");
+    await expect(headline).toHaveValue("브랜드의 새로운 시작");
+    await headline.fill("사용자 작성 헤드라인");
+    await expect(headline).toHaveValue("사용자 작성 헤드라인");
+    await launched.page.waitForTimeout(2_500);
+    await expect(headline).toHaveValue("사용자 작성 헤드라인");
+
+    for (const [key, value] of [["height", "280"], ["family", "EMPHASIS"], ["objectKind", "THUMBNAIL"], ["side", "LEFT"], ["textVariant", "THREE_LINE"], ["affordance", "APP_CTA"]] as const) {
+      await launched.page.getByTestId(`naver-template-filter-${key}`).selectOption(value);
+      await expect(headline).toHaveValue("사용자 작성 헤드라인");
+    }
+
+    await launched.page.getByTestId("naver-smartchannel-select-object").click();
+    await expect(launched.page.getByTestId("naver-smartchannel-editor")).toContainText("N2-REP-001-object.png");
+    await expect(launched.page.getByTestId("naver-request-preview")).toBeEnabled();
+    await launched.page.getByTestId("naver-request-preview").click();
+    await expect(launched.page.getByTestId("naver-validation-status")).toHaveText(/PASS|WARNING|ERROR/u);
+    await expect(headline).toHaveValue("사용자 작성 헤드라인");
+
+    await headline.fill("");
+    await expect(headline).toHaveValue("");
+    await launched.page.waitForTimeout(2_500);
+    await expect(headline).toHaveValue("");
+    await launched.page.getByTestId("naver-request-preview").click();
+    await expect.poll(() => headline.inputValue()).toBe("");
+    await headline.focus();
+    await launched.page.keyboard.insertText("브랜드");
+    await expect(headline).toHaveValue("브랜드");
+    await headline.fill("");
+    await headline.focus();
+    await headline.evaluate((element) => {
+      const input = element as HTMLInputElement;
+      const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+      input.dispatchEvent(new CompositionEvent("compositionstart", { bubbles: true, data: "ㅎ" }));
+      valueSetter?.call(input, "ㅎ");
+      input.dispatchEvent(new InputEvent("input", { bubbles: true, data: "ㅎ", inputType: "insertCompositionText", isComposing: true }));
+      input.dispatchEvent(new CompositionEvent("compositionupdate", { bubbles: true, data: "한" }));
+      valueSetter?.call(input, "한");
+      input.dispatchEvent(new InputEvent("input", { bubbles: true, data: "한", inputType: "insertCompositionText", isComposing: true }));
+      input.dispatchEvent(new CompositionEvent("compositionend", { bubbles: true, data: "한글" }));
+      valueSetter?.call(input, "한글");
+      input.dispatchEvent(new InputEvent("input", { bubbles: true, data: "한글", inputType: "insertText", isComposing: false }));
+    });
+    await expect(headline).toHaveValue("한글");
+    expect(launched.rendererErrors, "SmartChannel headline renderer errors").toEqual([]);
+  } finally {
+    await close(launched);
+  }
+});
+
 test("NAVER platform-composed source flow validates and exports source artifacts without final UI", async () => {
   const sourceAsset = path.join(os.tmpdir(), `kbr-naver-source-${randomUUID()}.png`);
   await sharp({ create: { width: 112, height: 112, channels: 4, background: { r: 24, g: 116, b: 205, alpha: 1 } } }).png().toFile(sourceAsset);

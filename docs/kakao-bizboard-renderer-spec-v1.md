@@ -4392,3 +4392,65 @@ N7.2 acceptance는 다음을 포함한다.
 
 N7.2 root-cause evidence and implementation are recorded in the N7.2 clarification and
 implementation documents. The next phase remains `M0_NAVER_DESKTOP_HARDENING`. **[PROJECT]**
+
+---
+
+## 42. Phase N7.3 — SmartChannel Editor Content Ownership and Input Reset Hotfix
+
+N7.3은 SmartChannel `headline` 입력값이 사용자의 입력 후 기본 문구로 되돌아가는 Desktop
+상태 결함을 대상으로 한다. 수정 전 E2E에서 사용자 문구는 2.5초 대기 후 유지되었지만,
+명시적으로 비운 `headline`이 즉시 `브랜드의 새로운 시작`으로 복귀했다. 실제 경로는
+`smartContent[field] || DEFAULT_TEXT[field] || ""` controlled input fallback과 같은
+preview request fallback이었다. Preview 결과가 content state를 비동기적으로 덮어쓴 경로는
+확인되지 않았으며, 원인은 `VALUE_FALLBACK`으로 분류한다. **[PROJECT]**
+
+### 42.1 Content-state invariants [PROJECT]
+
+`smartContent`는 SmartChannel 텍스트의 유일한 Desktop editor-owned state다. `DEFAULT_TEXT`는
+editor mount 시 한 번만 lazy initializer로 물질화한다. Render, filter reconciliation,
+template selection, preview, export 단계에서 기본값을 재주입하지 않는다. **[PROJECT]**
+
+`undefined`는 아직 값이 없는 상태이고 `""`는 유효한 사용자 입력이다. Controlled input과
+SmartChannel preview/export request builder는 nullish semantics를 사용해 빈 문자열을
+보존한다. Preview 결과나 validation 상태는 content state에 write-back하지 않는다.
+Selection state, content state, preview state는 분리하며, 호환 가능한 template 전환에서
+저장된 content key를 삭제하지 않는다. **[PROJECT]**
+
+이 정책은 `headline`, `subcopy`, `headlineLine2`, `subcopyLine4`, `disclosureLine1`,
+`disclosureLine2`, `ctaOption`에 동일하게 적용한다. 필터와 템플릿은 계속 source-backed
+120-template registry에서만 선택하며, N7.2의 순서와 reconciliation 규칙은 변경하지
+않는다. **[PROJECT]**
+
+### 42.2 Input lifecycle and acceptance [PROJECT]
+
+공개 SmartChannel 흐름은 기존과 같이 입력 → 필터/템플릿 선택 → Preview/Validate → Export다.
+입력 이벤트 값은 동기적으로 state에 저장하고, Preview 요청은 현재 state를 읽기만 한다.
+빈 문자열도 필터 전환, 2.5초 이상 대기하는 render/debounce 경계, Preview 요청 이후에
+그대로 남아야 한다. Korean Unicode rapid-input 경로와 호환 template 전환도 동일 invariant를
+검사한다. **[PROJECT]**
+
+N7.3 acceptance는 다음을 포함한다.
+
+- 수정 전 테스트에서 `headline` 빈 값 assertion이 기본값 수신으로 실패하고, 수정 후 통과
+- 사용자 정의 문구와 명시적 빈 문자열의 2.5초 대기/Preview 후 보존
+- Korean Unicode 입력 및 rapid input 보존
+- `headline`, `subcopy`, `headlineLine2`, `subcopyLine4`, `disclosureLine1`,
+  `disclosureLine2`, `ctaOption`의 공통 state 경로 점검
+- unpacked production build와 Windows portable EXE의 120-template reachability 및 copy
+  persistence smoke
+- 기존 8개 NAVER placement, Feed IMAGE/COLLECTION/VIDEO, KAKAO 전환과 N7.2 option selection
+  회귀
+- Core pixels, goldens, fingerprints, source contracts, canonical geometry, font policy, CTA
+  assets/semantics, and runtime network prohibition 불변
+
+### 42.3 Version and regression policy [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.21.0 | 1.21.0 | Desktop-only state hotfix; canonical contract unchanged |
+| Template contract | 1.9.0 | 1.9.0 | 120-template source contract and geometry unchanged |
+| Renderer Core | 0.8.0 | 0.8.0 | Pixel, golden, and fingerprint behavior unchanged |
+| Desktop | 0.9.2 | 0.9.3 | Editor-owned SmartChannel copy, one-time defaults, empty-string preservation, and packaged regression |
+
+N7.3 root-cause evidence, clarification, and implementation are recorded in the N7.3 documents
+and ADR-0055. The next phase remains `M0_NAVER_DESKTOP_HARDENING`. **[PROJECT]**

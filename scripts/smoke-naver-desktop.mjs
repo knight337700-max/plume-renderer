@@ -10,7 +10,7 @@ const root = process.cwd();
 const packageVersion = JSON.parse(await (await import("node:fs/promises")).readFile(path.join(root, "package.json"), "utf8")).version;
 const unpackedExe = path.join(root, "release", "win-unpacked", "Kakao-Bizboard-Local-Renderer.exe");
 const portableExe = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageVersion}-x64.exe`);
-const resultRoot = path.join(root, "test-results", "n7-2-package");
+const resultRoot = path.join(root, "test-results", "n7-3-package");
 await mkdir(resultRoot, { recursive: true });
 
 const placements = [
@@ -61,6 +61,55 @@ async function selectSmartFilters(page, filters) {
   if (candidateCount === 0) throw new Error("SmartChannel filter reconciliation produced zero candidates");
 }
 
+async function runSmartChannelInputPersistence(page, label, errors, templateIds) {
+  const allFilters = { height: "ALL", family: "ALL", objectKind: "ALL", side: "ALL", textVariant: "ALL", affordance: "ALL" };
+  await selectSmartFilters(page, allFilters);
+  const headline = page.getByTestId("naver-smartchannel-field-headline");
+  await expect(headline).toHaveValue("브랜드의 새로운 시작");
+  await headline.fill("사용자 작성 헤드라인");
+  await expect(headline).toHaveValue("사용자 작성 헤드라인");
+  await page.waitForTimeout(2_500);
+  await expect(headline).toHaveValue("사용자 작성 헤드라인");
+
+  await headline.fill("");
+  await expect(headline).toHaveValue("");
+  await page.waitForTimeout(2_500);
+  await expect(headline).toHaveValue("");
+  await headline.focus();
+  await page.keyboard.insertText("브랜드");
+  await expect(headline).toHaveValue("브랜드");
+
+  const compatibleTemplate = "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA";
+  await selectSmartFilters(page, { ...allFilters, height: "280", family: "EMPHASIS", objectKind: "THUMBNAIL", side: "LEFT", textVariant: "THREE_LINE", affordance: "APP_CTA" });
+  await assertSmartChannel(page, `${label}:SMARTCHANNEL:input-compatible-transition`, errors, compatibleTemplate);
+  await expect(headline).toHaveValue("브랜드");
+
+  const fieldCases = [
+    { field: "headline", match: (id) => id.includes("_MAIN_SUB_"), value: "headline 사용자 문구" },
+    { field: "subcopy", match: (id) => id.includes("_MAIN_SUB_"), value: "subcopy 사용자 문구" },
+    { field: "headlineLine2", match: (id) => id.includes("_MAIN2_"), value: "두 번째 헤드라인" },
+    { field: "subcopyLine4", match: (id) => id.includes("_THREE_LINE_"), value: "네 번째 줄 문구" },
+    { field: "disclosureLine1", match: (id) => id.includes("_DISCLOSURE_"), value: "심의 문구" },
+    { field: "disclosureLine2", match: (id) => id.includes("_DISCLOSURE_2LINE_"), value: "광고주 문구" },
+    { field: "ctaOption", match: (id) => id.endsWith("_APP_CTA"), value: "CTA 사용자 문구" },
+  ];
+  await selectSmartFilters(page, allFilters);
+  for (const entry of fieldCases) {
+    const templateId = templateIds.find(entry.match);
+    if (!templateId) throw new Error(`${label}: no template found for ${entry.field}`);
+    await page.getByTestId("naver-smartchannel-template-select").selectOption(templateId);
+    await assertSmartChannel(page, `${label}:SMARTCHANNEL:field:${entry.field}`, errors, templateId);
+    const field = page.getByTestId(`naver-smartchannel-field-${entry.field}`);
+    await expect(field).toHaveCount(1);
+    await field.fill(entry.value);
+    await expect(field).toHaveValue(entry.value);
+    await field.fill("");
+    await expect(field).toHaveValue("");
+  }
+  if (errors.length > 0) throw new Error(`${label}: SmartChannel input renderer errors: ${errors.join(" | ")}`);
+  return { customValue: "PASS", emptyValue: "PASS", koreanIme: "PASS", debouncePreview: "PASS", templateTransition: "PASS", allTextFieldsReviewed: fieldCases.map((entry) => entry.field) };
+}
+
 async function runSmartChannelMatrix(page, label, errors) {
   await page.getByTestId("naver-placement-select").selectOption("NAVER_SMARTCHANNEL");
   await assertSmartChannel(page, `${label}:SMARTCHANNEL:initial`, errors);
@@ -72,6 +121,7 @@ async function runSmartChannelMatrix(page, label, errors) {
     await expect(templateSelect).toHaveValue(templateId);
     await assertSmartChannel(page, `${label}:SMARTCHANNEL:${templateId}`, errors, templateId);
   }
+  const inputPersistence = await runSmartChannelInputPersistence(page, label, errors, templateIds);
   const allFilters = { height: "ALL", family: "ALL", objectKind: "ALL", side: "ALL", textVariant: "ALL", affordance: "ALL" };
   for (const entry of smartRepresentativeMatrix) {
     await selectSmartFilters(page, allFilters);
@@ -91,7 +141,7 @@ async function runSmartChannelMatrix(page, label, errors) {
     await page.getByTestId("naver-template-filter-family").selectOption(family);
     await assertSmartChannel(page, `${label}:SMARTCHANNEL:family:${family}`, errors);
   }
-  return { registry: 120, uiReachable: templateIds.length, unsupportedExposed: 0, nullValueExceptions: 0, errorBoundaryFallbacks: 0 };
+  return { registry: 120, uiReachable: templateIds.length, unsupportedExposed: 0, nullValueExceptions: 0, errorBoundaryFallbacks: 0, inputPersistence };
 }
 
 async function runMatrix(label, page) {
@@ -127,7 +177,7 @@ async function runMatrix(label, page) {
   await expect(page.getByTestId("mode-template-locked")).toBeVisible();
   await page.getByTestId("channel-naver").click();
   await assertShell(page, `${label}:KAKAO-to-NAVER`, errors);
-  const diagnosticMarker = `N7_2_DIAGNOSTIC_SMOKE_${label}_${Date.now()}`;
+  const diagnosticMarker = `N7_3_DIAGNOSTIC_SMOKE_${label}_${Date.now()}`;
   await page.evaluate((marker) => window.kbrDesktop.reportRendererDiagnostic({ kind: "console_error", message: marker }), diagnosticMarker);
   const logPath = path.join(process.env.APPDATA ?? "", "Kakao Bizboard Local Renderer (Unofficial)", "logs", "renderer.log");
   let logContainsMarker = false;

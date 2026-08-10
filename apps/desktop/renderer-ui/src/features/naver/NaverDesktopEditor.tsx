@@ -133,7 +133,7 @@ export function NaverDesktopEditor() {
   const [communicationVariant, setCommunicationVariant] = useState<"LIST" | "COMMENT">("LIST");
   const [filters, setFilters] = useState<SmartFilters>({ height: "ALL", family: "ALL", objectKind: "ALL", side: "ALL", textVariant: "ALL", affordance: "ALL" });
   const [templateId, setTemplateId] = useState("");
-  const [smartContent, setSmartContent] = useState<Record<string, string>>({ ...DEFAULT_TEXT });
+  const [smartContent, setSmartContent] = useState<Record<string, string>>(() => ({ ...DEFAULT_TEXT }));
   const [fields, setFields] = useState<Record<string, unknown>>({ ...DEFAULT_SOURCE_FIELDS });
   const [primary, setPrimary] = useState<SelectedProduct | null>(null);
   const [secondary, setSecondary] = useState<SelectedProduct | null>(null);
@@ -278,7 +278,7 @@ export function NaverDesktopEditor() {
       return;
     }
     const request: NaverSmartChannelRequest | NaverPlatformSourceRequest | null = placementId === "NAVER_SMARTCHANNEL"
-      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] || DEFAULT_TEXT[key] || ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
+      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] ?? ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
       : buildSourceRequest();
     if (!request || !primary) {
       setNotice(!primary ? "필수 asset과 source field를 먼저 준비하세요. (Primary asset 필요)" : "필수 asset과 source field를 먼저 준비하세요. (Source profile/asset rule 확인 필요)");
@@ -297,7 +297,7 @@ export function NaverDesktopEditor() {
   async function exportNaver() {
     if (!preview || preview.validationStatus === "ERROR" || !output) return;
     const request: NaverSmartChannelRequest | NaverPlatformSourceRequest | null = placementId === "NAVER_SMARTCHANNEL"
-      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] || ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
+      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] ?? ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
       : buildSourceRequest();
     if (!request) return;
     const exportRequest: NaverExportRequest = {
@@ -350,7 +350,7 @@ export function NaverDesktopEditor() {
           <label className="field-group"><span className="field-label">Template whitelist</span><select data-testid="naver-smartchannel-template-select" value={resolvedTemplateId} onChange={(event) => { const nextTemplateId = event.currentTarget.value; setTemplateId(nextTemplateId); invalidate(); }}>{filteredTemplates.map((entry) => <option key={entry.templateId} value={entry.templateId}>{entry.height}px · {entry.family} · {entry.objectKind} · {entry.side} · {entry.textVariant} · {entry.affordance}</option>)}</select></label>
           <div className="naver-template-summary" data-testid="naver-template-summary"><strong>{selectedTemplate?.templateId || "—"}</strong><span>Object token · {selectedTemplate?.objectPlacementToken || "—"}</span><span>Source whitelist only · Cartesian product 금지</span></div>
           {smartChannelUnresolved ? <div className="issue issue-error" data-testid="naver-smartchannel-resolution-error"><strong>SmartChannel selection unresolved</strong><p>현재 필터 조합에 대응하는 source-backed template이 없습니다. 필터를 다시 선택하세요. Render/Download는 차단됩니다.</p></div> : null}
-          {smartFields.map((field) => <label className="field-group" key={field}><span className="field-label">{field}</span><input data-testid={"naver-smartchannel-field-" + field} value={smartContent[field] || DEFAULT_TEXT[field] || ""} onChange={(event) => { const nextValue = event.currentTarget.value; setSmartContent((previous) => ({ ...previous, [field]: nextValue })); invalidate(); }} /></label>)}
+          {smartFields.map((field) => <label className="field-group" key={field}><span className="field-label">{field}</span><input data-testid={"naver-smartchannel-field-" + field} value={smartContent[field] ?? ""} onChange={(event) => { const nextValue = event.currentTarget.value; setSmartContent((previous) => ({ ...previous, [field]: nextValue })); invalidate(); }} /></label>)}
           <div className="asset-card"><strong>Object image</strong>{primary ? <><span>{primary.displayName}</span><small>{formatProductMetadata(primary)}</small></> : <span>선택하지 않음</span>}<button type="button" onClick={() => void selectPrimary()} data-testid="naver-smartchannel-select-object">Object 선택</button></div>
           <div className="asset-card"><strong>Advertiser logo · optional</strong>{logo ? <span>{logo.displayName}</span> : <span>선택하지 않음</span>}<button type="button" className="secondary" onClick={() => void selectLogo()} data-testid="naver-smartchannel-select-logo">Logo 선택</button></div>
           <div className="font-preflight" data-testid="naver-smartchannel-font-preflight"><strong>Apple SD Gothic Neo preflight</strong><span>{catalog.fontPreflight.configuredDirectory || "configured local font directory required"}</span>{catalog.fontPreflight.requiredAssets.map((font) => <small key={font.token}>{font.expectedFilename} · {font.expectedSha256 || "SHA unresolved"}</small>)}<small>실패 시 SmartChannel render/download만 차단됩니다.</small></div>
