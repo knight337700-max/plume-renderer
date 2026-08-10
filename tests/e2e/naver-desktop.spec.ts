@@ -14,7 +14,16 @@ type Launched = {
   root: string;
   outputRoot: string;
   sessionRoot: string;
+  rendererErrors: string[];
 };
+
+async function assertNaverShell(launched: Launched, label: string): Promise<void> {
+  await expect(launched.page.getByTestId("desktop-app")).toBeVisible();
+  await expect(launched.page.getByTestId("channel-naver")).toBeVisible();
+  await expect(launched.page.getByTestId("naver-placement-select")).toBeVisible();
+  await expect(launched.page.locator('[data-testid="naver-editor"], [data-testid="renderer-error-boundary"]')).toBeVisible();
+  expect(launched.rendererErrors, `${label} renderer errors`).toEqual([]);
+}
 
 async function launch(productPath: string): Promise<Launched> {
   const root = path.join(os.tmpdir(), `kbr-naver-e2e-${randomUUID()}`);
@@ -33,10 +42,15 @@ async function launch(productPath: string): Promise<Launched> {
     },
   });
   const page = await app.firstWindow();
+  const rendererErrors: string[] = [];
+  page.on("pageerror", (error) => rendererErrors.push(`${error.name}: ${error.message}`));
+  page.on("console", (message) => {
+    if (message.type() === "error") rendererErrors.push(`console: ${message.text()}`);
+  });
   await page.waitForSelector('[data-testid="desktop-app"]');
   await page.getByTestId("channel-naver").click();
   await expect(page.getByTestId("naver-placement-select")).toBeVisible();
-  return { app, page, root, outputRoot, sessionRoot };
+  return { app, page, root, outputRoot, sessionRoot, rendererErrors };
 }
 
 async function close(launched: Launched): Promise<void> {
@@ -175,15 +189,46 @@ test("NAVER Image Banner 1:1 reuses the existing FREEFORM profile without a dupl
 test("NAVER Feed Collection exposes ordered 4..10 item controls and keeps VIDEO disabled", async () => {
   const launched = await launch(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", "N2-REP-001-object.png"));
   try {
+    await assertNaverShell(launched, "initial");
     await launched.page.getByTestId("naver-placement-select").selectOption("NAVER_MOBILE_DA_FEED");
+    await assertNaverShell(launched, "feed");
     await launched.page.getByTestId("naver-feed-subtype").selectOption("COLLECTION");
+    await assertNaverShell(launched, "collection");
     await expect(launched.page.getByTestId("naver-collection-editor")).toBeVisible();
     await expect(launched.page.locator('article[data-testid^="naver-collection-item-item-"]')).toHaveCount(4);
     await launched.page.getByTestId("naver-collection-add").click();
     await expect(launched.page.locator('article[data-testid^="naver-collection-item-item-"]')).toHaveCount(5);
     await launched.page.getByTestId("naver-feed-subtype").selectOption("VIDEO");
+    await assertNaverShell(launched, "video");
     await expect(launched.page.getByTestId("naver-video-disabled")).toContainText("Out of static renderer scope");
     await expect(launched.page.getByTestId("naver-request-preview")).toBeDisabled();
+  } finally {
+    await close(launched);
+  }
+});
+
+test("NAVER all placement transitions keep the app shell and editor alive", async () => {
+  const launched = await launch(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", "N2-REP-001-object.png"));
+  try {
+    const placements = await launched.page.getByTestId("naver-placement-select").locator("option").evaluateAll((entries) => entries.map((entry) => (entry as HTMLOptionElement).value));
+    expect(placements).toEqual([
+      "NAVER_SMARTCHANNEL",
+      "NAVER_MOBILE_DA",
+      "NAVER_IMAGE_BANNER_1_1",
+      "NAVER_MOBILE_NATIVE",
+      "NAVER_PC_NATIVE",
+      "NAVER_SHOPPING_NEWS",
+      "NAVER_COMMUNICATION_AD",
+      "NAVER_MOBILE_DA_FEED",
+    ]);
+    for (const placement of placements) {
+      await launched.page.getByTestId("naver-placement-select").selectOption(placement);
+      await assertNaverShell(launched, placement);
+    }
+    await launched.page.getByTestId("channel-kakao").click();
+    await expect(launched.page.getByTestId("mode-template-locked")).toBeVisible();
+    await launched.page.getByTestId("channel-naver").click();
+    await assertNaverShell(launched, "KAKAO-to-NAVER");
   } finally {
     await close(launched);
   }

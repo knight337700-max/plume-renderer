@@ -16,6 +16,7 @@ import type {
 import { FreeformEditor } from "../freeform/FreeformEditor.js";
 import { formatProductMetadata } from "../product-file/format.js";
 import { issueMessage } from "../validation/messages.js";
+import { reportRendererDiagnostic, setRendererDiagnosticContext } from "../../diagnostics/renderer-diagnostics.js";
 
 type SelectedProduct = Extract<ProductSelectionResult, { status: "SELECTED" }>;
 type PlacementId = "NAVER_SMARTCHANNEL" | "NAVER_MOBILE_DA" | "NAVER_IMAGE_BANNER_1_1" | "NAVER_MOBILE_NATIVE" | "NAVER_PC_NATIVE" | "NAVER_SHOPPING_NEWS" | "NAVER_COMMUNICATION_AD" | "NAVER_MOBILE_DA_FEED";
@@ -111,13 +112,19 @@ export function NaverDesktopEditor() {
   const [exported, setExported] = useState<NaverExportResult | null>(null);
   const [sequence, setSequence] = useState(0);
   const [notice, setNotice] = useState("NAVER capability registry를 불러오는 중입니다.");
+  const [catalogError, setCatalogError] = useState<string | null>(null);
 
   useEffect(() => {
     void window.kbrDesktop.getNaverCatalog().then((value) => {
       setCatalog(value);
       if (value.templates[0]) setTemplateId(value.templates[0].templateId);
       setNotice("Channel → Placement → Editor capability flow가 활성화되었습니다.");
-    }).catch(() => setNotice("NAVER capability registry를 불러오지 못했습니다."));
+    }).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      setCatalogError("DESKTOP-CAPABILITY-001 · NAVER capability registry를 불러오지 못했습니다.");
+      setNotice("Registry 오류를 확인하고 다른 지면으로 이동하세요.");
+      reportRendererDiagnostic({ kind: "window_error", name: "DESKTOP-CAPABILITY-001", message, ...(error instanceof Error && error.stack ? { stack: error.stack } : {}) });
+    });
   }, []);
 
   const placements = catalog?.capabilities.find((entry) => entry.id === "NAVER")?.placements ?? [];
@@ -143,6 +150,15 @@ export function NaverDesktopEditor() {
   const isCollection = placementId === "NAVER_MOBILE_DA_FEED" && isSource && feedSubtype === "COLLECTION";
   const isFreeformPlacement = placementId === "NAVER_MOBILE_DA" || placementId === "NAVER_IMAGE_BANNER_1_1";
   const placementSelector = <label className="field-group"><span className="field-label">Placement</span><select data-testid="naver-placement-select" value={placementId} onChange={(event) => { setPlacementId(event.currentTarget.value as PlacementId); invalidate(); }}>{placements.map((entry) => <option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></label>;
+
+  useEffect(() => {
+    setRendererDiagnosticContext({
+      channel: "NAVER",
+      placement: placementId,
+      ...(placementId === "NAVER_MOBILE_DA_FEED" ? { subtype: feedSubtype } : {}),
+      ...(placementId === "NAVER_SMARTCHANNEL" && templateId ? { templateId } : {}),
+    });
+  }, [feedSubtype, placementId, templateId]);
 
   useEffect(() => {
     if (!selectedTemplate && filteredTemplates[0]) setTemplateId(filteredTemplates[0].templateId);
@@ -259,7 +275,9 @@ export function NaverDesktopEditor() {
     invalidate();
   }
 
-  if (!catalog) return <section className="naver-lab" data-testid="naver-editor"><p className="hint">{notice}</p></section>;
+  if (!catalog) return <section className="naver-lab" data-testid="naver-editor"><p className="hint">{catalogError ?? notice}</p>{catalogError ? <div className="issue issue-error" data-testid="naver-resolution-error"><strong>DESKTOP-CAPABILITY-001</strong><p>Canonical capability registry를 읽지 못했습니다. 기존 KAKAO/NAVER 탐색은 계속 사용할 수 있습니다.</p></div> : null}</section>;
+  if (!capability) return <section className="naver-lab" data-testid="naver-editor">{placementSelector}<div className="issue issue-error" data-testid="naver-resolution-error"><strong>DESKTOP-CAPABILITY-002</strong><p>선택한 NAVER placement가 registry에 없습니다. 다른 placement를 선택하세요.</p></div></section>;
+  if (isSource && !sourceProfile) return <section className="naver-lab" data-testid="naver-editor">{placementSelector}<div className="issue issue-error" data-testid="naver-resolution-error"><strong>DESKTOP-CAPABILITY-003</strong><p>선택한 placement의 Source Profile을 확인할 수 없습니다. 임의 profile fallback은 사용하지 않습니다.</p></div></section>;
   if (placementId === "NAVER_MOBILE_DA" || placementId === "NAVER_IMAGE_BANNER_1_1") {
     return <section className="naver-lab naver-freeform-shell" data-testid="naver-editor" data-primary-selected={primary ? "true" : "false"}>
       <div className="naver-navigation-card"><div className="section-heading"><div><p className="eyebrow naver-eyebrow">NAVER DESKTOP</p><h2>Placement Editor</h2><p className="hint">Registry / Source of Truth · Channel → Placement</p></div><span className="capability-pill">{capability?.label || placementId}</span></div>{placementSelector}</div>

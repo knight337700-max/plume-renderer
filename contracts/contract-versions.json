@@ -9,7 +9,8 @@
   },
   "templateContractVersion": "1.9.0",
   "smartChannelTemplateContractVersion": "1.10.0",
-  "desktopAppVersion": "0.9.0",
+  "desktopAppVersion": "0.9.1",
+  "desktopErrorRegistryVersion": "1.0.0",
   "errorRegistryVersion": "1.6.0",
   "integrationErrorRegistryVersion": "1.9.0",
   "platformComposedSourceSchemaVersion": "1.1.0",
@@ -845,6 +846,22 @@
     "collectionEditor": "ORDERED_4_TO_10_ATOMIC_SOURCE_EXPORT",
     "runtimeNetworkAccess": "PROHIBITED",
     "officialPlatform": "Windows 10/11 x64",
+    "nextPhase": "M0_NAVER_DESKTOP_HARDENING"
+  },
+  "canonicalPhaseN7_1": {
+    "documentVersion": "1.21.0",
+    "documentBump": "none",
+    "templateContractVersion": "1.9.0",
+    "rendererCoreVersion": "0.8.0",
+    "desktopPrevious": "0.9.0",
+    "desktopCurrent": "0.9.1",
+    "desktopBump": "patch",
+    "desktopReason": "Local renderer diagnostics, editor Error Boundary, deterministic capability resolution errors, and packaged NAVER click-matrix regression coverage",
+    "desktopErrorRegistryVersion": "1.0.0",
+    "runtimeNetworkAccess": "PROHIBITED",
+    "corePixelsChanged": false,
+    "canonicalContractChanged": false,
+    "originalWhiteScreenReproducedInCurrentCheckout": false,
     "nextPhase": "M0_NAVER_DESKTOP_HARDENING"
   }
 }

@@ -32,6 +32,8 @@ import {
 import { fieldHasError, issueMessage } from "../features/validation/messages.js";
 import { FreeformEditor } from "../features/freeform/FreeformEditor.js";
 import { NaverDesktopEditor } from "../features/naver/NaverDesktopEditor.js";
+import { setRendererDiagnosticContext } from "../diagnostics/renderer-diagnostics.js";
+import { RendererErrorBoundary } from "./RendererErrorBoundary.js";
 import { canExport, canRequestPreview, initialUiState, uiReducer, type UiField } from "./state.js";
 
 const fieldConfig: Array<{ id: UiField; label: string; pointer: string; multiline?: boolean }> = [
@@ -384,6 +386,10 @@ export function App() {
     });
   }, []);
 
+  useEffect(() => {
+    setRendererDiagnosticContext({ channel });
+  }, [channel]);
+
   async function selectProduct() {
     const result = await window.kbrDesktop.selectProductPng();
     if (result.status === "SELECTED") dispatch({ type: "PRODUCT_SELECTED", product: result });
@@ -637,6 +643,7 @@ export function App() {
         <div className="app-version">v{appInfo?.version ?? "…"}</div>
       </header>
 
+      <RendererErrorBoundary boundaryKey={channel} onNavigateDefault={() => setChannel("KAKAO")}>
       {channel === "NAVER" ? <NaverDesktopEditor /> : layoutMode === "FREEFORM" ? <FreeformEditor /> : <section className="workspace">
         <aside className="input-panel" aria-label="입력 패널">
           <div className="section-heading">
@@ -949,6 +956,7 @@ export function App() {
           </div>
         </section>
       </section>}
+      </RendererErrorBoundary>
 
       {channel === "KAKAO" && layoutMode === "TEMPLATE_LOCKED" ? <footer className="export-bar">
         <div>

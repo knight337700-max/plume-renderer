@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const token = z.uuid();
 const boundedText = z.string().max(1_000);
+const diagnosticText = z.string().max(16_000);
 const jobName = z
   .string()
   .min(1)
@@ -100,6 +101,20 @@ export const exportRequestSchema = z.strictObject({
 });
 
 export const revealRequestSchema = token;
+
+export const rendererDiagnosticSchema = z.strictObject({
+  kind: z.enum(["window_error", "unhandled_rejection", "react_error_boundary", "console_error", "renderer_crash", "renderer_unresponsive"]),
+  timestamp: z.string().datetime().optional(),
+  channel: z.enum(["KAKAO", "NAVER"]).optional(),
+  placement: z.string().max(200).optional(),
+  subtype: z.string().max(100).optional(),
+  templateId: z.string().max(240).optional(),
+  name: diagnosticText.optional(),
+  message: diagnosticText,
+  stack: diagnosticText.optional(),
+  componentStack: diagnosticText.optional(),
+  source: z.enum(["renderer", "electron-main"]).optional(),
+});
 
 export function parseIpcPayload<T>(schema: z.ZodType<T>, value: unknown): T {
   const parsed = schema.safeParse(value);

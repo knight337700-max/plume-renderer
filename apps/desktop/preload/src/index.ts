@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 
 import { DESKTOP_CHANNELS } from "../../shared/src/index.js";
-import type { DesktopApi, ExportRequest, NaverExportRequest, NaverPreviewRequest, UiRenderInput } from "../../shared/src/index.js";
+import type { DesktopApi, ExportRequest, NaverExportRequest, NaverPreviewRequest, RendererDiagnostic, UiRenderInput } from "../../shared/src/index.js";
 
 const desktopApi: DesktopApi = Object.freeze({
   selectProductPng: () => ipcRenderer.invoke(DESKTOP_CHANNELS.selectProductPng),
@@ -18,6 +18,7 @@ const desktopApi: DesktopApi = Object.freeze({
   exportNaver: (request: NaverExportRequest) => ipcRenderer.invoke(DESKTOP_CHANNELS.exportNaver, request),
   revealExportedFile: (exportToken: string) => ipcRenderer.invoke(DESKTOP_CHANNELS.revealExportedFile, exportToken),
   getAppInfo: () => ipcRenderer.invoke(DESKTOP_CHANNELS.getAppInfo),
+  reportRendererDiagnostic: (diagnostic: RendererDiagnostic) => ipcRenderer.invoke(DESKTOP_CHANNELS.reportRendererDiagnostic, diagnostic),
 });
 
 contextBridge.exposeInMainWorld("kbrDesktop", desktopApi);

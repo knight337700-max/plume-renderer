@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -59,6 +59,7 @@
     "desktop:start": "pnpm build:desktop && electron .",
     "package:windows": "pnpm build:desktop && node scripts/package-windows.mjs",
     "smoke:package": "node scripts/smoke-packaged.mjs",
+    "smoke:desktop": "node scripts/smoke-naver-desktop.mjs",
     "evidence:package": "node scripts/capture-packaged-evidence.mjs",
     "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-inventory && pnpm verify:naver-desktop && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
     "render": "node dist/cli/index.js"

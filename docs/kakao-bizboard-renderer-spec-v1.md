@@ -4289,3 +4289,58 @@ canonical SHA-256 and machine-readable manifest. **[PROJECT]**
 N7's unresolved items are external exact SmartChannel font preflight on machines without the
 approved local files, final NAVER native/feed UI, VIDEO runtime, upload approval and
 cross-platform pixel tolerance. The next phase is `M0_NAVER_DESKTOP_HARDENING`. **[PROJECT]**
+
+---
+
+## 40. Phase N7.1 — NAVER Desktop White-Screen Runtime Hotfix
+
+N7.1은 N7에서 보고된 Windows NAVER option 선택 후 white-screen 증상을 대상으로 하는
+Desktop resilience hotfix다. 시작 시 HEAD의 `0.9.0` source, production-equivalent build,
+Windows portable package에서 8개 placement와 Feed IMAGE/COLLECTION/VIDEO를 실제로
+재실행했지만 현재 checkout에서는 uncaught exception이나 blank DOM을 재현하지 못했다.
+따라서 원인을 추측해 Core 계약을 바꾸지 않고, 재현 가능한 증거를 보존할 수 있는 local-only
+diagnostic path와 controlled editor fallback을 추가한다. **[PROJECT]**
+
+### 40.1 Runtime diagnostics and Error Boundary [PROJECT]
+
+Renderer는 `window.error`, `unhandledrejection`, React Error Boundary를 수집하고 Electron
+Main IPC를 통해 `<userData>/logs/renderer.log`에 JSON Lines로 기록한다. Main은 renderer
+console error, `render-process-gone`, unresponsive 상태도 같은 파일에 기록한다. 기록 필드는
+timestamp, Desktop version, platform, channel, placement, subtype/template, error name,
+message, stack, component stack이며 creative binary/content와 원격 telemetry는 기록하지
+않는다. 로그 기록 실패는 두 번째 renderer 오류로 전파하지 않는다. **[PROJECT]**
+
+Renderer editor subtree가 throw하더라도 `DESKTOP-EDITOR-001` Error Boundary가 fallback을
+표시한다. Channel navigation은 Boundary 바깥에 남아 있으며 `다시 시도`와 `기본 화면으로`
+동작을 제공한다. Capability, source profile, NAVER FREEFORM profile이 없을 때는 다른
+profile로 조용히 fallback하지 않고 각각 `DESKTOP-CAPABILITY-001`부터 `004`의 명시적
+오류 상태로 전환한다. **[PROJECT]**
+
+### 40.2 Packaged resolution and click-matrix acceptance [PROJECT]
+
+`contracts/desktop-capability-registry.json`의 8개 NAVER placement ID는 UI value와
+정확히 일치해야 한다. `scripts/smoke-naver-desktop.mjs`는 production package의
+unpacked 실행본과 portable EXE를 모두 검사하고 각 placement 전환 후 app root, Channel
+navigation, Placement selector, editor/fallback shell이 살아 있는지와 console/page error가
+없는지를 확인한다. Feed IMAGE와 COLLECTION은 활성 상태로, VIDEO는 disabled 상태와
+`Out of static renderer scope` 메시지로 확인한다. KAKAO → NAVER → KAKAO 전환도 같은
+검사에 포함한다. **[PROJECT]**
+
+기존 N7 E2E는 dev Electron만 실행하고 packaged UI를 열지 않았으며 selection 직후 DOM
+invariant와 page/console error를 수집하지 않았다. N7.1은 해당 공백을 dev/production
+renderer build 및 packaged click matrix로 보완한다. **[PROJECT]**
+
+### 40.3 Version and regression policy [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.21.0 | 1.21.0 | Desktop-only hotfix; canonical contract unchanged |
+| Template contract | 1.9.0 | 1.9.0 | Coordinates unchanged |
+| Renderer Core | 0.8.0 | 0.8.0 | Pixel/golden/fingerprint behavior unchanged |
+| Desktop | 0.9.0 | 0.9.1 | Local diagnostics, Error Boundary, deterministic capability error states, packaged click regression |
+| Desktop Error Registry | — | 1.0.0 | New Desktop-only runtime error namespace |
+
+Core PNG pixels, Kakao goldens, SmartChannel 120 outputs, N4 goldens, N6 collection
+fingerprints/manifest semantics, and runtime network prohibition remain unchanged. The original
+user-reported exception remains an unresolved reproduction blocker until an affected machine
+supplies its captured stack or environment-specific failure evidence. **[PROJECT]**

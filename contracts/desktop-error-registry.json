@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/desktop-error-registry-v1.0.0.json",
+  "registryVersion": "1.0.0",
+  "scope": "DESKTOP_RENDERER_RUNTIME",
+  "codes": [
+    {
+      "code": "DESKTOP-CAPABILITY-001",
+      "severity": "ERROR",
+      "messageKey": "desktop.capability_registry_load_failed",
+      "condition": "Canonical Desktop capability or dependent contract assets cannot be loaded",
+      "behavior": "Keep channel navigation alive, record local diagnostic, and do not substitute another profile"
+    },
+    {
+      "code": "DESKTOP-CAPABILITY-002",
+      "severity": "ERROR",
+      "messageKey": "desktop.capability_placement_not_found",
+      "condition": "Selected placement id is absent from the loaded channel capability registry",
+      "behavior": "Keep the placement selector visible and require an explicit valid placement"
+    },
+    {
+      "code": "DESKTOP-CAPABILITY-003",
+      "severity": "ERROR",
+      "messageKey": "desktop.capability_source_profile_not_found",
+      "condition": "A platform-composed placement has no matching source profile",
+      "behavior": "Do not silently fall back to another source profile"
+    },
+    {
+      "code": "DESKTOP-CAPABILITY-004",
+      "severity": "ERROR",
+      "messageKey": "desktop.capability_freeform_profile_not_found",
+      "condition": "A NAVER FREEFORM placement has no matching implemented Format Profile",
+      "behavior": "Keep the editor shell alive and block render/export for the unresolved profile"
+    },
+    {
+      "code": "DESKTOP-EDITOR-001",
+      "severity": "ERROR",
+      "messageKey": "desktop.editor_runtime_error",
+      "condition": "React editor subtree throws during render or lifecycle",
+      "behavior": "Render an Error Boundary fallback while preserving channel navigation"
+    },
+    {
+      "code": "DESKTOP-DIAGNOSTIC-001",
+      "severity": "ERROR",
+      "messageKey": "desktop.local_diagnostic_write_failed",
+      "condition": "Local diagnostic append fails",
+      "behavior": "Swallow the diagnostic write failure and never crash the renderer"
+    }
+  ]
+}

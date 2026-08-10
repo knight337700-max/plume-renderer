@@ -127,6 +127,11 @@ button.full { width: 100%; margin-top: 8px; padding: 12px; }
 .naver-filter-grid select, .naver-card select, .naver-card input, .collection-item-card input { width: 100%; border: 1px solid #cbd0d6; border-radius: 6px; padding: 7px; font-size: 11px; }
 .naver-template-summary { display: grid; gap: 3px; border-radius: 7px; background: #f4f7fb; padding: 8px; font-size: 10px; }
 .naver-template-summary span, .naver-template-summary strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.renderer-error-boundary { margin: 24px 0; padding: 28px; border: 1px solid #e1a2a2; border-radius: 14px; background: #fff8f8; color: #4d2020; }
+.renderer-error-boundary h2 { margin: 0 0 8px; }
+.renderer-error-boundary p { max-width: 720px; }
+.renderer-error-boundary details { margin: 18px 0; }
+.renderer-error-boundary pre { max-width: 100%; overflow: auto; white-space: pre-wrap; color: #762f2f; }
 .font-preflight { display: grid; gap: 3px; border-left: 3px solid #d5a000; background: #fff9e7; padding: 8px 10px; font-size: 10px; }
 .font-preflight span, .font-preflight small { color: #6f5c16; overflow-wrap: anywhere; }
 .source-owner-note { border-left: 3px solid #537aa9; background: #edf4ff; padding: 9px 10px; color: #31577e; font-size: 11px; line-height: 1.5; }

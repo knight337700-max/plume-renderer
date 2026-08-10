@@ -43,6 +43,7 @@ describe("Electron and IPC security boundary", () => {
       DESKTOP_CHANNELS.exportNaver,
       DESKTOP_CHANNELS.revealExportedFile,
       DESKTOP_CHANNELS.getAppInfo,
+      DESKTOP_CHANNELS.reportRendererDiagnostic,
     ]);
     expect(new Set(DESKTOP_CHANNEL_ALLOWLIST).size).toBe(DESKTOP_CHANNEL_ALLOWLIST.length);
   });

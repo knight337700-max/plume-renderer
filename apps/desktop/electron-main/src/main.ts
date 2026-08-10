@@ -17,6 +17,7 @@ import sharp from "sharp";
 import type { UiRenderInput } from "../../shared/src/index.js";
 import { INTEGRATION_SCHEMA_VERSION } from "@kbr/renderer-contract";
 import { DesktopController } from "./desktop-controller.js";
+import { RendererDiagnostics } from "./diagnostics/renderer-diagnostics.js";
 import { registerDesktopIpc } from "./ipc/register-ipc.js";
 import { DesktopSessionManager } from "./session/session-manager.js";
 import {
@@ -122,7 +123,7 @@ function configureRuntimeNetworkPolicy(): void {
   );
 }
 
-function createWindow(controller: DesktopController): BrowserWindow {
+function createWindow(controller: DesktopController, diagnostics: RendererDiagnostics): BrowserWindow {
   const development = !app.isPackaged && process.env.KBR_DESKTOP_DEVTOOLS === "1";
   const window = new BrowserWindow({
     width: 1440,
@@ -144,6 +145,28 @@ function createWindow(controller: DesktopController): BrowserWindow {
     if (!isAllowedRendererNavigation(target, RENDERER_URL)) event.preventDefault();
   });
   window.webContents.on("will-attach-webview", (event) => event.preventDefault());
+  window.webContents.on("console-message", (_event, level, message, line, sourceId) => {
+    if (level < 2) return;
+    void diagnostics.record({
+      kind: "console_error",
+      source: "electron-main",
+      name: `console-level-${level}`,
+      message,
+      stack: `${sourceId}:${line}`,
+    });
+  });
+  window.webContents.on("render-process-gone", (_event, details) => {
+    void diagnostics.record({
+      kind: "renderer_crash",
+      source: "electron-main",
+      name: details.reason,
+      message: `Renderer process exited (${details.reason})`,
+      ...(details.exitCode === undefined ? {} : { stack: `exitCode=${details.exitCode}` }),
+    });
+  });
+  window.on("unresponsive", () => {
+    void diagnostics.record({ kind: "renderer_unresponsive", source: "electron-main", message: "BrowserWindow became unresponsive" });
+  });
   window.webContents.on("devtools-opened", () => {
     if (!development) window.webContents.closeDevTools();
   });
@@ -160,6 +183,7 @@ function createWindow(controller: DesktopController): BrowserWindow {
     ...(e2eMode && process.env.KBR_E2E_PRODUCT ? { e2eProductPath: process.env.KBR_E2E_PRODUCT } : {}),
     ...(e2eMode && process.env.KBR_E2E_LOGO ? { e2eLogoPath: process.env.KBR_E2E_LOGO } : {}),
     ...(e2eMode && process.env.KBR_E2E_OUTPUT ? { e2eOutputPath: process.env.KBR_E2E_OUTPUT } : {}),
+    diagnostics,
   });
   void window.loadURL(RENDERER_URL);
   return window;
@@ -604,6 +628,7 @@ void app.whenReady().then(async () => {
     appVersion: app.getVersion(),
     blockedNetworkRequestCount: () => blockedNetworkRequestCount,
   });
+  const diagnostics = new RendererDiagnostics();
   configureRuntimeNetworkPolicy();
   await registerLocalProtocols(controller);
 
@@ -613,5 +638,5 @@ void app.whenReady().then(async () => {
     app.exit(exitCode);
     return;
   }
-  createWindow(controller);
+  createWindow(controller, diagnostics);
 });

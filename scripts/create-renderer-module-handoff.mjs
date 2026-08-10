@@ -130,6 +130,11 @@ const sourceSha = sourceShaOutput.trim();
 const canonicalPath = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const canonicalDocument = JSON.parse(await readFile(path.join(root, "contracts/contract-versions.json"), "utf8"));
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
+const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
+const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
+const packageArtifact = await exists(packageArtifactPath)
+  ? { path: `release/Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`, sha256: await sha256(packageArtifactPath), bytes: (await stat(packageArtifactPath)).size }
+  : null;
 
 const files = [];
 for (const absolutePath of await collectFiles(target)) {
@@ -138,7 +143,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N7 handoff
+const readme = `# Renderer Module — N7.1 handoff
 
 ## Purpose
 
@@ -146,8 +151,9 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N7 completion commit: ${sourceSha}
+- N7.1 hotfix source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
+- Desktop package: ${packageArtifact?.path ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256})` : ""}
 - Runtime network access: PROHIBITED
 
 ## Current status
@@ -159,6 +165,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER Feed Collection: implemented source artifacts, ordered fingerprints, and atomic manifest publish; final Feed UI is not implemented
 - NAVER video runtime: not implemented
 - NAVER Desktop UI: implemented (capability-driven Channel → Placement → Editor)
+- NAVER Desktop N7.1 resilience: local diagnostics, Error Boundary, explicit registry errors, packaged click matrix
 - Meta: not implemented
 - Google: not implemented
 
@@ -193,13 +200,14 @@ OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is N7 in docs/kakao-bizboard-renderer-spec-v1.md. N7 Desktop integration
+The latest phase is N7.1 in docs/kakao-bizboard-renderer-spec-v1.md. N7.1 Desktop resilience
 uses the capability registry and existing Core paths. N6 source contracts are
 contracts/naver-platform-composed-source.schema.json,
 contracts/naver-platform-composed-source-profiles.json, and
 contracts/naver-platform-composed-source-revision.json, plus the generic
 multi-artifact manifest schema. N7 additions are
-contracts/desktop-capability-registry.json and tests/e2e/naver-desktop.spec.ts. The next
+contracts/desktop-capability-registry.json, contracts/desktop-error-registry.json,
+tests/e2e/naver-desktop.spec.ts, and scripts/smoke-naver-desktop.mjs. The next
 planned phase is M0_NAVER_DESKTOP_HARDENING; it must not invent final NAVER UI geometry.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
@@ -208,7 +216,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N7_NAVER_DESKTOP_INTEGRATION_FULL_REGRESSION",
+  handoffPhase: "N7_1_NAVER_DESKTOP_WHITE_SCREEN_RUNTIME_HOTFIX",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -223,13 +231,15 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN7.rendererCoreVersion,
+    rendererCore: canonicalDocument.canonicalPhaseN7_1.rendererCoreVersion,
     desktop: canonicalDocument.desktopAppVersion,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
     platformComposedSourceRegistry: canonicalDocument.platformComposedSourceRegistryVersion,
     capabilityRegistry: canonicalDocument.canonicalPhaseN7.capabilityRegistryVersion,
+    desktopErrorRegistry: canonicalDocument.desktopErrorRegistryVersion,
   },
+  packageArtifact,
   channels: {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
     NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", desktopIntegration: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED", video: "DISABLED_OUT_OF_STATIC_SCOPE" },
@@ -243,7 +253,10 @@ const manifest = {
     officialNaverGuideDirectory: "source-guides/naver/platform-composed",
     collectionContract: "contracts/multi-artifact-manifest.schema.json",
     desktopCapabilityRegistry: "contracts/desktop-capability-registry.json",
+    desktopErrorRegistry: "contracts/desktop-error-registry.json",
     n7ImplementationRecord: "docs/implementation/naver-desktop-integration-n7.md",
+    n7_1ImplementationRecord: "docs/implementation/naver-desktop-white-screen-runtime-hotfix-n7-1.md",
+    n7_1PackageSmoke: "scripts/smoke-naver-desktop.mjs",
   },
   externalRuntimeDependencies: [
     { kind: "font", directoryEnv: "NAVER_SMARTCHANNEL_FONT_DIR", manifest: "local-runtime-resources/fonts/font-manifest.json", bundled: false, licenseStatus: "NOT_CONFIRMED" },

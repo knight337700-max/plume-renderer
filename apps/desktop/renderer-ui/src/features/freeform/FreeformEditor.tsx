@@ -163,7 +163,9 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
     [channel],
   );
   const availableCatalogOnlyProfiles = channel === "NAVER" ? [] : catalogOnlyProfiles;
-  const initialProfile = availableProfiles.find((entry) => entry.formatProfileId === initialProfileId) ?? availableProfiles[0] ?? defaultProfile;
+  const initialProfile = channel === "NAVER"
+    ? availableProfiles.find((entry) => entry.formatProfileId === initialProfileId)
+    : availableProfiles.find((entry) => entry.formatProfileId === initialProfileId) ?? availableProfiles[0] ?? defaultProfile;
   const [profileId, setProfileId] = useState(initialProfile?.formatProfileId ?? "");
   const profile = useMemo(() => formatCatalog.profiles.find((entry) => entry.formatProfileId === profileId) ?? initialProfile, [initialProfile, profileId]);
   const [plan, setPlan] = useState<CreativeLayoutPlan>(() => ({
@@ -381,6 +383,17 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
       : preset === "RESET_PLACEMENT"
         ? "이미지 배치를 전체 캔버스 맞춤 상태로 초기화했습니다."
         : "캔버스에 맞춤 배치를 Plan에 적용했습니다. Preview를 다시 실행하세요.");
+  }
+
+  if (channel === "NAVER" && !initialProfile) {
+    return (
+      <section className="freeform-lab" data-testid="freeform-editor">
+        <div className="issue issue-error" data-testid="freeform-resolution-error">
+          <strong>DESKTOP-CAPABILITY-004</strong>
+          <p>선택한 NAVER FREEFORM Format Profile을 registry에서 찾을 수 없습니다. 다른 placement를 선택하세요.</p>
+        </div>
+      </section>
+    );
   }
 
   return (

@@ -7,10 +7,12 @@ import type {
   NaverPreviewRequest,
   OutputDirectoryResult,
   ProductSelectionResult,
+  RendererDiagnostic,
   UiRenderInput,
 } from "../../../shared/src/index.js";
 import type { DesktopController } from "../desktop-controller.js";
-import { exportRequestSchema, naverExportRequestSchema, naverPreviewRequestSchema, parseIpcPayload, previewRequestSchema, revealRequestSchema } from "./schemas.js";
+import type { RendererDiagnostics } from "../diagnostics/renderer-diagnostics.js";
+import { exportRequestSchema, naverExportRequestSchema, naverPreviewRequestSchema, parseIpcPayload, previewRequestSchema, rendererDiagnosticSchema, revealRequestSchema } from "./schemas.js";
 
 type DialogPort = {
   showOpenDialog(
@@ -29,6 +31,7 @@ export type RegisterDesktopIpcOptions = {
   e2eProductPath?: string;
   e2eLogoPath?: string;
   e2eOutputPath?: string;
+  diagnostics: RendererDiagnostics;
 };
 
 function assertTrustedSender(event: IpcMainInvokeEvent, options: RegisterDesktopIpcOptions): void {
@@ -166,4 +169,9 @@ export function registerDesktopIpc(options: RegisterDesktopIpcOptions): void {
   });
 
   handle(DESKTOP_CHANNELS.getAppInfo, async () => options.controller.getAppInfo());
+
+  handle(DESKTOP_CHANNELS.reportRendererDiagnostic, async (_event, raw: unknown): Promise<void> => {
+    const diagnostic = parseIpcPayload(rendererDiagnosticSchema, raw) as RendererDiagnostic;
+    await options.diagnostics.record(diagnostic);
+  });
 }

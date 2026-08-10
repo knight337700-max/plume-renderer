@@ -13,6 +13,7 @@ export const DESKTOP_CHANNELS = Object.freeze({
   exportNaver: "kbr:naver:export",
   revealExportedFile: "kbr:export:reveal",
   getAppInfo: "kbr:app:info",
+  reportRendererDiagnostic: "kbr:diagnostic:renderer",
 });
 
 export type DesktopChannel = (typeof DESKTOP_CHANNELS)[keyof typeof DESKTOP_CHANNELS];

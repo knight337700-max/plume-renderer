@@ -17,6 +17,7 @@ export type {
   OutputDirectoryResult,
   PreviewResult,
   ProductSelectionResult,
+  RendererDiagnostic,
   UiFreeformRequest,
   UiFreeformOutputFormat,
   UiLayoutMode,

@@ -330,6 +330,20 @@ export type AppInfo = {
   channels?: readonly DesktopChannelCapability[];
 };
 
+export type RendererDiagnostic = Readonly<{
+  kind: "window_error" | "unhandled_rejection" | "react_error_boundary" | "console_error" | "renderer_crash" | "renderer_unresponsive";
+  timestamp?: string;
+  channel?: UiChannel;
+  placement?: string;
+  subtype?: string;
+  templateId?: string;
+  name?: string;
+  message: string;
+  stack?: string;
+  componentStack?: string;
+  source?: "renderer" | "electron-main";
+}>;
+
 export type DesktopApi = {
   selectProductPng(): Promise<ProductSelectionResult>;
   selectSecondaryProductPng(): Promise<ProductSelectionResult>;
@@ -345,4 +359,5 @@ export type DesktopApi = {
   exportNaver(request: NaverExportRequest): Promise<NaverExportResult>;
   revealExportedFile(exportToken: string): Promise<void>;
   getAppInfo(): Promise<AppInfo>;
+  reportRendererDiagnostic(diagnostic: RendererDiagnostic): Promise<void>;
 };
