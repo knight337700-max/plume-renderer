@@ -5,6 +5,18 @@ export {
   rendererVersion,
 } from "./renderer.js";
 export {
+  isSmartChannelRenderRequest,
+  renderSmartChannel,
+  NAVER_SMARTCHANNEL_CANVAS_WIDTH,
+  NAVER_SMARTCHANNEL_FORMAT_PROFILE_ID,
+  NAVER_SMARTCHANNEL_HEIGHTS,
+} from "./naver-smartchannel.js";
+export type {
+  SmartChannelRenderOptions,
+  SmartChannelRenderRequest,
+  SmartChannelRenderResult,
+} from "./naver-smartchannel.js";
+export {
   freeformResponseFromResult,
   isFreeformRenderRequest,
   normalizedRectToPixelRect,
@@ -98,6 +110,8 @@ export type {
   RenderManifest,
   RendererConfig,
   RenderResponse,
+  SmartChannelReport,
+  SmartChannelTextRoleReport,
   TextLimitMetrics,
   TextLimitStatus,
   TextMeasurement,

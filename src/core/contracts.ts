@@ -30,6 +30,17 @@ export type ContractBundle = {
   ctaRegistry: CtaRegistry;
   fontRegistry: FontAssetRegistry;
   referenceRegistry: ReferenceFixtureRegistry;
+  naverInputSchema: Record<string, unknown>;
+  naverTemplateContract: Record<string, unknown>;
+  naverTypography: Record<string, unknown>;
+  naverFixedComponents: Record<string, unknown>;
+  naverCtaOptions: Record<string, unknown>;
+  naverN2Candidates: Record<string, unknown>;
+  naverRuntimeFontPolicy: Record<string, unknown>;
+  naverFontCompatibility: Record<string, unknown>;
+  naverMetricFixtures: Record<string, unknown>;
+  naverObjectPlacement: Record<string, unknown>;
+  naverPsdMetadata: Record<string, unknown>;
 };
 
 async function readJson<T>(projectRoot: string, relativePath: string): Promise<T> {
@@ -48,6 +59,17 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     ctaRegistry,
     fontRegistry,
     referenceRegistry,
+    naverInputSchema,
+    naverTemplateContract,
+    naverTypography,
+    naverFixedComponents,
+    naverCtaOptions,
+    naverN2Candidates,
+    naverRuntimeFontPolicy,
+    naverFontCompatibility,
+    naverMetricFixtures,
+    naverObjectPlacement,
+    naverPsdMetadata,
   ] = await Promise.all([
     readJson<Record<string, unknown>>(projectRoot, "contracts/input.schema.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/output.schema.json"),
@@ -58,6 +80,17 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     readJson<CtaRegistry>(projectRoot, "contracts/cta-registry.json"),
     readJson<FontAssetRegistry>(projectRoot, "contracts/font-asset-registry.json"),
     readJson<ReferenceFixtureRegistry>(projectRoot, "contracts/reference-fixture.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-input.schema.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-template-contract.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-typography.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-fixed-components.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-cta-options.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-n2-candidates.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-runtime-font-policy.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-font-compatibility.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-font-metric-fixtures.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-object-placement.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-psd-metadata.json"),
   ]);
 
   return {
@@ -70,5 +103,16 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     ctaRegistry,
     fontRegistry,
     referenceRegistry,
+    naverInputSchema,
+    naverTemplateContract,
+    naverTypography,
+    naverFixedComponents,
+    naverCtaOptions,
+    naverN2Candidates,
+    naverRuntimeFontPolicy,
+    naverFontCompatibility,
+    naverMetricFixtures,
+    naverObjectPlacement,
+    naverPsdMetadata,
   };
 }

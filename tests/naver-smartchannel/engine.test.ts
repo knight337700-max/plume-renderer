@@ -1,0 +1,99 @@
+import { mkdir, readFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+import { isSmartChannelRenderRequest, renderSmartChannel, loadContracts } from "../../src/core/index.js";
+import { sha256Bytes } from "../../src/core/hash.js";
+import { projectRoot } from "../helpers.js";
+
+const ids = ["N2-REP-001", "N2-REP-002", "N2-REP-003", "N2-REP-004", "N2-REP-005", "N2-REP-006"];
+
+async function requestFor(id: string): Promise<Record<string, unknown>> {
+  return JSON.parse(await readFile(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", `${id}.input.json`), "utf8")) as Record<string, unknown>;
+}
+
+describe("NAVER SmartChannel N2 template engine", () => {
+  it("renders exactly the six enabled candidates as deterministic transparent PNGs", async () => {
+    const contracts = await loadContracts(projectRoot);
+    const outputRoot = await os.tmpdir();
+    const temp = path.join(outputRoot, `kbr-n2-vitest-${process.pid}`);
+    await mkdir(temp, { recursive: true });
+    const registry = JSON.parse(await readFile(path.join(projectRoot, "fixtures/golden/naver-smartchannel/registry.json"), "utf8")) as { candidates: Array<Record<string, string>> };
+    for (const id of ids) {
+      const result = await renderSmartChannel(await requestFor(id), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
+      expect(result.status, id).toBe("PASS");
+      expect(result.downloadAllowed, id).toBe(false);
+      expect(result.png).toBeInstanceOf(Buffer);
+      const entry = registry.candidates.find((candidate) => candidate.id === id);
+      expect(result.pngDigest).toBe(entry?.pngSha256);
+      expect(result.templateId).toBe(entry?.templateId);
+      expect(result.objectPlacementToken).toBe(entry?.objectPlacementToken);
+      expect(result.report?.textRoles.some((role) => role.overflow)).toBe(false);
+      const repeated = await renderSmartChannel(await requestFor(id), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
+      expect(repeated.pngDigest).toBe(result.pngDigest);
+      expect(sha256Bytes(result.png ?? Buffer.alloc(0))).toBe(result.pngDigest);
+    }
+  });
+
+  it("rejects known but non-enabled templates and unknown template IDs", async () => {
+    const contracts = await loadContracts(projectRoot);
+    const temp = path.join(os.tmpdir(), `kbr-n2-guards-${process.pid}`);
+    await mkdir(temp, { recursive: true });
+    const base = await requestFor("N2-REP-001");
+    const known = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE" }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
+    expect(known.status).toBe("FAIL");
+    expect(known.errors[0]?.code).toBe("NAVER_SMARTCHANNEL_TEMPLATE_NOT_ENABLED");
+    const unknown = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_NOT_A_TEMPLATE" }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
+    expect(unknown.status).toBe("FAIL");
+    expect(unknown.errors[0]?.code).toBe("NAVER_SMARTCHANNEL_TEMPLATE_UNKNOWN");
+    expect(isSmartChannelRenderRequest(base)).toBe(true);
+    expect(isSmartChannelRenderRequest({ channel: "KAKAO_MOMENT", placement: "BIZBOARD" })).toBe(false);
+  });
+
+  it("fails closed when the configured exact font directory is unavailable", async () => {
+    const contracts = await loadContracts(projectRoot);
+    const temp = path.join(os.tmpdir(), `kbr-n2-font-${process.pid}`);
+    await mkdir(temp, { recursive: true });
+    const previous = process.env.NAVER_SMARTCHANNEL_FONT_DIR;
+    process.env.NAVER_SMARTCHANNEL_FONT_DIR = path.join(temp, "missing-fonts");
+    try {
+      const result = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
+      expect(result.status).toBe("FAIL");
+      expect(result.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")).toBe(true);
+    } finally {
+      if (previous === undefined) delete process.env.NAVER_SMARTCHANNEL_FONT_DIR;
+      else process.env.NAVER_SMARTCHANNEL_FONT_DIR = previous;
+    }
+  });
+
+  it("fails deterministically for wrong font, fixed-component, and placement registry digests", async () => {
+    const contracts = await loadContracts(projectRoot);
+    const temp = path.join(os.tmpdir(), `kbr-n2-integrity-${process.pid}`);
+    await mkdir(temp, { recursive: true });
+    const wrongFontPolicy = structuredClone(contracts.naverRuntimeFontPolicy) as Record<string, unknown>;
+    const runtimeAssets = wrongFontPolicy.runtimeAssets as Array<Record<string, unknown>>;
+    const firstRuntimeAsset = runtimeAssets[0];
+    if (!firstRuntimeAsset) throw new Error("Naver runtime font policy has no runtime assets");
+    firstRuntimeAsset.runtimeDigest = "0".repeat(64);
+    const wrongFont = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts: { ...contracts, naverRuntimeFontPolicy: wrongFontPolicy }, publish: false });
+    expect(wrongFont.status).toBe("FAIL");
+    expect(wrongFont.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH")).toBe(true);
+
+    const wrongFixed = structuredClone(contracts.naverFixedComponents) as Record<string, unknown>;
+    const components = wrongFixed.components as Array<Record<string, unknown>>;
+    const landing = components.find((component) => component.id === "LANDING_ICON_280");
+    if (!landing) throw new Error("Naver fixed-component registry has no LANDING_ICON_280");
+    (landing.asset as Record<string, unknown>).assetPngSha256 = "0".repeat(64);
+    const fixed = await renderSmartChannel(await requestFor("N2-REP-003"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts: { ...contracts, naverFixedComponents: wrongFixed }, publish: false });
+    expect(fixed.status).toBe("FAIL");
+    expect(fixed.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FIXED_COMPONENT_INVALID")).toBe(true);
+
+    const wrongPlacement = structuredClone(contracts.naverObjectPlacement) as Record<string, unknown>;
+    wrongPlacement.tokens = (wrongPlacement.tokens as Array<Record<string, unknown>>).filter((entry) => entry.token !== "NAVER_SC_160_BASIC_STANDARD_LEFT_NONE");
+    const placement = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts: { ...contracts, naverObjectPlacement: wrongPlacement }, publish: false });
+    expect(placement.status).toBe("FAIL");
+    expect(placement.errors[0]?.code).toBe("NAVER_SMARTCHANNEL_OBJECT_PLACEMENT_UNRESOLVED");
+  });
+});

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "layoutMode": "TEMPLATE_LOCKED",
+  "compositionMode": "RENDERER_COMPOSED",
+  "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE",
+  "content": {
+    "headline": "새로운 이야기의 시작",
+    "headlineLine2": "영화관에서 만나요",
+    "subcopy": "등급 및 개봉일 안내",
+    "subcopyLine4": "2026년 8월 개봉"
+  },
+  "assets": {
+    "object": {
+      "path": "fixtures/valid/naver-smartchannel/N2-REP-005-object.png"
+    }
+  },
+  "output": {
+    "directory": "naver-smartchannel",
+    "baseName": "N2-REP-005",
+    "overwrite": true
+  }
+}

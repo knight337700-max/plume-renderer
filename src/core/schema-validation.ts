@@ -45,6 +45,7 @@ function mapAjvErrors(errors: readonly ErrorObject[], contracts: ContractBundle)
 export class SchemaValidators {
   readonly #contracts: ContractBundle;
   readonly #input: ValidateFunction<KakaoBizboardInputV1>;
+  readonly #naverInput: ValidateFunction<Record<string, unknown>>;
   readonly #manifest: ValidateFunction<RenderManifest>;
   readonly #response: ValidateFunction<RenderResponse>;
 
@@ -57,6 +58,7 @@ export class SchemaValidators {
       allowUnionTypes: true,
     });
     this.#input = ajv.compile<KakaoBizboardInputV1>(contracts.inputSchema);
+    this.#naverInput = ajv.compile<Record<string, unknown>>(contracts.naverInputSchema);
     this.#manifest = ajv.compile<RenderManifest>(contracts.manifestSchema);
     this.#response = ajv.compile<RenderResponse>(contracts.responseSchema);
   }
@@ -64,6 +66,11 @@ export class SchemaValidators {
   validateInput(value: unknown): { valid: true; value: KakaoBizboardInputV1 } | { valid: false; issues: ValidationIssue[] } {
     if (this.#input(value)) return { valid: true, value };
     return { valid: false, issues: mapAjvErrors(this.#input.errors ?? [], this.#contracts) };
+  }
+
+  validateNaverInput(value: unknown): { valid: true; value: Record<string, unknown> } | { valid: false; issues: ValidationIssue[] } {
+    if (this.#naverInput(value)) return { valid: true, value: value as Record<string, unknown> };
+    return { valid: false, issues: mapAjvErrors(this.#naverInput.errors ?? [], this.#contracts) };
   }
 
   assertManifest(value: unknown): asserts value is RenderManifest {

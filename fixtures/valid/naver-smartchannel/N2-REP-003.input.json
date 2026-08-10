@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "layoutMode": "TEMPLATE_LOCKED",
+  "compositionMode": "RENDERER_COMPOSED",
+  "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
+  "content": {
+    "headline": "오늘의 특별한 혜택"
+  },
+  "assets": {
+    "object": {
+      "path": "fixtures/valid/naver-smartchannel/N2-REP-003-object.png"
+    }
+  },
+  "output": {
+    "directory": "naver-smartchannel",
+    "baseName": "N2-REP-003",
+    "overwrite": true
+  }
+}

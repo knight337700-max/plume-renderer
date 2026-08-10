@@ -23,6 +23,7 @@ import {
   type FreeformRenderRequest,
   type FreeformRenderResult,
 } from "./freeform.js";
+import { isSmartChannelRenderRequest, renderSmartChannel } from "./naver-smartchannel.js";
 import {
   PathSecurityError,
   resolveTrustedInputFile,
@@ -44,7 +45,7 @@ import type {
   ValidationIssue,
 } from "./types.js";
 
-const RENDERER_VERSION = "0.4.1";
+const RENDERER_VERSION = "0.5.0";
 
 function failureResponse(issues: readonly ValidationIssue[]): RenderResponse {
   const sorted = sortAndDedupeIssues(issues);
@@ -409,6 +410,18 @@ export async function createKakaoBizboardRenderer(config: RendererConfig): Promi
 
   async function renderSafe(request: unknown): Promise<RenderResponse> {
     try {
+      if (isSmartChannelRenderRequest(request)) {
+        const result = await renderSmartChannel(request, {
+          projectRoot,
+          inputRoot,
+          outputRoot,
+          contracts,
+          publish: true,
+        });
+        const response = Object.fromEntries(Object.entries(result).filter(([key]) => key !== "png" && key !== "report")) as unknown as RenderResponse;
+        schemas.assertResponse(response);
+        return response;
+      }
       if (isFreeformRenderRequest(request)) {
         const result = await renderFreeform(request, {
           projectRoot,

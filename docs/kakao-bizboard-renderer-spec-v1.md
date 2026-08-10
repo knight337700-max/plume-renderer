@@ -2,7 +2,7 @@
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
 - **Document version:** 1.17.0
-- **Status:** Frozen Implementation Contract — Phase N2A SmartChannel source-backed object placement contract; no SmartChannel raster/UI implementation
+- **Status:** Frozen Implementation Contract — Phase N2 SmartChannel Core raster runtime; Desktop SmartChannel UI and N3 120-variant expansion remain out of scope
 - **Checked date:** 2026-08-10 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **35. Phase N2A**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **35. Phase N2 runtime**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -3776,3 +3776,25 @@ region/CTA/font fingerprints는 source coordinates를 변경하지 않고 보존
 N2A acceptance는 39 token, 120 mapping, candidate unresolved 0, source mask/transform
 provenance, no inherited placement semantics, no auto-design rule, no renderer/UI/Golden
 artifact를 포함한다. **[PROJECT]**
+
+### 35.8 N2 runtime implementation boundary
+
+N2는 `NAVER_GFA + SMARTCHANNEL`의 registry-driven Core renderer를 추가한다. contract-known
+template 120개 중 `contracts/naver-smartchannel-n2-candidates.json`의 정확한 6개 조합만
+runtime-enable하며, 나머지 known template은 deterministic `NOT_ENABLED` 오류로 차단한다.
+알 수 없는 template은 별도 `UNKNOWN` 오류로 차단한다. **[PROJECT]**
+
+runtime은 N2A placement token, source asset rule, PSD text metadata, typography registry,
+fixed component/CTA registry를 조회한다. STANDARD/PERSON_MOVIE full-canvas source와
+THUMBNAIL slot-local source는 contract의 exact dimensions/MIME만 허용하고 trim/crop/resize,
+mirror, auto-fit, fallback을 수행하지 않는다. 출력은 750×160/200/280 transparent RGBA
+PNG이며, N2 acceptance용 synthetic fixture와 3회 반복 byte-equal golden을 저장한다.
+이는 NAVER 업로드 승인 또는 Photoshop byte parity 주장이 아니다. **[PROJECT]**
+
+CTA registry는 280px 공유 chevron의 검증된 asset 경로와 digest를 추가하기 위해
+1.0.0에서 1.1.0으로 minor bump한다. 기존 CTA geometry와 허용 조합은 변경하지 않는다. **[PROJECT]**
+
+N2 runtime font mode는 `PROJECT_COMPATIBLE_VERIFIED`이며 local exact preflight가 통과하지
+않으면 fail-closed한다. SFPro/SFUI source-only layer는 runtime font가 아니며, local font
+binary는 Git/release에 포함하지 않는다. Runtime network access는 계속 금지된다.
+Desktop NAVER UI와 120-template full expansion은 N3 이후 범위다. **[PROJECT]**

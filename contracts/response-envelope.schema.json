@@ -98,6 +98,8 @@
       }
     },
     "formatProfileId": { "type": "string", "minLength": 1 },
+    "templateId": { "type": "string", "minLength": 1 },
+    "objectPlacementToken": { "type": "string", "minLength": 1 },
     "artifactChecksumSha256": { "$ref": "#/$defs/sha256" },
     "pixelFingerprint": { "$ref": "#/$defs/sha256" },
     "requestFingerprint": { "$ref": "#/$defs/sha256" },

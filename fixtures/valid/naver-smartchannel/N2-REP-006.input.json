@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "layoutMode": "TEMPLATE_LOCKED",
+  "compositionMode": "RENDERER_COMPOSED",
+  "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_2LINE_NONE",
+  "content": {
+    "headline": "안전한 선택을",
+    "headlineLine2": "지금 시작하세요",
+    "disclosureLine1": "심의필 2026-001호",
+    "disclosureLine2": "유효기간 2026년 12월까지"
+  },
+  "assets": {
+    "object": {
+      "path": "fixtures/valid/naver-smartchannel/N2-REP-006-object.png"
+    }
+  },
+  "output": {
+    "directory": "naver-smartchannel",
+    "baseName": "N2-REP-006",
+    "overwrite": true
+  }
+}

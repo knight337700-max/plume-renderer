@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "layoutMode": "TEMPLATE_LOCKED",
+  "compositionMode": "RENDERER_COMPOSED",
+  "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
+  "content": {
+    "headline": "새로운 영화 소식",
+    "subcopy": "이번 주 추천 콘텐츠",
+    "subcopyLine4": "12세 이상 관람가"
+  },
+  "assets": {
+    "object": {
+      "path": "fixtures/valid/naver-smartchannel/N2-REP-002-object.png"
+    }
+  },
+  "output": {
+    "directory": "naver-smartchannel",
+    "baseName": "N2-REP-002",
+    "overwrite": true
+  }
+}

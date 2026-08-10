@@ -1,0 +1,126 @@
+{
+  "registryVersion": "1.0.0",
+  "status": "FROZEN_REPRESENTATIVE_GOLDENS",
+  "candidates": [
+    {
+      "id": "N2-REP-001",
+      "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
+      "objectPlacementToken": "NAVER_SC_160_BASIC_STANDARD_LEFT_NONE",
+      "width": 750,
+      "height": 160,
+      "transparent": true,
+      "pngSha256": "31b5aaf1ce8fb386d5c68a42b24e85206154a28dfaa6bbc9f8d597aa4eed52dd",
+      "manifestSha256": "d2af636220986797f22abe37238f567614026d1be4e70bff49c586908225c93d",
+      "pixelFingerprint": "90f622b524fc1c7385f196fab896cb767843049b4ba9796172614f401c33a4ca",
+      "requestFingerprint": "ad2c3fce9393a40cc43d3e5fd5ff78c1997ce108fa012777be6d32fd25fea06d",
+      "renderFingerprint": "90f622b524fc1c7385f196fab896cb767843049b4ba9796172614f401c33a4ca",
+      "runDigests": [
+        "31b5aaf1ce8fb386d5c68a42b24e85206154a28dfaa6bbc9f8d597aa4eed52dd",
+        "31b5aaf1ce8fb386d5c68a42b24e85206154a28dfaa6bbc9f8d597aa4eed52dd",
+        "31b5aaf1ce8fb386d5c68a42b24e85206154a28dfaa6bbc9f8d597aa4eed52dd"
+      ],
+      "path": "fixtures/golden/naver-smartchannel/N2-REP-001.png",
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-001.manifest.json"
+    },
+    {
+      "id": "N2-REP-002",
+      "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
+      "objectPlacementToken": "NAVER_SC_200_EMPHASIS_THUMBNAIL_RIGHT_NONE",
+      "width": 750,
+      "height": 200,
+      "transparent": true,
+      "pngSha256": "c74fb55caaa717b9dbc27c19ce7ad81d6ae75ba397c40ae7f08284b72f3c7004",
+      "manifestSha256": "63c141810bd8375759adc5b53723dd38368118576f801ff2178fee399a25dccc",
+      "pixelFingerprint": "581fc471b6027af6318eac3dcec49128f28313ca81891f75a3b28a8c014e51d8",
+      "requestFingerprint": "6ec2abf774018e3ea7fb359e0e90e341800832580e60eefd0c92b5b68f16541a",
+      "renderFingerprint": "581fc471b6027af6318eac3dcec49128f28313ca81891f75a3b28a8c014e51d8",
+      "runDigests": [
+        "c74fb55caaa717b9dbc27c19ce7ad81d6ae75ba397c40ae7f08284b72f3c7004",
+        "c74fb55caaa717b9dbc27c19ce7ad81d6ae75ba397c40ae7f08284b72f3c7004",
+        "c74fb55caaa717b9dbc27c19ce7ad81d6ae75ba397c40ae7f08284b72f3c7004"
+      ],
+      "path": "fixtures/golden/naver-smartchannel/N2-REP-002.png",
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-002.manifest.json"
+    },
+    {
+      "id": "N2-REP-003",
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
+      "objectPlacementToken": "NAVER_SC_280_BASIC_STANDARD_LEFT_LANDING_ICON",
+      "width": 750,
+      "height": 280,
+      "transparent": true,
+      "pngSha256": "91922718f8e34e2f8a562eea98c69c376b31517dbc98dd77bce3bec1cfa10712",
+      "manifestSha256": "0f6b65cb1a313e8ff660a6710f6274e9a3b1c8ac72b1665fcfacf564c42ae6b4",
+      "pixelFingerprint": "ec0845d10ac8bd8c53a077477044478e3137c275d6294cf4854d2d9ce75d2bfe",
+      "requestFingerprint": "fd60a13d649324b03c2ab9a3100167e5cb3727d7937d301a3dfd58c1681521ba",
+      "renderFingerprint": "ec0845d10ac8bd8c53a077477044478e3137c275d6294cf4854d2d9ce75d2bfe",
+      "runDigests": [
+        "91922718f8e34e2f8a562eea98c69c376b31517dbc98dd77bce3bec1cfa10712",
+        "91922718f8e34e2f8a562eea98c69c376b31517dbc98dd77bce3bec1cfa10712",
+        "91922718f8e34e2f8a562eea98c69c376b31517dbc98dd77bce3bec1cfa10712"
+      ],
+      "path": "fixtures/golden/naver-smartchannel/N2-REP-003.png",
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-003.manifest.json"
+    },
+    {
+      "id": "N2-REP-004",
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA",
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_THUMBNAIL_LEFT_APP_CTA",
+      "width": 750,
+      "height": 280,
+      "transparent": true,
+      "pngSha256": "4a2fd1972bca3ab29051ed54d9658591c4d2504059cf376f1f7115a834450101",
+      "manifestSha256": "7290dae3c8d8a6893b74345e8e23168d76ef3176ebca51b51b82a282970e2e5c",
+      "pixelFingerprint": "65b1b4c43812e552300be83159ce1516c962a3c12509596647b4c065d9e3fa0e",
+      "requestFingerprint": "e5c385b44c8c2bf54b883543c96270f3c897e25634ec9847428af17f996095af",
+      "renderFingerprint": "65b1b4c43812e552300be83159ce1516c962a3c12509596647b4c065d9e3fa0e",
+      "runDigests": [
+        "4a2fd1972bca3ab29051ed54d9658591c4d2504059cf376f1f7115a834450101",
+        "4a2fd1972bca3ab29051ed54d9658591c4d2504059cf376f1f7115a834450101",
+        "4a2fd1972bca3ab29051ed54d9658591c4d2504059cf376f1f7115a834450101"
+      ],
+      "path": "fixtures/golden/naver-smartchannel/N2-REP-004.png",
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-004.manifest.json"
+    },
+    {
+      "id": "N2-REP-005",
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE",
+      "objectPlacementToken": "NAVER_SC_280_EMPHASIS_PERSON_MOVIE_RIGHT_NONE",
+      "width": 750,
+      "height": 280,
+      "transparent": true,
+      "pngSha256": "039891dce410d3e088142a6dfede43912cf91e77608bc64171aa65f5b5d304fd",
+      "manifestSha256": "08e65b5b4439e809abbfea78dcc8cdb9c22c36248367bd715ecf29a3d60213ea",
+      "pixelFingerprint": "338e89df1a1573e124b3c4be865f018ff430322ec75ee050a1d101368f0f129d",
+      "requestFingerprint": "daab4bddc4179782bc02de36444a9a0f5ce800dfa870919829636d6042c2a19b",
+      "renderFingerprint": "338e89df1a1573e124b3c4be865f018ff430322ec75ee050a1d101368f0f129d",
+      "runDigests": [
+        "039891dce410d3e088142a6dfede43912cf91e77608bc64171aa65f5b5d304fd",
+        "039891dce410d3e088142a6dfede43912cf91e77608bc64171aa65f5b5d304fd",
+        "039891dce410d3e088142a6dfede43912cf91e77608bc64171aa65f5b5d304fd"
+      ],
+      "path": "fixtures/golden/naver-smartchannel/N2-REP-005.png",
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-005.manifest.json"
+    },
+    {
+      "id": "N2-REP-006",
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_2LINE_NONE",
+      "objectPlacementToken": "NAVER_SC_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_NONE",
+      "width": 750,
+      "height": 280,
+      "transparent": true,
+      "pngSha256": "47ecbbbd5559e6cb6abd1be2d01cad2da131c1e0b69e8272d59534b9d4f5cdf6",
+      "manifestSha256": "ab1e4ea1b4080b16c2aae3bc46674448784b32ed92829fe154846c021cb2d30c",
+      "pixelFingerprint": "28e7193e1516ab3f7fa778fd3f2c26cb7677fc7dd9ba3fd2cbb1df6cfaaa204d",
+      "requestFingerprint": "8aa75b9900b9846a9e32310b125eb81ed1b3d5700556d4c16169237c61bdc157",
+      "renderFingerprint": "28e7193e1516ab3f7fa778fd3f2c26cb7677fc7dd9ba3fd2cbb1df6cfaaa204d",
+      "runDigests": [
+        "47ecbbbd5559e6cb6abd1be2d01cad2da131c1e0b69e8272d59534b9d4f5cdf6",
+        "47ecbbbd5559e6cb6abd1be2d01cad2da131c1e0b69e8272d59534b9d4f5cdf6",
+        "47ecbbbd5559e6cb6abd1be2d01cad2da131c1e0b69e8272d59534b9d4f5cdf6"
+      ],
+      "path": "fixtures/golden/naver-smartchannel/N2-REP-006.png",
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-006.manifest.json"
+    }
+  ]
+}

@@ -154,6 +154,21 @@
 
     { "code": "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", "severity": "ERROR", "messageKey": "naver_smartchannel.font_unavailable", "condition": "A required SmartChannel exact font is missing, unreadable, undecodable, or an external exact-font reference is not trusted" },
     { "code": "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.font_identity_mismatch", "condition": "A resolved SmartChannel font PostScript identity or SHA-256 digest does not match the frozen source requirement" },
-    { "code": "NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.font_version_mismatch", "condition": "A resolved SmartChannel font version does not match the frozen source version requirement" }
+    { "code": "NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.font_version_mismatch", "condition": "A resolved SmartChannel font version does not match the frozen source version requirement" },
+    { "code": "NAVER_SMARTCHANNEL_INPUT_INVALID", "severity": "ERROR", "messageKey": "naver_smartchannel.input_invalid", "condition": "A SmartChannel input is missing a required canonical field or contains a prohibited string" },
+    { "code": "NAVER_SMARTCHANNEL_TEMPLATE_UNKNOWN", "severity": "ERROR", "messageKey": "naver_smartchannel.template_unknown", "condition": "templateId is not present in the frozen SmartChannel template registry" },
+    { "code": "NAVER_SMARTCHANNEL_TEMPLATE_NOT_ENABLED", "severity": "ERROR", "messageKey": "naver_smartchannel.template_not_enabled", "condition": "A known SmartChannel template is outside the six N2 runtime candidates" },
+    { "code": "NAVER_SMARTCHANNEL_ASSET_MISSING", "severity": "ERROR", "messageKey": "naver_smartchannel.asset_missing", "condition": "The selected SmartChannel object asset cannot be resolved under the trusted input root" },
+    { "code": "NAVER_SMARTCHANNEL_ASSET_MIME_INVALID", "severity": "ERROR", "messageKey": "naver_smartchannel.asset_mime_invalid", "condition": "The selected object asset is not an allowed PNG or JPEG for its source asset rule" },
+    { "code": "NAVER_SMARTCHANNEL_ASSET_DIMENSION_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.asset_dimension_mismatch", "condition": "The selected object asset dimensions do not exactly match the frozen source rule" },
+    { "code": "NAVER_SMARTCHANNEL_ASSET_DIGEST_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.asset_digest_mismatch", "condition": "The selected object asset SHA-256 differs from expectedSha256" },
+    { "code": "NAVER_SMARTCHANNEL_OBJECT_PLACEMENT_UNRESOLVED", "severity": "ERROR", "messageKey": "naver_smartchannel.object_placement_unresolved", "condition": "The template has no enabled object placement token or source rule" },
+    { "code": "NAVER_SMARTCHANNEL_OBJECT_OUT_OF_REGION", "severity": "ERROR", "messageKey": "naver_smartchannel.object_out_of_region", "condition": "Layout-visible object pixels leave the expected object region from the placement token" },
+    { "code": "NAVER_SMARTCHANNEL_FIXED_COMPONENT_INVALID", "severity": "ERROR", "messageKey": "naver_smartchannel.fixed_component_invalid", "condition": "A frozen landing icon, CTA raster, or fixed component cannot be verified or placed" },
+    { "code": "NAVER_SMARTCHANNEL_CTA_INVALID", "severity": "ERROR", "messageKey": "naver_smartchannel.cta_invalid", "condition": "An APP_CTA candidate has a label outside the frozen CTA option registry" },
+    { "code": "NAVER_SMARTCHANNEL_TEXT_REQUIRED", "severity": "ERROR", "messageKey": "naver_smartchannel.text_required", "condition": "A visible PSD text role has no corresponding input value" },
+    { "code": "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", "severity": "ERROR", "messageKey": "naver_smartchannel.text_overflow", "condition": "Rendered SmartChannel text exceeds its source metadata box or canvas" },
+    { "code": "NAVER_SMARTCHANNEL_OUTPUT_INVALID", "severity": "ERROR", "messageKey": "naver_smartchannel.output_invalid", "condition": "The rendered artifact is not a transparent RGBA PNG with the selected SmartChannel dimensions" },
+    { "code": "NAVER_SMARTCHANNEL_GOLDEN_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.golden_mismatch", "condition": "A representative SmartChannel output differs from its frozen deterministic golden" }
   ]
 }

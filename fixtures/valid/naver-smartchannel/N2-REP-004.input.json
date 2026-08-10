@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "layoutMode": "TEMPLATE_LOCKED",
+  "compositionMode": "RENDERER_COMPOSED",
+  "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA",
+  "content": {
+    "headline": "앱으로 더 빠르게",
+    "headlineLine2": "지금 바로 만나보세요",
+    "subcopy": "간편한 서비스 이용 안내",
+    "ctaOption": "가입하기"
+  },
+  "assets": {
+    "object": {
+      "path": "fixtures/valid/naver-smartchannel/N2-REP-004-object.png"
+    }
+  },
+  "output": {
+    "directory": "naver-smartchannel",
+    "baseName": "N2-REP-004",
+    "overwrite": true
+  }
+}

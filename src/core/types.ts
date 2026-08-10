@@ -256,6 +256,8 @@ export type RenderManifest = {
   appliedElements?: FreeformAppliedElement[];
   pixelFingerprint?: string;
   requestFingerprint?: string;
+  renderFingerprint?: string;
+  smartChannelReport?: SmartChannelReport;
   manualAcceptanceStatus: {
     status: "NOT_REVIEWED";
     items: Array<{
@@ -265,6 +267,31 @@ export type RenderManifest = {
       reviewedAt: null;
     }>;
   };
+};
+
+export type SmartChannelTextRoleReport = {
+  role: "HEADLINE" | "SUBCOPY" | "DISCLOSURE" | "CTA_LABEL";
+  inputKey: string;
+  text: string;
+  sourceLayer: string;
+  typographyTokenId: string;
+  box: BBox;
+  expectedOrigin: { x: number; y: number };
+  actualRasterBounds: BBox | null;
+  baselineY: number;
+  measuredWidth: number;
+  overflow: boolean;
+};
+
+export type SmartChannelReport = {
+  templateId: string;
+  objectPlacementToken: string;
+  canvas: { width: number; height: number; format: "PNG"; colorType: "RGBA"; bitDepth: 8; hasAlpha: true };
+  object: { placementToken: string; expectedRegion: BBox; actualRasterBounds: BBox | null; sourceRuleId: string; sourceMimeType: "image/png" | "image/jpeg"; sourceDigest: string; frame: BBox; transform: "NONE" | "SOURCE_TRANSFORM" };
+  textRoles: SmartChannelTextRoleReport[];
+  fixedComponents: Array<{ id: string; digest: string; x: number; y: number; width: number; height: number }>;
+  fonts: Array<{ token: string; runtimePostScriptName: string; digest: string }>;
+  artifact: { pngDigest: string; bytes: number };
 };
 
 export type RenderResponse = {
@@ -278,6 +305,8 @@ export type RenderResponse = {
   errors: ValidationIssue[];
   warnings: ValidationIssue[];
   formatProfileId?: string;
+  templateId?: string;
+  objectPlacementToken?: string;
   artifactChecksumSha256?: string;
   pixelFingerprint?: string;
   requestFingerprint?: string;

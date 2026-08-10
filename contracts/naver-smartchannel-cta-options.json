@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.0.0",
+  "registryVersion": "1.1.0",
   "status": "SOURCE_CONFIRMED",
   "classificationVocabulary": [
     "DEFERRED_NON_BLOCKING",
@@ -508,6 +508,19 @@
         "classification": "SOURCE_CONFIRMED"
       }
     }
+  },
+  "chevron280": {
+    "status": "FROZEN",
+    "visibleBounds": [
+      682,
+      211,
+      690,
+      225
+    ],
+    "assetPath": "assets/naver-smartchannel/cta-chevron-280.png",
+    "assetPngSha256": "7ab0f065f619d4cbff6bf1ed4d98a306ad6c169a6662b52c3c695a1a49236e3d",
+    "assetPngFormat": "RGBA_PNG",
+    "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA"
   },
   "options280": [
     {
