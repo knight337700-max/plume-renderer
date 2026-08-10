@@ -37,14 +37,16 @@ describe("NAVER SmartChannel N2 template engine", () => {
     }
   });
 
-  it("rejects known but non-enabled templates and unknown template IDs", async () => {
+  it("renders source-known templates and rejects unknown template IDs", async () => {
     const contracts = await loadContracts(projectRoot);
     const temp = path.join(os.tmpdir(), `kbr-n2-guards-${process.pid}`);
     await mkdir(temp, { recursive: true });
     const base = await requestFor("N2-REP-001");
-    const known = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE" }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
-    expect(known.status).toBe("FAIL");
-    expect(known.errors[0]?.code).toBe("NAVER_SMARTCHANNEL_TEMPLATE_NOT_ENABLED");
+    const known = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE", content: { headline: "테스트" } }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
+    expect(known.status).toBe("PASS");
+    const unsupportedCta = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE", content: { headline: "테스트", ctaOption: "가입하기" } }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
+    expect(unsupportedCta.status).toBe("FAIL");
+    expect(unsupportedCta.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_CTA_INVALID")).toBe(true);
     const unknown = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_NOT_A_TEMPLATE" }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
     expect(unknown.status).toBe("FAIL");
     expect(unknown.errors[0]?.code).toBe("NAVER_SMARTCHANNEL_TEMPLATE_UNKNOWN");

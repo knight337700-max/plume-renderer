@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-n3-runtime-status-v1.0.0.json",
+  "registryVersion": "1.0.0",
+  "phase": "N3_SMARTCHANNEL_120_VARIANT_EXPANSION",
+  "status": "IMPLEMENTED",
+  "sourceWhitelistOnly": true,
+  "contractKnownTemplates": 120,
+  "runtimeEnabledTemplates": 120,
+  "disabledKnownTemplates": 0,
+  "sourcePsdCount": 120,
+  "objectPlacementTokens": 39,
+  "templateMappings": 120,
+  "affordanceCounts": {
+    "NONE": 75,
+    "LANDING_ICON": 29,
+    "APP_CTA": 16
+  },
+  "ctaOptions": 11,
+  "fontFallbacks": 0,
+  "placementFallbacks": 0,
+  "inferredPolicyUsed": false,
+  "runtimeNetworkAccess": "PROHIBITED",
+  "desktopUi": "NOT_IMPLEMENTED",
+  "permanentN2Goldens": 6,
+  "nextPhase": "N4_NAVER_FREEFORM_CONSTRAINED_FORMAT_EXPANSION"
+}

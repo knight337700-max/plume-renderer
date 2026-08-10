@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.17.0
-- **Status:** Frozen Implementation Contract — Phase N2 SmartChannel Core raster runtime; Desktop SmartChannel UI and N3 120-variant expansion remain out of scope
+- **Document version:** 1.18.0
+- **Status:** Frozen Implementation Contract — Phase N3 SmartChannel Core raster runtime for the complete 120-template source whitelist; Desktop SmartChannel UI and N4 expansion remain out of scope
 - **Checked date:** 2026-08-10 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **35. Phase N2 runtime**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **35.9. Phase N3 runtime**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -3777,12 +3777,12 @@ N2A acceptance는 39 token, 120 mapping, candidate unresolved 0, source mask/tra
 provenance, no inherited placement semantics, no auto-design rule, no renderer/UI/Golden
 artifact를 포함한다. **[PROJECT]**
 
-### 35.8 N2 runtime implementation boundary
+### 35.8 N2 runtime implementation boundary (historical)
 
-N2는 `NAVER_GFA + SMARTCHANNEL`의 registry-driven Core renderer를 추가한다. contract-known
-template 120개 중 `contracts/naver-smartchannel-n2-candidates.json`의 정확한 6개 조합만
-runtime-enable하며, 나머지 known template은 deterministic `NOT_ENABLED` 오류로 차단한다.
-알 수 없는 template은 별도 `UNKNOWN` 오류로 차단한다. **[PROJECT]**
+N2는 `NAVER_GFA + SMARTCHANNEL`의 registry-driven Core renderer를 추가했고, 당시에는
+`contracts/naver-smartchannel-n2-candidates.json`의 정확한 6개 조합만 runtime-enable했다.
+이 제한은 N3에서 source whitelist 전체를 활성화하면서 역사적 상태가 되었다. 알 수 없는
+template은 현재도 별도 `UNKNOWN` 오류로 차단한다. **[PROJECT]**
 
 runtime은 N2A placement token, source asset rule, PSD text metadata, typography registry,
 fixed component/CTA registry를 조회한다. STANDARD/PERSON_MOVIE full-canvas source와
@@ -3797,4 +3797,71 @@ CTA registry는 280px 공유 chevron의 검증된 asset 경로와 digest를 추�
 N2 runtime font mode는 `PROJECT_COMPATIBLE_VERIFIED`이며 local exact preflight가 통과하지
 않으면 fail-closed한다. SFPro/SFUI source-only layer는 runtime font가 아니며, local font
 binary는 Git/release에 포함하지 않는다. Runtime network access는 계속 금지된다.
-Desktop NAVER UI와 120-template full expansion은 N3 이후 범위다. **[PROJECT]**
+Desktop NAVER UI와 120-template full expansion은 당시 N2 이후 범위였다. **[PROJECT]**
+
+### 35.9 Phase N3 — SmartChannel 120-variant runtime expansion
+
+N3는 새 좌표나 새 추론 규칙을 추가하지 않고, 이미 source-confirmed 상태인
+`contracts/naver-smartchannel-template-contract.json`의 120개 `templateId`를 모두 Core
+runtime whitelist로 활성화한다. 템플릿 수와 family별 분포는 다음과 같이 고정한다.
+
+| Height | BASIC | EMPHASIS | BOTTOM_DISCLOSURE | Total |
+|---:|---:|---:|---:|---:|
+| 160 | 8 | 15 | 9 | 32 |
+| 200 | 8 | 15 | 9 | 32 |
+| 280 | 16 | 25 | 15 | 56 |
+| **Total** | **32** | **55** | **33** | **120** |
+
+39개 object placement token과 120개 `templateId → objectPlacementToken` mapping은 변경하지
+않는다. 각 template은 source registry, PSD visible text-layer metadata, typography token,
+fixed-component/CTA registry의 참조가 모두 해석될 때만 실행된다. registry에 없는 조합,
+알 수 없는 `templateId`, 또는 선택한 template의 source metadata가 요구하지 않는 content
+field는 deterministic `ERROR`로 거부한다. Renderer는 family·side·textVariant를 보고
+좌표를 추론하거나 후보 전용 예외를 만들지 않는다. **[PROJECT] [DERIVED]**
+
+160/200 `LANDING_ICON`은 승인된 compact icon asset을 height별 placement로 합성한다.
+280 `LANDING_ICON`은 승인된 280 icon asset을 사용한다. 160/200 `APP_CTA`는 CTA registry의
+11개 전체 RGBA raster label asset 중 입력된 label 하나를 그대로 합성하며, 280 `APP_CTA`는
+정확한 source occurrence의 button, chevron, CTA label typography layer를 함께 사용한다.
+허용 label 목록, asset path, asset SHA-256, source occurrence가 없는 값은 거부한다.
+**[PROJECT] [TOOL_OUTPUT]**
+
+`headline`, `headlineLine2`, `subcopy`, `subcopyLine4`, `disclosureLine1`,
+`disclosureLine2`는 PSD visible role의 실제 multiplicity에 따라 요구한다. 280 CTA label은
+source PSD에 있는 선택 label layer를 사용하고, compact CTA는 이미 rasterized된 승인 asset을
+사용하므로 CTA text를 두 번 그리지 않는다. `ctaOption`은 `APP_CTA`에서만 허용한다.
+**[PROJECT] [DERIVED]**
+
+N3 exhaustive acceptance는 다음을 요구한다.
+
+1. 120개 템플릿을 동일 Windows 10/11 x64 runtime에서 deterministic synthetic input으로
+   각각 렌더링하고, 각 입력을 3회 실행해 PNG SHA-256이 byte-equal이어야 한다.
+2. 160/200 compact 및 280 CTA 각각에 대해 registry의 11개 label을 모두 실행한다.
+3. 120개 모두 `PASS`, text overflow 0, missing fixed component 0, font fallback 0이어야
+   하며 output은 750×160/200/280의 RGBA PNG-32여야 한다.
+4. N2의 영구 Golden 6개는 PNG byte, pixel fingerprint, request fingerprint가 변경되지
+   않아야 한다.
+
+N3는 Desktop UI, Naver Freeform, Platform-composed/Collection, upload API, network access,
+remote font, 새 CTA/icon 제작을 포함하지 않는다. 공식 [SmartChannel 광고가이드](https://ads.naver.com/adguide/1475)와
+[2026-06-01 공지](https://ads.naver.com/notice/31978)는 현재 source guide 및 750×280/200×200
+규칙을 확인하는 근거일 뿐이며, Renderer의 upload 승인이나 Photoshop byte parity를
+보장하지 않는다. **[OFFICIAL] [PROJECT]**
+
+### 35.10 N3 version and acceptance
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.17.0 | 1.18.0 | source whitelist 120개 전체 runtime capability 상태 반영 |
+| Global Kakao/FREEFORM template contract | 1.9.0 | 1.9.0 | coordinates and legacy renderer semantics unchanged |
+| SmartChannel-scoped template contract | 1.10.0 | 1.10.0 | geometry and placement tokens unchanged |
+| Renderer Core | 0.5.0 | 0.6.0 | full 120-template registry execution, CTA/fixed component expansion, exhaustive deterministic gate |
+| CTA registry | 1.1.0 | 1.1.0 | existing 11-label source registry reused |
+| Integration Contract | 1.8.0 | 1.8.0 | no public integration shape change |
+| Desktop | 0.8.2 | 0.8.2 | no Desktop SmartChannel UI |
+
+N3 acceptance는 source inventory 120, placement token 39, template mapping 120, affordance
+분포 `NONE=75`, `LANDING_ICON=29`, `APP_CTA=16`, compact/280 CTA label 11개, local
+project-compatible font preflight, runtime network prohibition, N2 golden immutability를
+기계적으로 검사한다. 다음 단계는 Naver Freeform constrained format expansion이다.
+**[PROJECT]**

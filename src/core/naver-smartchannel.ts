@@ -88,7 +88,7 @@ type NaverPlacementToken = {
   runtimeEnabled: boolean;
   sourceAssetRuleId: string;
   coordinateSpace: { type: string; canvas?: { width: number; height: number }; width?: number; height?: number };
-  placementFrame: { x: number; y?: number; width: number; height: number };
+  placementFrame: { x: number; y?: number; width: number; height?: number };
   fitMode: string;
   placementPolicy: string;
   sourceFrame?: { width: number; height: number; canvasTransform?: number[] } | undefined;
@@ -150,10 +150,6 @@ function failure(contracts: ContractBundle, issues: readonly ValidationIssue[], 
   };
 }
 
-function isSameCandidate(template: NaverTemplate, candidate: SmartChannelJson): boolean {
-  return template.height === candidate.height && template.family === candidate.family && template.objectKind === candidate.objectKind && template.side === candidate.side && template.textVariant === candidate.textVariant && template.affordance === candidate.affordance;
-}
-
 function templates(contract: Record<string, unknown>): NaverTemplate[] {
   return jsonArray(contract.templates).map((entry) => ({
     templateId: String(entry.templateId),
@@ -178,6 +174,18 @@ function placementTokens(contract: Record<string, unknown>): NaverPlacementToken
     placementPolicy: String(entry.placementPolicy),
     ...(entry.sourceFrame ? { sourceFrame: jsonObject(entry.sourceFrame) as unknown as NaverPlacementToken["sourceFrame"] } : {}),
   }));
+}
+
+function normalizedPlacementFrame(token: NaverPlacementToken, canvasHeight: number): BBox {
+  const sourceFrame = token.placementFrame;
+  const coordinateCanvas = token.coordinateSpace.canvas;
+  const height = Number(sourceFrame.height ?? coordinateCanvas?.height ?? canvasHeight);
+  return {
+    x: Number(sourceFrame.x),
+    y: Number(sourceFrame.y ?? 0),
+    width: Number(sourceFrame.width),
+    height,
+  };
 }
 
 function issueFor(contracts: ContractBundle, code: string, pathValue: string, expected?: unknown, actual?: unknown, stage: "PRE_RENDER" | "POST_RENDER" = "PRE_RENDER"): ValidationIssue {
@@ -322,7 +330,14 @@ function transformedAlphaBounds(image: DecodedRgba, token: NaverPlacementToken):
   const y = Number(transform[1]);
   const width = Number(transform[2]) - x;
   const height = Number(transform[5]) - y;
-  return { x: Math.round(x + (source.x / image.width) * width), y: Math.round(y + (source.y / image.height) * height), width: Math.max(1, Math.round((source.width / image.width) * width)), height: Math.max(1, Math.round((source.height / image.height) * height)) };
+  const transformed = { x: Math.round(x + (source.x / image.width) * width), y: Math.round(y + (source.y / image.height) * height), width: Math.max(1, Math.round((source.width / image.width) * width)), height: Math.max(1, Math.round((source.height / image.height) * height)) };
+  const canvas = token.coordinateSpace.canvas;
+  if (!canvas) return transformed;
+  const left = Math.max(0, transformed.x);
+  const top = Math.max(0, transformed.y);
+  const right = Math.min(canvas.width, transformed.x + transformed.width);
+  const bottom = Math.min(canvas.height, transformed.y + transformed.height);
+  return right <= left || bottom <= top ? null : { x: left, y: top, width: right - left, height: bottom - top };
 }
 
 function containedBy(inner: BBox | null, outer: BBox): boolean {
@@ -418,6 +433,41 @@ function visibleTextLayers(metadata: Record<string, unknown>, templateId: string
   return jsonArray(template?.textLayers).filter((entry) => entry.visible !== false && ["HEADLINE", "SUBCOPY", "DISCLOSURE"].includes(String(entry.role))).sort((left, right) => Number(jsonObject(left.textPlacement).boxY) - Number(jsonObject(right.textPlacement).boxY)) as unknown as NaverTextLayer[];
 }
 
+function validateTemplateContent(
+  contracts: ContractBundle,
+  template: NaverTemplate,
+  metadata: Record<string, unknown>,
+  content: SmartChannelContent,
+): ValidationIssue[] {
+  const layers = visibleTextLayers(metadata, template.templateId);
+  const requiredKeys = new Set<keyof SmartChannelContent>();
+  const roleCounters = new Map<NaverTextLayer["role"], number>();
+  for (const layer of layers) {
+    const index = roleCounters.get(layer.role) ?? 0;
+    roleCounters.set(layer.role, index + 1);
+    requiredKeys.add(layerInputKey(layer.role, index));
+  }
+  if (template.affordance === "APP_CTA") requiredKeys.add("ctaOption");
+
+  const issues: ValidationIssue[] = [];
+  for (const key of requiredKeys) {
+    const value = content[key];
+    if (typeof value !== "string" || value.length === 0) {
+      issues.push(issueFor(contracts, key === "ctaOption" ? "NAVER_SMARTCHANNEL_CTA_INVALID" : "NAVER_SMARTCHANNEL_TEXT_REQUIRED", `/content/${key}`, "required source-backed content field", value));
+    }
+  }
+  if (template.affordance !== "APP_CTA" && content.ctaOption !== undefined) {
+    issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "ctaOption is only allowed for APP_CTA templates", content.ctaOption));
+  }
+  const allowedKeys = new Set<keyof SmartChannelContent>([...requiredKeys]);
+  for (const key of Object.keys(content) as Array<keyof SmartChannelContent>) {
+    if (!allowedKeys.has(key) && content[key] !== undefined) {
+      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_INPUT_INVALID", `/content/${key}`, "field supported by the selected source template", content[key]));
+    }
+  }
+  return issues;
+}
+
 function ctaTextLayer(metadata: Record<string, unknown>, templateId: string, label: string): NaverTextLayer | null {
   const template = jsonArray(metadata.templates).find((entry) => String(entry.templateId) === templateId);
   const layer = jsonArray(template?.textLayers).find((entry) => entry.visible !== false && entry.role === "CTA_LABEL" && String(entry.name) === label);
@@ -462,10 +512,6 @@ function validateInputShape(request: unknown, contracts: ContractBundle): { requ
   };
 }
 
-function candidateForTemplate(template: NaverTemplate, candidates: SmartChannelJson[]): SmartChannelJson | undefined {
-  return candidates.find((candidate) => isSameCandidate(template, candidate));
-}
-
 function validateTextRole(layer: NaverTextLayer, width: number): boolean {
   const boxRight = layer.textPlacement.boxX + layer.textPlacement.boxWidth;
   // NAPI canvas reports fractional advances for the project-compatible font build;
@@ -490,12 +536,13 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
   const templateRegistry = contracts.naverTemplateContract;
   const template = templates(templateRegistry).find((entry) => entry.templateId === request.templateId);
   if (!template) return failure(contracts, [...shaped.issues, issueFor(contracts, "NAVER_SMARTCHANNEL_TEMPLATE_UNKNOWN", "/templateId", "known registry template", request.templateId)]);
-  const candidate = candidateForTemplate(template, jsonArray(contracts.naverN2Candidates.candidates));
-  if (!candidate) return failure(contracts, [...shaped.issues, issueFor(contracts, "NAVER_SMARTCHANNEL_TEMPLATE_NOT_ENABLED", "/templateId", "one of six N2 candidates", request.templateId)]);
   const token = placementTokens(contracts.naverObjectPlacement).find((entry) => entry.token === template.objectPlacementToken);
   if (!token || !token.runtimeEnabled) return failure(contracts, [...shaped.issues, issueFor(contracts, "NAVER_SMARTCHANNEL_OBJECT_PLACEMENT_UNRESOLVED", "/templateId", "runtimeEnabled placement token", template.objectPlacementToken)]);
+  const metadata = contracts.naverPsdMetadata;
+  const contentIssues = validateTemplateContent(contracts, template, metadata, request.content);
+  if (contentIssues.some(({ severity }) => severity === "ERROR")) return failure(contracts, [...shaped.issues, ...contentIssues]);
   const preflight = await preflightFonts(options.projectRoot, contracts);
-  const preIssues = [...shaped.issues, ...preflight.issues];
+  const preIssues = [...shaped.issues, ...contentIssues, ...preflight.issues];
   let jobDirectory: string;
   try {
     jobDirectory = await resolveTrustedJobDirectory(options.outputRoot, request.output.directory, request.output.baseName);
@@ -516,7 +563,7 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
   const assetIssues: ValidationIssue[] = [];
   if (!expectedMime.includes(objectAsset.mime)) assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_ASSET_MIME_INVALID", "/assets/object", expectedMime, objectAsset.mime));
   if (actualDimensions.width !== expectedDimensions.width || actualDimensions.height !== expectedDimensions.height) assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_ASSET_DIMENSION_MISMATCH", "/assets/object", expectedDimensions, actualDimensions));
-  const expectedObjectRegion: BBox = { x: Number(token.placementFrame.x), y: Number(token.placementFrame.y ?? 0), width: Number(token.placementFrame.width), height: Number(token.placementFrame.height) };
+  const expectedObjectRegion = normalizedPlacementFrame(token, template.height);
   const actualObjectBounds = transformedAlphaBounds(objectAsset.image, token);
   if (!containedBy(actualObjectBounds, expectedObjectRegion)) assetIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_OBJECT_OUT_OF_REGION", "/assets/object", expectedObjectRegion, actualObjectBounds));
   if (assetIssues.length > 0 || preIssues.some(({ severity }) => severity === "ERROR")) return failure(contracts, [...preIssues, ...assetIssues]);
@@ -525,7 +572,6 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
   const canvas = createCanvas(NAVER_SMARTCHANNEL_CANVAS_WIDTH, template.height);
   drawSourceObject(canvas, objectAsset.image, token);
   const context = canvas.getContext("2d");
-  const metadata = contracts.naverPsdMetadata;
   const layers = visibleTextLayers(metadata, request.templateId);
   const textReports: SmartChannelTextRoleReport[] = [];
   const roleCounters = new Map<string, number>();
@@ -569,53 +615,68 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
   const fixedComponents: SmartChannelReport["fixedComponents"] = [];
   const fixedRegistry = jsonArray(contracts.naverFixedComponents.components);
   if (template.affordance === "LANDING_ICON") {
-    const component = fixedRegistry.find((entry) => String(entry.id) === "LANDING_ICON_280");
+    const componentId = template.height === 280 ? "LANDING_ICON_280" : "LANDING_ICON_COMPACT";
+    const component = fixedRegistry.find((entry) => String(entry.id) === componentId);
     const asset = jsonObject(component?.asset);
-    const placement = jsonObject(component?.placement);
+    const placement = template.height === 280 ? jsonObject(component?.placement) : jsonObject(jsonObject(component?.heightPlacements)[String(template.height)]);
     try {
-      const fixed = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(asset.assetPath), String(asset.assetPngSha256), Number(placement.x), Number(placement.y), contracts, "LANDING_ICON_280");
+      const fixed = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(asset.assetPath), String(asset.assetPngSha256), Number(placement.x), Number(placement.y), contracts, componentId);
       if (fixed) fixedComponents.push(fixed);
     } catch (error) { textIssues.push(error as ValidationIssue); }
   }
   if (template.affordance === "APP_CTA") {
     const label = content.ctaOption;
-    if (!label) {
-      textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "registered CTA option", label));
-    }
-    const options280 = jsonArray(contracts.naverCtaOptions.options280);
-    const option = label ? options280.find((entry) => String(entry.label) === label) : undefined;
-    const occurrence = jsonArray(option?.sourceOccurrences).find((entry) => String(entry.templateId) === request.templateId);
-    if (!label || !option || !occurrence) {
-      textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "registered CTA option", label));
+    if (template.height === 160 || template.height === 200) {
+      const compact = jsonObject(contracts.naverCtaOptions.compact160200);
+      const allowedLabels = stringArray(compact.allowedLabels);
+      const labelAssets = jsonObject(compact.labelAssets);
+      const selected = label ? jsonObject(labelAssets[label]) : {};
+      const sourceBounds = numberArray(selected.sourcePixelBounds);
+      const placementY = Number(jsonObject(compact.placements)[String(template.height)] && jsonObject(jsonObject(compact.placements)[String(template.height)]).y);
+      if (!label || !allowedLabels.includes(label) || typeof selected.assetPath !== "string" || typeof selected.assetPngSha256 !== "string" || sourceBounds.length < 2 || !Number.isFinite(placementY)) {
+        textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "registered compact CTA label asset", label));
+      } else {
+        try {
+          const fixed = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(selected.assetPath), String(selected.assetPngSha256), Number(sourceBounds[0]), placementY, contracts, `APP_CTA_${template.height}_${label}`);
+          if (fixed) fixedComponents.push(fixed);
+        } catch (error) { textIssues.push(error as ValidationIssue); }
+      }
     } else {
-      const button = jsonObject(occurrence.button);
-      const chevron = jsonObject(occurrence.chevron);
-      const buttonAsset = jsonObject(button.asset);
-      const chevron280 = jsonObject(contracts.naverCtaOptions.chevron280);
-      const chevronAsset = { ...chevron280, ...jsonObject(chevron.asset) };
-      try {
-        const buttonBounds = numberArray(button.visibleBounds);
-        if (buttonBounds.length < 2 || typeof buttonAsset.assetPath !== "string" || typeof buttonAsset.assetPngSha256 !== "string") throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "button asset and visible bounds from CTA registry", occurrence.button);
-        const buttonComponent = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(buttonAsset.assetPath), String(buttonAsset.assetPngSha256), Number(buttonBounds[0]), Number(buttonBounds[1]), contracts, `APP_CTA_280_BUTTON_${String(option.id)}`);
-        if (buttonComponent) fixedComponents.push(buttonComponent);
-        const chevronBounds = numberArray(chevron.visibleBounds).length >= 2 ? numberArray(chevron.visibleBounds) : numberArray(chevron280.visibleBounds);
-        if (chevronBounds.length < 2 || typeof chevronAsset.assetPath !== "string" || typeof chevronAsset.assetPngSha256 !== "string") throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "chevron asset and visible bounds from CTA registry", occurrence.chevron);
-        const chevronComponent = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(chevronAsset.assetPath), String(chevronAsset.assetPngSha256), Number(chevronBounds[0]), Number(chevronBounds[1]), contracts, "APP_CTA_280_CHEVRON");
-        if (chevronComponent) fixedComponents.push(chevronComponent);
-        const ctaLayer = ctaTextLayer(metadata, request.templateId, label);
-        if (!ctaLayer) throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "CTA label layer from PSD metadata", label);
-        const ctaTypography = typographyForLayer(ctaLayer, contracts.naverTypography);
-        if (!ctaTypography) throw issueFor(contracts, "NAVER_SMARTCHANNEL_INPUT_INVALID", `/template/${request.templateId}/typographyTokenId`, "registered CTA typography token", ctaLayer.typographyTokenId);
-        const ctaFontToken = sourceFontToToken(ctaTypography.fontNames[0] ?? "", contracts.naverFontCompatibility);
-        const ctaFont = ctaFontToken ? fontByToken(preflight.fonts, ctaFontToken) : undefined;
-        if (!ctaFont) throw issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", "/content/ctaOption", "approved runtime CTA typography font", ctaTypography.fontNames[0]);
-        const style = ctaTypography.styleRuns[0];
-        if (!style) throw issueFor(contracts, "NAVER_SMARTCHANNEL_INPUT_INVALID", `/template/${request.templateId}/typographyTokenId`, "CTA typography token style run", ctaLayer.typographyTokenId);
-        const ctaWidth = drawTrackedText(context, label, ctaLayer, ctaFont, parseFillColor(style.FillColor), style);
-        const ctaOverflow = !validateTextRole(ctaLayer, ctaWidth);
-        if (ctaOverflow) textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", "/content/ctaOption", { maxWidth: ctaLayer.textPlacement.boxWidth }, ctaWidth, "POST_RENDER"));
-        textReports.push({ role: "CTA_LABEL", inputKey: "ctaOption", text: label, sourceLayer: ctaLayer.name, typographyTokenId: String(ctaLayer.typographyTokenId ?? ""), box: { x: ctaLayer.textPlacement.boxX, y: ctaLayer.textPlacement.boxY, width: ctaLayer.textPlacement.boxWidth, height: ctaLayer.textPlacement.boxHeight }, expectedOrigin: { x: ctaLayer.textPlacement.originX, y: ctaLayer.textPlacement.baselineY }, actualRasterBounds: ctaLayer.pixelBounds.length >= 4 ? { x: Number(ctaLayer.pixelBounds[0]), y: Number(ctaLayer.pixelBounds[1]), width: Number(ctaLayer.pixelBounds[2]) - Number(ctaLayer.pixelBounds[0]), height: Number(ctaLayer.pixelBounds[3]) - Number(ctaLayer.pixelBounds[1]) } : null, baselineY: ctaLayer.textPlacement.baselineY, measuredWidth: ctaWidth, overflow: ctaOverflow });
-      } catch (error) { textIssues.push(error as ValidationIssue); }
+      const options280 = jsonArray(contracts.naverCtaOptions.options280);
+      const option = label ? options280.find((entry) => String(entry.label) === label) : undefined;
+      const occurrence = jsonArray(option?.sourceOccurrences).find((entry) => String(entry.templateId) === request.templateId);
+      if (!label || !option || !occurrence) {
+        textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "registered CTA option occurrence", label));
+      } else {
+        const button = jsonObject(occurrence.button);
+        const chevron = jsonObject(occurrence.chevron);
+        const buttonAsset = jsonObject(button.asset);
+        const chevron280 = jsonObject(contracts.naverCtaOptions.chevron280);
+        const chevronAsset = { ...chevron280, ...jsonObject(chevron.asset) };
+        try {
+          const buttonBounds = numberArray(button.visibleBounds);
+          if (buttonBounds.length < 2 || typeof buttonAsset.assetPath !== "string" || typeof buttonAsset.assetPngSha256 !== "string") throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "button asset and visible bounds from CTA registry", occurrence.button);
+          const buttonComponent = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(buttonAsset.assetPath), String(buttonAsset.assetPngSha256), Number(buttonBounds[0]), Number(buttonBounds[1]), contracts, `APP_CTA_280_BUTTON_${String(option.id)}`);
+          if (buttonComponent) fixedComponents.push(buttonComponent);
+          const chevronBounds = numberArray(chevron.visibleBounds).length >= 2 ? numberArray(chevron.visibleBounds) : numberArray(chevron280.visibleBounds);
+          if (chevronBounds.length < 2 || typeof chevronAsset.assetPath !== "string" || typeof chevronAsset.assetPngSha256 !== "string") throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "chevron asset and visible bounds from CTA registry", occurrence.chevron);
+          const chevronComponent = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(chevronAsset.assetPath), String(chevronAsset.assetPngSha256), Number(chevronBounds[0]), Number(chevronBounds[1]), contracts, "APP_CTA_280_CHEVRON");
+          if (chevronComponent) fixedComponents.push(chevronComponent);
+          const ctaLayer = ctaTextLayer(metadata, request.templateId, label);
+          if (!ctaLayer) throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "CTA label layer from PSD metadata", label);
+          const ctaTypography = typographyForLayer(ctaLayer, contracts.naverTypography);
+          if (!ctaTypography) throw issueFor(contracts, "NAVER_SMARTCHANNEL_INPUT_INVALID", `/template/${request.templateId}/typographyTokenId`, "registered CTA typography token", ctaLayer.typographyTokenId);
+          const ctaFontToken = sourceFontToToken(ctaTypography.fontNames[0] ?? "", contracts.naverFontCompatibility);
+          const ctaFont = ctaFontToken ? fontByToken(preflight.fonts, ctaFontToken) : undefined;
+          if (!ctaFont) throw issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", "/content/ctaOption", "approved runtime CTA typography font", ctaTypography.fontNames[0]);
+          const style = ctaTypography.styleRuns[0];
+          if (!style) throw issueFor(contracts, "NAVER_SMARTCHANNEL_INPUT_INVALID", `/template/${request.templateId}/typographyTokenId`, "CTA typography token style run", ctaLayer.typographyTokenId);
+          const ctaWidth = drawTrackedText(context, label, ctaLayer, ctaFont, parseFillColor(style.FillColor), style);
+          const ctaOverflow = !validateTextRole(ctaLayer, ctaWidth);
+          if (ctaOverflow) textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", "/content/ctaOption", { maxWidth: ctaLayer.textPlacement.boxWidth }, ctaWidth, "POST_RENDER"));
+          textReports.push({ role: "CTA_LABEL", inputKey: "ctaOption", text: label, sourceLayer: ctaLayer.name, typographyTokenId: String(ctaLayer.typographyTokenId ?? ""), box: { x: ctaLayer.textPlacement.boxX, y: ctaLayer.textPlacement.boxY, width: ctaLayer.textPlacement.boxWidth, height: ctaLayer.textPlacement.boxHeight }, expectedOrigin: { x: ctaLayer.textPlacement.originX, y: ctaLayer.textPlacement.baselineY }, actualRasterBounds: ctaLayer.pixelBounds.length >= 4 ? { x: Number(ctaLayer.pixelBounds[0]), y: Number(ctaLayer.pixelBounds[1]), width: Number(ctaLayer.pixelBounds[2]) - Number(ctaLayer.pixelBounds[0]), height: Number(ctaLayer.pixelBounds[3]) - Number(ctaLayer.pixelBounds[1]) } : null, baselineY: ctaLayer.textPlacement.baselineY, measuredWidth: ctaWidth, overflow: ctaOverflow });
+        } catch (error) { textIssues.push(error as ValidationIssue); }
+      }
     }
   }
   if (textIssues.some(({ severity }) => severity === "ERROR")) return failure(contracts, [...preIssues, ...assetIssues, ...textIssues]);
@@ -633,9 +694,10 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
 
   const requestFingerprint = canonicalDigest(request);
   const fixedDigestInputs = fixedComponents.map((entry) => ({ id: entry.id, digest: entry.digest, x: entry.x, y: entry.y, width: entry.width, height: entry.height }));
+  const objectFrame = normalizedPlacementFrame(token, template.height);
   const pixelFingerprint = canonicalDigest({ rendererPixelContract: "naver-smartchannel-raster-v1", encoderVersion: NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION, templateContractVersion: String(templateRegistry.templateContractVersion), templateId: request.templateId, objectPlacementToken: token.token, objectDigest: objectAsset.digest, objectFrame: token.placementFrame, text: content, textMetadata: textReports.map((entry) => ({ role: entry.role, sourceLayer: entry.sourceLayer, typographyTokenId: entry.typographyTokenId, box: entry.box, baselineY: entry.baselineY })), fixedComponents: fixedDigestInputs, fonts: preflight.fonts.map((font) => ({ token: font.token, digest: font.digest, runtimePostScriptName: font.runtimePostScriptName })) });
   const renderFingerprint = pixelFingerprint;
-  const report: SmartChannelReport = { templateId: request.templateId, objectPlacementToken: token.token, canvas: { width: NAVER_SMARTCHANNEL_CANVAS_WIDTH, height: template.height, format: "PNG", colorType: "RGBA", bitDepth: 8, hasAlpha: true }, object: { placementToken: token.token, expectedRegion: { x: Number(token.placementFrame.x), y: Number(token.placementFrame.y ?? 0), width: Number(token.placementFrame.width), height: Number(token.placementFrame.height) }, actualRasterBounds: transformedAlphaBounds(objectAsset.image, token), sourceRuleId: token.sourceAssetRuleId, sourceMimeType: objectAsset.mime, sourceDigest: objectAsset.digest, frame: { x: Number(token.placementFrame.x), y: Number(token.placementFrame.y ?? 0), width: expectedDimensions.width, height: expectedDimensions.height }, transform: token.coordinateSpace.type === "SMART_OBJECT_FRAME_SOURCE" ? "SOURCE_TRANSFORM" : "NONE" }, textRoles: textReports, fixedComponents, fonts: preflight.fonts.map((font) => ({ token: font.token, runtimePostScriptName: font.runtimePostScriptName, digest: font.digest })), artifact: { pngDigest, bytes: png.byteLength } };
+  const report: SmartChannelReport = { templateId: request.templateId, objectPlacementToken: token.token, canvas: { width: NAVER_SMARTCHANNEL_CANVAS_WIDTH, height: template.height, format: "PNG", colorType: "RGBA", bitDepth: 8, hasAlpha: true }, object: { placementToken: token.token, expectedRegion: objectFrame, actualRasterBounds: transformedAlphaBounds(objectAsset.image, token), sourceRuleId: token.sourceAssetRuleId, sourceMimeType: objectAsset.mime, sourceDigest: objectAsset.digest, frame: { x: objectFrame.x, y: objectFrame.y, width: expectedDimensions.width, height: expectedDimensions.height }, transform: token.coordinateSpace.type === "SMART_OBJECT_FRAME_SOURCE" ? "SOURCE_TRANSFORM" : "NONE" }, textRoles: textReports, fixedComponents, fonts: preflight.fonts.map((font) => ({ token: font.token, runtimePostScriptName: font.runtimePostScriptName, digest: font.digest })), artifact: { pngDigest, bytes: png.byteLength } };
   const issueGroups = splitIssues(sortAndDedupeIssues([...preIssues, ...assetIssues, ...textIssues, ...postIssues]));
   const manifest: RenderManifest = {
     schemaVersion: "1.0.0",
