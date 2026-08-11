@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/schema/naver-smartchannel-font-preflight-v1.1.0.schema.json",
-  "title": "NAVER SmartChannel compatible font preflight v1.1.0",
+  "$id": "https://kbr.local/schema/naver-smartchannel-font-preflight-v1.2.0.schema.json",
+  "title": "NAVER SmartChannel compatible font preflight v1.2.0",
   "type": "object",
   "additionalProperties": false,
   "required": ["templateContractVersion", "fallbackAllowed", "fontRequirements", "status", "renderStartAllowed", "errors", "warnings"],
@@ -35,11 +35,11 @@
         "runtimePostScriptName": { "type": "string", "minLength": 1 },
         "fontToken": { "type": "string", "pattern": "^NAVER_SC_[A-Z0-9_]+$" },
         "sourceIdentityStatus": { "enum": ["SOURCE_EXACT", "SOURCE_DIFFERENT_BUILD"] },
-        "compatibilityStatus": { "enum": ["PROJECT_COMPATIBLE_VERIFIED", "PROJECT_COMPATIBLE_UNVERIFIED", "INCOMPATIBLE"] },
+        "compatibilityStatus": { "enum": ["PSD_EXACT_RENDERER_OWNED", "PROJECT_COMPATIBLE_VERIFIED", "PROJECT_COMPATIBLE_UNVERIFIED", "INCOMPATIBLE"] },
         "resolutionMode": {
           "type": "array",
           "minItems": 1,
-          "items": { "enum": ["BUNDLED_EXACT", "SYSTEM_EXACT", "EXTERNAL_EXACT"] }
+          "items": { "enum": ["BUNDLED_EXACT", "EXTERNAL_EXACT"] }
         },
         "expectedSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "expectedVersion": { "type": "string", "minLength": 1 },

@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.21.0`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원한다. Desktop `0.9.3`은 capability registry 기반 `NAVER` Channel → Placement → Editor 흐름, SmartChannel PNG, source export, Feed Collection source artifact 편집, local-only renderer diagnostics/Error Boundary, SmartChannel 선택 상태 reconciliation, editor-owned SmartChannel copy와 empty-string 보존을 제공한다. NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.8.0`과 기존 Kakao/SmartChannel fingerprints는 유지된다. Variable-canvas, NAVER video, Meta/Google은 후속 Phase다.
+Canonical 계약 `1.21.2`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원한다. Desktop `0.9.7`은 capability registry 기반 `NAVER` Channel → Placement → Editor 흐름, SmartChannel PNG, renderer-owned SHA-256-pinned Apple SD Gothic Neo font provider, source export, Feed Collection source artifact 편집, local-only renderer diagnostics/Error Boundary, SmartChannel 선택 상태 reconciliation, editor-owned SmartChannel copy와 empty-string 보존을 제공한다. NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.8.0`과 Kakao/non-SmartChannel fingerprints는 유지되며, SmartChannel text fingerprint 변화는 N7.7 golden migration으로 기록된다. Variable-canvas, NAVER video, Meta/Google은 후속 Phase다.
 
 ## 요구 환경
 
@@ -47,7 +47,7 @@ pnpm desktop:start
 5. ERROR가 0개인 `VALID_PASS` 또는 `VALID_WARNING` 상태에서 출력 폴더를 선택한다.
 6. `PNG 및 Manifest 저장`을 실행한다.
 
-NAVER Desktop은 먼저 Channel에서 `NAVER`를 선택한 뒤 Placement를 선택한다. SmartChannel은 registry의 120개 template whitelist와 local font preflight를 사용해 PNG를 렌더링한다. Mobile DA와 Image Banner 1:1은 기존 FREEFORM Editor를 재사용한다. Native/Shopping News/Communication Ad/Feed는 `PLATFORM_COMPOSED` Source Editor로 필드와 원본 asset만 검증·export하며 최종 UI는 NAVER가 구성한다. Feed Collection은 4–10개 ordered item을 편집하고 source artifacts와 manifest를 atomic publish한다. VIDEO는 static renderer 범위 밖으로 비활성화되어 있다.
+NAVER Desktop은 먼저 Channel에서 `NAVER`를 선택한 뒤 Placement를 선택한다. SmartChannel은 registry의 120개 template whitelist와 renderer-owned SHA-256-pinned Apple SD Gothic Neo resource/provider preflight를 사용해 PNG를 렌더링하며 OS/system font lookup과 silent fallback을 금지한다. Mobile DA와 Image Banner 1:1은 기존 FREEFORM Editor를 재사용한다. Native/Shopping News/Communication Ad/Feed는 `PLATFORM_COMPOSED` Source Editor로 필드와 원본 asset만 검증·export하며 최종 UI는 NAVER가 구성한다. Feed Collection은 4–10개 ordered item을 편집하고 source artifacts와 manifest를 atomic publish한다. VIDEO는 static renderer 범위 밖으로 비활성화되어 있다.
 
 입력이 변경되면 이전 PASS와 Export 권한은 즉시 무효화된다. ERROR는 Export를 차단하고 WARNING은 표시하되 Export를 허용한다. Preview Guide는 Object slot, text hard edge, 최소 gap, 우측 투명 margin을 보여주는 별도 DOM layer이며 Preview·Export PNG에는 합성되지 않는다.
 
@@ -65,7 +65,7 @@ pnpm smoke:desktop
 
 ```text
 release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
-release/Kakao-Bizboard-Local-Renderer-0.9.3-x64.exe
+release/Kakao-Bizboard-Local-Renderer-0.9.7-x64.exe
 ```
 
 Portable 앱은 설치와 관리자 권한을 요구하지 않는다. 코드 서명과 자동 업데이트가 없으므로 Windows SmartScreen 경고가 표시될 수 있다. 앱은 비공식 로컬 Renderer이며 카카오 공식 서비스가 아니고 실제 광고 심사 승인을 보장하지 않는다.

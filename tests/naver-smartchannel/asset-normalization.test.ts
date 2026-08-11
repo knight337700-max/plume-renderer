@@ -97,13 +97,21 @@ describe("N7.4 SmartChannel final-alpha asset normalization fixtures", () => {
     expect(result.diagnostics.maxOpaquePixelCount).toBe(29120);
   });
 
-  it("G7 has only official role IDs and no unconditional Medium/SemiBold dependency", async () => {
+  it("G7 has PSD-exact renderer-owned roles and no source-only dependency", async () => {
     const contract = JSON.parse(await readFile(`${projectRoot}/contracts/naver-smartchannel-font-contract.json`, "utf8")) as { roles: Array<{ id: string; required: boolean; weight: number }>; forbiddenCanonicalIds: string[] };
     const policy = JSON.parse(await readFile(`${projectRoot}/contracts/naver-smartchannel-runtime-font-policy.json`, "utf8")) as { runtimeAssets: Array<{ id: string; required: boolean; weight: number }> };
-    expect(policy.runtimeAssets.map((entry) => entry.id)).not.toContain("NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD");
-    expect(policy.runtimeAssets.filter((entry) => entry.required).map((entry) => entry.weight).sort()).toEqual([400, 700]);
-    expect(contract.roles.filter((entry) => entry.required).map((entry) => entry.id)).toEqual(["NAVER_SC_NANUM_BARUN_GOTHIC_BOLD", "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR"]);
-    expect(contract.forbiddenCanonicalIds).toHaveLength(4);
+    expect(policy.runtimeAssets.filter((entry) => entry.required).map((entry) => entry.id)).toEqual([
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
+    ]);
+    expect(policy.runtimeAssets.filter((entry) => entry.required).map((entry) => entry.weight).sort()).toEqual([400, 600, 700]);
+    expect(contract.roles.filter((entry) => entry.required).map((entry) => entry.id)).toEqual([
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
+    ]);
+    expect(contract.forbiddenCanonicalIds).toHaveLength(0);
   });
 
   it("G8 translates all SmartChannel validator messages", () => {

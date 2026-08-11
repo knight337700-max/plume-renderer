@@ -1,12 +1,12 @@
 {
   "registryVersion": "1.1.0",
   "status": "REGISTRY_ONLY",
-  "sourceResolutionStatus": "SOURCE_RESOLVED_PROJECT_COMPATIBLE",
+  "sourceResolutionStatus": "SOURCE_RESOLVED_RENDERER_OWNED_PSD_EXACT",
   "sourceBacked": true,
   "readiness": {
     "ready": true,
     "blockers": [],
-    "runtimeFontMode": "PROJECT_COMPATIBLE_VERIFIED",
+    "runtimeFontMode": "PSD_EXACT_RENDERER_OWNED",
     "exportContributingSfFonts": []
   },
   "candidates": [

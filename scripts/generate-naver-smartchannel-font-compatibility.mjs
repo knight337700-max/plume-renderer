@@ -12,8 +12,10 @@ const writeJson = (relativePath, value) => writeFileSync(path.join(root, relativ
 const fontContract = readJson("contracts/naver-smartchannel-font-contract.json");
 const typography = readJson("contracts/naver-smartchannel-typography.json");
 const roleSourceNames = {
-  NAVER_SC_NANUM_BARUN_GOTHIC_BOLD: ["AppleSDGothicNeo-Bold", "AppleSDGothicNeo-Medium", "AppleSDGothicNeo-SemiBold"],
-  NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR: ["AppleSDGothicNeo-Regular"],
+  NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD: ["AppleSDGothicNeo-Bold"],
+  NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR: ["AppleSDGothicNeo-Regular"],
+  NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD: ["AppleSDGothicNeo-SemiBold"],
+  NAVER_SC_APPLE_SD_GOTHIC_NEO_MEDIUM: ["AppleSDGothicNeo-Medium"],
   NAVER_SC_SAN_FRANCISCO_BOLD: ["SFProDisplay-Bold", "SFUIDisplay-Bold"],
 };
 
@@ -22,37 +24,39 @@ const fonts = (fontContract.roles ?? []).map((role) => {
   return {
     fontToken: role.id,
     role: role.role,
-    sourcePostScriptNames: roleSourceNames[role.id] ?? [],
+    sourcePostScriptNames: roleSourceNames[role.id] ?? (typeof role.sourcePostScriptName === "string" ? [role.sourcePostScriptName] : []),
     family: role.family,
-    style: role.weight === 700 ? "Bold" : "Regular",
+    style: role.weight === 700 ? "Bold" : role.weight === 600 ? "SemiBold" : role.weight === 500 ? "Medium" : "Regular",
     cssWeight: role.weight,
     required,
     runtime: {
-      status: role.assetStatus ?? "UNRESOLVED_ASSET",
+      status: role.assetStatus ?? "SOURCE_ONLY_NON_RUNTIME",
       localRelativePath: typeof role.assetPath === "string" ? role.assetPath : null,
       localSha256: typeof role.sha256 === "string" ? role.sha256 : null,
       lookupKey: role.id,
       bundleAllowed: required && role.assetStatus === "RESOLVED",
       commitAllowed: required && role.assetStatus === "RESOLVED",
       networkFetchAllowed: false,
+      ...(role.runtimeRegistrationName ? { runtimePostScriptName: role.runtimeRegistrationName } : {}),
+      ...(role.binaryPostScriptNames ? { binaryPostScriptNames: role.binaryPostScriptNames } : {}),
     },
   };
 });
 
 const compatibility = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-font-compatibility-v1.1.0.json",
-  registryVersion: "1.1.0",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-font-compatibility-v1.2.0.json",
+  registryVersion: "1.2.0",
   status: (fontContract.roles ?? []).filter((role) => role.required === true).every((role) => role.assetStatus === "RESOLVED" && role.assetPath && role.sha256)
-    ? "OFFICIAL_ASSETS_RESOLVED_BUNDLED"
-    : "OFFICIAL_ASSETS_UNRESOLVED",
+    ? "PSD_EXACT_RENDERER_OWNED_PINNED"
+    : "PSD_EXACT_ASSET_UNRESOLVED",
   channel: "NAVER_GFA",
   placement: "SMARTCHANNEL",
   sourceMetadataRef: "contracts/naver-smartchannel-psd-metadata.json",
   fontContractRef: "contracts/naver-smartchannel-font-contract.json",
-  sourceFontBinaryExact: false,
+  sourceFontBinaryExact: true,
   sourceLayoutMetadataPreserved: true,
-  runtimeFontMode: "OFFICIAL_ASSET_REQUIRED",
+  runtimeFontMode: "PSD_EXACT_RENDERER_OWNED",
   runtimeLookupKey: "fontToken",
   photoshopBytePixelParityClaim: false,
   fonts,
@@ -64,22 +68,22 @@ const compatibility = {
     status: "UNRESOLVED_ASSET",
   },
   styleRoleSeparation: { status: "RESOLVED_ROLE_MAPPING" },
-  security: { runtimeNetworkAccess: "PROHIBITED", arbitraryFallbackAllowed: false, wrongDigestRejected: true },
+  security: { runtimeNetworkAccess: "PROHIBITED", arbitraryFallbackAllowed: false, systemFontLookupAllowed: false, wrongDigestRejected: true },
 };
 
 const metricFixtures = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-font-metric-fixtures-v1.1.0.json",
-  registryVersion: "1.1.0",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-font-metric-fixtures-v1.2.0.json",
+  registryVersion: "1.2.0",
   status: (fontContract.roles ?? []).filter((role) => role.required === true).every((role) => role.assetStatus === "RESOLVED" && role.assetPath && role.sha256)
-    ? "RESOLVED_ASSET"
+    ? "RESOLVED_PSD_EXACT_ASSET"
     : "BLOCKED_UNRESOLVED_ASSET",
   fontContractRef: "contracts/naver-smartchannel-font-contract.json",
   fixtures: [],
   summary: { total: 0, pass: 0, overflow: 0, status: "RESOLVED_METADATA_ONLY" },
-  requiredRoles: ["MAIN_BOLD", "SUB_REGULAR", "DISCLAIMER_REGULAR"],
+  requiredRoles: ["HEADLINE_BOLD", "SUB_REGULAR", "APP_CTA_SEMIBOLD"],
   mediumRequired: false,
-  semiBoldRequired: false,
+  semiBoldRequired: true,
 };
 
 const resolvedRoles = (fontContract.roles ?? []).filter((role) => role.required === true && role.assetStatus === "RESOLVED" && typeof role.assetPath === "string" && typeof role.sha256 === "string");
@@ -88,7 +92,7 @@ const metricStrings = [
   { id: "ko_subcopy", text: "매일 더 나은 선택을 만나보세요", size: 26 },
   { id: "en_numeric", text: "JAKOMO 2026", size: 26 },
 ];
-if (resolvedRoles.length === 2) {
+if (resolvedRoles.length === 3) {
   for (const role of resolvedRoles) {
     const postScript = role.runtimePostScriptName ?? (role.weight === 700 ? "NanumBarunGothicBold" : "NanumBarunGothic");
     const absolute = path.join(root, role.assetPath);
@@ -101,13 +105,13 @@ if (resolvedRoles.length === 2) {
       metricFixtures.fixtures.push({ id: `${role.id}_${sample.id}`, fontToken: role.id, postScriptName: postScript, text: sample.text, fontSize: sample.size, measuredWidth: width, deterministic: true, overflow: false });
     }
   }
-  metricFixtures.status = "RESOLVED_ASSET";
+  metricFixtures.status = "RESOLVED_PSD_EXACT_ASSET";
   metricFixtures.summary = { total: metricFixtures.fixtures.length, pass: metricFixtures.fixtures.length, overflow: 0, status: "PASS" };
 }
 
-typography.runtimeFontMode = "OFFICIAL_ASSET_REQUIRED";
-typography.runtimeResolution = "OFFICIAL_ASSET_REQUIRED";
-typography.n2Blocking = compatibility.status !== "OFFICIAL_ASSETS_RESOLVED_BUNDLED";
+typography.runtimeFontMode = "PSD_EXACT_RENDERER_OWNED";
+typography.runtimeResolution = "PSD_EXACT_RENDERER_OWNED";
+typography.n2Blocking = compatibility.status !== "PSD_EXACT_RENDERER_OWNED_PINNED";
 typography.sfRuntimeFonts = [];
 typography.fontCompatibilityRef = "contracts/naver-smartchannel-font-compatibility.json";
 typography.metricFixturesRef = "contracts/naver-smartchannel-font-metric-fixtures.json";

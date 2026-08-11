@@ -13,16 +13,19 @@ export const NAVER_SMARTCHANNEL_FONT_ERROR_CODES = {
 export type NaverSmartChannelFontErrorCode =
   (typeof NAVER_SMARTCHANNEL_FONT_ERROR_CODES)[keyof typeof NAVER_SMARTCHANNEL_FONT_ERROR_CODES];
 
-export type SmartChannelFontResolutionMode = "BUNDLED_EXACT" | "SYSTEM_EXACT" | "EXTERNAL_EXACT";
+/** Runtime resolution is intentionally limited to renderer-owned exact resources. */
+export type SmartChannelFontResolutionMode = "BUNDLED_EXACT" | "EXTERNAL_EXACT";
 
 export type SmartChannelFontRequirement = {
   requiredPostScriptName: string;
   /** Source PSD identity; runtime matching uses runtimePostScriptName when present. */
   sourcePostScriptName?: string;
   runtimePostScriptName?: string;
+  /** Physical binary identities accepted for a pinned renderer resource. */
+  identityPostScriptNames?: readonly string[];
   fontToken?: string;
   sourceIdentityStatus?: "SOURCE_EXACT" | "SOURCE_DIFFERENT_BUILD";
-  compatibilityStatus?: "PROJECT_COMPATIBLE_VERIFIED" | "PROJECT_COMPATIBLE_UNVERIFIED" | "INCOMPATIBLE";
+  compatibilityStatus?: "PSD_EXACT_RENDERER_OWNED" | "PROJECT_COMPATIBLE_VERIFIED" | "PROJECT_COMPATIBLE_UNVERIFIED" | "INCOMPATIBLE";
   allowedResolutionModes: readonly SmartChannelFontResolutionMode[];
   expectedSha256?: string;
   expectedVersion?: string;
@@ -41,6 +44,33 @@ export type ParsedFontIdentity = {
   subfamilyNames: string[];
   versions: string[];
   weightClass: number | null;
+};
+
+export type FontGlyphCoverage = {
+  requiredCodePoints: number[];
+  missingCodePoints: number[];
+  covered: boolean;
+};
+
+export type SmartChannelFontResourceRequest = {
+  token: string;
+  relativePath: string;
+  expectedSha256: string;
+  expectedPostScriptName: string;
+};
+
+export type SmartChannelFontResourceResolution = {
+  path: string;
+  providerId: string;
+  resolutionMode: "BUNDLED_EXACT" | "EXTERNAL_EXACT";
+  environmentIndependent: true;
+};
+
+export type SmartChannelFontResourceProvider = {
+  id: string;
+  resolutionMode: "BUNDLED_EXACT" | "EXTERNAL_EXACT";
+  environmentIndependent: true;
+  resolve(request: SmartChannelFontResourceRequest): Promise<SmartChannelFontResourceResolution | null>;
 };
 
 export type FontPreflightIssue = {
@@ -62,7 +92,7 @@ export type FontPreflightResult = {
   identity?: ParsedFontIdentity;
   fontToken?: string;
   sourceIdentityStatus?: "SOURCE_EXACT" | "SOURCE_DIFFERENT_BUILD";
-  compatibilityStatus?: "PROJECT_COMPATIBLE_VERIFIED" | "PROJECT_COMPATIBLE_UNVERIFIED" | "INCOMPATIBLE";
+  compatibilityStatus?: "PSD_EXACT_RENDERER_OWNED" | "PROJECT_COMPATIBLE_VERIFIED" | "PROJECT_COMPATIBLE_UNVERIFIED" | "INCOMPATIBLE";
 };
 
 type TableRecord = { offset: number; length: number };
@@ -83,6 +113,12 @@ function readUInt32(bytes: Uint8Array, offset: number): number | null {
   return first === undefined || second === undefined || third === undefined || fourth === undefined
     ? null
     : (first * 0x1000000) + (second << 16) + (third << 8) + fourth;
+}
+
+function readInt16(bytes: Uint8Array, offset: number): number | null {
+  const value = readUInt16(bytes, offset);
+  if (value === null) return null;
+  return value & 0x8000 ? value - 0x10000 : value;
 }
 
 function decodeUtf16Be(bytes: Uint8Array): string {
@@ -160,6 +196,79 @@ export function inspectFontIdentity(bytes: Uint8Array): ParsedFontIdentity | nul
   };
 }
 
+function cmapSubtables(bytes: Uint8Array, table: TableRecord): Array<{ format: number; offset: number; length: number }> {
+  const version = readUInt16(bytes, table.offset);
+  const count = readUInt16(bytes, table.offset + 2);
+  if (version === null || count === null || count > 128 || table.length < 4 + (count * 8)) return [];
+  const result: Array<{ format: number; offset: number; length: number }> = [];
+  for (let index = 0; index < count; index += 1) {
+    const record = table.offset + 4 + (index * 8);
+    const subtableOffset = readUInt32(bytes, record + 4);
+    if (subtableOffset === null || subtableOffset >= table.length) continue;
+    const offset = table.offset + subtableOffset;
+    const format = readUInt16(bytes, offset);
+    if (format === null) continue;
+    const length = format === 12 ? readUInt32(bytes, offset + 4) : readUInt16(bytes, offset + 2);
+    if (length === null || offset + length > table.offset + table.length) continue;
+    result.push({ format, offset, length });
+  }
+  return result.sort((left, right) => (right.format === 12 ? 1 : 0) - (left.format === 12 ? 1 : 0));
+}
+
+function cmapHasCodePoint(bytes: Uint8Array, subtable: { format: number; offset: number; length: number }, codePoint: number): boolean {
+  if (subtable.format === 12) {
+    const groupCount = readUInt32(bytes, subtable.offset + 12);
+    if (groupCount === null || groupCount > 1_000_000) return false;
+    let low = 0;
+    let high = groupCount - 1;
+    while (low <= high) {
+      const middle = Math.floor((low + high) / 2);
+      const row = subtable.offset + 16 + (middle * 12);
+      const start = readUInt32(bytes, row);
+      const end = readUInt32(bytes, row + 4);
+      if (start === null || end === null) return false;
+      if (codePoint < start) high = middle - 1;
+      else if (codePoint > end) low = middle + 1;
+      else return true;
+    }
+    return false;
+  }
+  if (subtable.format !== 4 || codePoint > 0xffff) return false;
+  const segmentCountX2 = readUInt16(bytes, subtable.offset + 6);
+  if (segmentCountX2 === null || segmentCountX2 % 2 !== 0) return false;
+  const segmentCount = segmentCountX2 / 2;
+  const endCodes = subtable.offset + 14;
+  const startCodes = endCodes + segmentCountX2 + 2;
+  const idDeltas = startCodes + segmentCountX2;
+  const idRangeOffsets = idDeltas + segmentCountX2;
+  let segment = -1;
+  for (let index = 0; index < segmentCount; index += 1) {
+    const end = readUInt16(bytes, endCodes + (index * 2));
+    if (end !== null && codePoint <= end) {
+      segment = index;
+      break;
+    }
+  }
+  if (segment < 0) return false;
+  const start = readUInt16(bytes, startCodes + (segment * 2));
+  if (start === null || codePoint < start) return false;
+  const rangeOffset = readUInt16(bytes, idRangeOffsets + (segment * 2));
+  const delta = readInt16(bytes, idDeltas + (segment * 2));
+  if (rangeOffset === null || delta === null) return false;
+  if (rangeOffset === 0) return ((codePoint + delta) & 0xffff) !== 0;
+  const glyphOffset = idRangeOffsets + (segment * 2) + rangeOffset + ((codePoint - start) * 2);
+  const glyph = readUInt16(bytes, glyphOffset);
+  return glyph !== null && glyph !== 0;
+}
+
+export function inspectFontGlyphCoverage(bytes: Uint8Array, text: string): FontGlyphCoverage {
+  const requiredCodePoints = [...new Set([...text.normalize("NFC")].map((character) => character.codePointAt(0)).filter((value): value is number => value !== undefined))].sort((left, right) => left - right);
+  const cmap = tableDirectory(bytes)?.get("cmap");
+  const subtables = cmap ? cmapSubtables(bytes, cmap) : [];
+  const missingCodePoints = requiredCodePoints.filter((codePoint) => !subtables.some((subtable) => cmapHasCodePoint(bytes, subtable, codePoint)));
+  return { requiredCodePoints, missingCodePoints, covered: missingCodePoints.length === 0 };
+}
+
 function issue(
   code: NaverSmartChannelFontErrorCode,
   messageKey: string,
@@ -232,11 +341,14 @@ export function evaluateFontIdentity(
       "/font/resolutionMode",
     ));
   }
-  if (!actual.postScriptNames.includes(runtimePostScriptName)) {
+  const acceptedPostScriptNames = requirement.identityPostScriptNames?.length
+    ? requirement.identityPostScriptNames
+    : [runtimePostScriptName];
+  if (!acceptedPostScriptNames.some((name) => actual.postScriptNames.includes(name))) {
     issues.push(issue(
       NAVER_SMARTCHANNEL_FONT_ERROR_CODES.identityMismatch,
       "naver_smartchannel.font_identity_mismatch",
-      runtimePostScriptName,
+      acceptedPostScriptNames,
       actual.postScriptNames,
       "/font/postScriptName",
     ));
@@ -380,16 +492,69 @@ export async function preflightExternalExactFont(
   return preflightExactFont(requirement, resource, options, "EXTERNAL_EXACT");
 }
 
-export function assertSmartChannelFallbackProhibited(fallbackAllowed: boolean): void {
-  if (fallbackAllowed) throw new Error("SmartChannel strict Template Locked resolution forbids fallback");
+export async function preflightResolvedExactFont(
+  requirement: SmartChannelFontRequirement,
+  resolvedPath: string,
+  resolutionMode: "BUNDLED_EXACT" | "EXTERNAL_EXACT",
+): Promise<FontPreflightResult> {
+  let bytes: Buffer;
+  try {
+    bytes = await readFile(resolvedPath);
+  } catch (error) {
+    return blockedResult(requirement, resolutionMode, [issue(
+      NAVER_SMARTCHANNEL_FONT_ERROR_CODES.unavailable,
+      "naver_smartchannel.font_unavailable",
+      "trusted local exact font resource",
+      error instanceof Error ? error.message : String(error),
+      "/font/file",
+    )], { resolvedPath });
+  }
+  const identity = inspectFontIdentity(bytes);
+  if (!identity) {
+    return blockedResult(requirement, resolutionMode, [issue(
+      NAVER_SMARTCHANNEL_FONT_ERROR_CODES.unavailable,
+      "naver_smartchannel.font_unavailable",
+      "decodable OpenType font",
+      "undecodable or unsupported font binary",
+      "/font/file",
+    )], { resolvedPath });
+  }
+  const digest = createHash("sha256").update(bytes).digest("hex");
+  const result = evaluateFontIdentity(requirement, resolutionMode, {
+    postScriptNames: identity.postScriptNames,
+    digest,
+    versions: identity.versions,
+  });
+  result.resolvedPath = resolvedPath;
+  result.identity = identity;
+  return result;
 }
 
-export function getSmartChannelFontDirectory(
-  environment: Readonly<Record<string, string | undefined>> = process.env,
-): string | null {
-  const configured = environment.NAVER_SMARTCHANNEL_FONT_DIR;
-  if (!configured || !path.isAbsolute(configured) || configured.startsWith("\\\\") || configured.startsWith("//")) return null;
-  return configured;
+export function createSmartChannelFontResourceProvider(options: {
+  root: string;
+  id: string;
+  resolutionMode?: "BUNDLED_EXACT" | "EXTERNAL_EXACT";
+}): SmartChannelFontResourceProvider {
+  const resolutionMode = options.resolutionMode ?? "BUNDLED_EXACT";
+  return {
+    id: options.id,
+    resolutionMode,
+    environmentIndependent: true,
+    async resolve(request) {
+      if (!isTrustedFontReference(request.relativePath)) return null;
+      try {
+        const trustedRoot = await resolveTrustedRoot(options.root);
+        const resolved = await resolveTrustedInputFile(trustedRoot, request.relativePath);
+        return { path: resolved, providerId: options.id, resolutionMode, environmentIndependent: true };
+      } catch {
+        return null;
+      }
+    },
+  };
+}
+
+export function assertSmartChannelFallbackProhibited(fallbackAllowed: boolean): void {
+  if (fallbackAllowed) throw new Error("SmartChannel strict Template Locked resolution forbids fallback");
 }
 
 export function isTrustedFontReference(reference: string): boolean {

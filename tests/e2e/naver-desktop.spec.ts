@@ -82,7 +82,7 @@ test("NAVER SmartChannel is registry-driven and exports a renderer-composed PNG"
     const placementOptions = await launched.page.getByTestId("naver-placement-select").locator("option").count();
     expect(placementOptions).toBe(8);
     await expect(launched.page.getByTestId("naver-smartchannel-template-select").locator("option")).toHaveCount(120);
-    await expect(launched.page.getByTestId("naver-smartchannel-font-preflight")).toContainText("NanumBarunGothicBold.ttf");
+    await expect(launched.page.getByTestId("naver-smartchannel-font-preflight")).toContainText("AppleSDGothicNeo-Bold.ttf");
     await launched.page.getByTestId("naver-smartchannel-select-object").click();
     await expect(launched.page.getByTestId("naver-smartchannel-editor")).toContainText("mask-semicircle-right__logo__black__pass.png");
     await expect(launched.page.getByTestId("naver-editor")).toHaveAttribute("data-primary-selected", "true");

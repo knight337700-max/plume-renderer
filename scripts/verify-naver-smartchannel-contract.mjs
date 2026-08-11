@@ -47,7 +47,7 @@ try {
 } catch (error) {
   expect(false, `template schema compilation failed: ${error instanceof Error ? error.message : String(error)}`);
 }
-expect(contract.sourceResolutionStatus === "SOURCE_RESOLVED_PROJECT_COMPATIBLE", "source resolution status mismatch");
+expect(contract.sourceResolutionStatus === "SOURCE_RESOLVED_RENDERER_OWNED_PSD_EXACT", "source resolution status mismatch");
 expect(metadata.sourcePsdCount === 120 && metadata.textLayerCount > 0 && metadata.typographyTokenCount === 25, "PSD metadata extraction summary mismatch");
 const metadataTokenIds = new Set((metadata.typographyTokens ?? []).map((token) => token.id));
 const metadataTemplates = metadata.templates ?? [];
@@ -57,28 +57,28 @@ expect(metadataTokenIds.size === 25 && metadataTokenIds.size === new Set(typogra
 expect(templates.every((entry) => entry.sourceMetadataRef?.templateId === entry.templateId), "template metadata references are incomplete");
 expect(templates.every((entry) => entry.source.sourceRevisionRef), "source revision references are incomplete");
 
-expect(typography.registryVersion === "1.3.0", "typography registry version mismatch");
-expect(typography.status === "SOURCE_METADATA_FROZEN", "typography source metadata is not frozen");
+expect(typography.registryVersion === "1.4.0", "typography registry version mismatch");
+expect(typography.status === "SOURCE_METADATA_FROZEN_RUNTIME_MAPPING_CORRECTED", "typography source metadata is not frozen with correction record");
 expect(typography.exactSourceFontIdentity === "PASS", "exact source font identity is not PASS");
 expect(typography.tokens.length === 25 && typography.tokens.every((token) => token.classification === "DERIVED_FROM_EXACT_SOURCE_METADATA"), "typography token registry mismatch");
-expect(typography.runtimeResolution === "OFFICIAL_ASSET_REQUIRED", "runtime font contract status mismatch");
-expect(typography.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" && JSON.stringify(typography.sfRuntimeFonts ?? []) === JSON.stringify([]), "runtime typography must not claim a project-compatible or SF runtime font");
+expect(typography.runtimeResolution === "PSD_EXACT_RENDERER_OWNED", "runtime font contract status mismatch");
+expect(typography.runtimeFontMode === "PSD_EXACT_RENDERER_OWNED" && JSON.stringify(typography.sfRuntimeFonts ?? []) === JSON.stringify([]), "runtime typography must use exact Apple resources without SF runtime");
 expect(typography.n2Blocking === false, "resolved official fonts must not block SmartChannel runtime");
-expect(typography.runtimeFontAssets.length === 3 && typography.runtimeFontAssets.filter((asset) => asset.required !== false).length === 2 && typography.runtimeFontAssets.filter((asset) => asset.required !== false).every((asset) => asset.resolution === "RESOLVED" && asset.bundleAllowed === true), "font runtime role registry mismatch");
+expect(typography.runtimeFontAssets.length === 7 && typography.runtimeFontAssets.filter((asset) => asset.required !== false).length === 3 && typography.runtimeFontAssets.filter((asset) => asset.required !== false).every((asset) => asset.resolution === "RESOLVED" && asset.bundleAllowed === true), "font runtime role registry mismatch");
 expect(contract.runtimeFontPolicyRef === "contracts/naver-smartchannel-runtime-font-policy.json", "runtime font policy reference missing");
 expect(contract.fontContractRef === "contracts/naver-smartchannel-font-contract.json", "official font contract reference missing");
-expect(contract.fontResolutionPolicy?.fallbackAllowed === false && contract.fontResolutionPolicy?.exactIdentityRequired === false && contract.fontResolutionPolicy?.runtimeIdentityRequired === true, "SmartChannel fallback/runtime identity policy mismatch");
-expect(contract.fontResolutionPolicy?.sourceIdentityPolicy === "SOURCE_EXACT_OR_PROJECT_COMPATIBLE_VERIFIED_DIFFERENT_BUILD" && contract.fontResolutionPolicy?.runtimeLookupKey === "fontToken", "SmartChannel source/runtime font lookup policy mismatch");
-expect(JSON.stringify(contract.fontResolutionPolicy?.allowedModes) === JSON.stringify(["BUNDLED_EXACT", "SYSTEM_EXACT", "EXTERNAL_EXACT"]), "SmartChannel resolution modes mismatch");
-expect(runtimeFontPolicy.status === "FROZEN_FAIL_CLOSED" && runtimeFontPolicy.registryVersion === "1.3.0" && runtimeFontPolicy.templateContractVersion === "1.10.0", "runtime font policy status/version mismatch");
+expect(contract.fontResolutionPolicy?.fallbackAllowed === false && contract.fontResolutionPolicy?.exactIdentityRequired === true && contract.fontResolutionPolicy?.runtimeIdentityRequired === true, "SmartChannel fallback/runtime identity policy mismatch");
+expect(contract.fontResolutionPolicy?.sourceIdentityPolicy === "SOURCE_EXACT_RENDERER_OWNED_BINARY" && contract.fontResolutionPolicy?.runtimeLookupKey === "fontToken", "SmartChannel source/runtime font lookup policy mismatch");
+expect(JSON.stringify(contract.fontResolutionPolicy?.allowedModes) === JSON.stringify(["BUNDLED_EXACT", "EXTERNAL_EXACT"]), "SmartChannel resolution modes mismatch");
+expect(runtimeFontPolicy.status === "FROZEN_FAIL_CLOSED_PSD_EXACT" && runtimeFontPolicy.registryVersion === "1.4.0" && runtimeFontPolicy.templateContractVersion === "1.10.0", "runtime font policy status/version mismatch");
 expect(runtimeFontPolicy.requiredSourceFonts?.length === 6, "runtime source font inventory must contain six fonts");
 expect(runtimeFontPolicy.requiredSourceFonts?.every((font) => font.postScriptName && typeof font.classification === "string" && typeof font.runtimeRequired === "boolean"), "runtime source font inventory is incomplete");
 expect(runtimeFontPolicy.fallbackAllowed === false && runtimeFontPolicy.externalExactContract?.networkUrlAllowed === false && runtimeFontPolicy.externalExactContract?.pathTraversalAllowed === false, "external exact security policy mismatch");
-expect(runtimeFontPolicy.runtimeStatus === "READY_APPROVED_OFFICIAL_ASSET" && runtimeFontPolicy.runtimeLookupKey === "fontToken", "runtime font contract mode mismatch");
-expect(runtimeFontPolicy.runtimeAssets?.filter((entry) => entry.required).length === 2 && runtimeFontPolicy.runtimeAssets?.filter((entry) => entry.required).every((entry) => entry.runtimeDigest && entry.resolutionClass === "BUNDLED_EXACT" && entry.smartChannelAllowed === true), "official runtime asset gate mismatch");
-expect(fontCompatibility.status === "OFFICIAL_ASSETS_RESOLVED_BUNDLED" && fontCompatibility.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" && fontCompatibility.sourceFontBinaryExact === false && fontCompatibility.photoshopBytePixelParityClaim === false, "font compatibility registry mismatch");
+expect(runtimeFontPolicy.runtimeStatus === "READY_RENDERER_OWNED_PSD_EXACT" && runtimeFontPolicy.runtimeLookupKey === "fontToken", "runtime font contract mode mismatch");
+expect(runtimeFontPolicy.runtimeAssets?.filter((entry) => entry.required).length === 3 && runtimeFontPolicy.runtimeAssets?.filter((entry) => entry.required).every((entry) => entry.runtimeDigest && entry.resolutionClass === "BUNDLED_EXACT" && entry.smartChannelAllowed === true && entry.owner === "RENDERER"), "PSD-exact runtime asset gate mismatch");
+expect(fontCompatibility.status === "PSD_EXACT_RENDERER_OWNED_PINNED" && fontCompatibility.runtimeFontMode === "PSD_EXACT_RENDERER_OWNED" && fontCompatibility.sourceFontBinaryExact === true && fontCompatibility.photoshopBytePixelParityClaim === false, "font compatibility registry mismatch");
 expect(fontCompatibility.approvedDigestAllowlist && Object.keys(fontCompatibility.approvedDigestAllowlist).length === 0, "font registry digest allowlist must remain empty");
-expect(metricFixtures.status === "RESOLVED_ASSET" && metricFixtures.summary?.overflow === 0 && metricFixtures.summary?.total >= 6, "representative metric fixture gate failed");
+expect(metricFixtures.status === "RESOLVED_PSD_EXACT_ASSET" && metricFixtures.summary?.overflow === 0 && metricFixtures.summary?.total >= 9, "representative metric fixture gate failed");
 
 const component = (id) => fixed.components.find((entry) => entry.id === id);
 expect(component("LANDING_ICON_COMPACT")?.status === "FROZEN", "compact landing icon is not frozen");
@@ -103,7 +103,7 @@ expect(sourceRevision.currentOfficialRules.logoVerticalMargin24.top === 24 && so
 expect(sourceRevision.currentOfficialRules.guide160200Changed.value === false, "160/200 guide change classification mismatch");
 
 expect(n2.status === "REGISTRY_ONLY" && n2.candidates.length === 6, "N2 representative registry mismatch");
-expect(n2.readiness?.ready === true && n2.readiness?.blockers?.length === 0 && n2.readiness?.runtimeFontMode === "PROJECT_COMPATIBLE_VERIFIED", "N2 readiness mismatch");
+expect(n2.readiness?.ready === true && n2.readiness?.blockers?.length === 0 && n2.readiness?.runtimeFontMode === "PSD_EXACT_RENDERER_OWNED", "N2 readiness mismatch");
 try {
   const validatePlacement = new Ajv2020({ strict: false, allErrors: true }).compile(objectPlacementSchema);
   expect(validatePlacement(objectPlacement), `object placement contract does not validate against schema${validatePlacement.errors ? `: ${JSON.stringify(validatePlacement.errors)}` : ""}`);

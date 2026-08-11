@@ -7,7 +7,7 @@ const root = resolve(process.cwd());
 type AuditFont = { postScriptName: string; classification: string; parentGroups: string[]; visibleLayerCount: number; guideLayerCount: number; effectiveVisibility: { compositeContributionCount: number }; outputInclusion: { nonExport: boolean } };
 type LocalFont = { smartChannelAllowed: boolean; bundleAllowed: boolean; required: boolean; assetStatus: string };
 type AuditRecord = { runtimeDecision: string; sourceOnlyNonRuntime: string[]; exportContributingFonts: string[]; fonts: AuditFont[] };
-type PolicyRecord = { localExternalFontResource: { directoryEnv: string; localOnly: boolean; status: string }; runtimeAssets: LocalFont[] };
+type PolicyRecord = { runtimeAssets: LocalFont[]; resourceProviderContract: { systemFontLookupAllowed: boolean; windowsAbsoluteFontPathAllowed: boolean; environmentIndependent: boolean } };
 const readJson = <T>(file: string) => JSON.parse(readFileSync(resolve(root, file), "utf8")) as T;
 const audit = readJson<AuditRecord>("contracts/naver-smartchannel-sf-font-audit.json");
 const policy = readJson<PolicyRecord>("contracts/naver-smartchannel-runtime-font-policy.json");
@@ -27,10 +27,10 @@ describe("NAVER SmartChannel SF guide-layer audit", () => {
   });
 
   it("does not approve downloaded local files or make a redistribution claim", () => {
-    expect(policy.localExternalFontResource.directoryEnv).toBe("NAVER_SMARTCHANNEL_FONT_DIR");
-    expect(policy.localExternalFontResource.localOnly).toBe(true);
-    expect(policy.localExternalFontResource.status).toBe("RESOLVED_APPROVED_ASSET");
-    expect(policy.runtimeAssets).toHaveLength(3);
+    expect(policy.resourceProviderContract.systemFontLookupAllowed).toBe(false);
+    expect(policy.resourceProviderContract.windowsAbsoluteFontPathAllowed).toBe(false);
+    expect(policy.resourceProviderContract.environmentIndependent).toBe(true);
+    expect(policy.runtimeAssets).toHaveLength(7);
     expect(policy.runtimeAssets.filter((font) => font.required).every((font) => font.smartChannelAllowed === true && font.assetStatus === "RESOLVED")).toBe(true);
   });
 });

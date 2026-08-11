@@ -759,7 +759,7 @@ def main() -> int:
     contract["fixedComponentsRef"] = "contracts/naver-smartchannel-fixed-components.json"
     contract["ctaOptionsRef"] = "contracts/naver-smartchannel-cta-options.json"
     contract["runtimeFontPolicyRef"] = "contracts/naver-smartchannel-runtime-font-policy.json"
-    contract["fontResolutionPolicy"] = {"fallbackAllowed": False, "exactIdentityRequired": False, "runtimeIdentityRequired": True, "allowedModes": ["BUNDLED_EXACT", "SYSTEM_EXACT", "EXTERNAL_EXACT"], "sourceIdentityPolicy": "SOURCE_EXACT_OR_PROJECT_COMPATIBLE_VERIFIED_DIFFERENT_BUILD", "runtimeLookupKey": "fontToken", "classification": "PROJECT_COMPATIBILITY_PENDING"}
+    contract["fontResolutionPolicy"] = {"fallbackAllowed": False, "exactIdentityRequired": True, "runtimeIdentityRequired": True, "allowedModes": ["BUNDLED_EXACT", "EXTERNAL_EXACT"], "sourceIdentityPolicy": "SOURCE_EXACT_RENDERER_OWNED_BINARY", "runtimeLookupKey": "fontToken", "classification": "PSD_EXACT_RENDERER_OWNED"}
     contract["currentOfficialRuleRefs"] = ["contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/thumbnail280", "contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/logoVerticalMargin24"]
     contract["fixedComponents"] = fixed
     contract["unresolvedBlockers"] = []

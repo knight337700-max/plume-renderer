@@ -206,7 +206,7 @@
     },
     "sourceResolutionStatus": {
       "type": "string",
-      "const": "SOURCE_RESOLVED_PROJECT_COMPATIBLE"
+      "const": "SOURCE_RESOLVED_RENDERER_OWNED_PSD_EXACT"
     },
     "runtimeFontPolicyRef": {
       "type": "string",
@@ -229,7 +229,7 @@
           "const": false
         },
         "exactIdentityRequired": {
-          "const": false
+          "const": true
         },
         "runtimeIdentityRequired": {
           "const": true
@@ -237,18 +237,17 @@
         "allowedModes": {
           "const": [
             "BUNDLED_EXACT",
-            "SYSTEM_EXACT",
             "EXTERNAL_EXACT"
           ]
         },
         "sourceIdentityPolicy": {
-          "const": "SOURCE_EXACT_OR_PROJECT_COMPATIBLE_VERIFIED_DIFFERENT_BUILD"
+          "const": "SOURCE_EXACT_RENDERER_OWNED_BINARY"
         },
         "runtimeLookupKey": {
           "const": "fontToken"
         },
         "classification": {
-          "const": "PROJECT_COMPATIBILITY_VERIFIED"
+          "const": "PSD_EXACT_RENDERER_OWNED"
         }
       }
     },
@@ -290,7 +289,7 @@
           "const": []
         },
         "runtimeFontMode": {
-          "const": "PROJECT_COMPATIBLE_VERIFIED"
+          "const": "PSD_EXACT_RENDERER_OWNED"
         },
         "exportContributingSfFonts": {
           "const": []

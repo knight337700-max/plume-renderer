@@ -130,6 +130,7 @@ const sourceSha = sourceShaOutput.trim();
 const canonicalPath = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const canonicalDocument = JSON.parse(await readFile(path.join(root, "contracts/contract-versions.json"), "utf8"));
 const typographyAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-typography-audit.json"), "utf8"));
+const fontCorrectionAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-runtime-font-correction-n7-7.json"), "utf8"));
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -144,7 +145,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N7.6 typography audit handoff
+const readme = `# Renderer Module — N7.7 PSD-exact runtime font correction handoff
 
 ## Purpose
 
@@ -152,7 +153,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N7.6 audit source commit: ${sourceSha}
+- N7.7 correction source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Desktop package: ${packageArtifact?.path ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256})` : ""}
 - Runtime network access: PROHIBITED
@@ -167,9 +168,10 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER video runtime: not implemented
 - NAVER Desktop UI: implemented (capability-driven Channel → Placement → Editor)
 - NAVER Desktop N7.1/N7.2/N7.3 resilience: local diagnostics, Error Boundary, explicit registry errors, SmartChannel selection reconciliation, editor-owned copy state, empty-string preservation, packaged click/input matrix
-- NAVER SmartChannel N7.4: bundled exact NanumBarunGothic Bold/Regular, actual-user sofa/logo acceptance evidence, final-alpha validation, Preview/Export/Packaged parity
+- NAVER SmartChannel N7.4: actual-user sofa/logo acceptance evidence, final-alpha validation, Preview/Export/Packaged parity
 - NAVER SmartChannel N7.5: frozen fixed-component runtime inventory (26 resources), packaged asset inclusion, structured digest/decode/placement diagnostics, 29 landing-template and 11-option CTA coverage
 - NAVER SmartChannel N7.6: audit-only global typography re-analysis of all 120 source PSDs, 25 frozen typography tokens, source/runtime mapping, and local raster metrics; result: ${typographyAudit.phase.status}
+- NAVER SmartChannel N7.7: renderer-owned SHA-256-pinned Apple SD Gothic Neo runtime mapping, trusted provider parity, explicit binary registration, and 120-template deterministic acceptance; result: ${fontCorrectionAudit.phase.status}
 - Meta: not implemented
 - Google: not implemented
 
@@ -197,17 +199,19 @@ offline install is available only when the pnpm store is already prepared.
 
 ## Fonts and actual-user evidence
 
-SmartChannel required runtime fonts are bundled exact NanumBarunGothic Bold/Regular assets under
-assets/fonts/naver-smartchannel/. Apple SD Gothic Neo and optional San Francisco remain source-only
-metadata; no system fallback or network download is permitted. The actual-user acceptance registry
+SmartChannel required runtime fonts are bundled exact Apple SD Gothic Neo Bold/Regular/SemiBold
+assets under assets/fonts/naver-smartchannel/. Medium and optional San Francisco remain source-only
+metadata; historical Nanum assets are not SmartChannel runtime requirements. No system fallback or
+network download is permitted. The actual-user acceptance registry
 is contracts/naver-smartchannel-actual-asset-acceptance.json. It records the externally supplied
 sofa/logo digests and runtime evidence; the creative binaries are not copied into this handoff.
 Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest implementation phase remains N7.5 in docs/kakao-bizboard-renderer-spec-v1.md; N7.6 is
-an audit-only addition and does not change runtime contracts, fonts, geometry, or goldens. N7.5
+The latest implementation phase is N7.7 in docs/kakao-bizboard-renderer-spec-v1.md. N7.6 remains
+an immutable audit baseline; N7.7 changes only the SmartChannel runtime token mapping and records
+an expected SmartChannel text-golden migration without blanket overwrite. N7.5
 SmartChannel fixed component runtime acceptance uses source/runtime/package digest evidence and
 final placement validation.
 N7.4 SmartChannel runtime acceptance uses actual-user binary evidence and final render-space validation. N7.3 SmartChannel copy
@@ -223,9 +227,11 @@ source-backed SmartChannel filter reconciliation and event-value snapshot tests;
 custom/empty/Korean copy persistence, preview-read, compatible-template, and all-text-field tests.
 N7.6 audit artifacts are contracts/audits/naver-smartchannel-typography-audit.json,
 docs/implementation/naver-smartchannel-global-typography-audit-n7-6.md, and
-scripts/verify-n7-6-smartchannel-typography-audit.mjs. The next recommended phase is
-N7.7_SMARTCHANNEL_TYPOGRAPHY_CORRECTION_REVIEW; it requires separate approval before changing
-runtime font mapping.
+scripts/verify-n7-6-smartchannel-typography-audit.mjs. N7.7 correction artifacts are
+contracts/audits/naver-smartchannel-runtime-font-correction-n7-7.json,
+docs/implementation/naver-smartchannel-psd-exact-runtime-font-correction-n7-7.md, and
+scripts/verify-n7-7-smartchannel-runtime-font-correction.mjs. The next recommended phase is
+N7.8_SMARTCHANNEL_GOLDEN_REBASE_AND_PACKAGED_QA.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
 const readmeEntry = files.find((entry) => entry.path === "README.md");
@@ -233,7 +239,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N7_6_SMARTCHANNEL_GLOBAL_TYPOGRAPHY_AUDIT",
+  handoffPhase: "N7_7_SMARTCHANNEL_PSD_EXACT_RUNTIME_FONT_CORRECTION",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -248,8 +254,8 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN7_5.rendererCoreVersion,
-    desktop: canonicalDocument.canonicalPhaseN7_5.desktopCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseN7_7.rendererCoreVersion,
+    desktop: canonicalDocument.canonicalPhaseN7_7.desktopCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
     platformComposedSourceRegistry: canonicalDocument.platformComposedSourceRegistryVersion,
@@ -267,6 +273,17 @@ const manifest = {
     templateCount: typographyAudit.summary.templates.audited,
     tokenCount: typographyAudit.summary.tokenAudit.total,
     runtimeBehaviorChanged: false,
+  },
+  correction: {
+    phase: fontCorrectionAudit.phase.id,
+    status: fontCorrectionAudit.phase.status,
+    json: "contracts/audits/naver-smartchannel-runtime-font-correction-n7-7.json",
+    report: "docs/implementation/naver-smartchannel-psd-exact-runtime-font-correction-n7-7.md",
+    verifier: "scripts/verify-n7-7-smartchannel-runtime-font-correction.mjs",
+    templatesRendered: fontCorrectionAudit.acceptanceEvidence.templatesRendered,
+    templatesPassed: fontCorrectionAudit.acceptanceEvidence.templatesPassed,
+    providerParity: fontCorrectionAudit.acceptanceEvidence.providerParity.status,
+    geometryChanged: fontCorrectionAudit.representative.geometryChanged,
   },
   channels: {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
@@ -304,9 +321,13 @@ const manifest = {
     n7_6TypographyAuditReport: "docs/implementation/naver-smartchannel-global-typography-audit-n7-6.md",
     n7_6TypographyAuditVerifier: "scripts/verify-n7-6-smartchannel-typography-audit.mjs",
     n7_6PsdSourceRoot: typographyAudit.source.root,
+    n7_7RuntimeFontCorrectionJson: "contracts/audits/naver-smartchannel-runtime-font-correction-n7-7.json",
+    n7_7RuntimeFontCorrectionReport: "docs/implementation/naver-smartchannel-psd-exact-runtime-font-correction-n7-7.md",
+    n7_7RuntimeFontCorrectionVerifier: "scripts/verify-n7-7-smartchannel-runtime-font-correction.mjs",
+    n7_7FontAssetManifest: "contracts/naver-smartchannel-font-asset-manifest.json",
   },
   externalRuntimeDependencies: [],
-  excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git", "Apple SD Gothic Neo binaries"],
+  excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],
   runtimeNetworkAccess: "PROHIBITED",
   smartchannelPsdCount,
   fontBinariesBundled: true,

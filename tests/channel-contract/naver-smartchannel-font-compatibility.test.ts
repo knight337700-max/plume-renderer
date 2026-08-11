@@ -17,16 +17,24 @@ const compatibility = readJson<Compatibility>("contracts/naver-smartchannel-font
 const policy = readJson<Policy>("contracts/naver-smartchannel-runtime-font-policy.json");
 
 describe("NAVER SmartChannel official font contract", () => {
-  it("does not expose Apple SD Gothic Neo as a runtime dependency", () => {
-    expect(compatibility.status).toBe("OFFICIAL_ASSETS_RESOLVED_BUNDLED");
+  it("exposes PSD-exact Apple SD Gothic Neo as the runtime dependency", () => {
+    expect(compatibility.status).toBe("PSD_EXACT_RENDERER_OWNED_PINNED");
     expect(compatibility.fonts.map((font) => font.fontToken)).toEqual([
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_MEDIUM",
       "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
       "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
       "NAVER_SC_SAN_FRANCISCO_BOLD",
     ]);
-    expect(policy.runtimeAssets.map((asset) => asset.id)).not.toContain("NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD");
-    expect(policy.runtimeAssets.filter((asset) => asset.required).map((asset) => asset.weight).sort()).toEqual([400, 700]);
-    expect(policy.runtimeStatus).toBe("READY_APPROVED_OFFICIAL_ASSET");
+    expect(policy.runtimeAssets.filter((asset) => asset.required).map((asset) => asset.id)).toEqual([
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
+      "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
+    ]);
+    expect(policy.runtimeAssets.filter((asset) => asset.required).map((asset) => asset.weight).sort()).toEqual([400, 600, 700]);
+    expect(policy.runtimeStatus).toBe("READY_RENDERER_OWNED_PSD_EXACT");
   });
 
   it("records bundled exact assets without fake digests or fallback", () => {

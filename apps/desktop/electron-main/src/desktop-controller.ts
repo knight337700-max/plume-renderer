@@ -359,12 +359,11 @@ export class DesktopController {
       loadContracts(this.#projectRoot),
     ]);
     const fontPreflight = smartChannelFontInfo(contracts.naverRuntimeFontPolicy);
-    const configuredDirectory = process.env.NAVER_SMARTCHANNEL_FONT_DIR;
     return {
       capabilities,
       sourceProfiles: naverSourceProfilesFromContracts(contracts.naverPlatformSourceProfiles),
       templates: smartChannelTemplatesFromContracts(contracts.naverTemplateContract),
-      fontPreflight: { ...fontPreflight, configuredDirectory: configuredDirectory && path.isAbsolute(configuredDirectory) ? configuredDirectory : null },
+      fontPreflight,
     };
   }
 

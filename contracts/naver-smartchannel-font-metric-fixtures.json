@@ -1,82 +1,23 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-font-metric-fixtures-v1.1.0.json",
-  "registryVersion": "1.1.0",
-  "status": "RESOLVED_ASSET",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-font-metric-fixtures-v1.2.0.json",
+  "registryVersion": "1.2.0",
+  "status": "RESOLVED_PSD_EXACT_ASSET",
   "fontContractRef": "contracts/naver-smartchannel-font-contract.json",
   "fixtures": [
-    {
-      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD_ko_short",
-      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
-      "postScriptName": "NanumBarunGothicBold",
-      "text": "브랜드의 새로운 시작",
-      "fontSize": 32,
-      "measuredWidth": 271.2300109863281,
-      "deterministic": true,
-      "overflow": false
-    },
-    {
-      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD_ko_subcopy",
-      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
-      "postScriptName": "NanumBarunGothicBold",
-      "text": "매일 더 나은 선택을 만나보세요",
-      "fontSize": 26,
-      "measuredWidth": 324.7900085449219,
-      "deterministic": true,
-      "overflow": false
-    },
-    {
-      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD_en_numeric",
-      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
-      "postScriptName": "NanumBarunGothicBold",
-      "text": "JAKOMO 2026",
-      "fontSize": 26,
-      "measuredWidth": 171.2100067138672,
-      "deterministic": true,
-      "overflow": false
-    },
-    {
-      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR_ko_short",
-      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
-      "postScriptName": "NanumBarunGothic",
-      "text": "브랜드의 새로운 시작",
-      "fontSize": 32,
-      "measuredWidth": 271.2300109863281,
-      "deterministic": true,
-      "overflow": false
-    },
-    {
-      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR_ko_subcopy",
-      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
-      "postScriptName": "NanumBarunGothic",
-      "text": "매일 더 나은 선택을 만나보세요",
-      "fontSize": 26,
-      "measuredWidth": 324.7900085449219,
-      "deterministic": true,
-      "overflow": false
-    },
-    {
-      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR_en_numeric",
-      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
-      "postScriptName": "NanumBarunGothic",
-      "text": "JAKOMO 2026",
-      "fontSize": 26,
-      "measuredWidth": 171.2100067138672,
-      "deterministic": true,
-      "overflow": false
-    }
+    { "id": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD_ko_short", "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD", "postScriptName": "AppleSDGothicNeo-Bold", "text": "브랜드의 새로운 시작", "fontSize": 32, "measuredWidth": 265.95001220703125, "deterministic": true, "overflow": false },
+    { "id": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD_ko_subcopy", "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD", "postScriptName": "AppleSDGothicNeo-Bold", "text": "매일 더 나은 선택을 만나보세요", "fontSize": 26, "measuredWidth": 319.7200012207031, "deterministic": true, "overflow": false },
+    { "id": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD_en_numeric", "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD", "postScriptName": "AppleSDGothicNeo-Bold", "text": "JAKOMO 2026", "fontSize": 26, "measuredWidth": 170.50999450683594, "deterministic": true, "overflow": false },
+    { "id": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR_ko_short", "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR", "postScriptName": "AppleSDGothicNeo-Regular", "text": "브랜드의 새로운 시작", "fontSize": 32, "measuredWidth": 265.95001220703125, "deterministic": true, "overflow": false },
+    { "id": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR_ko_subcopy", "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR", "postScriptName": "AppleSDGothicNeo-Regular", "text": "매일 더 나은 선택을 만나보세요", "fontSize": 26, "measuredWidth": 319.7200012207031, "deterministic": true, "overflow": false },
+    { "id": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR_en_numeric", "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR", "postScriptName": "AppleSDGothicNeo-Regular", "text": "JAKOMO 2026", "fontSize": 26, "measuredWidth": 163.49000549316406, "deterministic": true, "overflow": false },
+    { "id": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD_ko_short", "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD", "postScriptName": "AppleSDGothicNeo-SemiBold", "text": "브랜드의 새로운 시작", "fontSize": 32, "measuredWidth": 265.95001220703125, "deterministic": true, "overflow": false },
+    { "id": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD_ko_subcopy", "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD", "postScriptName": "AppleSDGothicNeo-SemiBold", "text": "매일 더 나은 선택을 만나보세요", "fontSize": 26, "measuredWidth": 319.7200012207031, "deterministic": true, "overflow": false },
+    { "id": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD_en_numeric", "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD", "postScriptName": "AppleSDGothicNeo-SemiBold", "text": "JAKOMO 2026", "fontSize": 26, "measuredWidth": 166.5, "deterministic": true, "overflow": false }
   ],
-  "summary": {
-    "total": 6,
-    "pass": 6,
-    "overflow": 0,
-    "status": "PASS"
-  },
-  "requiredRoles": [
-    "MAIN_BOLD",
-    "SUB_REGULAR",
-    "DISCLAIMER_REGULAR"
-  ],
+  "summary": { "total": 9, "pass": 9, "overflow": 0, "status": "PASS" },
+  "requiredRoles": ["HEADLINE_BOLD", "SUB_REGULAR", "APP_CTA_SEMIBOLD"],
   "mediumRequired": false,
-  "semiBoldRequired": false
+  "semiBoldRequired": true,
+  "runtimeNetworkAccess": "PROHIBITED"
 }

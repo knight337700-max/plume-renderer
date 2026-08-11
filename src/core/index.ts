@@ -93,9 +93,11 @@ export {
 export { resolveTrustedInputFile, resolveTrustedJobDirectory, resolveTrustedRoot } from "./path-security.js";
 export {
   assertSmartChannelFallbackProhibited,
+  createSmartChannelFontResourceProvider,
   evaluateFontIdentity,
-  getSmartChannelFontDirectory,
+  inspectFontGlyphCoverage,
   inspectFontIdentity,
+  preflightResolvedExactFont,
   isTrustedFontReference,
   NAVER_SMARTCHANNEL_FONT_ERROR_CODES,
   preflightExternalExactFont,
@@ -134,10 +136,14 @@ export type {
   ExternalExactFontResource,
   FontPreflightIssue,
   FontPreflightResult,
+  FontGlyphCoverage,
   NaverSmartChannelFontErrorCode,
   ParsedFontIdentity,
   SmartChannelFontRequirement,
   SmartChannelFontResolutionMode,
+  SmartChannelFontResourceProvider,
+  SmartChannelFontResourceRequest,
+  SmartChannelFontResourceResolution,
 } from "./naver-smartchannel-font-preflight.js";
 export type {
   BBox,

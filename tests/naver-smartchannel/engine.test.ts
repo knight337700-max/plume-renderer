@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { isSmartChannelRenderRequest, renderSmartChannel, loadContracts } from "../../src/core/index.js";
+import { createSmartChannelFontResourceProvider, isSmartChannelRenderRequest, renderSmartChannel, loadContracts } from "../../src/core/index.js";
 import { projectRoot } from "../helpers.js";
 
 const ids = ["N2-REP-001", "N2-REP-002", "N2-REP-003", "N2-REP-004", "N2-REP-005", "N2-REP-006"];
@@ -54,20 +54,14 @@ describe("NAVER SmartChannel N2 template engine", () => {
     expect(isSmartChannelRenderRequest({ channel: "KAKAO_MOMENT", placement: "BIZBOARD" })).toBe(false);
   });
 
-  it("fails closed when the configured exact font directory is unavailable", async () => {
+  it("fails closed when an injected renderer font provider is unavailable", async () => {
     const contracts = await loadContracts(projectRoot);
     const temp = path.join(os.tmpdir(), `kbr-n2-font-${process.pid}`);
     await mkdir(temp, { recursive: true });
-    const previous = process.env.NAVER_SMARTCHANNEL_FONT_DIR;
-    process.env.NAVER_SMARTCHANNEL_FONT_DIR = path.join(temp, "missing-fonts");
-    try {
-      const result = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
-      expect(result.status).toBe("FAIL");
-      expect(result.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")).toBe(true);
-    } finally {
-      if (previous === undefined) delete process.env.NAVER_SMARTCHANNEL_FONT_DIR;
-      else process.env.NAVER_SMARTCHANNEL_FONT_DIR = previous;
-    }
+    const provider = createSmartChannelFontResourceProvider({ id: "MissingResourceProvider", root: path.join(temp, "missing-fonts") });
+    const result = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, fontResourceProvider: provider, publish: false });
+    expect(result.status).toBe("FAIL");
+    expect(result.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")).toBe(true);
   });
 
   it("fails deterministically for wrong font, fixed-component, and placement registry digests", async () => {

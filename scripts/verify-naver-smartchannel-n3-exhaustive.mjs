@@ -183,7 +183,7 @@ try {
       if (result.report?.textRoles.some((role) => role.overflow)) failures.push(`${template.templateId}: text overflow`);
       if ((result.report?.fixedComponents.length ?? 0) !== expectedFixedCount(template)) failures.push(`${template.templateId}: fixed component count mismatch`);
       if (result.report?.object.placementToken !== template.objectPlacementToken) failures.push(`${template.templateId}: placement token mismatch`);
-      if ((result.report?.fonts.length ?? 0) !== 2) failures.push(`${template.templateId}: runtime font set is incomplete`);
+      if ((result.report?.fonts.length ?? 0) !== 3) failures.push(`${template.templateId}: runtime font set is incomplete`);
       const pngInfo = await sharp(result.png).metadata();
       if (pngInfo.width !== 750 || pngInfo.height !== template.height || pngInfo.format !== "png" || pngInfo.hasAlpha !== true) failures.push(`${template.templateId}: RGBA PNG dimensions/alpha mismatch`);
       runs.push(result.pngDigest);

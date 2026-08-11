@@ -11,13 +11,14 @@ import { sha256Bytes } from "./hash.js";
 import { inspectImageFile } from "./image-input.js";
 import {
   evaluateFontIdentity,
-  getSmartChannelFontDirectory,
+  createSmartChannelFontResourceProvider,
+  inspectFontGlyphCoverage,
   inspectFontIdentity,
-  preflightBundledExactFont,
-  preflightExternalExactFont,
+  preflightResolvedExactFont,
+  type SmartChannelFontResourceProvider,
   type SmartChannelFontRequirement,
 } from "./naver-smartchannel-font-preflight.js";
-import { PathSecurityError, resolveTrustedInputFile, resolveTrustedJobDirectory, resolveTrustedRoot } from "./path-security.js";
+import { PathSecurityError, resolveTrustedInputFile, resolveTrustedJobDirectory } from "./path-security.js";
 import { publishArtifacts, PublishError } from "./publish.js";
 import { inspectPngIhdr } from "./raster.js";
 import { SchemaValidators } from "./schema-validation.js";
@@ -76,6 +77,8 @@ export type SmartChannelRenderOptions = {
   outputRoot: string;
   contracts: ContractBundle;
   publish?: boolean;
+  /** Renderer-owned resource adapter. Physical paths never enter fingerprints. */
+  fontResourceProvider?: SmartChannelFontResourceProvider;
 };
 
 export type SmartChannelRenderResult = RenderResponse & {
@@ -260,29 +263,22 @@ function typographyForLayer(layer: NaverTextLayer, typography: Record<string, un
   return fontNames.length > 0 && styleRuns.length > 0 ? { fontNames, styleRuns } : null;
 }
 
-async function preflightFonts(projectRoot: string, contracts: ContractBundle): Promise<{ fonts: ResolvedFont[]; issues: ValidationIssue[] }> {
+const NAVER_SMARTCHANNEL_GLYPH_SAMPLE = "일이삼사오륙칠팔구십 광고 앱 고지문구 및 심의필 입력 영역 APP";
+
+async function preflightFonts(projectRoot: string, contracts: ContractBundle, provider?: SmartChannelFontResourceProvider): Promise<{ fonts: ResolvedFont[]; issues: ValidationIssue[] }> {
   const policy = jsonObject(contracts.naverRuntimeFontPolicy);
   const runtimeAssets = jsonArray(policy.runtimeAssets);
   const issues: ValidationIssue[] = [];
-  const configuredFontRoot = getSmartChannelFontDirectory();
-  const resolutionMode = configuredFontRoot ? "EXTERNAL_EXACT" : "BUNDLED_EXACT";
-  let fontRoot: string | null = configuredFontRoot;
-  if (!fontRoot) {
-    const bundledRoot = path.join(projectRoot, "assets", "fonts", "naver-smartchannel");
-    try {
-      fontRoot = await resolveTrustedRoot(bundledRoot);
-    } catch {
-      fontRoot = null;
-    }
-  }
+  const resourceProvider = provider ?? createSmartChannelFontResourceProvider({ id: "DESKTOP_RESOURCE_PROVIDER", root: projectRoot, resolutionMode: "BUNDLED_EXACT" });
+  const resolutionMode = resourceProvider.resolutionMode;
   const fonts: ResolvedFont[] = [];
   for (const asset of runtimeAssets) {
     const token = String(asset.id);
     if (asset.required === false) continue;
     const relativePath = typeof asset.relativePath === "string" ? asset.relativePath : "";
-    const fileName = resolutionMode === "BUNDLED_EXACT" ? path.basename(relativePath) : relativePath;
     const runtimeDigest = typeof asset.runtimeDigest === "string" ? asset.runtimeDigest : "";
     const runtimePostScriptName = String(asset.runtimePostScriptName ?? token);
+    const identityPostScriptNames = stringArray(asset.binaryPostScriptNames);
     if (!relativePath || !runtimeDigest || asset.assetStatus === "UNRESOLVED_ASSET" || asset.smartChannelAllowed === false) {
       issues.push(issueFor(
         contracts,
@@ -293,25 +289,22 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle): P
       ));
       continue;
     }
-    if (!fontRoot) {
-      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "trusted local font directory" }, "missing"));
+    const resolved = await resourceProvider.resolve({ token, relativePath, expectedSha256: runtimeDigest, expectedPostScriptName: runtimePostScriptName });
+    if (!resolved || resolved.environmentIndependent !== true || resolved.providerId !== resourceProvider.id) {
+      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "renderer-owned exact font resource" }, { providerId: resourceProvider.id, relativePath }));
       continue;
     }
     const requirement: SmartChannelFontRequirement = {
       requiredPostScriptName: runtimePostScriptName,
       runtimePostScriptName,
+      identityPostScriptNames: identityPostScriptNames.length > 0 ? identityPostScriptNames : [runtimePostScriptName],
       fontToken: token,
-      sourceIdentityStatus: "SOURCE_DIFFERENT_BUILD",
-      compatibilityStatus: "PROJECT_COMPATIBLE_VERIFIED",
+      sourceIdentityStatus: "SOURCE_EXACT",
+      compatibilityStatus: "PSD_EXACT_RENDERER_OWNED",
       allowedResolutionModes: [resolutionMode],
       expectedSha256: runtimeDigest,
     };
-    const preflight = resolutionMode === "BUNDLED_EXACT" ? preflightBundledExactFont : preflightExternalExactFont;
-    const result = await preflight(requirement, {
-      path: fileName,
-      expectedPostScriptName: runtimePostScriptName,
-      expectedSha256: runtimeDigest,
-    }, { trustedRoot: fontRoot });
+    const result = await preflightResolvedExactFont(requirement, resolved.path, resolutionMode);
     if (result.status !== "PASS" || !result.resolvedPath || !result.digest) {
       for (const preflightIssue of result.issues) issues.push(issueFor(contracts, preflightIssue.code, `/fonts/${token}`, preflightIssue.expected, preflightIssue.actual));
       continue;
@@ -327,15 +320,21 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle): P
       for (const preflightIssue of identityResult.issues) issues.push(issueFor(contracts, preflightIssue.code, `/fonts/${token}`, preflightIssue.expected, preflightIssue.actual));
       continue;
     }
-    if (!registeredNaverFonts.has(String(asset.runtimePostScriptName))) {
-      const registered = GlobalFonts.registerFromPath(result.resolvedPath, String(asset.runtimePostScriptName));
+    const glyphCoverage = inspectFontGlyphCoverage(bytes, typeof asset.glyphCoverageSample === "string" ? asset.glyphCoverageSample : NAVER_SMARTCHANNEL_GLYPH_SAMPLE);
+    if (!glyphCoverage.covered) {
+      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "required glyph coverage" }, glyphCoverage));
+      continue;
+    }
+    const registrationName = String(asset.runtimeRegistrationName ?? asset.runtimePostScriptName);
+    if (!registeredNaverFonts.has(registrationName)) {
+      const registered = GlobalFonts.registerFromPath(result.resolvedPath, registrationName);
       if (registered === null) {
         issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "registered font" }, "registerFromPath returned null"));
         continue;
       }
-      registeredNaverFonts.add(String(asset.runtimePostScriptName));
+      registeredNaverFonts.add(registrationName);
     }
-    fonts.push({ token, path: result.resolvedPath, digest: result.digest, runtimePostScriptName });
+    fonts.push({ token, path: result.resolvedPath, digest: result.digest, runtimePostScriptName: registrationName });
   }
   return { fonts, issues: sortAndDedupeIssues(issues) };
 }
@@ -864,7 +863,7 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
   const metadata = contracts.naverPsdMetadata;
   const contentIssues = validateTemplateContent(contracts, template, metadata, request.content);
   if (contentIssues.some(({ severity }) => severity === "ERROR")) return failure(contracts, [...shaped.issues, ...contentIssues]);
-  const preflight = await preflightFonts(options.projectRoot, contracts);
+  const preflight = await preflightFonts(options.projectRoot, contracts, options.fontResourceProvider);
   const preIssues = [...shaped.issues, ...contentIssues, ...preflight.issues];
   let jobDirectory: string;
   try {

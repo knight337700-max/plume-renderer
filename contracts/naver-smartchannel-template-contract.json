@@ -5983,20 +5983,19 @@
     "contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/thumbnail280",
     "contracts/naver-smartchannel-source-revision.json#/currentOfficialRules/logoVerticalMargin24"
   ],
-  "sourceResolutionStatus": "SOURCE_RESOLVED_PROJECT_COMPATIBLE",
+  "sourceResolutionStatus": "SOURCE_RESOLVED_RENDERER_OWNED_PSD_EXACT",
   "runtimeFontPolicyRef": "contracts/naver-smartchannel-runtime-font-policy.json",
   "fontResolutionPolicy": {
     "fallbackAllowed": false,
-    "exactIdentityRequired": false,
+    "exactIdentityRequired": true,
     "runtimeIdentityRequired": true,
     "allowedModes": [
       "BUNDLED_EXACT",
-      "SYSTEM_EXACT",
       "EXTERNAL_EXACT"
     ],
-    "sourceIdentityPolicy": "SOURCE_EXACT_OR_PROJECT_COMPATIBLE_VERIFIED_DIFFERENT_BUILD",
+    "sourceIdentityPolicy": "SOURCE_EXACT_RENDERER_OWNED_BINARY",
     "runtimeLookupKey": "fontToken",
-    "classification": "PROJECT_COMPATIBILITY_VERIFIED"
+    "classification": "PSD_EXACT_RENDERER_OWNED"
   },
   "fontCompatibilityRef": "contracts/naver-smartchannel-font-compatibility.json",
   "fontContractRef": "contracts/naver-smartchannel-font-contract.json",
@@ -6004,7 +6003,7 @@
   "n2Readiness": {
     "ready": true,
     "blockers": [],
-    "runtimeFontMode": "PROJECT_COMPATIBLE_VERIFIED",
+    "runtimeFontMode": "PSD_EXACT_RENDERER_OWNED",
     "exportContributingSfFonts": []
   },
   "objectPlacementContractRef": "contracts/naver-smartchannel-object-placement.json",

@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.21.1
-- **Status:** Frozen Implementation Contract — Phase N7.5 SmartChannel fixed-component runtime/package hotfix continuation
+- **Document version:** 1.21.2
+- **Status:** Frozen Implementation Contract — Phase N7.7 SmartChannel PSD-exact renderer-owned runtime font correction
 - **Checked date:** 2026-08-11 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **38. Phase N6 NAVER COLLECTION multi-artifact contract**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **45. Phase N7.7 SmartChannel PSD-exact runtime font correction**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -4640,3 +4640,94 @@ N7.5는 공식 업로드 승인이나 외부 서비스 연동을 의미하지 �
 PostgreSQL, telemetry, 원격 폰트, CDN, 카카오/NAVER API 업로드는 계속 범위 밖이며 runtime
 network access는 금지한다. 다음 계획 단계는 `M0_META_OFFICIAL_FORMAT_SOURCE_CATALOG`다.
 **[PROJECT]**
+
+---
+
+## 45. Phase N7.7 — SmartChannel PSD-exact renderer-owned runtime font correction
+
+N7.6의 전수 감사는 120개 PSD의 typography token, font size, baseline, leading, text box,
+template/object/fixed-component geometry가 frozen contract와 일치하지만, visible text의
+runtime font만 NanumBarunGothic으로 달라 glyph width·ascent·weight가 달라지는 것을
+확인했다. N7.7은 geometry와 token ID를 그대로 두고 token → runtime font binary 매핑만
+교정한다. **[PROJECT]**
+
+### 45.1 Renderer-owned font resource [PROJECT]
+
+SmartChannel의 visible final role은 다음 logical token으로만 해석한다.
+
+| Source role | Logical token | PSD label | Pinned resource |
+|---|---|---|---|
+| HEADLINE, HEADLINE_LINE_2 | `NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD` | `AppleSDGothicNeo-Bold` | `assets/fonts/naver-smartchannel/AppleSDGothicNeo-Bold.ttf` |
+| SUBCOPY, THIRD_LINE, FOURTH_LINE, DISCLOSURE_LINE_1/2 | `NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR` | `AppleSDGothicNeo-Regular` | `assets/fonts/naver-smartchannel/AppleSDGothicNeo-Regular.ttf` |
+| APP_CTA_TEXT | `NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD` | `AppleSDGothicNeo-SemiBold` | `assets/fonts/naver-smartchannel/AppleSDGothicNeo-SemiBold.ttf` |
+
+각 resource는 `contracts/naver-smartchannel-font-asset-manifest.json`과
+`contracts/naver-smartchannel-runtime-font-policy.json`에 실제 SHA-256과 binary
+name-table PostScript identity를 함께 가진다. 현재 파일의 실제 identity는 각각
+`AppleSDGothicNeoB00`, `AppleSDGothicNeoR00`, `AppleSDGothicNeoSB00`이며, renderer는
+검증 후 안정된 registration alias를 사용한다. 이는 filename/family 추측이나 가짜
+identity가 아니다. Binary provenance/redistribution 권리는 별도 문제로 남기고
+`REDISTRIBUTION_STATUS_UNCONFIRMED`를 유지한다. **[PROJECT]**
+
+OS-installed font, `C:\Windows\Fonts`, macOS system font, absolute Windows path,
+browser fallback, Nanum fallback, remote URL, runtime download는 사용하지 않는다. Core는
+logical token을 조회한 뒤 injected `SmartChannelFontResourceProvider`에서 trusted
+project-relative resource를 받고, file existence → OpenType decode → PostScript identity
+→ SHA-256 → glyph coverage → explicit binary registration 순서로 fail-closed preflight를
+수행한다. DesktopResourceProvider와 TestDeploymentResourceProvider는 같은 logical
+registry와 bytes를 공급할 수 있으며 physical path는 fingerprint material에 들어가지
+않는다. **[PROJECT]**
+
+### 45.2 Source-only fonts and Nanum boundary [PROJECT]
+
+`AppleSDGothicNeo-Medium`은 GUIDE_TEXT만, `SFProDisplay-Bold`와 `SFUIDisplay-Bold`는
+hidden English source layer만 확인되어 final renderer contribution이 없다. 세 source
+font는 `SOURCE_ONLY_NON_RUNTIME`, `runtimeRequired=false`로 기록한다. SF binary를
+제작하거나 내려받지 않으며, visible contribution이 새로 확인되면 별도 계약 변경 없이는
+mapping하지 않는다.
+
+N7.4의 Nanum binaries는 다른 format/UI의 historical resource로 보존할 수 있지만 SmartChannel
+required role mapping에서는 제거한다. SmartChannel의 required runtime set은 Apple Bold,
+Regular, SemiBold 세 자산뿐이며 fallback은 금지한다. **[PROJECT]**
+
+### 45.3 Geometry and raster invariants [PROJECT]
+
+N7.6에서 MATCH인 typography token ID, font size, baseline, leading, text box, tracking,
+alignment, text origin, template coordinates, object placement, fixed-component digest와
+placement는 N7.7에서 변경하지 않는다. 대표 template
+`NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE`의 frozen values는 headline
+35px/baseline `106.45703125`, second headline 35px/baseline `154.45703125`, subcopy
+29px/baseline `201.45703125`, line gaps `48`/`47`이다.
+
+Runtime font bytes가 바뀌므로 SmartChannel text pixel fingerprint와 text-dependent golden의
+변경은 `PSD_EXACT_RUNTIME_FONT_CORRECTION`으로 예상되는 migration이다. Geometry와
+non-SmartChannel output은 변경되지 않는다. 자동 shrink, baseline/box 보정, fallback,
+무조건 golden overwrite는 금지한다. **[PROJECT]**
+
+### 45.4 Determinism, security, and acceptance [PROJECT]
+
+Windows 10/11 x64가 v1 공식 golden 환경이다. 동일 input/template/resource/dependency/runtime
+조건에서 3회 PNG SHA-256과 pixel fingerprint가 같아야 한다. SmartChannel 120개 template
+전수 렌더는 `fontResolutionFailures=0`, `newValidationErrors=0`, `passed=120`이어야 하며,
+provider parity에서 동일 font SHA가 동일 pixel/PNG digest를 만들어야 한다. Runtime network
+request는 0이고 system font lookup/fallback은 0이다. Kakao, 다른 NAVER, FREEFORM, N6
+Collection, N7.2–N7.6 assertions와 N7.5 fixed-component digest/placement는 회귀 없이
+유지한다. **[PROJECT]**
+
+### 45.5 Version and artifacts [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.21.1 | 1.21.2 | Normative renderer-owned PSD-exact font mapping |
+| Template contract | 1.9.0 | 1.9.0 | Geometry and template coordinates unchanged |
+| Renderer Core | 0.8.3 | 0.8.4 | Provider, SHA/PostScript/glyph preflight, explicit registration |
+| Desktop package | 0.9.6 | 0.9.7 | Include renderer-owned SmartChannel font resources |
+| Runtime font policy | 1.3.0 | 1.4.0 | Apple exact required roles and no system mode |
+| Font compatibility | 1.1.0 | 1.2.0 | Logical Apple role mapping and provider contract |
+| Typography registry | 1.3.0 | 1.4.0 | Additive correction mapping; PSD token IDs preserved |
+
+Machine-readable correction evidence is `contracts/audits/naver-smartchannel-runtime-font-correction-n7-7.json`,
+human report is `docs/implementation/naver-smartchannel-psd-exact-runtime-font-correction-n7-7.md`,
+and the deterministic verifier is `scripts/verify-n7-7-smartchannel-runtime-font-correction.mjs`.
+The renderer remains standalone; plume, Railway, PostgreSQL, Queue, telemetry, upload approval,
+and remote services remain out of scope. **[PROJECT]**

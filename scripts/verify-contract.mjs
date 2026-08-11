@@ -471,7 +471,7 @@ check(
 );
 check(
   "canonical_document_version",
-    versions?.documentVersion?.previous === "1.21.0" && versions?.documentVersion?.current === "1.21.1" && versions?.canonicalPhaseN7_4?.documentCurrent === "1.21.1" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
+    versions?.documentVersion?.previous === "1.21.1" && versions?.documentVersion?.current === "1.21.2" && versions?.canonicalPhaseN7_7?.documentCurrent === "1.21.2" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
     `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 
@@ -489,17 +489,17 @@ check(
   "naver_smartchannel_official_font_contract",
   fontContract?.fallbackAllowed === false &&
     fontContract?.mediumRequired === false &&
-    fontContract?.semiBoldRequired === false &&
-    JSON.stringify(fontContract?.roles?.filter(({ required }) => required).map(({ id }) => id)) === JSON.stringify(["NAVER_SC_NANUM_BARUN_GOTHIC_BOLD", "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR"]) &&
-    runtimeFontPolicy?.runtimeStatus === "READY_APPROVED_OFFICIAL_ASSET" &&
-    runtimeFontPolicy?.runtimeAssets?.filter(({ required }) => required).length === 2 &&
+    fontContract?.semiBoldRequired === true &&
+    JSON.stringify(fontContract?.roles?.filter(({ required }) => required).map(({ id }) => id)) === JSON.stringify(["NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD", "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR", "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD"]) &&
+    runtimeFontPolicy?.runtimeStatus === "READY_RENDERER_OWNED_PSD_EXACT" &&
+    runtimeFontPolicy?.runtimeAssets?.filter(({ required }) => required).length === 3 &&
     runtimeFontPolicy?.runtimeAssets?.filter(({ required }) => required).every(({ relativePath, runtimeDigest, resolutionClass, smartChannelAllowed }) => typeof relativePath === "string" && /^[a-f0-9]{64}$/.test(runtimeDigest ?? "") && resolutionClass === "BUNDLED_EXACT" && smartChannelAllowed === true) &&
-    typographyContract?.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" &&
+    typographyContract?.runtimeFontMode === "PSD_EXACT_RENDERER_OWNED" &&
     JSON.stringify(typographyContract?.sfRuntimeFonts ?? []) === JSON.stringify([]) &&
-    fontCompatibility?.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" &&
+    fontCompatibility?.runtimeFontMode === "PSD_EXACT_RENDERER_OWNED" &&
     fontCompatibility?.approvedDigestAllowlist && Object.keys(fontCompatibility.approvedDigestAllowlist).length === 0 &&
-    !runtimeFontPolicy?.runtimeAssets?.some(({ id }) => String(id).includes("APPLE_SD_GOTHIC_NEO")),
-  "official roles=Bold+Regular; optional SF; no Apple runtime IDs; no fake digests",
+    runtimeFontPolicy?.runtimeAssets?.filter(({ required }) => required).every(({ id }) => String(id).includes("APPLE_SD_GOTHIC_NEO")),
+  "PSD-exact Apple roles=Bold+Regular+SemiBold; optional source-only SF; no fallback; no fake digests",
 );
 
 for (const result of results) {

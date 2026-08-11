@@ -75,20 +75,20 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
     }
   });
 
-  it("freezes source typography and fixed affordances without inventing runtime assets", () => {
+  it("freezes source typography and fixed affordances with pinned runtime assets", () => {
     const affordances = contract.affordances;
     expect(affordances.find((entry) => entry.id === "NONE")?.enabled).toBe(true);
     expect(affordances.filter((entry) => entry.enabled).map((entry) => entry.id)).toEqual(["NONE"]);
     expect(affordances.filter((entry) => entry.id !== "NONE").every((entry) => entry.enabled === false)).toBe(true);
-    expect(typography.registryVersion).toBe("1.3.0");
-    expect(typography.status).toBe("SOURCE_METADATA_FROZEN");
+    expect(typography.registryVersion).toBe("1.4.0");
+    expect(typography.status).toBe("SOURCE_METADATA_FROZEN_RUNTIME_MAPPING_CORRECTED");
     expect(typography.exactSourceFontIdentity).toBe("PASS");
     expect(typography.sourceFonts.every((font) => font.classification === "SOURCE_CONFIRMED")).toBe(true);
     expect(typography.tokens).toHaveLength(25);
     expect(typography.tokens.every((token) => token.classification === "DERIVED_FROM_EXACT_SOURCE_METADATA")).toBe(true);
-    expect(typography.runtimeResolution).toBe("OFFICIAL_ASSET_REQUIRED");
-    expect(typography.runtimeFontAssets).toHaveLength(3);
-    expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false)).toHaveLength(2);
+    expect(typography.runtimeResolution).toBe("PSD_EXACT_RENDERER_OWNED");
+    expect(typography.runtimeFontAssets).toHaveLength(7);
+    expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false)).toHaveLength(3);
     expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false).every((asset) => asset.resolution === "RESOLVED" && asset.bundleAllowed === true)).toBe(true);
     expect(typography.n2Blocking).toBe(false);
     const fixedAffordances = fixed.components.filter((entry) => entry.id.startsWith("LANDING_ICON") || entry.id.startsWith("APP_CTA"));
@@ -114,9 +114,9 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
   it("keeps N2 candidates registry-only and source-backed", () => {
     expect(n2.status).toBe("REGISTRY_ONLY");
     expect(n2.candidates).toHaveLength(6);
-    expect(n2.sourceResolutionStatus).toBe("SOURCE_RESOLVED_PROJECT_COMPATIBLE");
+    expect(n2.sourceResolutionStatus).toBe("SOURCE_RESOLVED_RENDERER_OWNED_PSD_EXACT");
     expect(n2.sourceBacked).toBe(true);
-    expect(n2.readiness).toMatchObject({ ready: true, blockers: [], runtimeFontMode: "PROJECT_COMPATIBLE_VERIFIED" });
+    expect(n2.readiness).toMatchObject({ ready: true, blockers: [], runtimeFontMode: "PSD_EXACT_RENDERER_OWNED" });
     const key = (entry: JsonRecord) => [entry.height, entry.family, entry.objectKind, entry.side, entry.textVariant, entry.affordance].join("/");
     const sourceKeys = new Set(contract.templates.map(key));
     for (const candidate of n2.candidates) expect(sourceKeys.has(key(candidate))).toBe(true);
