@@ -34,6 +34,7 @@
     "verify:naver-inventory": "node scripts/verify-naver-smartchannel-n3-inventory.mjs",
     "generate:naver-fixed-components": "node scripts/generate-naver-smartchannel-fixed-component-runtime.mjs",
     "verify:naver-fixed-components": "node scripts/verify-naver-smartchannel-fixed-components.mjs",
+    "verify:n7-6-typography": "node scripts/verify-n7-6-smartchannel-typography-audit.mjs",
     "verify:naver-desktop": "node scripts/verify-naver-desktop-integration.mjs",
     "verify:naver-runtime": "pnpm build && node scripts/verify-naver-smartchannel-runtime.mjs",
     "verify:naver-exhaustive": "pnpm build && node scripts/verify-naver-smartchannel-n3-exhaustive.mjs",

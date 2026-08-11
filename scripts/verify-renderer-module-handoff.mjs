@@ -111,7 +111,8 @@ if (!(await exists(root))) {
 
   const fixedRuntime = await readJson("contracts/naver-smartchannel-fixed-component-runtime.json");
   const fixedResources = fixedRuntime?.resources ?? [];
-  check("n7_5_manifest", manifest?.handoffPhase === "N7_5_SMARTCHANNEL_FIXED_COMPONENT_RUNTIME_HOTFIX" && manifest?.versions?.rendererCore === "0.8.3" && manifest?.versions?.desktop === "0.9.6", JSON.stringify({ phase: manifest?.handoffPhase, rendererCore: manifest?.versions?.rendererCore, desktop: manifest?.versions?.desktop }));
+  const typographyAudit = await readJson("contracts/audits/naver-smartchannel-typography-audit.json");
+  check("n7_runtime_manifest", ["N7_5_SMARTCHANNEL_FIXED_COMPONENT_RUNTIME_HOTFIX", "N7_6_SMARTCHANNEL_GLOBAL_TYPOGRAPHY_AUDIT"].includes(manifest?.handoffPhase) && manifest?.versions?.rendererCore === "0.8.3" && manifest?.versions?.desktop === "0.9.6", JSON.stringify({ phase: manifest?.handoffPhase, rendererCore: manifest?.versions?.rendererCore, desktop: manifest?.versions?.desktop }));
   check("n7_5_fixed_inventory", fixedRuntime?.status === "FROZEN" && fixedResources.length === 26 && fixedResources.every((entry) => entry.packagedRequired === true), `${fixedResources.length}`);
   let fixedAssetHashPass = 0;
   for (const entry of fixedResources) {
@@ -121,6 +122,8 @@ if (!(await exists(root))) {
   check("n7_5_fixed_asset_hashes", fixedAssetHashPass === 26, `${fixedAssetHashPass}/26`);
   check("n7_5_provenance", manifest?.sourceProvenance?.n7_5FixedComponentRuntimeRegistry === "contracts/naver-smartchannel-fixed-component-runtime.json" && manifest?.sourceProvenance?.n7_5FixedComponentVerifier === "scripts/verify-naver-smartchannel-fixed-components.mjs", "N7.5 provenance");
   check("n7_5_smoke_provenance", manifest?.sourceProvenance?.n7_5FixedComponentSmoke === "scripts/smoke-naver-smartchannel-fixed-components.mjs", "N7.5 smoke provenance");
+  check("n7_6_typography_audit", manifest?.handoffPhase === "N7_6_SMARTCHANNEL_GLOBAL_TYPOGRAPHY_AUDIT" && typographyAudit?.phase?.id === "N7_6_SMARTCHANNEL_GLOBAL_TYPOGRAPHY_AUDIT" && ["PASS", "MISMATCH_FOUND"].includes(typographyAudit?.phase?.status) && typographyAudit?.source?.psdCount?.total === 120 && typographyAudit?.summary?.templates?.audited === 120 && typographyAudit?.summary?.tokenAudit?.total === 25 && typographyAudit?.phase?.runtimeBehaviorChanged === false, JSON.stringify({ phase: manifest?.handoffPhase, audit: typographyAudit?.phase?.status, psd: typographyAudit?.source?.psdCount?.total, templates: typographyAudit?.summary?.templates?.audited, tokens: typographyAudit?.summary?.tokenAudit?.total }));
+  check("n7_6_provenance", manifest?.sourceProvenance?.n7_6TypographyAuditJson === "contracts/audits/naver-smartchannel-typography-audit.json" && manifest?.sourceProvenance?.n7_6TypographyAuditReport === "docs/implementation/naver-smartchannel-global-typography-audit-n7-6.md" && manifest?.sourceProvenance?.n7_6TypographyAuditVerifier === "scripts/verify-n7-6-smartchannel-typography-audit.mjs", "N7.6 provenance");
 
   const secretPattern = /(AKIA[0-9A-Z]{16}|(?:ghp|gho|github_pat)_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|-----BEGIN (?:RSA|OPENSSH|EC|DSA) PRIVATE KEY-----)/;
   const textExtensions = new Set([".json", ".md", ".mjs", ".js", ".ts", ".tsx", ".yaml", ".yml", ".toml", ".txt", ".css", ".html"]);

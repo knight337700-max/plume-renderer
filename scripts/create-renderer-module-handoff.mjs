@@ -129,6 +129,7 @@ const { stdout: sourceShaOutput } = await execFileAsync("git", ["rev-parse", "HE
 const sourceSha = sourceShaOutput.trim();
 const canonicalPath = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const canonicalDocument = JSON.parse(await readFile(path.join(root, "contracts/contract-versions.json"), "utf8"));
+const typographyAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-typography-audit.json"), "utf8"));
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -143,7 +144,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N7.5 final handoff
+const readme = `# Renderer Module — N7.6 typography audit handoff
 
 ## Purpose
 
@@ -151,7 +152,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N7.5 final source commit: ${sourceSha}
+- N7.6 audit source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Desktop package: ${packageArtifact?.path ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256})` : ""}
 - Runtime network access: PROHIBITED
@@ -168,6 +169,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER Desktop N7.1/N7.2/N7.3 resilience: local diagnostics, Error Boundary, explicit registry errors, SmartChannel selection reconciliation, editor-owned copy state, empty-string preservation, packaged click/input matrix
 - NAVER SmartChannel N7.4: bundled exact NanumBarunGothic Bold/Regular, actual-user sofa/logo acceptance evidence, final-alpha validation, Preview/Export/Packaged parity
 - NAVER SmartChannel N7.5: frozen fixed-component runtime inventory (26 resources), packaged asset inclusion, structured digest/decode/placement diagnostics, 29 landing-template and 11-option CTA coverage
+- NAVER SmartChannel N7.6: audit-only global typography re-analysis of all 120 source PSDs, 25 frozen typography tokens, source/runtime mapping, and local raster metrics; result: ${typographyAudit.phase.status}
 - Meta: not implemented
 - Google: not implemented
 
@@ -204,8 +206,10 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is N7.5 in docs/kakao-bizboard-renderer-spec-v1.md. N7.5 SmartChannel fixed
-component runtime acceptance uses source/runtime/package digest evidence and final placement validation.
+The latest implementation phase remains N7.5 in docs/kakao-bizboard-renderer-spec-v1.md; N7.6 is
+an audit-only addition and does not change runtime contracts, fonts, geometry, or goldens. N7.5
+SmartChannel fixed component runtime acceptance uses source/runtime/package digest evidence and
+final placement validation.
 N7.4 SmartChannel runtime acceptance uses actual-user binary evidence and final render-space validation. N7.3 SmartChannel copy
 stability uses one-time default hydration, editor-owned content, nullish reads, and existing Core
 paths. N6 source contracts are
@@ -216,8 +220,12 @@ multi-artifact manifest schema. N7 additions are
 contracts/desktop-capability-registry.json, contracts/desktop-error-registry.json,
 tests/e2e/naver-desktop.spec.ts, and scripts/smoke-naver-desktop.mjs. N7.2 adds
 source-backed SmartChannel filter reconciliation and event-value snapshot tests; N7.3 adds
-custom/empty/Korean copy persistence, preview-read, compatible-template, and all-text-field tests. The next
-planned phase is M0_META_OFFICIAL_FORMAT_SOURCE_CATALOG; it must not invent final NAVER UI geometry.
+custom/empty/Korean copy persistence, preview-read, compatible-template, and all-text-field tests.
+N7.6 audit artifacts are contracts/audits/naver-smartchannel-typography-audit.json,
+docs/implementation/naver-smartchannel-global-typography-audit-n7-6.md, and
+scripts/verify-n7-6-smartchannel-typography-audit.mjs. The next recommended phase is
+N7.7_SMARTCHANNEL_TYPOGRAPHY_CORRECTION_REVIEW; it requires separate approval before changing
+runtime font mapping.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
 const readmeEntry = files.find((entry) => entry.path === "README.md");
@@ -225,7 +233,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N7_5_SMARTCHANNEL_FIXED_COMPONENT_RUNTIME_HOTFIX",
+  handoffPhase: "N7_6_SMARTCHANNEL_GLOBAL_TYPOGRAPHY_AUDIT",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -249,6 +257,17 @@ const manifest = {
     desktopErrorRegistry: canonicalDocument.desktopErrorRegistryVersion,
   },
   packageArtifact,
+  audit: {
+    phase: typographyAudit.phase.id,
+    status: typographyAudit.phase.status,
+    json: "contracts/audits/naver-smartchannel-typography-audit.json",
+    report: "docs/implementation/naver-smartchannel-global-typography-audit-n7-6.md",
+    verifier: "scripts/verify-n7-6-smartchannel-typography-audit.mjs",
+    psdCount: typographyAudit.source.psdCount.total,
+    templateCount: typographyAudit.summary.templates.audited,
+    tokenCount: typographyAudit.summary.tokenAudit.total,
+    runtimeBehaviorChanged: false,
+  },
   channels: {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
     NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", desktopIntegration: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED", video: "DISABLED_OUT_OF_STATIC_SCOPE" },
@@ -281,6 +300,10 @@ const manifest = {
     n7_5FixedComponentVerifier: "scripts/verify-naver-smartchannel-fixed-components.mjs",
     n7_5FixedComponentSmoke: "scripts/smoke-naver-smartchannel-fixed-components.mjs",
     n7_5PackagedSmoke: "apps/desktop/electron-main/src/main.ts --smoke-n7-5-fixed",
+    n7_6TypographyAuditJson: "contracts/audits/naver-smartchannel-typography-audit.json",
+    n7_6TypographyAuditReport: "docs/implementation/naver-smartchannel-global-typography-audit-n7-6.md",
+    n7_6TypographyAuditVerifier: "scripts/verify-n7-6-smartchannel-typography-audit.mjs",
+    n7_6PsdSourceRoot: typographyAudit.source.root,
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git", "Apple SD Gothic Neo binaries"],
