@@ -109,6 +109,19 @@ if (!(await exists(root))) {
   const actualAssetAcceptance = await readJson("contracts/naver-smartchannel-actual-asset-acceptance.json");
   check("actual_asset_acceptance", actualAssetAcceptance?.status === "PASS" && actualAssetAcceptance?.acceptanceRule?.actualUserBinaryRequired === true && actualAssetAcceptance?.acceptanceRule?.exactSourceDimensionsRequired === false && actualAssetAcceptance?.assets?.sofa?.result === "PASS" && actualAssetAcceptance?.assets?.logo?.result === "PASS", JSON.stringify({ status: actualAssetAcceptance?.status, exactSourceDimensionsRequired: actualAssetAcceptance?.acceptanceRule?.exactSourceDimensionsRequired, sofa: actualAssetAcceptance?.assets?.sofa?.result, logo: actualAssetAcceptance?.assets?.logo?.result }));
 
+  const fixedRuntime = await readJson("contracts/naver-smartchannel-fixed-component-runtime.json");
+  const fixedResources = fixedRuntime?.resources ?? [];
+  check("n7_5_manifest", manifest?.handoffPhase === "N7_5_SMARTCHANNEL_FIXED_COMPONENT_RUNTIME_HOTFIX" && manifest?.versions?.rendererCore === "0.8.3" && manifest?.versions?.desktop === "0.9.6", JSON.stringify({ phase: manifest?.handoffPhase, rendererCore: manifest?.versions?.rendererCore, desktop: manifest?.versions?.desktop }));
+  check("n7_5_fixed_inventory", fixedRuntime?.status === "FROZEN" && fixedResources.length === 26 && fixedResources.every((entry) => entry.packagedRequired === true), `${fixedResources.length}`);
+  let fixedAssetHashPass = 0;
+  for (const entry of fixedResources) {
+    const actual = await sha256(path.join(root, ...String(entry.runtimePath).split("/"))).catch(() => null);
+    if (actual === String(entry.expectedSha256).toLowerCase()) fixedAssetHashPass += 1;
+  }
+  check("n7_5_fixed_asset_hashes", fixedAssetHashPass === 26, `${fixedAssetHashPass}/26`);
+  check("n7_5_provenance", manifest?.sourceProvenance?.n7_5FixedComponentRuntimeRegistry === "contracts/naver-smartchannel-fixed-component-runtime.json" && manifest?.sourceProvenance?.n7_5FixedComponentVerifier === "scripts/verify-naver-smartchannel-fixed-components.mjs", "N7.5 provenance");
+  check("n7_5_smoke_provenance", manifest?.sourceProvenance?.n7_5FixedComponentSmoke === "scripts/smoke-naver-smartchannel-fixed-components.mjs", "N7.5 smoke provenance");
+
   const secretPattern = /(AKIA[0-9A-Z]{16}|(?:ghp|gho|github_pat)_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|-----BEGIN (?:RSA|OPENSSH|EC|DSA) PRIVATE KEY-----)/;
   const textExtensions = new Set([".json", ".md", ".mjs", ".js", ".ts", ".tsx", ".yaml", ".yml", ".toml", ".txt", ".css", ".html"]);
   const secretHits = [];

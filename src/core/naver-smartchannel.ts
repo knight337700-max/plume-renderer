@@ -611,18 +611,120 @@ function drawSourceObject(canvas: Canvas, image: DecodedRgba, token: NaverPlacem
   context.drawImage(sourceCanvas, x, y, width, height);
 }
 
-async function drawVerifiedFixedAsset(canvas: Canvas, projectRoot: string, assetPath: string, expectedSha256: string, x: number, y: number, contracts: ContractBundle, id: string): Promise<{ id: string; digest: string; x: number; y: number; width: number; height: number } | null> {
-  try {
-    const filePath = await resolveTrustedInputFile(projectRoot, assetPath);
-    const bytes = await readFile(filePath);
-    const digest = sha256Bytes(bytes);
-    if (digest !== expectedSha256.toLowerCase()) throw new Error(`digest:${digest}`);
-    const image = await decodeRgba(bytes);
-    putImageData(canvas, image, x, y);
-    return { id, digest, x, y, width: image.width, height: image.height };
-  } catch (error) {
-    throw issueFor(contracts, "NAVER_SMARTCHANNEL_FIXED_COMPONENT_INVALID", `/fixedComponents/${id}`, expectedSha256, error instanceof Error ? error.message : String(error));
+type FixedComponentFailureReason =
+  | "MISSING_REGISTRY_ENTRY"
+  | "MISSING_RUNTIME_ASSET"
+  | "DIGEST_MISMATCH"
+  | "DECODE_FAILED"
+  | "PLACEMENT_MISMATCH"
+  | "UNSUPPORTED_FOR_TEMPLATE";
+
+function fixedComponentIssue(
+  contracts: ContractBundle,
+  id: string,
+  templateId: string,
+  failureReason: FixedComponentFailureReason,
+  expectedDigest: string | null,
+  actualDigest: string | null,
+  expectedBounds: BBox | null,
+  actualBounds: BBox | null,
+  runtimeResourceId: string | null,
+  runtimeResourcePath: string | null,
+  assetExists: boolean,
+  decoded: boolean,
+  registryEntry: boolean,
+  packagedRequired: boolean,
+  packageEntry: boolean,
+): ValidationIssue {
+  return issueFor(
+    contracts,
+    "NAVER_SMARTCHANNEL_FIXED_COMPONENT_INVALID",
+    `/fixedComponents/${id}`,
+    {
+      componentId: id,
+      templateId,
+      failureReason,
+      expectedDigest,
+      expectedBounds,
+      runtimeResourceId,
+      runtimeResourcePath,
+      packagedRequired,
+    },
+    {
+      componentId: id,
+      templateId,
+      failureReason,
+      actualDigest,
+      actualBounds,
+      runtimeResourceId,
+      runtimeResourcePath,
+      assetExists,
+      decoded,
+      registryEntry,
+      packageEntry,
+    },
+  );
+}
+
+function fixedRuntimeResource(contracts: ContractBundle, assetPath: string, expectedSha256: string): SmartChannelJson | null {
+  const expected = expectedSha256.toLowerCase();
+  return jsonArray(contracts.naverFixedComponentRuntime.resources).find((entry) =>
+    String(entry.runtimePath) === assetPath && String(entry.expectedSha256).toLowerCase() === expected,
+  ) ?? null;
+}
+
+async function drawVerifiedFixedAsset(
+  canvas: Canvas,
+  projectRoot: string,
+  assetPath: string,
+  expectedSha256: string,
+  expectedBounds: BBox,
+  contracts: ContractBundle,
+  id: string,
+  templateId: string,
+): Promise<{ id: string; digest: string; x: number; y: number; width: number; height: number } | null> {
+  const resource = fixedRuntimeResource(contracts, assetPath, expectedSha256);
+  const runtimeResourceId = resource ? String(resource.id) : null;
+  const packagedRequired = resource?.packagedRequired === true;
+  if (!resource) {
+    throw fixedComponentIssue(contracts, id, templateId, "MISSING_REGISTRY_ENTRY", expectedSha256, null, expectedBounds, null, null, assetPath, false, false, false, false, false);
   }
+  if (!Array.isArray(resource.templates) || !resource.templates.includes(templateId)) {
+    throw fixedComponentIssue(contracts, id, templateId, "UNSUPPORTED_FOR_TEMPLATE", expectedSha256, null, expectedBounds, null, runtimeResourceId, assetPath, false, false, true, packagedRequired, false);
+  }
+
+  let filePath: string;
+  try {
+    filePath = await resolveTrustedInputFile(projectRoot, assetPath);
+  } catch {
+    throw fixedComponentIssue(contracts, id, templateId, "MISSING_RUNTIME_ASSET", expectedSha256, null, expectedBounds, null, runtimeResourceId, assetPath, false, false, true, packagedRequired, false);
+  }
+
+  let bytes: Buffer;
+  try {
+    bytes = await readFile(filePath);
+  } catch {
+    throw fixedComponentIssue(contracts, id, templateId, "MISSING_RUNTIME_ASSET", expectedSha256, null, expectedBounds, null, runtimeResourceId, assetPath, false, false, true, packagedRequired, false);
+  }
+
+  const digest = sha256Bytes(bytes);
+  if (digest !== expectedSha256.toLowerCase()) {
+    throw fixedComponentIssue(contracts, id, templateId, "DIGEST_MISMATCH", expectedSha256, digest, expectedBounds, null, runtimeResourceId, assetPath, true, false, true, packagedRequired, true);
+  }
+
+  let image: DecodedRgba;
+  try {
+    image = await decodeRgba(bytes);
+  } catch {
+    throw fixedComponentIssue(contracts, id, templateId, "DECODE_FAILED", expectedSha256, digest, expectedBounds, null, runtimeResourceId, assetPath, true, false, true, packagedRequired, true);
+  }
+
+  const actualBounds = { x: expectedBounds.x, y: expectedBounds.y, width: image.width, height: image.height };
+  if (image.width !== expectedBounds.width || image.height !== expectedBounds.height) {
+    throw fixedComponentIssue(contracts, id, templateId, "PLACEMENT_MISMATCH", expectedSha256, digest, expectedBounds, actualBounds, runtimeResourceId, assetPath, true, true, true, packagedRequired, true);
+  }
+  putImageData(canvas, image, expectedBounds.x, expectedBounds.y);
+  return { id, digest, x: expectedBounds.x, y: expectedBounds.y, width: image.width, height: image.height };
 }
 
 function drawTrackedText(context: ReturnType<Canvas["getContext"]>, text: string, layer: NaverTextLayer, font: ResolvedFont, color: string, style: Record<string, string>): number {
@@ -872,10 +974,20 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
     const component = fixedRegistry.find((entry) => String(entry.id) === componentId);
     const asset = jsonObject(component?.asset);
     const placement = template.height === 280 ? jsonObject(component?.placement) : jsonObject(jsonObject(component?.heightPlacements)[String(template.height)]);
-    try {
-      const fixed = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(asset.assetPath), String(asset.assetPngSha256), Number(placement.x), Number(placement.y), contracts, componentId);
-      if (fixed) fixedComponents.push(fixed);
-    } catch (error) { textIssues.push(error as ValidationIssue); }
+    const expectedBounds = {
+      x: Number(placement.x),
+      y: Number(placement.y),
+      width: Number(placement.width),
+      height: Number(placement.height),
+    };
+    if (!component || typeof asset.assetPath !== "string" || typeof asset.assetPngSha256 !== "string" || !Object.values(expectedBounds).every(Number.isFinite)) {
+      textIssues.push(fixedComponentIssue(contracts, componentId, request.templateId, "MISSING_REGISTRY_ENTRY", typeof asset.assetPngSha256 === "string" ? asset.assetPngSha256 : null, null, Object.values(expectedBounds).every(Number.isFinite) ? expectedBounds : null, null, null, typeof asset.assetPath === "string" ? asset.assetPath : null, false, false, Boolean(component), false, false));
+    } else {
+      try {
+        const fixed = await drawVerifiedFixedAsset(canvas, options.projectRoot, asset.assetPath, asset.assetPngSha256, expectedBounds, contracts, componentId, request.templateId);
+        if (fixed) fixedComponents.push(fixed);
+      } catch (error) { textIssues.push(error as ValidationIssue); }
+    }
   }
   if (template.affordance === "APP_CTA") {
     const label = content.ctaOption;
@@ -886,11 +998,17 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
       const selected = label ? jsonObject(labelAssets[label]) : {};
       const sourceBounds = numberArray(selected.sourcePixelBounds);
       const placementY = Number(jsonObject(compact.placements)[String(template.height)] && jsonObject(jsonObject(compact.placements)[String(template.height)]).y);
-      if (!label || !allowedLabels.includes(label) || typeof selected.assetPath !== "string" || typeof selected.assetPngSha256 !== "string" || sourceBounds.length < 2 || !Number.isFinite(placementY)) {
+      if (!label || !allowedLabels.includes(label) || typeof selected.assetPath !== "string" || typeof selected.assetPngSha256 !== "string" || sourceBounds.length < 4 || !Number.isFinite(placementY)) {
         textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "registered compact CTA label asset", label));
       } else {
+        const expectedBounds = {
+          x: Number(sourceBounds[0]),
+          y: placementY,
+          width: Number(sourceBounds[2] ?? 0) - Number(sourceBounds[0]),
+          height: Number(sourceBounds[3] ?? 0) - Number(sourceBounds[1] ?? 0),
+        };
         try {
-          const fixed = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(selected.assetPath), String(selected.assetPngSha256), Number(sourceBounds[0]), placementY, contracts, `APP_CTA_${template.height}_${label}`);
+          const fixed = await drawVerifiedFixedAsset(canvas, options.projectRoot, selected.assetPath, selected.assetPngSha256, expectedBounds, contracts, `APP_CTA_${template.height}_${label}`, request.templateId);
           if (fixed) fixedComponents.push(fixed);
         } catch (error) { textIssues.push(error as ValidationIssue); }
       }
@@ -908,12 +1026,14 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
         const chevronAsset = { ...chevron280, ...jsonObject(chevron.asset) };
         try {
           const buttonBounds = numberArray(button.visibleBounds);
-          if (buttonBounds.length < 2 || typeof buttonAsset.assetPath !== "string" || typeof buttonAsset.assetPngSha256 !== "string") throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "button asset and visible bounds from CTA registry", occurrence.button);
-          const buttonComponent = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(buttonAsset.assetPath), String(buttonAsset.assetPngSha256), Number(buttonBounds[0]), Number(buttonBounds[1]), contracts, `APP_CTA_280_BUTTON_${String(option.id)}`);
+          if (buttonBounds.length < 4 || typeof buttonAsset.assetPath !== "string" || typeof buttonAsset.assetPngSha256 !== "string") throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "button asset and visible bounds from CTA registry", occurrence.button);
+          const buttonExpectedBounds = { x: Number(buttonBounds[0]), y: Number(buttonBounds[1]), width: Number(buttonBounds[2]) - Number(buttonBounds[0]), height: Number(buttonBounds[3]) - Number(buttonBounds[1]) };
+          const buttonComponent = await drawVerifiedFixedAsset(canvas, options.projectRoot, buttonAsset.assetPath, buttonAsset.assetPngSha256, buttonExpectedBounds, contracts, `APP_CTA_280_BUTTON_${String(option.id)}`, request.templateId);
           if (buttonComponent) fixedComponents.push(buttonComponent);
-          const chevronBounds = numberArray(chevron.visibleBounds).length >= 2 ? numberArray(chevron.visibleBounds) : numberArray(chevron280.visibleBounds);
-          if (chevronBounds.length < 2 || typeof chevronAsset.assetPath !== "string" || typeof chevronAsset.assetPngSha256 !== "string") throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "chevron asset and visible bounds from CTA registry", occurrence.chevron);
-          const chevronComponent = await drawVerifiedFixedAsset(canvas, options.projectRoot, String(chevronAsset.assetPath), String(chevronAsset.assetPngSha256), Number(chevronBounds[0]), Number(chevronBounds[1]), contracts, "APP_CTA_280_CHEVRON");
+          const chevronBounds = numberArray(chevron.visibleBounds).length >= 4 ? numberArray(chevron.visibleBounds) : numberArray(chevron280.visibleBounds);
+          if (chevronBounds.length < 4 || typeof chevronAsset.assetPath !== "string" || typeof chevronAsset.assetPngSha256 !== "string") throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "chevron asset and visible bounds from CTA registry", occurrence.chevron);
+          const chevronExpectedBounds = { x: Number(chevronBounds[0]), y: Number(chevronBounds[1]), width: Number(chevronBounds[2]) - Number(chevronBounds[0]), height: Number(chevronBounds[3]) - Number(chevronBounds[1]) };
+          const chevronComponent = await drawVerifiedFixedAsset(canvas, options.projectRoot, chevronAsset.assetPath, chevronAsset.assetPngSha256, chevronExpectedBounds, contracts, "APP_CTA_280_CHEVRON", request.templateId);
           if (chevronComponent) fixedComponents.push(chevronComponent);
           const ctaLayer = ctaTextLayer(metadata, request.templateId, label);
           if (!ctaLayer) throw issueFor(contracts, "NAVER_SMARTCHANNEL_CTA_INVALID", "/content/ctaOption", "CTA label layer from PSD metadata", label);

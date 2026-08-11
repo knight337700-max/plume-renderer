@@ -143,7 +143,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N7.4 final handoff
+const readme = `# Renderer Module — N7.5 final handoff
 
 ## Purpose
 
@@ -151,7 +151,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N7.4 final source commit: ${sourceSha}
+- N7.5 final source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Desktop package: ${packageArtifact?.path ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256})` : ""}
 - Runtime network access: PROHIBITED
@@ -167,6 +167,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER Desktop UI: implemented (capability-driven Channel → Placement → Editor)
 - NAVER Desktop N7.1/N7.2/N7.3 resilience: local diagnostics, Error Boundary, explicit registry errors, SmartChannel selection reconciliation, editor-owned copy state, empty-string preservation, packaged click/input matrix
 - NAVER SmartChannel N7.4: bundled exact NanumBarunGothic Bold/Regular, actual-user sofa/logo acceptance evidence, final-alpha validation, Preview/Export/Packaged parity
+- NAVER SmartChannel N7.5: frozen fixed-component runtime inventory (26 resources), packaged asset inclusion, structured digest/decode/placement diagnostics, 29 landing-template and 11-option CTA coverage
 - Meta: not implemented
 - Google: not implemented
 
@@ -203,8 +204,9 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is N7.4 in docs/kakao-bizboard-renderer-spec-v1.md. N7.4 SmartChannel runtime
-acceptance uses actual-user binary evidence and final render-space validation. N7.3 SmartChannel copy
+The latest phase is N7.5 in docs/kakao-bizboard-renderer-spec-v1.md. N7.5 SmartChannel fixed
+component runtime acceptance uses source/runtime/package digest evidence and final placement validation.
+N7.4 SmartChannel runtime acceptance uses actual-user binary evidence and final render-space validation. N7.3 SmartChannel copy
 stability uses one-time default hydration, editor-owned content, nullish reads, and existing Core
 paths. N6 source contracts are
 contracts/naver-platform-composed-source.schema.json,
@@ -215,7 +217,7 @@ contracts/desktop-capability-registry.json, contracts/desktop-error-registry.jso
 tests/e2e/naver-desktop.spec.ts, and scripts/smoke-naver-desktop.mjs. N7.2 adds
 source-backed SmartChannel filter reconciliation and event-value snapshot tests; N7.3 adds
 custom/empty/Korean copy persistence, preview-read, compatible-template, and all-text-field tests. The next
-planned phase is M0_NAVER_DESKTOP_HARDENING; it must not invent final NAVER UI geometry.
+planned phase is M0_META_OFFICIAL_FORMAT_SOURCE_CATALOG; it must not invent final NAVER UI geometry.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
 const readmeEntry = files.find((entry) => entry.path === "README.md");
@@ -223,7 +225,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N7_4_SMARTCHANNEL_ASSET_FONT_RUNTIME_HOTFIX",
+  handoffPhase: "N7_5_SMARTCHANNEL_FIXED_COMPONENT_RUNTIME_HOTFIX",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -238,8 +240,8 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN7_4Continuation.rendererCoreVersion,
-    desktop: canonicalDocument.desktopAppVersion,
+    rendererCore: canonicalDocument.canonicalPhaseN7_5.rendererCoreVersion,
+    desktop: canonicalDocument.canonicalPhaseN7_5.desktopCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
     platformComposedSourceRegistry: canonicalDocument.platformComposedSourceRegistryVersion,
@@ -272,6 +274,13 @@ const manifest = {
     n7_4ImplementationRecord: "docs/implementation/naver-smartchannel-n7-4-final-actual-user-asset-acceptance.md",
     n7_4ActualAssetAcceptance: "contracts/naver-smartchannel-actual-asset-acceptance.json",
     n7_4FontAssetManifest: "contracts/naver-smartchannel-font-asset-manifest.json",
+    n7_5ContractClarification: "docs/contract-clarifications/naver-smartchannel-n7-5-fixed-component-runtime-hotfix.md",
+    n7_5ImplementationRecord: "docs/implementation/naver-smartchannel-n7-5-fixed-component-runtime-hotfix.md",
+    n7_5FixedComponentRuntimeRegistry: "contracts/naver-smartchannel-fixed-component-runtime.json",
+    n7_5FixedComponentGenerator: "scripts/generate-naver-smartchannel-fixed-component-runtime.mjs",
+    n7_5FixedComponentVerifier: "scripts/verify-naver-smartchannel-fixed-components.mjs",
+    n7_5FixedComponentSmoke: "scripts/smoke-naver-smartchannel-fixed-components.mjs",
+    n7_5PackagedSmoke: "apps/desktop/electron-main/src/main.ts --smoke-n7-5-fixed",
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git", "Apple SD Gothic Neo binaries"],

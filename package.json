@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -32,6 +32,8 @@
     "verify:naver-font-compatibility": "node scripts/verify-naver-smartchannel-font-compatibility.mjs",
     "verify:naver-actual-asset": "node scripts/verify-naver-smartchannel-actual-asset-acceptance.mjs",
     "verify:naver-inventory": "node scripts/verify-naver-smartchannel-n3-inventory.mjs",
+    "generate:naver-fixed-components": "node scripts/generate-naver-smartchannel-fixed-component-runtime.mjs",
+    "verify:naver-fixed-components": "node scripts/verify-naver-smartchannel-fixed-components.mjs",
     "verify:naver-desktop": "node scripts/verify-naver-desktop-integration.mjs",
     "verify:naver-runtime": "pnpm build && node scripts/verify-naver-smartchannel-runtime.mjs",
     "verify:naver-exhaustive": "pnpm build && node scripts/verify-naver-smartchannel-n3-exhaustive.mjs",
@@ -61,8 +63,9 @@
     "package:windows": "pnpm build:desktop && node scripts/package-windows.mjs",
     "smoke:package": "node scripts/smoke-packaged.mjs",
     "smoke:desktop": "node scripts/smoke-naver-desktop.mjs",
+    "smoke:naver-fixed-components": "node scripts/smoke-naver-smartchannel-fixed-components.mjs",
     "evidence:package": "node scripts/capture-packaged-evidence.mjs",
-    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-actual-asset && pnpm verify:naver-inventory && pnpm verify:naver-desktop && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
+    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-actual-asset && pnpm verify:naver-inventory && pnpm verify:naver-fixed-components && pnpm verify:naver-desktop && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
     "render": "node dist/cli/index.js"
   },
   "dependencies": {
@@ -109,6 +112,7 @@
       "packages/renderer-contract/dist/**/*",
       "assets/fonts/**/*",
       "assets/masks/**/*",
+      "assets/naver-smartchannel/**/*",
       "reference/kakao-tool/OBJECT_RIGHT.png",
       "reference/kakao-tool/THUMBNAIL_BOX_RIGHT.png",
       "reference/kakao-tool/THUMBNAIL_MULTI_RIGHT.png",

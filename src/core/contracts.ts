@@ -39,6 +39,7 @@ export type ContractBundle = {
   naverTemplateContract: Record<string, unknown>;
   naverTypography: Record<string, unknown>;
   naverFixedComponents: Record<string, unknown>;
+  naverFixedComponentRuntime: Record<string, unknown>;
   naverCtaOptions: Record<string, unknown>;
   naverN2Candidates: Record<string, unknown>;
   naverRuntimeFontPolicy: Record<string, unknown>;
@@ -75,6 +76,7 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     naverTemplateContract,
     naverTypography,
     naverFixedComponents,
+    naverFixedComponentRuntime,
     naverCtaOptions,
     naverN2Candidates,
     naverRuntimeFontPolicy,
@@ -103,6 +105,7 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-template-contract.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-typography.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-fixed-components.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-fixed-component-runtime.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-cta-options.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-n2-candidates.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-smartchannel-runtime-font-policy.json"),
@@ -133,6 +136,7 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     naverTemplateContract,
     naverTypography,
     naverFixedComponents,
+    naverFixedComponentRuntime,
     naverCtaOptions,
     naverN2Candidates,
     naverRuntimeFontPolicy,

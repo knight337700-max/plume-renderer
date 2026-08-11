@@ -56,6 +56,15 @@ export function issueMessage(issue: ValidationIssue): string {
     const expectedId = expected.fontId ?? expected.requiredFont;
     if (expectedId !== undefined) return `${base} 필요 폰트: ${String(expectedId)}.`;
   }
+  if (issue.code === "NAVER_SMARTCHANNEL_FIXED_COMPONENT_INVALID") {
+    const expected = issue.expected && typeof issue.expected === "object" ? issue.expected as Record<string, unknown> : {};
+    const componentId = actual.componentId ?? expected.componentId ?? "?";
+    const reason = actual.failureReason ?? expected.failureReason ?? "UNKNOWN";
+    const expectedDigest = expected.expectedDigest;
+    const actualDigest = actual.actualDigest;
+    const digestDetail = expectedDigest && actualDigest ? ` 예상 digest ${String(expectedDigest)} / 실제 ${String(actualDigest)}` : "";
+    return `${base} 구성요소: ${String(componentId)}, 사유: ${String(reason)}.${digestDetail}`;
+  }
   return base;
 }
 

@@ -2,8 +2,8 @@
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
 - **Document version:** 1.21.1
-- **Status:** Frozen Implementation Contract — Phase N7.4 SmartChannel final-alpha asset normalization and official-font bundled exact-asset continuation
-- **Checked date:** 2026-08-10 (KST)
+- **Status:** Frozen Implementation Contract — Phase N7.5 SmartChannel fixed-component runtime/package hotfix continuation
+- **Checked date:** 2026-08-11 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
 
@@ -4556,3 +4556,87 @@ network access. Required fonts are resolved bundled exact assets. Actual user so
 binary evidence both pass the full normalization path; exact source dimensions are not a
 requirement. `manualAcceptanceStatus=NOT_REVIEWED` remains an explicit distinction from runtime
 acceptance and does not block this phase closeout. **[PROJECT]**
+
+---
+
+## 44. Phase N7.5 — SmartChannel Fixed Component Runtime and Package Hotfix
+
+N7.5은 N7.4의 고정된 SmartChannel 자산과 좌표를 변경하지 않고, packaged Desktop에서
+landing icon과 APP CTA raster가 누락되어 Preview/Export가 실패하던 런타임 경로를 교정한다.
+수정 전 source Core는 `assets/naver-smartchannel`을 읽을 수 있었지만 electron-builder의
+`build.files`에 해당 디렉터리가 없어 packaged `resources/app`에 파일이 존재하지 않았다.
+이 원인은 `PACKAGING`으로 분류하며, N3 exhaustive test가 source `projectRoot`만 사용하고
+packaged `resources/app` resolver를 실행하지 않았기 때문에 발견되지 않았다. **[PROJECT]**
+
+### 44.1 Frozen fixed-component inventory [PROJECT]
+
+`contracts/naver-smartchannel-fixed-component-runtime.json`은 26개 runtime resource의
+단일 인벤토리다. 모든 항목은 `id`, `scope`, `componentFamily`, `sourceProvenance`,
+`expectedSha256`, `sourcePath`, `runtimePath`, `packagedRequired`, `templates`,
+`expectedRenderBounds`를 가져야 하며 상태는 `FROZEN`이다. source와 runtime 경로는
+프로젝트 상대 경로이고, 패키지 빌드에는 `assets/naver-smartchannel/**/*`가 반드시 포함된다.
+누락, 변경, 비등록, digest 불일치는 fallback 없이 오류로 종료한다. **[PROJECT]**
+
+Landing icon의 승인 digest와 좌표는 다음과 같이 그대로 유지한다.
+
+| Component | SHA-256 | 160 | 200 | 280 |
+|---|---|---|---|---|
+| `LANDING_ICON_COMPACT` | `c731128d2bb468c5d7088c9d183d4ebbec24aa748085e6fe41f8d0cbd24a8e58` | `x=694,y=65,w=16,h=30` | `x=694,y=85,w=16,h=30` | — |
+| `LANDING_ICON_280` | `b81d74dcadc9d21db0e81169117d52f9fc51973bd2bba0ce18985035efd617ca` | — | — | `x=660,y=112,w=56,h=59` |
+
+Compact APP CTA는 frozen 11-label registry를 사용하며 160/200의 각 source occurrence와
+280의 각 source occurrence만 허용한다. 임의의 Cartesian 조합을 만들지 않는다. **[PROJECT]**
+
+### 44.2 Runtime validation order and diagnostics [PROJECT]
+
+고정 구성요소 검증 순서는 다음으로 고정한다.
+
+1. 선택한 template에서 허용된 component family인지 확인
+2. runtime inventory registry entry 확인
+3. trusted runtime/package 경로의 파일 존재 확인
+4. 기대 SHA-256 확인
+5. RGBA PNG decode 확인
+6. source-backed placement bounds와 실제 pixel dimensions 확인
+7. 최종 bounds가 frozen bounds와 일치하는지 확인
+8. composite에 고정 구성요소를 그린다
+
+고정 구성요소에는 제품 object의 alpha trim, contain scale, 70% opaque-pixel 규칙 또는
+fallback을 적용하지 않는다. 실패 시 `NAVER_SMARTCHANNEL_FIXED_COMPONENT_INVALID` 하나의
+안정된 오류 코드로 반환하며 `componentId`, `templateId`, `failureReason`,
+`expectedDigest`, `actualDigest`, `expectedBounds`, `actualBounds`, `runtimeResourceId`,
+`runtimeResourcePath`를 포함한다. failure reason은 `MISSING_REGISTRY_ENTRY`,
+`MISSING_RUNTIME_ASSET`, `DIGEST_MISMATCH`, `DECODE_FAILED`, `PLACEMENT_MISMATCH`,
+`UNSUPPORTED_FOR_TEMPLATE` 중 하나다. **[PROJECT]**
+
+`naver_smartchannel.fixed_component_invalid` 한국어 키를 UI registry에 등록하고, 외부
+계약에는 AJV 원문 영어 메시지를 노출하지 않는다. Preview, Export, packaged runtime은
+같은 Core resolver와 같은 inventory를 사용한다. **[PROJECT]**
+
+### 44.3 Acceptance and deterministic boundary [PROJECT]
+
+Acceptance는 LANDING_ICON 29개(160 8개, 200 8개, 280 13개)를 모두 실행하고, compact
+CTA 11개 label의 160/200 source-backed occurrence와 280 CTA 11개 option matrix를
+검사한다. digest corruption, missing asset, compact/280 wrong mapping은 각각 통제된
+고정 구성요소 오류를 반환해야 한다. 동일 Windows 10/11 x64 runtime에서 대표 입력을
+3회 실행한 PNG SHA-256과 fingerprint는 byte-equal이어야 한다. **[PROJECT]**
+
+패키지 검증은 unpacked `release/win-unpacked/resources/app`와 portable EXE를 모두
+대상으로 하며, source/runtime/packaged digest가 동일해야 한다. Runtime network request는
+0이고 Error Boundary fallback은 0이어야 한다. Kakao, FREEFORM, N2/N4/N5/N6, N7.2,
+N7.3, N7.4 actual sofa/logo/font acceptance와 기존 non-target fingerprint는 회귀 없이
+유지한다. **[PROJECT]**
+
+### 44.4 Version and next phase [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.21.1 | 1.21.1 | Fixed-component runtime/package hotfix; canonical geometry unchanged |
+| Template contract | 1.9.0 | 1.9.0 | Source template and coordinates unchanged |
+| Renderer Core | 0.8.2 | 0.8.3 | Frozen runtime inventory, digest/decode/placement validation, structured diagnostics |
+| Desktop package | 0.9.5 | 0.9.6 | Include SmartChannel fixed assets and add packaged smoke mode |
+| Fixed component runtime registry | — | 1.0.0 | New machine-readable source/runtime/package inventory |
+
+N7.5는 공식 업로드 승인이나 외부 서비스 연동을 의미하지 않는다. plume, Railway,
+PostgreSQL, telemetry, 원격 폰트, CDN, 카카오/NAVER API 업로드는 계속 범위 밖이며 runtime
+network access는 금지한다. 다음 계획 단계는 `M0_META_OFFICIAL_FORMAT_SOURCE_CATALOG`다.
+**[PROJECT]**
