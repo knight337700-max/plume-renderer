@@ -18,7 +18,7 @@ const policy = readJson<Policy>("contracts/naver-smartchannel-runtime-font-polic
 
 describe("NAVER SmartChannel official font contract", () => {
   it("does not expose Apple SD Gothic Neo as a runtime dependency", () => {
-    expect(compatibility.status).toBe("OFFICIAL_ASSETS_UNRESOLVED");
+    expect(compatibility.status).toBe("OFFICIAL_ASSETS_RESOLVED_BUNDLED");
     expect(compatibility.fonts.map((font) => font.fontToken)).toEqual([
       "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
       "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
@@ -26,12 +26,12 @@ describe("NAVER SmartChannel official font contract", () => {
     ]);
     expect(policy.runtimeAssets.map((asset) => asset.id)).not.toContain("NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD");
     expect(policy.runtimeAssets.filter((asset) => asset.required).map((asset) => asset.weight).sort()).toEqual([400, 700]);
-    expect(policy.runtimeStatus).toBe("BLOCKED_UNRESOLVED_OFFICIAL_ASSET");
+    expect(policy.runtimeStatus).toBe("READY_APPROVED_OFFICIAL_ASSET");
   });
 
-  it("records unresolved assets without fake digests or fallback", () => {
+  it("records bundled exact assets without fake digests or fallback", () => {
     expect(compatibility.approvedDigestAllowlist).toEqual({});
-    expect(compatibility.fonts.every((font) => font.runtime.localSha256 === null && !font.runtime.bundleAllowed && !font.runtime.commitAllowed && !font.runtime.networkFetchAllowed)).toBe(true);
-    expect(policy.runtimeAssets.filter((asset) => asset.required).every((asset) => asset.runtimeDigest === null && asset.smartChannelAllowed === false)).toBe(true);
+    expect(compatibility.fonts.filter((font) => font.required).every((font) => /^[a-f0-9]{64}$/.test(font.runtime.localSha256 ?? "") && font.runtime.bundleAllowed && font.runtime.commitAllowed && !font.runtime.networkFetchAllowed)).toBe(true);
+    expect(policy.runtimeAssets.filter((asset) => asset.required).every((asset) => /^[a-f0-9]{64}$/.test(asset.runtimeDigest ?? "") && asset.smartChannelAllowed === true)).toBe(true);
   });
 });

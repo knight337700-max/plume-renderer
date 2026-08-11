@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-actual-asset-acceptance-v1.0.0.json",
+  "registryVersion": "1.0.0",
+  "status": "PASS",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "acceptanceRule": {
+    "actualUserBinaryRequired": true,
+    "highResolutionTransparentSource": true,
+    "exactSourceDimensionsRequired": false,
+    "historicalEquivalentFixtureSourceCanvas": { "width": 2048, "height": 1366 },
+    "sourceCanvasUsedAsLimit": false,
+    "requiredPipeline": [
+      "decode",
+      "alpha_trim",
+      "contain_fit",
+      "final_bounds_validation",
+      "region_validation",
+      "opaque_pixel_validation",
+      "preview",
+      "export",
+      "packaged_runtime"
+    ]
+  },
+  "assets": {
+    "sofa": {
+      "evidenceCategory": "ACTUAL_USER_BINARY",
+      "sourcePathKind": "USER_PROVIDED_EXTERNAL",
+      "sourcePath": "C:/Users/Lenovo/Desktop/kakao/TEST_SOURCE/Plume_누끼.png",
+      "renderRequest": {
+        "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE",
+        "content": { "headline": "브랜드의 새로운 시작" },
+        "jobName": "naver-render",
+        "objectRelativePath": "product.png"
+      },
+      "sourceDigest": "fb736b93a274899b9750857ab7852c15d54d4f5233f7fbd655d28c2448f62dc4",
+      "sourceCanvas": { "width": 7616, "height": 5080 },
+      "alphaBounds": { "x": 2485, "y": 1555, "width": 3878, "height": 2213 },
+      "normalizedSize": { "width": 235, "height": 134 },
+      "finalBounds": { "x": 40, "y": 13, "width": 235, "height": 134 },
+      "targetRegion": { "x": 40, "y": 0, "width": 235, "height": 160 },
+      "visibleAlphaPixels": 20391,
+      "maxVisibleAlphaPixels": 29120,
+      "validatorResult": { "errorCount": 0, "warningCount": 0, "infoCount": 0, "issues": [] },
+      "pipeline": {
+        "decode": "PASS",
+        "alpha_trim": "PASS",
+        "contain_fit": "PASS",
+        "final_bounds_validation": "PASS",
+        "region_validation": "PASS",
+        "opaque_pixel_validation": "PASS",
+        "preview": "PASS",
+        "export": "PASS",
+        "packaged_runtime": "PASS"
+      },
+      "outputPngDigest": "1fb633dfaab45bf404aaf59d58421982d3b450d9028fd4d760856f811743e373",
+      "pixelFingerprint": "0383f4c920ee95b2a57cfc646da25fa418301992b1985ea5f8fecd6a83f93374",
+      "renderFingerprint": "0383f4c920ee95b2a57cfc646da25fa418301992b1985ea5f8fecd6a83f93374",
+      "requestFingerprint": "fa1fdc0f595d2dc1295653b3882bffc2b1d4b9933a160c5805838a46c4e0bdc4",
+      "manifestPath": "C:/Users/Lenovo/Desktop/kakao/naver-render/render-manifest.json",
+      "manualAcceptanceStatus": "NOT_REVIEWED",
+      "result": "PASS"
+    },
+    "logo": {
+      "evidenceCategory": "ACTUAL_USER_BINARY",
+      "sourcePathKind": "USER_PROVIDED_EXTERNAL",
+      "sourcePath": "C:/Users/Lenovo/Desktop/kakao/TEST_SOURCE/자코모 로고_블랙-ai.png",
+      "renderRequest": {
+        "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
+        "content": { "headline": "자코모", "subcopy": "소파" },
+        "jobName": "n7-4",
+        "objectRelativePath": "product.png"
+      },
+      "sourceDigest": "66c398b9994e27a358c8752a19e4425dd308327435bdd18005e8175cd3459e43",
+      "sourceCanvas": { "width": 842, "height": 595 },
+      "alphaBounds": { "x": 187, "y": 218, "width": 469, "height": 159 },
+      "normalizedSize": { "width": 235, "height": 80 },
+      "visibleAlphaPixels": 7801,
+      "validatorResult": { "errorCount": 0, "warningCount": 0, "infoCount": 0, "issues": [] },
+      "pipeline": {
+        "decode": "PASS",
+        "alpha_trim": "PASS",
+        "contain_fit": "PASS",
+        "final_bounds_validation": "PASS",
+        "region_validation": "PASS",
+        "opaque_pixel_validation": "PASS",
+        "preview": "PASS",
+        "export": "PASS",
+        "packaged_runtime": "PASS"
+      },
+      "outputPngDigest": "f2e8cc33039fbafcb175ad0b316845cafa7f4b851a48873ff5ca22e316292083",
+      "result": "PASS"
+    }
+  },
+  "manualAcceptanceStatus": "NOT_REVIEWED",
+  "runtimeNetworkRequests": 0,
+  "provenance": {
+    "runtimeFontPolicy": "contracts/naver-smartchannel-runtime-font-policy.json",
+    "fontAssetManifest": "contracts/naver-smartchannel-font-asset-manifest.json",
+    "evidenceMeaning": "Runtime and contract acceptance evidence; not a user design approval"
+  }
+}

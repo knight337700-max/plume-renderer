@@ -143,7 +143,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N7.3 handoff
+const readme = `# Renderer Module — N7.4 final handoff
 
 ## Purpose
 
@@ -151,7 +151,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N7.3 hotfix source commit: ${sourceSha}
+- N7.4 final source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Desktop package: ${packageArtifact?.path ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256})` : ""}
 - Runtime network access: PROHIBITED
@@ -166,6 +166,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER video runtime: not implemented
 - NAVER Desktop UI: implemented (capability-driven Channel → Placement → Editor)
 - NAVER Desktop N7.1/N7.2/N7.3 resilience: local diagnostics, Error Boundary, explicit registry errors, SmartChannel selection reconciliation, editor-owned copy state, empty-string preservation, packaged click/input matrix
+- NAVER SmartChannel N7.4: bundled exact NanumBarunGothic Bold/Regular, actual-user sofa/logo acceptance evidence, final-alpha validation, Preview/Export/Packaged parity
 - Meta: not implemented
 - Google: not implemented
 
@@ -191,17 +192,19 @@ The full check includes TypeScript, ESLint, Vitest, Desktop build, and Playwrigh
 runtime command may make a network request. Build dependency resolution is lockfile-based;
 offline install is available only when the pnpm store is already prepared.
 
-## External fonts
+## Fonts and actual-user evidence
 
-Apple SD Gothic Neo binaries are deliberately not bundled. See
-local-runtime-resources/fonts/README.md and font-manifest.json. Supply the approved local
-files from a trusted directory and set NAVER_SMARTCHANNEL_FONT_DIR; do not download fonts at
-runtime and do not make a redistribution claim. Kakao Spoqa assets remain governed by their
-OFL notice under assets/fonts/.
+SmartChannel required runtime fonts are bundled exact NanumBarunGothic Bold/Regular assets under
+assets/fonts/naver-smartchannel/. Apple SD Gothic Neo and optional San Francisco remain source-only
+metadata; no system fallback or network download is permitted. The actual-user acceptance registry
+is contracts/naver-smartchannel-actual-asset-acceptance.json. It records the externally supplied
+sofa/logo digests and runtime evidence; the creative binaries are not copied into this handoff.
+Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is N7.3 in docs/kakao-bizboard-renderer-spec-v1.md. N7.3 SmartChannel copy
+The latest phase is N7.4 in docs/kakao-bizboard-renderer-spec-v1.md. N7.4 SmartChannel runtime
+acceptance uses actual-user binary evidence and final render-space validation. N7.3 SmartChannel copy
 stability uses one-time default hydration, editor-owned content, nullish reads, and existing Core
 paths. N6 source contracts are
 contracts/naver-platform-composed-source.schema.json,
@@ -220,7 +223,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N7_3_SMARTCHANNEL_HEADLINE_INPUT_RESET_HOTFIX",
+  handoffPhase: "N7_4_SMARTCHANNEL_ASSET_FONT_RUNTIME_HOTFIX",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -235,7 +238,7 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN7_3.rendererCoreVersion,
+    rendererCore: canonicalDocument.canonicalPhaseN7_4Continuation.rendererCoreVersion,
     desktop: canonicalDocument.desktopAppVersion,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
@@ -265,14 +268,16 @@ const manifest = {
     n7_2ContractClarification: "docs/contract-clarifications/naver-smartchannel-null-value-selection-hotfix-n7-2.md",
     n7_3ImplementationRecord: "docs/implementation/naver-smartchannel-headline-input-reset-hotfix-n7-3.md",
     n7_3ContractClarification: "docs/contract-clarifications/naver-smartchannel-headline-input-reset-hotfix-n7-3.md",
+    n7_4ContractClarification: "docs/contract-clarifications/naver-smartchannel-n7-4-asset-font-hotfix.md",
+    n7_4ImplementationRecord: "docs/implementation/naver-smartchannel-n7-4-final-actual-user-asset-acceptance.md",
+    n7_4ActualAssetAcceptance: "contracts/naver-smartchannel-actual-asset-acceptance.json",
+    n7_4FontAssetManifest: "contracts/naver-smartchannel-font-asset-manifest.json",
   },
-  externalRuntimeDependencies: [
-    { kind: "font", directoryEnv: "NAVER_SMARTCHANNEL_FONT_DIR", manifest: "local-runtime-resources/fonts/font-manifest.json", bundled: false, licenseStatus: "NOT_CONFIRMED" },
-  ],
+  externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git", "Apple SD Gothic Neo binaries"],
   runtimeNetworkAccess: "PROHIBITED",
   smartchannelPsdCount,
-  fontBinariesBundled: false,
+  fontBinariesBundled: true,
 };
 await writeFile(path.join(target, "MANIFEST.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 console.log(JSON.stringify({ target, sourceSha, smartchannelPsdCount, fileCount: files.length, canonicalSha256: manifest.canonicalDocument.sha256 }, null, 2));

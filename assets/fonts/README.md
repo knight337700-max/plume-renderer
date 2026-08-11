@@ -63,9 +63,9 @@ SF effective audit 결과 SFPro/SFUI layer는 `HIDDEN_SOURCE_TEXT`이고 composi
 ## NAVER SmartChannel N7.4 official font contract
 
 SmartChannel은 Apple SD Gothic Neo를 공식 허용 폰트 또는 runtime dependency로 취급하지
-않는다. Source PSD에 남아 있는 Apple 이름은 source metadata 기록일 뿐이다. 현재 저장소에는
-합법적으로 확인된 `NanumBarunGothic` 또는 `Sandoll Neo Gothic` Bold/Regular runtime asset이
-없으므로 SmartChannel 공식 role은 `UNRESOLVED_ASSET`으로 fail-closed 기록되어 있다.
+않는다. Source PSD에 남아 있는 Apple 이름은 source metadata 기록일 뿐이다. Required
+NanumBarunGothic Bold/Regular는 bundled exact asset으로 resolved되었고, optional SF role은
+source-only `UNRESOLVED_ASSET`으로 유지된다.
 
 필요 조건은 다음과 같다.
 
@@ -77,3 +77,16 @@ Medium/SemiBold를 unconditional dependency로 추가하지 않으며, 시스템
 가짜 파일명·SHA-256, 네트워크 다운로드, Apple 파일의 재사용은 금지한다. 실제 asset을
 추가하려면 라이선스 확인, 파일 SHA-256, 내부 PostScript identity를
 `contracts/naver-smartchannel-font-contract.json`과 runtime policy에 1:1로 등록해야 한다.
+
+## N7.4 continuation — bundled NanumBarunGothic intake
+
+사용자 제공 `nanum-barun-gothic` 폴더의 TTF를 수정·재저장하지 않고 다음 경로에 bundle했다.
+사용자 공식/적법 확보 assertion과 embedded copyright metadata(NHN Corporation/FONTRIX)를
+근거로 기록하며 별도 license 파일은 제공되지 않았다.
+
+| Role | Relative path | SHA-256 | PostScript | Declared role |
+|---|---|---|---|---:|
+| Main | `naver-smartchannel/NanumBarunGothicBold.ttf` | `39bba4cd9bd2986143825c8654abbb62443914ab33b346c0c929a916f5d98bf2` | `NanumBarunGothicBold` | 700 |
+| Sub/Disclaimer | `naver-smartchannel/NanumBarunGothic.ttf` | `9b872773134e2e4d8c0b17021266786576db06c843ede0d0b523b214a450756c` | `NanumBarunGothic` | 400 |
+
+SF optional role은 source-only unresolved이며 시스템 fallback·네트워크 fetch는 금지한다.

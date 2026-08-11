@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-font-asset-manifest-v1.0.0.json",
+  "manifestVersion": "1.0.0",
+  "status": "RESOLVED_BUNDLED_EXACT",
+  "channel": "NAVER_GFA",
+  "placement": "SMARTCHANNEL",
+  "source": {
+    "kind": "USER_PROVIDED_OFFICIAL_ASSET",
+    "directoryLabel": "nanum-barun-gothic",
+    "binaryMutation": false,
+    "licenseStatus": "USER_PROVIDED_OFFICIAL_ASSERTION_EMBEDDED_COPYRIGHT",
+    "licenseEvidence": "Embedded name-table copyright NHN Corporation; designer/trademark metadata references FONTRIX; no separate license file supplied."
+  },
+  "files": [
+    {
+      "assetId": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
+      "relativePath": "assets/fonts/naver-smartchannel/NanumBarunGothicBold.ttf",
+      "fileName": "NanumBarunGothicBold.ttf",
+      "family": "NanumBarunGothic",
+      "style": "Bold",
+      "role": "MAIN",
+      "declaredRoleWeight": 700,
+      "os2WeightClass": 600,
+      "postScriptName": "NanumBarunGothicBold",
+      "version": "Version 1.000 2013 initial release",
+      "sha256": "39bba4cd9bd2986143825c8654abbb62443914ab33b346c0c929a916f5d98bf2",
+      "sizeBytes": 4415956,
+      "licenseStatus": "USER_PROVIDED_OFFICIAL_ASSERTION_EMBEDDED_COPYRIGHT",
+      "bundled": true,
+      "runtime": true,
+      "fallback": false
+    },
+    {
+      "assetId": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
+      "relativePath": "assets/fonts/naver-smartchannel/NanumBarunGothic.ttf",
+      "fileName": "NanumBarunGothic.ttf",
+      "family": "NanumBarunGothic",
+      "style": "Regular",
+      "role": "SUB_AND_DISCLAIMER",
+      "declaredRoleWeight": 400,
+      "os2WeightClass": 400,
+      "postScriptName": "NanumBarunGothic",
+      "version": "Version 1.000 2013 initial release",
+      "sha256": "9b872773134e2e4d8c0b17021266786576db06c843ede0d0b523b214a450756c",
+      "sizeBytes": 4186060,
+      "licenseStatus": "USER_PROVIDED_OFFICIAL_ASSERTION_EMBEDDED_COPYRIGHT",
+      "bundled": true,
+      "runtime": true,
+      "fallback": false
+    }
+  ]
+}

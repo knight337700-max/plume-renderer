@@ -2,14 +2,75 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://kbr.local/contracts/naver-smartchannel-font-metric-fixtures-v1.1.0.json",
   "registryVersion": "1.1.0",
-  "status": "BLOCKED_UNRESOLVED_ASSET",
+  "status": "RESOLVED_ASSET",
   "fontContractRef": "contracts/naver-smartchannel-font-contract.json",
-  "fixtures": [],
+  "fixtures": [
+    {
+      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD_ko_short",
+      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
+      "postScriptName": "NanumBarunGothicBold",
+      "text": "브랜드의 새로운 시작",
+      "fontSize": 32,
+      "measuredWidth": 271.2300109863281,
+      "deterministic": true,
+      "overflow": false
+    },
+    {
+      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD_ko_subcopy",
+      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
+      "postScriptName": "NanumBarunGothicBold",
+      "text": "매일 더 나은 선택을 만나보세요",
+      "fontSize": 26,
+      "measuredWidth": 324.7900085449219,
+      "deterministic": true,
+      "overflow": false
+    },
+    {
+      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD_en_numeric",
+      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
+      "postScriptName": "NanumBarunGothicBold",
+      "text": "JAKOMO 2026",
+      "fontSize": 26,
+      "measuredWidth": 171.2100067138672,
+      "deterministic": true,
+      "overflow": false
+    },
+    {
+      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR_ko_short",
+      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
+      "postScriptName": "NanumBarunGothic",
+      "text": "브랜드의 새로운 시작",
+      "fontSize": 32,
+      "measuredWidth": 271.2300109863281,
+      "deterministic": true,
+      "overflow": false
+    },
+    {
+      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR_ko_subcopy",
+      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
+      "postScriptName": "NanumBarunGothic",
+      "text": "매일 더 나은 선택을 만나보세요",
+      "fontSize": 26,
+      "measuredWidth": 324.7900085449219,
+      "deterministic": true,
+      "overflow": false
+    },
+    {
+      "id": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR_en_numeric",
+      "fontToken": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
+      "postScriptName": "NanumBarunGothic",
+      "text": "JAKOMO 2026",
+      "fontSize": 26,
+      "measuredWidth": 171.2100067138672,
+      "deterministic": true,
+      "overflow": false
+    }
+  ],
   "summary": {
-    "total": 0,
-    "pass": 0,
+    "total": 6,
+    "pass": 6,
     "overflow": 0,
-    "status": "NOT_EVALUABLE_WITHOUT_APPROVED_ASSETS"
+    "status": "PASS"
   },
   "requiredRoles": [
     "MAIN_BOLD",

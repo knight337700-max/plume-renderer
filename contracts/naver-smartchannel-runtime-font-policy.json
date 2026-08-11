@@ -25,31 +25,31 @@
   ],
   "runtimeLookupKey": "fontToken",
   "fontLookupKey": "fontToken",
-  "runtimeStatus": "BLOCKED_UNRESOLVED_OFFICIAL_ASSET",
+  "runtimeStatus": "READY_APPROVED_OFFICIAL_ASSET",
   "runtimeAssets": [
     {
       "id": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
-      "relativePath": null,
-      "runtimePostScriptName": null,
-      "runtimeDigest": null,
+      "relativePath": "assets/fonts/naver-smartchannel/NanumBarunGothicBold.ttf",
+      "runtimePostScriptName": "NanumBarunGothicBold",
+      "runtimeDigest": "39bba4cd9bd2986143825c8654abbb62443914ab33b346c0c929a916f5d98bf2",
       "weight": 700,
       "required": true,
-      "licenseStatus": "UNRESOLVED",
-      "assetStatus": "UNRESOLVED_ASSET",
-      "resolutionClass": "MISSING",
-      "smartChannelAllowed": false
+      "licenseStatus": "USER_PROVIDED_OFFICIAL_ASSERTION_EMBEDDED_COPYRIGHT",
+      "assetStatus": "RESOLVED",
+      "resolutionClass": "BUNDLED_EXACT",
+      "smartChannelAllowed": true
     },
     {
       "id": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
-      "relativePath": null,
-      "runtimePostScriptName": null,
-      "runtimeDigest": null,
+      "relativePath": "assets/fonts/naver-smartchannel/NanumBarunGothic.ttf",
+      "runtimePostScriptName": "NanumBarunGothic",
+      "runtimeDigest": "9b872773134e2e4d8c0b17021266786576db06c843ede0d0b523b214a450756c",
       "weight": 400,
       "required": true,
-      "licenseStatus": "UNRESOLVED",
-      "assetStatus": "UNRESOLVED_ASSET",
-      "resolutionClass": "MISSING",
-      "smartChannelAllowed": false
+      "licenseStatus": "USER_PROVIDED_OFFICIAL_ASSERTION_EMBEDDED_COPYRIGHT",
+      "assetStatus": "RESOLVED",
+      "resolutionClass": "BUNDLED_EXACT",
+      "smartChannelAllowed": true
     },
     {
       "id": "NAVER_SC_SAN_FRANCISCO_BOLD",
@@ -128,17 +128,14 @@
     "symlinkAllowed": false,
     "windowsReparsePointAllowed": false
   },
-  "unresolvedBlockers": [
-    "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
-    "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR"
-  ],
+  "unresolvedBlockers": [],
   "runtimeNetworkAccess": "PROHIBITED",
   "localExternalFontResource": {
     "directoryEnv": "NAVER_SMARTCHANNEL_FONT_DIR",
     "networkRuntimeAllowed": false,
     "localOnly": true,
     "uiFilePickerImplemented": false,
-    "bundleBinaries": false,
-    "status": "UNRESOLVED_ASSET"
+    "bundleBinaries": true,
+    "status": "RESOLVED_APPROVED_ASSET"
   }
 }

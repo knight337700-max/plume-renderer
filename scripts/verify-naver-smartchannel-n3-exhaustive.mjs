@@ -46,22 +46,26 @@ async function writeObjectAsset(filePath, token, template) {
   const canvas = createCanvas(dimensions.width, dimensions.height);
   const context = canvas.getContext("2d");
   const frame = normalizedFrame(token, template.height);
-  let x = 3;
-  let y = 3;
-  let width = Math.max(1, dimensions.width - 6);
-  let height = Math.max(1, dimensions.height - 6);
+  let width = Math.max(1, Math.floor(dimensions.width * 0.7));
+  let height = Math.max(1, Math.min(150, Math.floor(dimensions.height * 0.7)));
+  let x = Math.floor((dimensions.width - width) / 2);
+  let y = Math.floor((dimensions.height - height) / 2);
   if (jsonObject(token.coordinateSpace).type === "FULL_CANVAS_SOURCE") {
-    x = frame.x + 3;
-    y = frame.y + 3;
-    width = Math.max(1, frame.width - 6);
-    height = Math.max(1, frame.height - 6);
+    width = Math.max(1, Math.floor(frame.width * 0.7));
+    height = Math.max(1, Math.min(150, Math.floor(frame.height * 0.7)));
+    x = Math.floor(frame.x + (frame.width - width) / 2);
+    y = Math.floor(frame.y + (frame.height - height) / 2);
   } else if (jsonObject(token.coordinateSpace).type === "SLOT_LOCAL_SOURCE") {
-    width = Math.max(1, frame.width - 6);
-    height = Math.max(1, frame.height - 6);
+    width = Math.max(1, Math.floor(frame.width * 0.7));
+    height = Math.max(1, Math.min(150, Math.floor(frame.height * 0.7)));
+    x = Math.floor((dimensions.width - width) / 2);
+    y = Math.floor((dimensions.height - height) / 2);
   }
   const seed = [...template.templateId].reduce((sum, character) => sum + character.codePointAt(0), 0);
   context.fillStyle = `rgba(${80 + (seed % 120)},${90 + (seed % 100)},${120 + (seed % 90)},0.9)`;
-  context.fillRect(x, y, width, height);
+  context.beginPath();
+  context.ellipse(x + width / 2, y + height / 2, width / 2, height / 2, 0, 0, Math.PI * 2);
+  context.fill();
   await fs.writeFile(filePath, canvas.toBuffer("image/png"));
 }
 
@@ -179,7 +183,7 @@ try {
       if (result.report?.textRoles.some((role) => role.overflow)) failures.push(`${template.templateId}: text overflow`);
       if ((result.report?.fixedComponents.length ?? 0) !== expectedFixedCount(template)) failures.push(`${template.templateId}: fixed component count mismatch`);
       if (result.report?.object.placementToken !== template.objectPlacementToken) failures.push(`${template.templateId}: placement token mismatch`);
-      if ((result.report?.fonts.length ?? 0) !== 4) failures.push(`${template.templateId}: runtime font set is incomplete`);
+      if ((result.report?.fonts.length ?? 0) !== 2) failures.push(`${template.templateId}: runtime font set is incomplete`);
       const pngInfo = await sharp(result.png).metadata();
       if (pngInfo.width !== 750 || pngInfo.height !== template.height || pngInfo.format !== "png" || pngInfo.hasAlpha !== true) failures.push(`${template.templateId}: RGBA PNG dimensions/alpha mismatch`);
       runs.push(result.pngDigest);

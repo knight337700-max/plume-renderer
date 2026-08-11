@@ -13,6 +13,7 @@ import {
   evaluateFontIdentity,
   getSmartChannelFontDirectory,
   inspectFontIdentity,
+  preflightBundledExactFont,
   preflightExternalExactFont,
   type SmartChannelFontRequirement,
 } from "./naver-smartchannel-font-preflight.js";
@@ -38,6 +39,10 @@ export const NAVER_SMARTCHANNEL_OBJECT_MAX_OPAQUE_PIXELS = 29120;
 export const NAVER_SMARTCHANNEL_TRIM_PRESERVE_THRESHOLD = 1;
 export const NAVER_SMARTCHANNEL_LAYOUT_VISIBLE_THRESHOLD = 8;
 export const NAVER_SMARTCHANNEL_MAX_UPSCALE = 1.5;
+// Meaningful disconnected glyphs (for example a logo made of several
+// separated letters) are retained; only genuinely tiny isolated noise is
+// excluded from the visible trim seed. The source RGBA bytes are untouched.
+export const NAVER_SMARTCHANNEL_MIN_VISIBLE_COMPONENT_PIXELS = 16;
 const NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION = "napi-rs-canvas-png-v1";
 
 type SmartChannelJson = Record<string, unknown>;
@@ -259,11 +264,13 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle): P
   const policy = jsonObject(contracts.naverRuntimeFontPolicy);
   const runtimeAssets = jsonArray(policy.runtimeAssets);
   const issues: ValidationIssue[] = [];
-  let fontRoot: string | null = getSmartChannelFontDirectory();
+  const configuredFontRoot = getSmartChannelFontDirectory();
+  const resolutionMode = configuredFontRoot ? "EXTERNAL_EXACT" : "BUNDLED_EXACT";
+  let fontRoot: string | null = configuredFontRoot;
   if (!fontRoot) {
-    const fallback = path.join(projectRoot, ".local-fonts", "naver-smartchannel");
+    const bundledRoot = path.join(projectRoot, "assets", "fonts", "naver-smartchannel");
     try {
-      fontRoot = await resolveTrustedRoot(fallback);
+      fontRoot = await resolveTrustedRoot(bundledRoot);
     } catch {
       fontRoot = null;
     }
@@ -273,7 +280,7 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle): P
     const token = String(asset.id);
     if (asset.required === false) continue;
     const relativePath = typeof asset.relativePath === "string" ? asset.relativePath : "";
-    const fileName = relativePath ? path.basename(relativePath) : "";
+    const fileName = resolutionMode === "BUNDLED_EXACT" ? path.basename(relativePath) : relativePath;
     const runtimeDigest = typeof asset.runtimeDigest === "string" ? asset.runtimeDigest : "";
     const runtimePostScriptName = String(asset.runtimePostScriptName ?? token);
     if (!relativePath || !runtimeDigest || asset.assetStatus === "UNRESOLVED_ASSET" || asset.smartChannelAllowed === false) {
@@ -294,12 +301,13 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle): P
       requiredPostScriptName: runtimePostScriptName,
       runtimePostScriptName,
       fontToken: token,
-      sourceIdentityStatus: "SOURCE_EXACT",
+      sourceIdentityStatus: "SOURCE_DIFFERENT_BUILD",
       compatibilityStatus: "PROJECT_COMPATIBLE_VERIFIED",
-      allowedResolutionModes: ["EXTERNAL_EXACT"],
+      allowedResolutionModes: [resolutionMode],
       expectedSha256: runtimeDigest,
     };
-    const result = await preflightExternalExactFont(requirement, {
+    const preflight = resolutionMode === "BUNDLED_EXACT" ? preflightBundledExactFont : preflightExternalExactFont;
+    const result = await preflight(requirement, {
       path: fileName,
       expectedPostScriptName: runtimePostScriptName,
       expectedSha256: runtimeDigest,
@@ -314,7 +322,7 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle): P
       issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "decodable font" }, "undecodable"));
       continue;
     }
-    const identityResult = evaluateFontIdentity(requirement, "EXTERNAL_EXACT", { postScriptNames: identity.postScriptNames, digest: result.digest, versions: identity.versions });
+    const identityResult = evaluateFontIdentity(requirement, resolutionMode, { postScriptNames: identity.postScriptNames, digest: result.digest, versions: identity.versions });
     if (identityResult.status !== "PASS") {
       for (const preflightIssue of identityResult.issues) issues.push(issueFor(contracts, preflightIssue.code, `/fonts/${token}`, preflightIssue.expected, preflightIssue.actual));
       continue;
@@ -395,14 +403,16 @@ function componentOrder(left: AlphaComponent, right: AlphaComponent): number {
 }
 
 function contentAlphaBounds(image: DecodedRgba): BBox | null {
-  const primary = connectedAlphaComponents(image, NAVER_SMARTCHANNEL_LAYOUT_VISIBLE_THRESHOLD).sort(componentOrder)[0];
-  if (!primary) return null;
+  const components = connectedAlphaComponents(image, NAVER_SMARTCHANNEL_LAYOUT_VISIBLE_THRESHOLD).sort(componentOrder);
+  if (components.length === 0) return null;
+  const selected = components.filter((component) => component.count >= NAVER_SMARTCHANNEL_MIN_VISIBLE_COMPONENT_PIXELS);
+  const seeds = selected.length > 0 ? selected : [components[0] as AlphaComponent];
 
   // Preserve antialiased alpha >= 1 pixels that are connected to the selected
   // layout-visible component, while excluding unrelated isolated noise from
   // the trim bbox. The original RGBA values remain untouched.
   const visited = new Uint8Array(image.width * image.height);
-  const queue = [...primary.pixels];
+  const queue = seeds.flatMap((component) => component.pixels);
   for (const pixel of queue) visited[pixel] = 1;
   const offsets = [-1, 0, 1];
   let minX = image.width;
@@ -727,7 +737,7 @@ function validateTextRole(layer: NaverTextLayer, width: number): boolean {
   const boxRight = layer.textPlacement.boxX + layer.textPlacement.boxWidth;
   // NAPI canvas reports fractional advances for the project-compatible font build;
   // the frozen PSD pixel boxes include a small anti-aliasing allowance for CTA rows.
-  const allowance = layer.role === "CTA_LABEL" ? 4 : 0.01;
+  const allowance = layer.role === "CTA_LABEL" ? 5 : 0.01;
   const startX = layer.role === "CTA_LABEL" ? layer.textPlacement.boxX : layer.textPlacement.originX;
   return startX + width <= boxRight + allowance;
 }

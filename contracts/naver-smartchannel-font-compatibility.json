@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://kbr.local/contracts/naver-smartchannel-font-compatibility-v1.1.0.json",
   "registryVersion": "1.1.0",
-  "status": "OFFICIAL_ASSETS_UNRESOLVED",
+  "status": "OFFICIAL_ASSETS_RESOLVED_BUNDLED",
   "channel": "NAVER_GFA",
   "placement": "SMARTCHANNEL",
   "sourceMetadataRef": "contracts/naver-smartchannel-psd-metadata.json",
@@ -26,12 +26,12 @@
       "cssWeight": 700,
       "required": true,
       "runtime": {
-        "status": "UNRESOLVED_ASSET",
-        "localRelativePath": null,
-        "localSha256": null,
+        "status": "RESOLVED",
+        "localRelativePath": "assets/fonts/naver-smartchannel/NanumBarunGothicBold.ttf",
+        "localSha256": "39bba4cd9bd2986143825c8654abbb62443914ab33b346c0c929a916f5d98bf2",
         "lookupKey": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
-        "bundleAllowed": false,
-        "commitAllowed": false,
+        "bundleAllowed": true,
+        "commitAllowed": true,
         "networkFetchAllowed": false
       }
     },
@@ -46,12 +46,12 @@
       "cssWeight": 400,
       "required": true,
       "runtime": {
-        "status": "UNRESOLVED_ASSET",
-        "localRelativePath": null,
-        "localSha256": null,
+        "status": "RESOLVED",
+        "localRelativePath": "assets/fonts/naver-smartchannel/NanumBarunGothic.ttf",
+        "localSha256": "9b872773134e2e4d8c0b17021266786576db06c843ede0d0b523b214a450756c",
         "lookupKey": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
-        "bundleAllowed": false,
-        "commitAllowed": false,
+        "bundleAllowed": true,
+        "commitAllowed": true,
         "networkFetchAllowed": false
       }
     },
@@ -85,7 +85,7 @@
     "status": "UNRESOLVED_ASSET"
   },
   "styleRoleSeparation": {
-    "status": "NOT_EVALUABLE_WITHOUT_APPROVED_ASSETS"
+    "status": "RESOLVED_ROLE_MAPPING"
   },
   "security": {
     "runtimeNetworkAccess": "PROHIBITED",

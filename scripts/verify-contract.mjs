@@ -491,9 +491,9 @@ check(
     fontContract?.mediumRequired === false &&
     fontContract?.semiBoldRequired === false &&
     JSON.stringify(fontContract?.roles?.filter(({ required }) => required).map(({ id }) => id)) === JSON.stringify(["NAVER_SC_NANUM_BARUN_GOTHIC_BOLD", "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR"]) &&
-    runtimeFontPolicy?.runtimeStatus === "BLOCKED_UNRESOLVED_OFFICIAL_ASSET" &&
+    runtimeFontPolicy?.runtimeStatus === "READY_APPROVED_OFFICIAL_ASSET" &&
     runtimeFontPolicy?.runtimeAssets?.filter(({ required }) => required).length === 2 &&
-    runtimeFontPolicy?.runtimeAssets?.filter(({ required }) => required).every(({ relativePath, runtimeDigest }) => relativePath === null && runtimeDigest === null) &&
+    runtimeFontPolicy?.runtimeAssets?.filter(({ required }) => required).every(({ relativePath, runtimeDigest, resolutionClass, smartChannelAllowed }) => typeof relativePath === "string" && /^[a-f0-9]{64}$/.test(runtimeDigest ?? "") && resolutionClass === "BUNDLED_EXACT" && smartChannelAllowed === true) &&
     typographyContract?.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" &&
     JSON.stringify(typographyContract?.sfRuntimeFonts ?? []) === JSON.stringify([]) &&
     fontCompatibility?.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" &&

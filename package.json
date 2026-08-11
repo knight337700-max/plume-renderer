@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -30,6 +30,7 @@
     "verify:naver-object-placement": "node scripts/verify-naver-smartchannel-object-placement.mjs",
     "verify:naver-font-policy": "node scripts/verify-naver-smartchannel-font-policy.mjs",
     "verify:naver-font-compatibility": "node scripts/verify-naver-smartchannel-font-compatibility.mjs",
+    "verify:naver-actual-asset": "node scripts/verify-naver-smartchannel-actual-asset-acceptance.mjs",
     "verify:naver-inventory": "node scripts/verify-naver-smartchannel-n3-inventory.mjs",
     "verify:naver-desktop": "node scripts/verify-naver-desktop-integration.mjs",
     "verify:naver-runtime": "pnpm build && node scripts/verify-naver-smartchannel-runtime.mjs",
@@ -61,7 +62,7 @@
     "smoke:package": "node scripts/smoke-packaged.mjs",
     "smoke:desktop": "node scripts/smoke-naver-desktop.mjs",
     "evidence:package": "node scripts/capture-packaged-evidence.mjs",
-    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-inventory && pnpm verify:naver-desktop && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
+    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-actual-asset && pnpm verify:naver-inventory && pnpm verify:naver-desktop && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
     "render": "node dist/cli/index.js"
   },
   "dependencies": {

@@ -89,8 +89,8 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
     expect(typography.runtimeResolution).toBe("OFFICIAL_ASSET_REQUIRED");
     expect(typography.runtimeFontAssets).toHaveLength(3);
     expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false)).toHaveLength(2);
-    expect(typography.runtimeFontAssets.every((asset) => asset.resolution !== "PROJECT_COMPATIBLE_VERIFIED" && asset.bundleAllowed === false)).toBe(true);
-    expect(typography.n2Blocking).toBe(true);
+    expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false).every((asset) => asset.resolution === "RESOLVED" && asset.bundleAllowed === true)).toBe(true);
+    expect(typography.n2Blocking).toBe(false);
     const fixedAffordances = fixed.components.filter((entry) => entry.id.startsWith("LANDING_ICON") || entry.id.startsWith("APP_CTA"));
     expect(fixedAffordances.every((entry) => entry.status === "FROZEN")).toBe(true);
     expect(fixed.specialGeometry.disclosure160TwoLine.status).toBe("FROZEN");

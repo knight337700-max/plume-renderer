@@ -22,10 +22,15 @@
       "required": true,
       "allowedLanguages": ["ko", "en", "numeric"],
       "use": "Main copy",
-      "assetStatus": "UNRESOLVED_ASSET",
-      "assetPath": null,
-      "sha256": null,
-      "licenseStatus": "UNRESOLVED"
+      "assetPath": "assets/fonts/naver-smartchannel/NanumBarunGothicBold.ttf",
+      "sha256": "39bba4cd9bd2986143825c8654abbb62443914ab33b346c0c929a916f5d98bf2",
+      "runtimePostScriptName": "NanumBarunGothicBold",
+      "fontVersion": "Version 1.000 2013 initial release",
+      "os2WeightClass": 600,
+      "declaredRoleWeight": 700,
+      "assetStatus": "RESOLVED",
+      "licenseStatus": "USER_PROVIDED_OFFICIAL_ASSERTION_EMBEDDED_COPYRIGHT",
+      "licenseEvidence": "Embedded name-table copyright: NHN Corporation; designer/trademark metadata references FONTRIX. No separate license file was supplied."
     },
     {
       "id": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
@@ -35,10 +40,15 @@
       "required": true,
       "allowedLanguages": ["ko", "en", "numeric"],
       "use": "Sub and Disclaimer copy",
-      "assetStatus": "UNRESOLVED_ASSET",
-      "assetPath": null,
-      "sha256": null,
-      "licenseStatus": "UNRESOLVED"
+      "assetPath": "assets/fonts/naver-smartchannel/NanumBarunGothic.ttf",
+      "sha256": "9b872773134e2e4d8c0b17021266786576db06c843ede0d0b523b214a450756c",
+      "runtimePostScriptName": "NanumBarunGothic",
+      "fontVersion": "Version 1.000 2013 initial release",
+      "os2WeightClass": 400,
+      "declaredRoleWeight": 400,
+      "assetStatus": "RESOLVED",
+      "licenseStatus": "USER_PROVIDED_OFFICIAL_ASSERTION_EMBEDDED_COPYRIGHT",
+      "licenseEvidence": "Embedded name-table copyright: NHN Corporation; designer/trademark metadata references FONTRIX. No separate license file was supplied."
     },
     {
       "id": "NAVER_SC_SAN_FRANCISCO_BOLD",

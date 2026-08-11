@@ -2,7 +2,7 @@
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
 - **Document version:** 1.21.1
-- **Status:** Frozen Implementation Contract — Phase N7.4 SmartChannel final-alpha asset normalization and official-font fail-closed hotfix; required official runtime assets remain unresolved
+- **Status:** Frozen Implementation Contract — Phase N7.4 SmartChannel final-alpha asset normalization and official-font bundled exact-asset continuation
 - **Checked date:** 2026-08-10 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
@@ -1010,7 +1010,9 @@ MAX_UPSCALE = 1.5
 3. 폰트 파일이 없거나 SHA-256이 일치하지 않으면 렌더링을 중단한다.
 4. 폰트 파일 자체는 이 문서에 포함하지 않는다.
 5. 폰트의 배포·번들 정책은 별도의 라이선스 검토 후 확정한다.
-6. Phase C0 검사 결과 Bold와 Regular 실제 파일이 없으므로 `UNRESOLVED_ASSET`이다. `assets/fonts/README.md`와 `contracts/font-asset-registry.json`이 해소되기 전 텍스트 Renderer 및 Golden PNG 구현은 BLOCKED다. **[PROJECT]**
+6. Phase C0 당시 Spoqa Bold/Regular intake는 `UNRESOLVED_ASSET` 검사 결과였으나, 현재 Kakao
+   `contracts/font-asset-registry.json`은 pinned Spoqa 자산으로 `RESOLVED_ASSET`이다. N7.4
+   SmartChannel Nanum roles는 별도의 bundled registry에서 관리한다. **[PROJECT]**
 
 ## 7.2 공식 스타일과 Renderer 매핑
 
@@ -4475,8 +4477,9 @@ source canvas가 template canvas와 일치할 때만 legacy compatibility로 인
 
 DA 160 object limit은 width 260px, height 160px, area 41,600px, non-transparent pixel
 최대 70%(29,120px)다. alpha trim 보존 임계치는 `alpha >= 1`, layout-visible/연결요소 임계치는
-`alpha >= 8`로 고정한다. 8-connected layout-visible 주 연결요소 중 가장 큰 요소를 기준
-콘텐츠로 선택하고, 무관한 극소 고립 픽셀은 bbox를 확장하지 않는다. resize 후 alpha를
+`alpha >= 8`로 고정한다. 8-connected layout-visible 요소를 component로 분리한 뒤 `count >= 16`인
+의미 있는 모든 component를 기준 콘텐츠로 선택하고, `count < 16`인 무관한 극소 고립 픽셀은
+bbox를 확장하지 않는다. resize 후 alpha를
 이진화하지 않으며 완전 투명 픽셀의 RGB는 무시한다. **[OFFICIAL] [PROJECT]**
 
 Contain scale은 최대 1.5×를 유지한다. `round(trimmed×scale)`로 최소 1px을 보장하고,
@@ -4484,7 +4487,7 @@ slot 중앙 배치는 `floor((slot−resized)/2)`를 사용한다. 좌우/상하
 진단에는 `sourceCanvas`, `alphaBounds`, `normalizedSize`, `finalBounds`, `targetRegion`,
 `opaquePixelCount`, `maxOpaquePixelCount`를 포함한다. **[PROJECT]**
 
-### 43.2 Official font roles and blocker [OFFICIAL] [PROJECT]
+### 43.2 Official font roles and provenance [OFFICIAL] [PROJECT]
 
 허용 family는 Sandoll Neo Gothic, NanumBarunGothic, San Francisco다. 기본 deterministic
 profile은 Main Bold와 Sub/Disclaimer Regular이며 San Francisco Bold는 영문 전용 Main
@@ -4492,13 +4495,44 @@ profile은 Main Bold와 Sub/Disclaimer Regular이며 San Francisco Bold는 영�
 Neo canonical IDs 네 개는 runtime registry에서 제거하고, source metadata에서만 historical
 identity로 남긴다. **[OFFICIAL] [PROJECT]**
 
-현재 공식 Nanum/Sandoll runtime binary와 합법적인 SHA-256/라이선스 증거가 저장소에 없기
-때문에 `NAVER_SC_NANUM_BARUN_GOTHIC_BOLD`와 `..._REGULAR`는 `UNRESOLVED_ASSET`이다.
-시스템 fallback, Spoqa/Noto 대체, fake filename/SHA, 네트워크 다운로드는 금지하며,
-approved asset과 canonical Font ID가 1:1로 확인되기 전 SmartChannel render/download는
-`NAVER_SMARTCHANNEL_FONT_UNAVAILABLE`로 fail-closed 한다. **[PROJECT]**
+사용자가 제공한 `nanum-barun-gothic` 폴더에서 원본 수정 없이 확보한 TTF를 bundled exact
+runtime asset으로 등록했다. Bold는 `assets/fonts/naver-smartchannel/NanumBarunGothicBold.ttf`
+(SHA-256 `39bba4cd9bd2986143825c8654abbb62443914ab33b346c0c929a916f5d98bf2`, PostScript
+`NanumBarunGothicBold`, OS/2 weightClass 600, declared role 700), Regular는
+`assets/fonts/naver-smartchannel/NanumBarunGothic.ttf` (SHA-256
+`9b872773134e2e4d8c0b17021266786576db06c843ede0d0b523b214a450756c`, PostScript
+`NanumBarunGothic`, OS/2 weightClass 400)이다. 합법성은 사용자 공식/적법 확보 assertion과
+내장 copyright metadata(NHN Corporation/FONTRIX)에 근거하며 별도 license 파일은 없다고
+명시한다. SF는 optional source-only unresolved다. 시스템 fallback, Spoqa/Noto 대체,
+fake filename/SHA, 네트워크 다운로드는 계속 금지한다. **[PROJECT]**
 
-### 43.3 Error i18n and regression boundary [PROJECT]
+### 43.3 Actual user binary acceptance [PROJECT]
+
+실제 사용자 binary acceptance는 특정 source canvas 크기를 요구하지 않는다. `2048×1366`은
+historical/equivalent fixture characteristic일 뿐 Canonical input dimension requirement가 아니다.
+실제 사용자 PNG는 high-resolution transparent source여야 하며, raw source canvas를 limit으로
+사용하지 않고 `decode → alpha trim → contain fit → final rendered bounds → region validation →
+visible alpha pixel validation → preview → export → packaged runtime` 전체 경로를 통과해야 한다.
+기계 판정 기준과 source/output digest는
+`contracts/naver-smartchannel-actual-asset-acceptance.json`에 기록한다. **[PROJECT]**
+
+현재 실제 사용자 sofa binary는 `C:/Users/Lenovo/Desktop/kakao/TEST_SOURCE/Plume_누끼.png`이며,
+SHA-256 `fb736b93a274899b9750857ab7852c15d54d4f5233f7fbd655d28c2448f62dc4`, source canvas
+`7616×5080`, alpha bounds `x=2485,y=1555,w=3878,h=2213`이다. frozen token의 target region
+`x=40,y=0,w=235,h=160`에 contain한 normalized size는 `235×134`, final bounds는
+`x=40,y=13,w=235,h=134`, visible alpha pixel은 `20,391/29,120`이며 validator error,
+warning, info는 모두 0이다. Preview, Export, packaged runtime이 모두 PASS하고 output PNG
+SHA-256은 `1fb633dfaab45bf404aaf59d58421982d3b450d9028fd4d760856f811743e373`,
+pixel/render fingerprint는 `0383f4c920ee95b2a57cfc646da25fa418301992b1985ea5f8fecd6a83f93374`,
+request fingerprint는 `fa1fdc0f595d2dc1295653b3882bffc2b1d4b9933a160c5805838a46c4e0bdc4`다.
+이는 runtime/contract acceptance evidence이며 사용자 디자인 최종 승인(`manualAcceptanceStatus`)
+을 자동으로 의미하지 않는다. **[PROJECT]**
+
+실제 logo binary도 동일한 evidence registry에 유지한다. `842×595`, alpha bounds
+`x=187,y=218,w=469,h=159`, normalized `235×80`, visible alpha pixel `7,801`이며 Preview,
+Export, packaged runtime이 PASS다. **[PROJECT]**
+
+### 43.4 Error i18n and regression boundary [PROJECT]
 
 `naver_smartchannel.asset_dimension_mismatch`, `naver_smartchannel.object_out_of_region`,
 `naver_smartchannel.object_opaque_pixel_limit`, `naver_smartchannel.font_unavailable`의
@@ -4507,16 +4541,18 @@ G1 large-transparent, G2 sofa ratio, G3 logo ratio, G4 oversized, G5 translated 
 G6 70% pixel, G7 font registry, G8 i18n fixture를 추가한다. N7.2/N7.3 editor state와
 Kakao/FREEFORM/다른 NAVER source 계약은 변경하지 않는다. **[PROJECT]**
 
-### 43.4 Version and implementation status [PROJECT]
+### 43.5 Version and implementation status [PROJECT]
 
 | Contract | Previous | Current | Reason |
 |---|---:|---:|---|
 | Canonical document | 1.21.0 | 1.21.1 | SmartChannel normalization/font/i18n hotfix |
 | Template contract | 1.9.0 | 1.9.0 | Coordinates and template contract unchanged |
-| Renderer Core | 0.8.0 | 0.8.1 | Final alpha normalization and diagnostics |
-| Desktop | 0.9.3 | 0.9.4 | Official font preflight catalog and validator messages |
+| Renderer Core | 0.8.1 | 0.8.2 | Bundled exact Nanum preflight and disconnected meaningful-component trim correction |
+| Desktop | 0.9.4 | 0.9.5 | Bundled Nanum asset inclusion and deterministic SmartChannel preview/export |
 | Error Registry | 1.6.0 | 1.7.0 | Add final opaque-pixel limit error code |
 
 N7.4 implementation is independent of plume, remote services, upload, telemetry, and runtime
-network access. The code path is implemented, but the phase remains **BLOCKED** until the two
-required official Bold/Regular runtime assets are legally verified and registered. **[PROJECT]**
+network access. Required fonts are resolved bundled exact assets. Actual user sofa and logo
+binary evidence both pass the full normalization path; exact source dimensions are not a
+requirement. `manualAcceptanceStatus=NOT_REVIEWED` remains an explicit distinction from runtime
+acceptance and does not block this phase closeout. **[PROJECT]**

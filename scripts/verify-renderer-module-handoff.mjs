@@ -104,6 +104,11 @@ if (!(await exists(root))) {
   const localFontFiles = allFiles.filter((absolutePath) => path.relative(root, absolutePath).replaceAll("\\", "/").startsWith("local-runtime-resources/fonts/") && /\.(ttf|otf|woff2?|eot)$/i.test(absolutePath));
   check("external_font_manifest", fontManifest?.bundled === false && fontManifest?.licenseStatus === "NOT_CONFIRMED" && fontManifest?.directoryEnv === "NAVER_SMARTCHANNEL_FONT_DIR" && fontManifest?.files?.length === 4 && localFontFiles.length === 0, JSON.stringify({ manifest: Boolean(fontManifest), bundled: fontManifest?.bundled, localBinaryCount: localFontFiles.length }));
 
+  const naverFontManifest = await readJson("contracts/naver-smartchannel-font-asset-manifest.json");
+  check("naver_bundled_font_manifest", naverFontManifest?.status === "RESOLVED_BUNDLED_EXACT" && naverFontManifest?.files?.length === 2 && naverFontManifest.files.every((entry) => entry.bundled === true && entry.runtime === true && entry.fallback === false), JSON.stringify({ status: naverFontManifest?.status, files: naverFontManifest?.files?.length }));
+  const actualAssetAcceptance = await readJson("contracts/naver-smartchannel-actual-asset-acceptance.json");
+  check("actual_asset_acceptance", actualAssetAcceptance?.status === "PASS" && actualAssetAcceptance?.acceptanceRule?.actualUserBinaryRequired === true && actualAssetAcceptance?.acceptanceRule?.exactSourceDimensionsRequired === false && actualAssetAcceptance?.assets?.sofa?.result === "PASS" && actualAssetAcceptance?.assets?.logo?.result === "PASS", JSON.stringify({ status: actualAssetAcceptance?.status, exactSourceDimensionsRequired: actualAssetAcceptance?.acceptanceRule?.exactSourceDimensionsRequired, sofa: actualAssetAcceptance?.assets?.sofa?.result, logo: actualAssetAcceptance?.assets?.logo?.result }));
+
   const secretPattern = /(AKIA[0-9A-Z]{16}|(?:ghp|gho|github_pat)_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|-----BEGIN (?:RSA|OPENSSH|EC|DSA) PRIVATE KEY-----)/;
   const textExtensions = new Set([".json", ".md", ".mjs", ".js", ".ts", ".tsx", ".yaml", ".yml", ".toml", ".txt", ".css", ".html"]);
   const secretHits = [];

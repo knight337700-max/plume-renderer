@@ -196,6 +196,68 @@ function smokeToken(): string | null {
   return SMOKE_TOKEN_PATTERN.test(token) ? token : null;
 }
 
+function n7_4SmokeToken(): string | null {
+  const argument = process.argv.find((value) => value.startsWith("--smoke-n7-4="));
+  if (!argument) return null;
+  const token = argument.slice("--smoke-n7-4=".length);
+  return SMOKE_TOKEN_PATTERN.test(token) ? token : null;
+}
+
+async function runN7_4FontSmoke(
+  token: string,
+  controller: DesktopController,
+  sessionManager: DesktopSessionManager,
+): Promise<number> {
+  const resultPath = process.env.KBR_N7_4_RESULT ?? path.join(os.tmpdir(), `kbr-n7-4-${token}.json`);
+  const objectPath = process.env.KBR_N7_4_OBJECT;
+  const outputRoot = process.env.KBR_N7_4_OUTPUT ?? path.join(os.tmpdir(), `kbr-n7-4-output-${token}`);
+  const templateId = process.env.KBR_N7_4_TEMPLATE_ID ?? "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_NONE";
+  const headline = process.env.KBR_N7_4_HEADLINE ?? "자코모";
+  const subcopy = process.env.KBR_N7_4_SUBCOPY;
+  const jobName = process.env.KBR_N7_4_JOB_NAME ?? "n7-4-packaged";
+  const report: Record<string, unknown> = { status: "FAIL", objectPath: objectPath ?? null, outputRoot };
+  try {
+    if (!objectPath) throw new Error("KBR_N7_4_OBJECT is required");
+    await mkdir(outputRoot, { recursive: true });
+    const selected = await controller.selectProductFromPath(objectPath);
+    if (selected.status !== "SELECTED") throw new Error(`asset selection failed: ${selected.status}`);
+    const request = {
+      kind: "SMARTCHANNEL" as const,
+      templateId,
+      content: { headline, ...(subcopy ? { subcopy } : {}) },
+      objectAssetToken: selected.assetToken,
+      jobName,
+    };
+    const preview = await controller.requestNaverPreview({ requestSequence: 1, request });
+    if (preview.validationStatus === "ERROR" || !preview.previewToken || !preview.requestFingerprint) throw new Error(`preview failed: ${JSON.stringify(preview.errors)}`);
+    const output = await controller.registerOutputDirectory(outputRoot);
+    const exported = await controller.exportNaver({ request, previewToken: preview.previewToken, previewFingerprint: preview.requestFingerprint, outputDirectoryToken: output.token });
+    if (exported.status !== "EXPORTED") throw new Error(`export failed: ${exported.code}`);
+    const paths = controller.getExportPaths(exported.exportToken);
+    const manifest = JSON.parse(await readFile(paths.manifestPath, "utf8")) as { pixelFingerprint?: string; renderFingerprint?: string; requestFingerprint?: string; smartChannelReport?: { fonts?: unknown } };
+    const png = await sharp(paths.pngPath).metadata();
+    report.status = "PASS";
+    report.previewStatus = preview.validationStatus;
+    report.previewFingerprint = preview.requestFingerprint;
+    report.exportMode = exported.mode;
+    report.pngPath = paths.pngPath;
+    report.manifestPath = paths.manifestPath;
+    report.pngDigest = exported.pngDigest;
+    report.manifestDigest = exported.manifestDigest;
+    report.pixelFingerprint = manifest.pixelFingerprint ?? null;
+    report.renderFingerprint = manifest.renderFingerprint ?? null;
+    report.requestFingerprint = manifest.requestFingerprint ?? null;
+    report.pngContract = { format: png.format, width: png.width, height: png.height, hasAlpha: png.hasAlpha };
+    report.fonts = manifest.smartChannelReport?.fonts ?? [];
+  } catch (error) {
+    report.error = error instanceof Error ? error.message : String(error);
+  }
+  await writeFile(resultPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  await sessionManager.cleanup();
+  cleanupComplete = true;
+  return report.status === "PASS" ? 0 : 1;
+}
+
 async function writePackagedSmokeOversizePng(target: string): Promise<void> {
   const width = 1200;
   const height = 600;
@@ -635,6 +697,12 @@ void app.whenReady().then(async () => {
   const token = smokeToken();
   if (token) {
     const exitCode = await runPackagedSmoke(token, controller, desktopSession);
+    app.exit(exitCode);
+    return;
+  }
+  const n7_4Token = n7_4SmokeToken();
+  if (n7_4Token) {
+    const exitCode = await runN7_4FontSmoke(n7_4Token, controller, desktopSession);
     app.exit(exitCode);
     return;
   }

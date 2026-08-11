@@ -63,8 +63,8 @@ expect(typography.exactSourceFontIdentity === "PASS", "exact source font identit
 expect(typography.tokens.length === 25 && typography.tokens.every((token) => token.classification === "DERIVED_FROM_EXACT_SOURCE_METADATA"), "typography token registry mismatch");
 expect(typography.runtimeResolution === "OFFICIAL_ASSET_REQUIRED", "runtime font contract status mismatch");
 expect(typography.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" && JSON.stringify(typography.sfRuntimeFonts ?? []) === JSON.stringify([]), "runtime typography must not claim a project-compatible or SF runtime font");
-expect(typography.n2Blocking === true, "unresolved official fonts must block SmartChannel runtime");
-expect(typography.runtimeFontAssets.length === 3 && typography.runtimeFontAssets.filter((asset) => asset.required !== false).length === 2 && typography.runtimeFontAssets.every((asset) => asset.resolution !== "PROJECT_COMPATIBLE_VERIFIED" && asset.bundleAllowed === false), "font runtime role registry mismatch");
+expect(typography.n2Blocking === false, "resolved official fonts must not block SmartChannel runtime");
+expect(typography.runtimeFontAssets.length === 3 && typography.runtimeFontAssets.filter((asset) => asset.required !== false).length === 2 && typography.runtimeFontAssets.filter((asset) => asset.required !== false).every((asset) => asset.resolution === "RESOLVED" && asset.bundleAllowed === true), "font runtime role registry mismatch");
 expect(contract.runtimeFontPolicyRef === "contracts/naver-smartchannel-runtime-font-policy.json", "runtime font policy reference missing");
 expect(contract.fontContractRef === "contracts/naver-smartchannel-font-contract.json", "official font contract reference missing");
 expect(contract.fontResolutionPolicy?.fallbackAllowed === false && contract.fontResolutionPolicy?.exactIdentityRequired === false && contract.fontResolutionPolicy?.runtimeIdentityRequired === true, "SmartChannel fallback/runtime identity policy mismatch");
@@ -74,11 +74,11 @@ expect(runtimeFontPolicy.status === "FROZEN_FAIL_CLOSED" && runtimeFontPolicy.re
 expect(runtimeFontPolicy.requiredSourceFonts?.length === 6, "runtime source font inventory must contain six fonts");
 expect(runtimeFontPolicy.requiredSourceFonts?.every((font) => font.postScriptName && typeof font.classification === "string" && typeof font.runtimeRequired === "boolean"), "runtime source font inventory is incomplete");
 expect(runtimeFontPolicy.fallbackAllowed === false && runtimeFontPolicy.externalExactContract?.networkUrlAllowed === false && runtimeFontPolicy.externalExactContract?.pathTraversalAllowed === false, "external exact security policy mismatch");
-expect(runtimeFontPolicy.runtimeStatus === "BLOCKED_UNRESOLVED_OFFICIAL_ASSET" && runtimeFontPolicy.runtimeLookupKey === "fontToken", "runtime font contract mode mismatch");
-expect(runtimeFontPolicy.runtimeAssets?.filter((entry) => entry.required).length === 2 && runtimeFontPolicy.runtimeAssets?.every((entry) => entry.required === false || entry.runtimeDigest === null), "official runtime asset gate mismatch");
-expect(fontCompatibility.status === "OFFICIAL_ASSETS_UNRESOLVED" && fontCompatibility.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" && fontCompatibility.sourceFontBinaryExact === false && fontCompatibility.photoshopBytePixelParityClaim === false, "font compatibility registry mismatch");
-expect(fontCompatibility.approvedDigestAllowlist && Object.keys(fontCompatibility.approvedDigestAllowlist).length === 0, "unresolved font registry must not contain fake digests");
-expect(metricFixtures.status === "BLOCKED_UNRESOLVED_ASSET" && metricFixtures.summary?.overflow === 0, "representative metric fixture gate failed");
+expect(runtimeFontPolicy.runtimeStatus === "READY_APPROVED_OFFICIAL_ASSET" && runtimeFontPolicy.runtimeLookupKey === "fontToken", "runtime font contract mode mismatch");
+expect(runtimeFontPolicy.runtimeAssets?.filter((entry) => entry.required).length === 2 && runtimeFontPolicy.runtimeAssets?.filter((entry) => entry.required).every((entry) => entry.runtimeDigest && entry.resolutionClass === "BUNDLED_EXACT" && entry.smartChannelAllowed === true), "official runtime asset gate mismatch");
+expect(fontCompatibility.status === "OFFICIAL_ASSETS_RESOLVED_BUNDLED" && fontCompatibility.runtimeFontMode === "OFFICIAL_ASSET_REQUIRED" && fontCompatibility.sourceFontBinaryExact === false && fontCompatibility.photoshopBytePixelParityClaim === false, "font compatibility registry mismatch");
+expect(fontCompatibility.approvedDigestAllowlist && Object.keys(fontCompatibility.approvedDigestAllowlist).length === 0, "font registry digest allowlist must remain empty");
+expect(metricFixtures.status === "RESOLVED_ASSET" && metricFixtures.summary?.overflow === 0 && metricFixtures.summary?.total >= 6, "representative metric fixture gate failed");
 
 const component = (id) => fixed.components.find((entry) => entry.id === id);
 expect(component("LANDING_ICON_COMPACT")?.status === "FROZEN", "compact landing icon is not frozen");

@@ -1,10 +1,10 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-// N7.4 deliberately does not discover, download, or infer a SmartChannel font.
-// This generator only projects the frozen official-role contract into the
-// runtime policy. A role remains UNRESOLVED_ASSET until an approved binary,
-// license evidence, and digest are supplied by a later contract update.
+// Registry projection only: this generator never discovers, downloads, or
+// substitutes a font. Resolved roles are emitted exactly as approved by the
+// frozen font contract and are expected to point at bundled project-relative
+// binaries.
 const root = process.cwd();
 const readJson = (relativePath) => JSON.parse(readFileSync(path.join(root, relativePath), "utf8"));
 const writeJson = (relativePath, value) => writeFileSync(path.join(root, relativePath), `${JSON.stringify(value, null, 2)}\n`, "utf8");
@@ -24,8 +24,8 @@ const runtimeAssets = (fontContract.roles ?? []).map((role) => ({
   required: role.required === true,
   licenseStatus: role.licenseStatus ?? "UNRESOLVED",
   assetStatus: role.assetStatus ?? "UNRESOLVED_ASSET",
-  resolutionClass: role.required === false ? "SOURCE_ONLY_NON_RUNTIME" : "MISSING",
-  smartChannelAllowed: false,
+  resolutionClass: role.required === false ? "SOURCE_ONLY_NON_RUNTIME" : (role.assetStatus === "RESOLVED" ? "BUNDLED_EXACT" : "MISSING"),
+  smartChannelAllowed: role.required === true && role.assetStatus === "RESOLVED" && typeof role.assetPath === "string" && typeof role.sha256 === "string",
 }));
 const requiredUnresolved = runtimeAssets.some((asset) => asset.required && (asset.assetStatus !== "RESOLVED" || !asset.relativePath || !asset.runtimeDigest));
 const sourceOnlyNonRuntime = sourceAudit?.sourceOnlyNonRuntime ?? ["SFProDisplay-Bold", "SFUIDisplay-Bold"];
@@ -76,7 +76,7 @@ const policy = {
     networkRuntimeAllowed: false,
     localOnly: true,
     uiFilePickerImplemented: false,
-    bundleBinaries: false,
+    bundleBinaries: !requiredUnresolved,
     status: requiredUnresolved ? "UNRESOLVED_ASSET" : "RESOLVED_APPROVED_ASSET",
   },
 };
@@ -89,7 +89,7 @@ typography.runtimeFontAssets = runtimeAssets.map((asset) => ({
   licenseStatus: asset.licenseStatus,
   sourceIdentityToPSD: asset.required ? "ROLE_MAPPING_ONLY" : "SOURCE_ONLY_ENGLISH_MAIN",
   resolution: asset.assetStatus,
-  bundleAllowed: false,
+  bundleAllowed: asset.assetStatus === "RESOLVED" && asset.resolutionClass === "BUNDLED_EXACT",
   required: asset.required,
 }));
 typography.runtimeResolution = "OFFICIAL_ASSET_REQUIRED";

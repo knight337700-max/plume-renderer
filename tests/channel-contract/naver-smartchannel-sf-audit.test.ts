@@ -29,8 +29,8 @@ describe("NAVER SmartChannel SF guide-layer audit", () => {
   it("does not approve downloaded local files or make a redistribution claim", () => {
     expect(policy.localExternalFontResource.directoryEnv).toBe("NAVER_SMARTCHANNEL_FONT_DIR");
     expect(policy.localExternalFontResource.localOnly).toBe(true);
-    expect(policy.localExternalFontResource.status).toBe("UNRESOLVED_ASSET");
+    expect(policy.localExternalFontResource.status).toBe("RESOLVED_APPROVED_ASSET");
     expect(policy.runtimeAssets).toHaveLength(3);
-    expect(policy.runtimeAssets.filter((font) => font.required).every((font) => font.smartChannelAllowed === false && font.assetStatus === "UNRESOLVED_ASSET")).toBe(true);
+    expect(policy.runtimeAssets.filter((font) => font.required).every((font) => font.smartChannelAllowed === true && font.assetStatus === "RESOLVED")).toBe(true);
   });
 });

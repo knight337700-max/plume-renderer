@@ -77,25 +77,26 @@ async function writeDeterministicRasterFixture(prefix: string, width: number, he
 }
 
 test("NAVER SmartChannel is registry-driven and exports a renderer-composed PNG", async () => {
-  const launched = await launch(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", "N2-REP-001-object.png"));
+  const launched = await launch(path.join(projectRoot, "fixtures", "valid", "mask-semicircle-right__logo__black__pass.png"));
   try {
     const placementOptions = await launched.page.getByTestId("naver-placement-select").locator("option").count();
     expect(placementOptions).toBe(8);
     await expect(launched.page.getByTestId("naver-smartchannel-template-select").locator("option")).toHaveCount(120);
-    await expect(launched.page.getByTestId("naver-smartchannel-font-preflight")).toContainText("공식 NanumBarunGothic/Sandoll runtime asset 필요");
+    await expect(launched.page.getByTestId("naver-smartchannel-font-preflight")).toContainText("NanumBarunGothicBold.ttf");
     await launched.page.getByTestId("naver-smartchannel-select-object").click();
-    await expect(launched.page.getByTestId("naver-smartchannel-editor")).toContainText("N2-REP-001-object.png");
+    await expect(launched.page.getByTestId("naver-smartchannel-editor")).toContainText("mask-semicircle-right__logo__black__pass.png");
     await expect(launched.page.getByTestId("naver-editor")).toHaveAttribute("data-primary-selected", "true");
     await launched.page.getByTestId("naver-request-preview").click();
-    await expect(launched.page.getByTestId("naver-validation-status")).toHaveText("ERROR");
-    await expect(launched.page.getByTestId("naver-validation-panel")).toContainText("NAVER_SMARTCHANNEL_FONT_UNAVAILABLE");
-    await expect(launched.page.getByTestId("naver-preview-image")).toHaveCount(0);
+    await expect(launched.page.getByTestId("naver-validation-status")).toHaveText("PASS");
+    await expect(launched.page.getByTestId("naver-validation-panel")).not.toContainText("NAVER_SMARTCHANNEL_FONT_UNAVAILABLE");
+    await expect(launched.page.getByTestId("naver-preview-image")).toHaveCount(1);
     await expect(launched.page.locator(".naver-preview-panel")).toContainText("Final UI");
 
     await launched.page.getByTestId("naver-select-output").click();
-    await expect(launched.page.getByTestId("naver-export")).toBeDisabled();
-    await expect(access(path.join(launched.outputRoot, "naver-render", "output.png"))).rejects.toBeDefined();
-    await expect(access(path.join(launched.outputRoot, "naver-render", "render-manifest.json"))).rejects.toBeDefined();
+    await expect(launched.page.getByTestId("naver-export")).toBeEnabled();
+    await launched.page.getByTestId("naver-export").click();
+    await expect.poll(async () => access(path.join(launched.outputRoot, "naver-render", "output.png")).then(() => true).catch(() => false)).toBe(true);
+    await expect.poll(async () => access(path.join(launched.outputRoot, "naver-render", "render-manifest.json")).then(() => true).catch(() => false)).toBe(true);
   } finally {
     await close(launched);
   }

@@ -8,22 +8,29 @@ import { isSmartChannelRenderRequest, renderSmartChannel, loadContracts } from "
 import { projectRoot } from "../helpers.js";
 
 const ids = ["N2-REP-001", "N2-REP-002", "N2-REP-003", "N2-REP-004", "N2-REP-005", "N2-REP-006"];
+type FixtureRequest = Record<string, unknown> & { assets: { object: { path: string } } };
 
 async function requestFor(id: string): Promise<Record<string, unknown>> {
-  return JSON.parse(await readFile(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", `${id}.input.json`), "utf8")) as Record<string, unknown>;
+  const request = JSON.parse(await readFile(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", `${id}.input.json`), "utf8")) as FixtureRequest;
+  // The legacy N2 objects are full-canvas precomposites and intentionally
+  // exceed the N7.4 70% alpha-pixel gate. Use the sparse logo fixture for the
+  // resolved-font engine regression; normalization coverage has separate
+  // boundary fixtures.
+  request.assets.object.path = "fixtures/valid/mask-semicircle-right__logo__black__pass.png";
+  return request;
 }
 
 describe("NAVER SmartChannel N2 template engine", () => {
-  it("fails closed for each representative candidate while official fonts are unresolved", async () => {
+  it("renders each representative candidate with bundled exact fonts deterministically", async () => {
     const contracts = await loadContracts(projectRoot);
     const outputRoot = await os.tmpdir();
     const temp = path.join(outputRoot, `kbr-n2-vitest-${process.pid}`);
     await mkdir(temp, { recursive: true });
     for (const id of ids) {
       const result = await renderSmartChannel(await requestFor(id), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
-      expect(result.status, id).toBe("FAIL");
+      expect(result.status, id).toBe("PASS");
       expect(result.downloadAllowed, id).toBe(false);
-      expect(result.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE"), id).toBe(true);
+      expect(result.errors, id).toEqual([]);
       const repeated = await renderSmartChannel(await requestFor(id), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
       expect(repeated.errors.map((issue) => issue.code)).toEqual(result.errors.map((issue) => issue.code));
     }
@@ -35,8 +42,8 @@ describe("NAVER SmartChannel N2 template engine", () => {
     await mkdir(temp, { recursive: true });
     const base = await requestFor("N2-REP-001");
     const known = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE", content: { headline: "테스트" } }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
-    expect(known.status).toBe("FAIL");
-    expect(known.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")).toBe(true);
+    expect(known.status).toBe("PASS");
+    expect(known.errors).toEqual([]);
     const unsupportedCta = await renderSmartChannel({ ...base, templateId: "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_ONE_LINE_NONE", content: { headline: "테스트", ctaOption: "가입하기" } }, { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, publish: false });
     expect(unsupportedCta.status).toBe("FAIL");
     expect(unsupportedCta.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_CTA_INVALID")).toBe(true);
@@ -74,7 +81,7 @@ describe("NAVER SmartChannel N2 template engine", () => {
     firstRuntimeAsset.runtimeDigest = "0".repeat(64);
     const wrongFont = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts: { ...contracts, naverRuntimeFontPolicy: wrongFontPolicy }, publish: false });
     expect(wrongFont.status).toBe("FAIL");
-    expect(wrongFont.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")).toBe(true);
+    expect(wrongFont.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH")).toBe(true);
 
     const wrongPlacement = structuredClone(contracts.naverObjectPlacement) as Record<string, unknown>;
     wrongPlacement.tokens = (wrongPlacement.tokens as Array<Record<string, unknown>>).filter((entry) => entry.token !== "NAVER_SC_160_BASIC_STANDARD_LEFT_NONE");

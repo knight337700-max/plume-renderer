@@ -51,7 +51,7 @@ import type {
   ValidationIssue,
 } from "./types.js";
 
-const RENDERER_VERSION = "0.8.1";
+const RENDERER_VERSION = "0.8.2";
 
 function failureResponse(issues: readonly ValidationIssue[]): RenderResponse {
   const sorted = sortAndDedupeIssues(issues);

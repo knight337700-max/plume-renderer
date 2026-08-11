@@ -9,7 +9,7 @@
   },
   "templateContractVersion": "1.9.0",
   "smartChannelTemplateContractVersion": "1.10.0",
-  "desktopAppVersion": "0.9.4",
+  "desktopAppVersion": "0.9.5",
   "desktopErrorRegistryVersion": "1.0.0",
   "errorRegistryVersion": "1.7.0",
   "integrationErrorRegistryVersion": "1.9.0",
@@ -939,6 +939,29 @@
     "forbiddenRuntimeFontIds": ["NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD", "NAVER_SC_APPLE_SD_GOTHIC_NEO_MEDIUM", "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR", "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD"],
     "runtimeNetworkAccess": "PROHIBITED",
     "officialPlatform": "Windows 10/11 x64",
+    "nextPhase": "M0_NAVER_DESKTOP_HARDENING"
+  },
+  "canonicalPhaseN7_4Continuation": {
+    "phase": "N7_4_SMARTCHANNEL_ASSET_FONT_RUNTIME_HOTFIX",
+    "documentVersion": "1.21.1",
+    "documentBump": "none",
+    "templateContractVersion": "1.9.0",
+    "templateCoordinatesChanged": false,
+    "rendererCorePrevious": "0.8.1",
+    "rendererCoreVersion": "0.8.2",
+    "desktopPrevious": "0.9.4",
+    "desktopCurrent": "0.9.5",
+    "requiredFonts": "NanumBarunGothic Bold and Regular",
+    "fontAssetIntake": "RESOLVED_BUNDLED_EXACT",
+    "optionalSanFrancisco": "SOURCE_ONLY_NON_RUNTIME_UNRESOLVED",
+    "actualLogoValidation": "PASS",
+    "actualAssetAcceptanceRegistryVersion": "1.0.0",
+    "actualSofaValidation": "PASS",
+    "actualSofaSourceDigest": "fb736b93a274899b9750857ab7852c15d54d4f5233f7fbd655d28c2448f62dc4",
+    "actualSofaSourceCanvas": "7616x5080",
+    "exactSourceDimensionsRequired": false,
+    "manualAcceptanceStatus": "NOT_REVIEWED",
+    "runtimeNetworkAccess": "PROHIBITED",
     "nextPhase": "M0_NAVER_DESKTOP_HARDENING"
   }
 }

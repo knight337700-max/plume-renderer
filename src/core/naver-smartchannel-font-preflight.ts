@@ -264,16 +264,17 @@ export function evaluateFontIdentity(
     : blockedResult(requirement, resolutionMode, issues, { digest: actual.digest });
 }
 
-export async function preflightExternalExactFont(
+async function preflightExactFont(
   requirement: SmartChannelFontRequirement,
   resource: ExternalExactFontResource,
   options: { trustedRoot: string },
+  resolutionMode: "BUNDLED_EXACT" | "EXTERNAL_EXACT",
 ): Promise<FontPreflightResult> {
-  if (!requirement.allowedResolutionModes.includes("EXTERNAL_EXACT")) {
-    return blockedResult(requirement, "EXTERNAL_EXACT", [issue(
+  if (!requirement.allowedResolutionModes.includes(resolutionMode)) {
+    return blockedResult(requirement, resolutionMode, [issue(
       NAVER_SMARTCHANNEL_FONT_ERROR_CODES.unavailable,
       "naver_smartchannel.font_unavailable",
-      "EXTERNAL_EXACT resolution mode",
+      `${resolutionMode} resolution mode`,
       requirement.allowedResolutionModes,
       "/font/resolutionMode",
     )]);
@@ -287,7 +288,7 @@ export async function preflightExternalExactFont(
     trustedRoot = await resolveTrustedRoot(options.trustedRoot);
     resolvedPath = await resolveTrustedInputFile(trustedRoot, resource.path);
   } catch (error) {
-    return blockedResult(requirement, "EXTERNAL_EXACT", [issue(
+    return blockedResult(requirement, resolutionMode, [issue(
       NAVER_SMARTCHANNEL_FONT_ERROR_CODES.unavailable,
       "naver_smartchannel.font_unavailable",
       "trusted local exact font resource",
@@ -325,13 +326,13 @@ export async function preflightExternalExactFont(
       "/font/expectedVersion",
     ));
   }
-  if (declarationIssues.length > 0) return blockedResult(requirement, "EXTERNAL_EXACT", declarationIssues, { resolvedPath });
+  if (declarationIssues.length > 0) return blockedResult(requirement, resolutionMode, declarationIssues, { resolvedPath });
 
   let bytes: Buffer;
   try {
     bytes = await readFile(resolvedPath);
   } catch (error) {
-    return blockedResult(requirement, "EXTERNAL_EXACT", [issue(
+    return blockedResult(requirement, resolutionMode, [issue(
       NAVER_SMARTCHANNEL_FONT_ERROR_CODES.unavailable,
       "naver_smartchannel.font_unavailable",
       resolvedPath,
@@ -341,7 +342,7 @@ export async function preflightExternalExactFont(
   }
   const identity = inspectFontIdentity(bytes);
   if (identity === null) {
-    return blockedResult(requirement, "EXTERNAL_EXACT", [issue(
+    return blockedResult(requirement, resolutionMode, [issue(
       NAVER_SMARTCHANNEL_FONT_ERROR_CODES.unavailable,
       "naver_smartchannel.font_unavailable",
       "decodable OpenType font",
@@ -353,7 +354,7 @@ export async function preflightExternalExactFont(
   const effectiveRequirement: SmartChannelFontRequirement = { ...requirement };
   if (requirement.expectedSha256 === undefined) effectiveRequirement.expectedSha256 = resource.expectedSha256;
   if (requirement.expectedVersion === undefined && resource.expectedVersion !== undefined) effectiveRequirement.expectedVersion = resource.expectedVersion;
-  const result = evaluateFontIdentity(effectiveRequirement, "EXTERNAL_EXACT", {
+  const result = evaluateFontIdentity(effectiveRequirement, resolutionMode, {
     postScriptNames: identity.postScriptNames,
     digest,
     versions: identity.versions,
@@ -361,6 +362,22 @@ export async function preflightExternalExactFont(
   result.resolvedPath = resolvedPath;
   result.identity = identity;
   return result;
+}
+
+export async function preflightBundledExactFont(
+  requirement: SmartChannelFontRequirement,
+  resource: ExternalExactFontResource,
+  options: { trustedRoot: string },
+): Promise<FontPreflightResult> {
+  return preflightExactFont(requirement, resource, options, "BUNDLED_EXACT");
+}
+
+export async function preflightExternalExactFont(
+  requirement: SmartChannelFontRequirement,
+  resource: ExternalExactFontResource,
+  options: { trustedRoot: string },
+): Promise<FontPreflightResult> {
+  return preflightExactFont(requirement, resource, options, "EXTERNAL_EXACT");
 }
 
 export function assertSmartChannelFallbackProhibited(fallbackAllowed: boolean): void {
