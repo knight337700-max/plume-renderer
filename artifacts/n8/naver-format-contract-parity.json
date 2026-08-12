@@ -1,0 +1,33 @@
+{
+  "phase": "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION",
+  "status": "PASS",
+  "formatsChecked": 8,
+  "canonicalProfilesChecked": 10,
+  "missingFields": 0,
+  "extraFields": 0,
+  "requestMappingErrors": 0,
+  "capabilitySource": "contracts/desktop-capability-registry.json",
+  "dynamicFormSource": "contracts/naver-platform-composed-source-profiles.json",
+  "corrections": [
+    {
+      "id": "N8-TERTIARY-SOURCE-ASSET",
+      "result": "PASS",
+      "detail": "Third platform source asset uses a general PNG/JPEG slot instead of the SmartChannel PNG-only logo slot"
+    },
+    {
+      "id": "N8-EXACT-PROFILE-RESOLUTION",
+      "result": "PASS",
+      "detail": "Duplicate asset roles resolve by exact sourceProfileId before role fallback"
+    },
+    {
+      "id": "N8-EXACT-CANVAS-PRECEDENCE",
+      "result": "PASS",
+      "detail": "Exact source canvas is authoritative over a rounded marketing aspect-ratio label"
+    },
+    {
+      "id": "N8-COLLECTION-CORE-PUBLISH",
+      "result": "PASS",
+      "detail": "Desktop delegates ordered atomic collection publish to existing Core"
+    }
+  ]
+}

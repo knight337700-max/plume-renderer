@@ -31,6 +31,7 @@ describe("Electron and IPC security boundary", () => {
     expect(DESKTOP_CHANNEL_ALLOWLIST).toEqual([
       DESKTOP_CHANNELS.selectProductPng,
       DESKTOP_CHANNELS.selectSecondaryProductPng,
+      DESKTOP_CHANNELS.selectTertiaryProductImage,
       DESKTOP_CHANNELS.selectLogoPng,
       DESKTOP_CHANNELS.clearProduct,
       DESKTOP_CHANNELS.clearSecondaryProduct,

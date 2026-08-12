@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { access, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -17,6 +17,12 @@ type Launched = {
   rendererErrors: string[];
 };
 
+type LaunchAssets = Readonly<{
+  primary: string;
+  secondary?: string;
+  third?: string;
+}>;
+
 async function assertNaverShell(launched: Launched, label: string): Promise<void> {
   await expect(launched.page.getByTestId("desktop-app")).toBeVisible();
   await expect(launched.page.getByTestId("channel-naver")).toBeVisible();
@@ -25,10 +31,12 @@ async function assertNaverShell(launched: Launched, label: string): Promise<void
   expect(launched.rendererErrors, `${label} renderer errors`).toEqual([]);
 }
 
-async function launch(productPath: string): Promise<Launched> {
+async function launch(productPathOrAssets: string | LaunchAssets): Promise<Launched> {
+  const assets = typeof productPathOrAssets === "string" ? { primary: productPathOrAssets } : productPathOrAssets;
   const root = path.join(os.tmpdir(), `kbr-naver-e2e-${randomUUID()}`);
   const outputRoot = path.join(root, "output");
   const sessionRoot = path.join(root, "sessions");
+  const rendererErrors: string[] = [];
   await Promise.all([mkdir(outputRoot, { recursive: true }), mkdir(sessionRoot, { recursive: true })]);
   const app = await electron.launch({
     args: [projectRoot],
@@ -36,13 +44,19 @@ async function launch(productPath: string): Promise<Launched> {
     env: {
       ...process.env,
       KBR_E2E_MODE: "1",
-      KBR_E2E_PRODUCT: productPath,
+      KBR_E2E_PRODUCT: assets.primary,
+      ...(assets.secondary ? { KBR_E2E_SECONDARY: assets.secondary } : {}),
+      ...(assets.third ? { KBR_E2E_TERTIARY: assets.third } : {}),
       KBR_E2E_OUTPUT: outputRoot,
       KBR_E2E_SESSION_BASE: sessionRoot,
     },
   });
+  app.process().stdout?.on("data", (data: Buffer | string) => rendererErrors.push(`main stdout: ${String(data).trim()}`));
+  app.process().stderr?.on("data", (data: Buffer | string) => rendererErrors.push(`main stderr: ${String(data).trim()}`));
+  app.process().once("exit", (code, signal) => {
+    rendererErrors.push(`main exit: code=${code ?? "null"} signal=${signal ?? "none"}`);
+  });
   const page = await app.firstWindow();
-  const rendererErrors: string[] = [];
   page.on("pageerror", (error) => rendererErrors.push(`${error.name}: ${error.message}`));
   page.on("console", (message) => {
     if (message.type() === "error") rendererErrors.push(`console: ${message.text()}`);
@@ -74,6 +88,59 @@ async function writeDeterministicRasterFixture(prefix: string, width: number, he
   const encoded = await sharp(raw, { raw: { width, height, channels: 4 } }).jpeg({ quality: 95, progressive: false }).toBuffer();
   await writeFile(target, encoded);
   return target;
+}
+
+function requiredFixturePath(paths: readonly string[], index: number): string {
+  const fixturePath = paths[index];
+  if (!fixturePath) throw new Error(`Missing generated fixture at index ${index}`);
+  return fixturePath;
+}
+
+async function writePlatformRasterFixture(prefix: string, width: number, height: number): Promise<string> {
+  const raw = Buffer.alloc(width * height * 3);
+  let state = 0x6d2b79f5 ^ width ^ (height << 8);
+  for (let index = 0; index < raw.length; index += 1) {
+    state ^= state << 13;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    raw[index] = state & 0xff;
+  }
+  const target = path.join(os.tmpdir(), `${prefix}-${randomUUID()}.jpg`);
+  const quality = width * height > 1_000_000 ? 60 : 78;
+  await sharp(raw, { raw: { width, height, channels: 3 } })
+    .jpeg({ quality, chromaSubsampling: "4:2:0", progressive: false })
+    .toFile(target);
+  return target;
+}
+
+async function previewAndExportPlatformSource(launched: Launched, expectedMode: "SOURCE" | "COLLECTION"): Promise<string> {
+  await expect(launched.page.getByTestId("naver-editor")).toHaveAttribute("data-primary-selected", "true");
+  await launched.page.getByTestId("naver-request-preview").click();
+  await expect(launched.page.getByTestId("naver-validation-status")).not.toHaveText("DIRTY");
+  const validationStatus = await launched.page.getByTestId("naver-validation-status").innerText();
+  if (validationStatus === "ERROR") throw new Error(await launched.page.getByTestId("naver-validation-panel").innerText());
+  expect(validationStatus).toMatch(/PASS|WARNING/u);
+  await expect(launched.page.getByTestId("naver-normalized-payload")).toContainText("finalUiRendered=false");
+  await launched.page.getByTestId("naver-select-output").click();
+  await launched.page.getByTestId("naver-export").click();
+  try {
+    await expect(launched.page.getByTestId("naver-export-result")).toContainText(expectedMode);
+  } catch (error) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    throw new Error(`${error instanceof Error ? error.message : String(error)}\n${launched.rendererErrors.join("\n")}`);
+  }
+  const jobDirectory = path.join(launched.outputRoot, "naver-render");
+  const manifestName = expectedMode === "COLLECTION" ? "collection-manifest.json" : "source-manifest.json";
+  await expect(access(path.join(jobDirectory, manifestName))).resolves.toBeUndefined();
+  return jobDirectory;
+}
+
+async function captureN8FormatEvidence(formatId: string, jobDirectory: string): Promise<void> {
+  const evidenceRoot = process.env.KBR_N8_EVIDENCE_ROOT;
+  if (!evidenceRoot) return;
+  const target = path.join(evidenceRoot, formatId);
+  await mkdir(path.dirname(target), { recursive: true });
+  await cp(jobDirectory, target, { recursive: true, force: true });
 }
 
 test("NAVER SmartChannel is registry-driven and exports a renderer-composed PNG", async () => {
@@ -287,6 +354,7 @@ test("NAVER platform-composed source flow validates and exports source artifacts
     await expect(access(path.join(launched.outputRoot, "naver-render", "source-manifest.json"))).resolves.toBeUndefined();
     await expect(access(path.join(launched.outputRoot, "naver-render", "source-spec.json"))).resolves.toBeUndefined();
     const sourceSpec = JSON.parse(await readFile(path.join(launched.outputRoot, "naver-render", "source-spec.json"), "utf8")) as Record<string, unknown>;
+    await captureN8FormatEvidence("communication-list", path.join(launched.outputRoot, "naver-render"));
     expect(sourceSpec.compositionMode).toBe("PLATFORM_COMPOSED");
     expect(sourceSpec).not.toHaveProperty("finalCanvas");
     expect(sourceSpec).not.toHaveProperty("finalUiRendered");
@@ -294,6 +362,115 @@ test("NAVER platform-composed source flow validates and exports source artifacts
   } finally {
     await close(launched);
     await rm(sourceAsset, { force: true });
+  }
+});
+
+for (const testCase of [
+  {
+    name: "Mobile Native",
+    placement: "NAVER_MOBILE_NATIVE",
+    sourceProfileId: "NAVER_MOBILE_NATIVE_SOURCE_V1",
+    assets: [
+      { id: "NAVER_NATIVE_THUMBNAIL_342X228", width: 342, height: 228 },
+      { id: "NAVER_NATIVE_PROFILE_300X300", width: 300, height: 300 },
+    ],
+  },
+  {
+    name: "PC Native",
+    placement: "NAVER_PC_NATIVE",
+    sourceProfileId: "NAVER_PC_NATIVE_SOURCE_V1",
+    assets: [
+      { id: "NAVER_NATIVE_THUMBNAIL_342X228", width: 342, height: 228 },
+      { id: "NAVER_NATIVE_PROFILE_300X300", width: 300, height: 300 },
+    ],
+  },
+  {
+    name: "Shopping News",
+    placement: "NAVER_SHOPPING_NEWS",
+    sourceProfileId: "NAVER_SHOPPING_NEWS_SOURCE_V1",
+    assets: [
+      { id: "NAVER_SHOPPING_NEWS_IMAGE_750X500", width: 750, height: 500 },
+    ],
+  },
+] as const) {
+  test(`NAVER ${testCase.name} uses its canonical source profile through preview, validator and export`, async () => {
+    const fixturePaths = await Promise.all(testCase.assets.map((asset, index) => writePlatformRasterFixture(`kbr-n8-${testCase.placement.toLowerCase()}-${index}`, asset.width, asset.height)));
+    const launched = await launch({ primary: requiredFixturePath(fixturePaths, 0), ...(fixturePaths[1] ? { secondary: fixturePaths[1] } : {}), ...(fixturePaths[2] ? { third: fixturePaths[2] } : {}) });
+    try {
+      await launched.page.getByTestId("naver-placement-select").selectOption(testCase.placement);
+      await expect(launched.page.getByTestId("naver-platform-source-editor")).toBeVisible();
+      for (const asset of testCase.assets) {
+        const card = launched.page.getByTestId(`naver-source-asset-${asset.id}`);
+        await card.getByRole("button").click();
+        await expect(card).toContainText(`${asset.width}×${asset.height}`);
+      }
+      const jobDirectory = await previewAndExportPlatformSource(launched, "SOURCE");
+      await captureN8FormatEvidence(testCase.placement.toLowerCase().replaceAll("naver_", "").replaceAll("_", "-"), jobDirectory);
+      const sourceSpec = JSON.parse(await readFile(path.join(jobDirectory, "source-spec.json"), "utf8")) as Record<string, unknown>;
+      const manifest = JSON.parse(await readFile(path.join(jobDirectory, "source-manifest.json"), "utf8")) as Record<string, unknown>;
+      expect(sourceSpec).toMatchObject({ sourceProfileId: testCase.sourceProfileId, compositionMode: "PLATFORM_COMPOSED", artifactCardinality: "SINGLE" });
+      expect(sourceSpec).not.toHaveProperty("finalCanvas");
+      expect(manifest).toMatchObject({ sourceProfileId: testCase.sourceProfileId, finalUiRendered: false });
+      expect(launched.rendererErrors).toEqual([]);
+    } finally {
+      await close(launched);
+      await Promise.all(fixturePaths.map((filePath) => rm(filePath, { force: true })));
+    }
+  });
+}
+
+test("NAVER Communication COMMENT variant resolves its distinct canonical field and asset contract", async () => {
+  const sourceAsset = await writePlatformRasterFixture("kbr-n8-communication-comment", 300, 300);
+  const launched = await launch(sourceAsset);
+  try {
+    await launched.page.getByTestId("naver-placement-select").selectOption("NAVER_COMMUNICATION_AD");
+    await launched.page.getByTestId("naver-communication-variant").selectOption("COMMENT");
+    await expect(launched.page.getByTestId("naver-source-field-adCopy")).toBeVisible();
+    const card = launched.page.getByTestId("naver-source-asset-NAVER_COMMUNICATION_COMMENT_PROFILE_300X300");
+    await card.getByRole("button").click();
+    const jobDirectory = await previewAndExportPlatformSource(launched, "SOURCE");
+    await captureN8FormatEvidence("communication-comment", jobDirectory);
+    const sourceSpec = JSON.parse(await readFile(path.join(jobDirectory, "source-spec.json"), "utf8")) as Record<string, unknown>;
+    expect(sourceSpec).toMatchObject({ sourceProfileId: "NAVER_COMMUNICATION_AD_COMMENT_SOURCE_V1", compositionMode: "PLATFORM_COMPOSED" });
+  } finally {
+    await close(launched);
+    await rm(sourceAsset, { force: true });
+  }
+});
+
+test("NAVER Feed IMAGE validates all canonical source assets and exports no synthetic final UI", async () => {
+  const fixturePaths = await Promise.all([
+    writePlatformRasterFixture("kbr-n8-feed-profile", 300, 300),
+    writePlatformRasterFixture("kbr-n8-feed-square", 1200, 1200),
+    writePlatformRasterFixture("kbr-n8-feed-wide", 1200, 628),
+  ]);
+  const launched = await launch({ primary: requiredFixturePath(fixturePaths, 0), secondary: requiredFixturePath(fixturePaths, 1), third: requiredFixturePath(fixturePaths, 2) });
+  try {
+    await launched.page.getByTestId("naver-placement-select").selectOption("NAVER_MOBILE_DA_FEED");
+    await expect(launched.page.getByTestId("naver-feed-subtype")).toHaveValue("IMAGE");
+    for (const id of ["NAVER_FEED_PROFILE_IMAGE_300X300", "NAVER_FEED_IMAGE_1_1", "NAVER_FEED_IMAGE_16_9"]) {
+      await launched.page.getByTestId(`naver-source-asset-${id}`).getByRole("button").click();
+    }
+    const jobDirectory = await previewAndExportPlatformSource(launched, "SOURCE");
+    await captureN8FormatEvidence("mobile-da-feed-image", jobDirectory);
+    const sourceSpec = JSON.parse(await readFile(path.join(jobDirectory, "source-spec.json"), "utf8")) as Record<string, unknown>;
+    expect(sourceSpec).toMatchObject({ sourceProfileId: "NAVER_FEED_IMAGE_SOURCE_V1", artifactCardinality: "SINGLE" });
+    expect(sourceSpec).not.toHaveProperty("finalCanvas");
+  } finally {
+    await close(launched);
+    await Promise.all(fixturePaths.map((filePath) => rm(filePath, { force: true })));
+  }
+});
+
+test("NAVER Feed VIDEO remains explicitly disabled and never invokes runtime", async () => {
+  const launched = await launch(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", "N2-REP-001-object.png"));
+  try {
+    await launched.page.getByTestId("naver-placement-select").selectOption("NAVER_MOBILE_DA_FEED");
+    await launched.page.getByTestId("naver-feed-subtype").selectOption("VIDEO");
+    await expect(launched.page.getByTestId("naver-video-disabled")).toContainText("Out of static renderer scope");
+    await expect(launched.page.getByTestId("naver-request-preview")).toBeDisabled();
+  } finally {
+    await close(launched);
   }
 });
 
@@ -322,6 +499,7 @@ test("NAVER Mobile DA reuses the existing FREEFORM editor and exports through Co
     await launched.page.getByTestId("freeform-select-output").click();
     await launched.page.getByTestId("freeform-export").click();
     await expect(launched.page.getByTestId("freeform-export-result")).toBeVisible();
+    await captureN8FormatEvidence("mobile-da", path.join(launched.outputRoot, "freeform-render"));
   } finally {
     await close(launched);
     await rm(sourceAsset, { force: true });
@@ -344,14 +522,22 @@ test("NAVER Image Banner 1:1 reuses the existing FREEFORM profile without a dupl
     await launched.page.getByTestId("freeform-render-preview").click();
     await expect(launched.page.getByTestId("freeform-status")).not.toHaveText("VALIDATING");
     await expect(launched.page.getByTestId("freeform-status")).toHaveText(/PASS|WARNING/u);
+    await launched.page.getByTestId("freeform-select-output").click();
+    await launched.page.getByTestId("freeform-export").click();
+    await expect(launched.page.getByTestId("freeform-export-result")).toBeVisible();
+    await captureN8FormatEvidence("image-banner-1x1", path.join(launched.outputRoot, "freeform-render"));
   } finally {
     await close(launched);
     await rm(sourceAsset, { force: true });
   }
 });
 
-test("NAVER Feed Collection exposes ordered 4..10 item controls and keeps VIDEO disabled", async () => {
-  const launched = await launch(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", "N2-REP-001-object.png"));
+test("NAVER Feed Collection preserves item order and exports all artifacts", async () => {
+  const fixturePaths = await Promise.all([
+    writePlatformRasterFixture("kbr-n8-feed-collection-profile", 300, 300),
+    writePlatformRasterFixture("kbr-n8-feed-collection-item", 600, 600),
+  ]);
+  const launched = await launch({ primary: requiredFixturePath(fixturePaths, 0), secondary: requiredFixturePath(fixturePaths, 1) });
   try {
     await assertNaverShell(launched, "initial");
     await launched.page.getByTestId("naver-placement-select").selectOption("NAVER_MOBILE_DA_FEED");
@@ -360,14 +546,19 @@ test("NAVER Feed Collection exposes ordered 4..10 item controls and keeps VIDEO 
     await assertNaverShell(launched, "collection");
     await expect(launched.page.getByTestId("naver-collection-editor")).toBeVisible();
     await expect(launched.page.locator('article[data-testid^="naver-collection-item-item-"]')).toHaveCount(4);
-    await launched.page.getByTestId("naver-collection-add").click();
-    await expect(launched.page.locator('article[data-testid^="naver-collection-item-item-"]')).toHaveCount(5);
-    await launched.page.getByTestId("naver-feed-subtype").selectOption("VIDEO");
-    await assertNaverShell(launched, "video");
-    await expect(launched.page.getByTestId("naver-video-disabled")).toContainText("Out of static renderer scope");
-    await expect(launched.page.getByTestId("naver-request-preview")).toBeDisabled();
+    await launched.page.getByTestId("naver-source-asset-NAVER_FEED_PROFILE_IMAGE_300X300").getByRole("button").click();
+    await launched.page.getByTestId("naver-source-asset-NAVER_FEED_COLLECTION_ITEM_IMAGE_600X600").getByRole("button").click();
+    await launched.page.getByTestId("naver-collection-item-item-1").getByRole("button", { name: "↓" }).click();
+    const jobDirectory = await previewAndExportPlatformSource(launched, "COLLECTION");
+    await captureN8FormatEvidence("mobile-da-feed-collection", jobDirectory);
+    const manifest = JSON.parse(await readFile(path.join(jobDirectory, "collection-manifest.json"), "utf8")) as { itemCount: number; finalUiRendered: boolean; items: Array<{ itemId: string; index: number }> };
+    expect(manifest.itemCount).toBe(4);
+    expect(manifest.finalUiRendered).toBe(false);
+    expect(manifest.items.map((entry) => entry.itemId)).toEqual(["item-2", "item-1", "item-3", "item-4"]);
+    expect(manifest.items.map((entry) => entry.index)).toEqual([0, 1, 2, 3]);
   } finally {
     await close(launched);
+    await Promise.all(fixturePaths.map((filePath) => rm(filePath, { force: true })));
   }
 });
 

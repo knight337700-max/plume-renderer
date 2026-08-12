@@ -1,0 +1,15 @@
+{
+  "phase": "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION",
+  "status": "PASS",
+  "comparisonBaseline": "26773ebcd1b3831958410d051e7c068054a09e1b",
+  "exhaustiveTemplates": 120,
+  "rendered": 120,
+  "validatorErrors": 0,
+  "fontErrors": 0,
+  "crashes": 0,
+  "threeRunDeterminism": "PASS",
+  "goldenRegistryVersion": "1.0.1",
+  "goldenCount": 6,
+  "goldenChanged": false,
+  "frozenPathChanges": []
+}

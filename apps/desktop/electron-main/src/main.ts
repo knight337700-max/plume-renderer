@@ -181,6 +181,8 @@ function createWindow(controller: DesktopController, diagnostics: RendererDiagno
     dialog,
     shell,
     ...(e2eMode && process.env.KBR_E2E_PRODUCT ? { e2eProductPath: process.env.KBR_E2E_PRODUCT } : {}),
+    ...(e2eMode && process.env.KBR_E2E_SECONDARY ? { e2eSecondaryPath: process.env.KBR_E2E_SECONDARY } : {}),
+    ...(e2eMode && process.env.KBR_E2E_TERTIARY ? { e2eTertiaryPath: process.env.KBR_E2E_TERTIARY } : {}),
     ...(e2eMode && process.env.KBR_E2E_LOGO ? { e2eLogoPath: process.env.KBR_E2E_LOGO } : {}),
     ...(e2eMode && process.env.KBR_E2E_OUTPUT ? { e2eOutputPath: process.env.KBR_E2E_OUTPUT } : {}),
     diagnostics,

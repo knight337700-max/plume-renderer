@@ -1,0 +1,23 @@
+{
+  "phase": "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION",
+  "status": "PASS",
+  "platform": "Windows 10/11 x64",
+  "package": {
+    "path": "release/Kakao-Bizboard-Local-Renderer-0.9.12-x64.exe",
+    "version": "0.9.12",
+    "bytes": 144325802,
+    "sha256": "2a74b6639c232bb672c1c13d120cb6b410835198511fdc01fa0482dc1824dea1"
+  },
+  "packageSmoke": "PASS",
+  "unpackedSmoke": "PASS",
+  "desktopSmoke": "PASS",
+  "naverPlacementsSelectable": 8,
+  "smartChannelRegistryCount": 120,
+  "feedModes": {
+    "IMAGE": "PASS",
+    "COLLECTION": "PASS",
+    "VIDEO_DISABLED": "PASS"
+  },
+  "rendererErrors": 0,
+  "runtimeNetworkRequests": 0
+}

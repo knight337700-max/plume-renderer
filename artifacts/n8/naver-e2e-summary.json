@@ -1,0 +1,39 @@
+{
+  "phase": "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION",
+  "status": "PASS",
+  "suite": "tests/e2e/naver-desktop.spec.ts",
+  "representativeTests": 16,
+  "completedFormatRepresentatives": 8,
+  "platformSourceVariants": 7,
+  "rendererComposedFormats": [
+    "NAVER_SMARTCHANNEL",
+    "NAVER_MOBILE_DA",
+    "NAVER_IMAGE_BANNER_1_1"
+  ],
+  "platformComposedFormats": [
+    "NAVER_MOBILE_NATIVE",
+    "NAVER_PC_NATIVE",
+    "NAVER_SHOPPING_NEWS",
+    "NAVER_COMMUNICATION_AD",
+    "NAVER_MOBILE_DA_FEED"
+  ],
+  "collection": {
+    "profile": "NAVER_FEED_COLLECTION_SOURCE_V1",
+    "itemCount": 4,
+    "orderPreserved": true,
+    "result": "PASS"
+  },
+  "rendererErrors": 0,
+  "runtimeNetworkRequests": 0,
+  "outputEvidenceDirectories": [
+    "communication-comment",
+    "communication-list",
+    "image-banner-1x1",
+    "mobile-da",
+    "mobile-da-feed-collection",
+    "mobile-da-feed-image",
+    "mobile-native",
+    "pc-native",
+    "shopping-news"
+  ]
+}

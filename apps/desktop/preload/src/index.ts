@@ -6,6 +6,7 @@ import type { DesktopApi, ExportRequest, NaverExportRequest, NaverPreviewRequest
 const desktopApi: DesktopApi = Object.freeze({
   selectProductPng: () => ipcRenderer.invoke(DESKTOP_CHANNELS.selectProductPng),
   selectSecondaryProductPng: () => ipcRenderer.invoke(DESKTOP_CHANNELS.selectSecondaryProductPng),
+  selectTertiaryProductImage: () => ipcRenderer.invoke(DESKTOP_CHANNELS.selectTertiaryProductImage),
   selectLogoPng: () => ipcRenderer.invoke(DESKTOP_CHANNELS.selectLogoPng),
   clearProduct: () => ipcRenderer.invoke(DESKTOP_CHANNELS.clearProduct),
   clearSecondaryProduct: () => ipcRenderer.invoke(DESKTOP_CHANNELS.clearSecondaryProduct),

@@ -1,6 +1,7 @@
 export const DESKTOP_CHANNELS = Object.freeze({
   selectProductPng: "kbr:product:select",
   selectSecondaryProductPng: "kbr:product:secondary-select",
+  selectTertiaryProductImage: "kbr:product:tertiary-select",
   selectLogoPng: "kbr:logo:select",
   clearProduct: "kbr:product:clear",
   clearSecondaryProduct: "kbr:product:secondary-clear",

@@ -47,7 +47,7 @@ if (!(await exists(root))) {
   process.exitCode = 1;
 } else {
   const manifest = await readJson("MANIFEST.json");
-  const required = ["README.md", "MANIFEST.json", "artifacts/n7-7-4", "artifacts/n7-7-5", "artifacts/n7-7-6", "artifacts/n7-8", "contracts", "src", "packages", "scripts", "tests", "fixtures", "reference", "docs", "source-guides", "local-runtime-resources", "package.json", "pnpm-lock.yaml"];
+  const required = ["README.md", "MANIFEST.json", "artifacts/n7-7-4", "artifacts/n7-7-5", "artifacts/n7-7-6", "artifacts/n7-8", "artifacts/n8", "contracts", "src", "packages", "scripts", "tests", "fixtures", "reference", "docs", "source-guides", "local-runtime-resources", "package.json", "pnpm-lock.yaml"];
   for (const relativePath of required) check(`required_${relativePath.replaceAll("/", "_")}`, await exists(path.join(root, relativePath)), relativePath);
 
   const forbiddenNames = ["node_modules", ".git", "dist", "dist-desktop", "build", "release", "coverage", "test-results", ".cache", ".out-staging"];
@@ -112,7 +112,7 @@ if (!(await exists(root))) {
   const fixedRuntime = await readJson("contracts/naver-smartchannel-fixed-component-runtime.json");
   const fixedResources = fixedRuntime?.resources ?? [];
   const typographyAudit = await readJson("contracts/audits/naver-smartchannel-typography-audit.json");
-  check("n7_runtime_manifest", manifest?.handoffPhase === "N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA" && manifest?.versions?.rendererCore === "0.8.6" && manifest?.versions?.desktop === "0.9.11", JSON.stringify({ phase: manifest?.handoffPhase, rendererCore: manifest?.versions?.rendererCore, desktop: manifest?.versions?.desktop }));
+  check("n8_runtime_manifest", manifest?.handoffPhase === "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION" && manifest?.versions?.rendererCore === "0.8.6" && manifest?.versions?.desktop === "0.9.12" && manifest?.versions?.platformComposedRuntime === "1.1.1", JSON.stringify({ phase: manifest?.handoffPhase, rendererCore: manifest?.versions?.rendererCore, desktop: manifest?.versions?.desktop, platformComposedRuntime: manifest?.versions?.platformComposedRuntime }));
   check("n7_5_fixed_inventory", fixedRuntime?.status === "FROZEN" && fixedResources.length === 26 && fixedResources.every((entry) => entry.packagedRequired === true), `${fixedResources.length}`);
   let fixedAssetHashPass = 0;
   for (const entry of fixedResources) {
@@ -146,6 +146,14 @@ if (!(await exists(root))) {
   const goldenRegistry = await readJson("fixtures/golden/naver-smartchannel/registry.json");
   check("n7_8_golden_baseline", manifest?.goldenBaseline?.status === "PASS" && finalBaselineAudit?.phase?.status === "PASS" && goldenRegistry?.registryVersion === "1.0.1" && goldenRegistry?.status === "FROZEN_REPRESENTATIVE_GOLDENS_N7_8" && goldenRegistry?.candidates?.length === 6 && goldenRegistry?.candidates?.every((entry) => entry.intentional === true && entry.deterministic === true), JSON.stringify({ manifest: manifest?.goldenBaseline, audit: finalBaselineAudit?.phase, registry: { version: goldenRegistry?.registryVersion, status: goldenRegistry?.status, candidates: goldenRegistry?.candidates?.length } }));
   check("n7_8_provenance", manifest?.sourceProvenance?.n7_8FinalBaselineAudit === "contracts/audits/naver-smartchannel-final-baseline-n7-8.json" && manifest?.sourceProvenance?.n7_8FinalBaselineReport === "docs/implementation/naver-smartchannel-final-baseline-n7-8.md" && manifest?.sourceProvenance?.n7_8FinalBaselineVerifier === "scripts/verify-n7-8-smartchannel-final-baseline.mjs" && manifest?.sourceProvenance?.n7_8EvidenceDirectory === "artifacts/n7-8" && manifest?.sourceProvenance?.n7_8GoldenRegistry === "fixtures/golden/naver-smartchannel/registry.json", "N7.8 provenance");
+  const n8Inventory = await readJson("artifacts/n8/naver-capability-inventory.json");
+  const n8Matrix = await readJson("artifacts/n8/naver-desktop-format-matrix.json");
+  const n8Parity = await readJson("artifacts/n8/naver-format-contract-parity.json");
+  const n8E2e = await readJson("artifacts/n8/naver-e2e-summary.json");
+  const n8SmartFreeze = await readJson("artifacts/n8/smartchannel-frozen-regression.json");
+  const n8Regression = await readJson("artifacts/n8/non-smartchannel-regression.json");
+  check("n8_channel_completion", manifest?.channelCompletion?.status === "PASS" && n8Inventory?.formats?.length === 8 && n8Matrix?.status === "PASS" && n8Matrix?.formats?.length === 8 && n8Parity?.status === "PASS" && n8Parity?.missingFields === 0 && n8Parity?.extraFields === 0 && n8Parity?.requestMappingErrors === 0 && n8E2e?.status === "PASS" && n8E2e?.outputEvidenceDirectories?.length === 9 && n8SmartFreeze?.status === "PASS" && n8SmartFreeze?.goldenChanged === false && n8Regression?.status === "PASS", JSON.stringify({ manifest: manifest?.channelCompletion, inventory: n8Inventory?.formats?.length, matrix: n8Matrix?.status, parity: n8Parity?.status, e2e: n8E2e?.status, smartFreeze: n8SmartFreeze?.status, regression: n8Regression?.status }));
+  check("n8_provenance", manifest?.sourceProvenance?.n8Inventory === "artifacts/n8/naver-capability-inventory.json" && manifest?.sourceProvenance?.n8DesktopMatrix === "artifacts/n8/naver-desktop-format-matrix.json" && manifest?.sourceProvenance?.n8ContractParity === "artifacts/n8/naver-format-contract-parity.json" && manifest?.sourceProvenance?.n8E2eSummary === "artifacts/n8/naver-e2e-summary.json" && manifest?.sourceProvenance?.n8EvidenceDirectory === "artifacts/n8" && manifest?.sourceProvenance?.n8ImplementationRecord === "docs/implementation/naver-channel-completion-n8.md" && manifest?.sourceProvenance?.n8Verifier === "scripts/verify-n8-channel-completion.mjs", "N8 provenance");
 
   const secretPattern = /(AKIA[0-9A-Z]{16}|(?:ghp|gho|github_pat)_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|-----BEGIN (?:RSA|OPENSSH|EC|DSA) PRIVATE KEY-----)/;
   const textExtensions = new Set([".json", ".md", ".mjs", ".js", ".ts", ".tsx", ".yaml", ".yml", ".toml", ".txt", ".css", ".html"]);

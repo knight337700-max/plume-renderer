@@ -367,6 +367,7 @@ export type RendererDiagnostic = Readonly<{
 export type DesktopApi = {
   selectProductPng(): Promise<ProductSelectionResult>;
   selectSecondaryProductPng(): Promise<ProductSelectionResult>;
+  selectTertiaryProductImage(): Promise<ProductSelectionResult>;
   selectLogoPng(): Promise<ProductSelectionResult>;
   clearProduct(): Promise<void>;
   clearSecondaryProduct(): Promise<void>;

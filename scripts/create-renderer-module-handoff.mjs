@@ -138,6 +138,12 @@ const typographyParityAudit = JSON.parse(await readFile(path.join(root, "contrac
 const textInputUiParityAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-text-input-ui-parity-n7-7-6.json"), "utf8"));
 const finalBaselineAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-final-baseline-n7-8.json"), "utf8"));
 const goldenRebaseManifest = JSON.parse(await readFile(path.join(root, "artifacts/n7-8/golden-rebase-manifest.json"), "utf8"));
+const n8Inventory = JSON.parse(await readFile(path.join(root, "artifacts/n8/naver-capability-inventory.json"), "utf8"));
+const n8DesktopMatrix = JSON.parse(await readFile(path.join(root, "artifacts/n8/naver-desktop-format-matrix.json"), "utf8"));
+const n8ContractParity = JSON.parse(await readFile(path.join(root, "artifacts/n8/naver-format-contract-parity.json"), "utf8"));
+const n8E2eSummary = JSON.parse(await readFile(path.join(root, "artifacts/n8/naver-e2e-summary.json"), "utf8"));
+const n8SmartFreeze = JSON.parse(await readFile(path.join(root, "artifacts/n8/smartchannel-frozen-regression.json"), "utf8"));
+const n8Regression = JSON.parse(await readFile(path.join(root, "artifacts/n8/non-smartchannel-regression.json"), "utf8"));
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -152,7 +158,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N7.8 SmartChannel final frozen baseline handoff
+const readme = `# Renderer Module — N8 NAVER channel completion handoff
 
 ## Purpose
 
@@ -160,7 +166,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N7.8 final baseline source commit: ${sourceSha}
+- N8 channel-completion source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Source verification package: ${packageArtifact?.sourcePath ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256}; generated release intentionally excluded from source handoff)` : ""}
 - Runtime network access: PROHIBITED
@@ -183,6 +189,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER SmartChannel N7.7.5: actual-alpha-raster overflow boundary, source-proven 14/17 copy acceptance, token-scoped headline vertical parity, Korean overflow localization, and 120-template deterministic smoke; result: ${typographyParityAudit.phase.status}
 - NAVER SmartChannel N7.7.6: PSD text-layer metadata-driven Desktop input descriptors, 56-template 280 UI parity, mode-state preservation, and distinct render-role mapping; result: ${textInputUiParityAudit.phase.status}
 - NAVER SmartChannel N7.8: six representative Goldens rebased from the corrected production runtime, 120-template three-run validation, intentional text-only diff scope, non-SmartChannel freeze, and final package QA; result: ${finalBaselineAudit.phase.status}
+- NAVER N8: eight placements inventoried and contract-driven in Desktop; representative preview/validator/export evidence covers renderer-composed, platform-composed, and ordered collection outputs. SmartChannel remains frozen; matrix: ${n8DesktopMatrix.status}, parity: ${n8ContractParity.status}, E2E: ${n8E2eSummary.status}
 - Meta: not implemented
 - Google: not implemented
 
@@ -222,7 +229,9 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest freeze phase is N7.8 while the unchanged canonical document remains v1.21.4. N7.6 remains
+The latest completion phase is N8 while the unchanged canonical document remains v1.21.4. N7.8 remains
+the immutable SmartChannel freeze baseline. N8 reuses existing capabilities, completes format-level Desktop acceptance,
+and records its inventory, matrix, E2E outputs, regressions, package, and handoff under artifacts/n8/. N7.6 remains
 an immutable audit baseline; N7.7 changed the SmartChannel runtime token mapping and N7.7.4 replaces
 its font source with the verified macOS original TTC without changing geometry. N7.7.5 corrects
 source-known text overflow and the source-evidenced Bold headline raster offset without changing
@@ -270,7 +279,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA",
+  handoffPhase: "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -285,8 +294,9 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN7_8.rendererCoreVersion,
-    desktop: canonicalDocument.canonicalPhaseN7_8.desktopCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseN8.rendererCoreVersion,
+    desktop: canonicalDocument.canonicalPhaseN8.desktopCurrent,
+    platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
     platformComposedSourceRegistry: canonicalDocument.platformComposedSourceRegistryVersion,
@@ -369,6 +379,18 @@ const manifest = {
     intentionalChangesOnly: goldenRebaseManifest.intentionalChangesOnly,
     deterministic: goldenRebaseManifest.deterministic,
   },
+  channelCompletion: {
+    phase: n8Inventory.phase,
+    status: n8DesktopMatrix.status === "PASS" && n8ContractParity.status === "PASS" && n8E2eSummary.status === "PASS" && n8SmartFreeze.status === "PASS" && n8Regression.status === "PASS" ? "PASS" : "FAIL",
+    inventoryFormats: n8Inventory.formats.length,
+    desktopFormats: n8DesktopMatrix.formats.length,
+    contractParity: n8ContractParity.status,
+    e2e: n8E2eSummary.status,
+    outputEvidenceDirectories: n8E2eSummary.outputEvidenceDirectories.length,
+    smartChannelFrozenRegression: n8SmartFreeze.status,
+    nonSmartChannelRegression: n8Regression.status,
+    feedVideo: n8DesktopMatrix.feedSubtypes.VIDEO,
+  },
   channels: {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
     NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", desktopIntegration: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED", video: "DISABLED_OUT_OF_STATIC_SCOPE" },
@@ -426,6 +448,13 @@ const manifest = {
     n7_8FinalBaselineVerifier: "scripts/verify-n7-8-smartchannel-final-baseline.mjs",
     n7_8EvidenceDirectory: "artifacts/n7-8",
     n7_8GoldenRegistry: "fixtures/golden/naver-smartchannel/registry.json",
+    n8Inventory: "artifacts/n8/naver-capability-inventory.json",
+    n8DesktopMatrix: "artifacts/n8/naver-desktop-format-matrix.json",
+    n8ContractParity: "artifacts/n8/naver-format-contract-parity.json",
+    n8E2eSummary: "artifacts/n8/naver-e2e-summary.json",
+    n8EvidenceDirectory: "artifacts/n8",
+    n8ImplementationRecord: "docs/implementation/naver-channel-completion-n8.md",
+    n8Verifier: "scripts/verify-n8-channel-completion.mjs",
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

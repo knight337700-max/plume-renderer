@@ -29,6 +29,8 @@ export type RegisterDesktopIpcOptions = {
   dialog: DialogPort;
   shell: Pick<Shell, "showItemInFolder">;
   e2eProductPath?: string;
+  e2eSecondaryPath?: string;
+  e2eTertiaryPath?: string;
   e2eLogoPath?: string;
   e2eOutputPath?: string;
   diagnostics: RendererDiagnostics;
@@ -77,8 +79,8 @@ export function registerDesktopIpc(options: RegisterDesktopIpcOptions): void {
 
   handle(DESKTOP_CHANNELS.selectSecondaryProductPng, async (): Promise<ProductSelectionResult> => {
     let selectedPath: string | undefined;
-    if (options.e2eProductPath) {
-      selectedPath = options.e2eProductPath;
+    if (options.e2eSecondaryPath || options.e2eProductPath) {
+      selectedPath = options.e2eSecondaryPath ?? options.e2eProductPath;
     } else {
       const result = await options.dialog.showOpenDialog(options.window, {
         title: "두 번째 이미지 선택",
@@ -90,6 +92,22 @@ export function registerDesktopIpc(options: RegisterDesktopIpcOptions): void {
     }
     if (!selectedPath) return { status: "CANCELLED" };
     return options.controller.selectSecondaryProductFromPath(selectedPath);
+  });
+
+  handle(DESKTOP_CHANNELS.selectTertiaryProductImage, async (): Promise<ProductSelectionResult> => {
+    let selectedPath: string | undefined;
+    if (options.e2eTertiaryPath || options.e2eProductPath) selectedPath = options.e2eTertiaryPath ?? options.e2eProductPath;
+    else {
+      const result = await options.dialog.showOpenDialog(options.window, {
+        title: "세 번째 이미지 선택",
+        properties: ["openFile", "dontAddToRecent"],
+        filters: [{ name: "이미지 파일", extensions: ["png", "jpg", "jpeg"] }],
+      });
+      if (result.canceled || result.filePaths.length === 0) return { status: "CANCELLED" };
+      selectedPath = result.filePaths[0];
+    }
+    if (!selectedPath) return { status: "CANCELLED" };
+    return options.controller.selectTertiaryProductFromPath(selectedPath);
   });
 
   handle(DESKTOP_CHANNELS.selectLogoPng, async (): Promise<ProductSelectionResult> => {

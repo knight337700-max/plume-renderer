@@ -222,12 +222,20 @@ export function NaverDesktopEditor() {
     } else if (result.status === "ERROR") setNotice(result.code + ": " + result.message);
   }
 
-  async function selectLogo() {
-    const result = await window.kbrDesktop.selectLogoPng();
+  async function selectTertiarySourceAsset() {
+    const result = await window.kbrDesktop.selectTertiaryProductImage();
     if (result.status === "SELECTED") {
       setLogo(result);
       const rule = sourceProfile?.assets[2] || sourceProfile?.assets[1];
       if (rule) setSourceAssets((previous) => ({ ...previous, [rule.id]: result }));
+      invalidate();
+    } else if (result.status === "ERROR") setNotice(result.code + ": " + result.message);
+  }
+
+  async function selectLogo() {
+    const result = await window.kbrDesktop.selectLogoPng();
+    if (result.status === "SELECTED") {
+      setLogo(result);
       invalidate();
     } else if (result.status === "ERROR") setNotice(result.code + ": " + result.message);
   }
@@ -238,7 +246,7 @@ export function NaverDesktopEditor() {
 
   function buildSourceRequest(): NaverPlatformSourceRequest | null {
     if (!sourceProfile || !primary) return null;
-    const requiredRules = sourceProfile.assets.filter((rule) => rule.required === true);
+    const requiredRules = sourceProfile.assets.filter((rule) => rule.required === true && !(isCollection && rule.assetRole === "collectionItemImage"));
     const assets = requiredRules.map((rule, index) => {
       const selected = ruleAsset(rule, index);
       return selected ? { assetId: rule.id, assetRole: rule.assetRole, sourceProfileId: rule.id, assetToken: selected.assetToken } : null;
@@ -342,7 +350,7 @@ export function NaverDesktopEditor() {
           <div className="section-heading"><h3>Source Input</h3><span className="capability-pill">PLATFORM_COMPOSED</span></div>
           <p className="source-owner-note">최종 노출 형상은 NAVER가 구성합니다.<br />이 앱은 등록용 소스와 필드를 검증/준비합니다.</p>
           {sourceFields.map((rule) => <SourceField key={rule.id} rule={rule} value={fields[rule.id]} onChange={(value) => { setFields((previous) => ({ ...previous, [rule.id]: value })); invalidate(); }} />)}
-          <div className="naver-assets" data-testid="naver-source-assets"><h4>Source assets</h4><p className="hint">원본 canvas / MIME / safe area만 검사합니다. 자동 crop·최종 UI 합성 없음.</p>{assetRules.map((rule, index) => { const selected = ruleAsset(rule, index); return <div className="asset-card" key={rule.id} data-testid={"naver-source-asset-" + rule.id}><strong>{rule.assetRole} · {rule.id}</strong><span>{selected ? selected.displayName + " · " + selected.width + "×" + selected.height : "Asset 없음"}</span><button type="button" onClick={() => index === 0 ? void selectPrimary() : index === 1 ? void selectSecondary() : void selectLogo()}>{index === 0 ? "Primary 선택" : index === 1 ? "Secondary 선택" : "Logo/third asset 선택"}</button><small>{(rule.mime || []).join(", ") || "MIME source rule"} · canvas {String(rule.canvas?.width || "—")}×{String(rule.canvas?.height || "—")}</small></div>; })}</div>
+          <div className="naver-assets" data-testid="naver-source-assets"><h4>Source assets</h4><p className="hint">원본 canvas / MIME / safe area만 검사합니다. 자동 crop·최종 UI 합성 없음.</p>{assetRules.map((rule, index) => { const selected = ruleAsset(rule, index); return <div className="asset-card" key={rule.id} data-testid={"naver-source-asset-" + rule.id}><strong>{rule.assetRole} · {rule.id}</strong><span>{selected ? selected.displayName + " · " + selected.width + "×" + selected.height : "Asset 없음"}</span><button type="button" onClick={() => index === 0 ? void selectPrimary() : index === 1 ? void selectSecondary() : void selectTertiarySourceAsset()}>{index === 0 ? "Primary 선택" : index === 1 ? "Secondary 선택" : "Third asset 선택"}</button><small>{(rule.mime || []).join(", ") || "MIME source rule"} · canvas {String(rule.canvas?.width || "—")}×{String(rule.canvas?.height || "—")}</small></div>; })}</div>
           {isCollection ? <section className="collection-editor" data-testid="naver-collection-editor"><div className="section-heading"><h4>Collection items · {items.length}/10</h4><button type="button" className="secondary" onClick={() => { if (items.length < 10) { setItems((previous) => [...previous, { id: "item-" + String(previous.length + 1), description: "", landingUrl: "https://example.invalid/", assetToken: secondary?.assetToken || "" }]); invalidate(); } }} disabled={items.length >= 10} data-testid="naver-collection-add">Add Item</button></div><p className="hint">4..10 ordered items · nested collection unsupported · item checksum은 유지됩니다. 각 item은 별도 선택하거나 Secondary asset을 재사용합니다.</p>{items.map((item, index) => <article className="collection-item-card" key={item.id} data-testid={"naver-collection-item-" + item.id}><div className="section-heading"><strong>{String(index + 1) + ". " + item.id}</strong><div className="button-row"><button type="button" className="secondary" onClick={() => moveItem(index, -1)} disabled={index === 0}>↑</button><button type="button" className="secondary" onClick={() => moveItem(index, 1)} disabled={index === items.length - 1}>↓</button><button type="button" className="secondary" onClick={() => { if (items.length > 4) { setItems((previous) => previous.filter((_, itemIndex) => itemIndex !== index)); invalidate(); } }} disabled={items.length <= 4}>Remove</button></div></div><label><span>landingUrl</span><input value={item.landingUrl} onChange={(event) => { const value = event.currentTarget.value; setItems((previous) => previous.map((candidate) => candidate.id === item.id ? { ...candidate, landingUrl: value } : candidate)); invalidate(); }} data-testid={"naver-collection-" + item.id + "-landing-url"} /></label><label><span>itemDescription ≤28</span><input maxLength={28} value={item.description} onChange={(event) => { const value = event.currentTarget.value; setItems((previous) => previous.map((candidate) => candidate.id === item.id ? { ...candidate, description: value } : candidate)); invalidate(); }} data-testid={"naver-collection-" + item.id + "-description"} /></label><div className="button-row"><button type="button" className="secondary" onClick={() => void selectSecondary(item.id)} data-testid={"naver-collection-" + item.id + "-select-asset"}>Item asset 선택</button></div><small>Asset · {item.assetToken ? "selected / reusable" : "Secondary 선택 후 재사용"}</small></article>)}</section> : null}
         </section> : null}
 

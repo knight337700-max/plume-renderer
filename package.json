@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -40,6 +40,8 @@
     "verify:n7-7-5-typography": "node scripts/verify-n7-7-5-typography-parity.mjs",
     "verify:n7-7-6-ui-fields": "node scripts/verify-n7-7-6-smartchannel-text-input-fields.mjs",
     "verify:n7-8-final-baseline": "node scripts/verify-n7-8-smartchannel-final-baseline.mjs",
+    "verify:n8-channel": "node scripts/verify-n8-channel-completion.mjs",
+    "evidence:n8": "node scripts/generate-n8-evidence.mjs",
     "evidence:n7-7-4-ttc": "pnpm build && node scripts/generate-n7-7-4-evidence.mjs",
     "evidence:n7-7-5-typography": "pnpm build && node scripts/generate-n7-7-5-evidence.mjs",
     "evidence:n7-7-6-ui-fields": "pnpm build:desktop && node scripts/generate-n7-7-6-evidence.mjs",
@@ -75,7 +77,7 @@
     "smoke:desktop": "node scripts/smoke-naver-desktop.mjs",
     "smoke:naver-fixed-components": "node scripts/smoke-naver-smartchannel-fixed-components.mjs",
     "evidence:package": "node scripts/capture-packaged-evidence.mjs",
-    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-actual-asset && pnpm verify:naver-inventory && pnpm verify:naver-fixed-components && pnpm verify:n7-7-5-typography && pnpm verify:n7-7-6-ui-fields && pnpm verify:naver-desktop && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
+    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-actual-asset && pnpm verify:naver-inventory && pnpm verify:naver-fixed-components && pnpm verify:n7-7-5-typography && pnpm verify:n7-7-6-ui-fields && pnpm verify:naver-desktop && pnpm verify:n8-channel && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && vitest run && pnpm build:desktop && playwright test",
     "render": "node dist/cli/index.js"
   },
   "dependencies": {

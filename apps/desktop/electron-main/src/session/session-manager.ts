@@ -174,7 +174,7 @@ export class DesktopSessionManager {
     await writeFile(path.join(this.sessionRoot, SESSION_MARKER), this.sessionId, { encoding: "utf8", flag: "wx" });
   }
 
-  async selectProduct(sourcePath: string, slot: "PRIMARY" | "SECONDARY" | "LOGO" = "PRIMARY"): Promise<SessionAsset> {
+  async selectProduct(sourcePath: string, slot: "PRIMARY" | "SECONDARY" | "TERTIARY" | "LOGO" = "PRIMARY"): Promise<SessionAsset> {
     assertLocalAbsoluteFilePath(sourcePath);
     const sourceLstat = await lstat(sourcePath);
     if (!sourceLstat.isFile() || sourceLstat.isSymbolicLink()) {
@@ -199,7 +199,7 @@ export class DesktopSessionManager {
     if (slot === "LOGO" && inspected.metadata.detectedMimeType !== "image/png") {
       throw new DesktopSecurityError("KBR-ASSET-MIME-NOT-ALLOWED", "LOGO_PRIMARY requires a PNG asset");
     }
-    const fileStem = slot === "SECONDARY" ? "secondary-product" : slot === "LOGO" ? "logo" : "product";
+    const fileStem = slot === "SECONDARY" ? "secondary-product" : slot === "TERTIARY" ? "tertiary-product" : slot === "LOGO" ? "logo" : "product";
     const productPath = path.join(this.inputRoot, `${fileStem}${extension}`);
     try {
       await copyOpenFile(sourcePath, temporaryPath);
@@ -222,7 +222,7 @@ export class DesktopSessionManager {
         sha256: await sha256File(productPath),
       };
       if (slot === "SECONDARY") this.#secondaryAsset = nextAsset;
-      else if (slot === "LOGO") this.#logoAsset = nextAsset;
+      else if (slot === "TERTIARY" || slot === "LOGO") this.#logoAsset = nextAsset;
       else this.#asset = nextAsset;
       return { ...nextAsset };
     } catch (error) {

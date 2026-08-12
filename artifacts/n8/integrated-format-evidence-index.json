@@ -1,0 +1,173 @@
+{
+  "phase": "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION",
+  "status": "PASS",
+  "directory": "artifacts/n8/formats",
+  "directories": [
+    "communication-comment",
+    "communication-list",
+    "image-banner-1x1",
+    "mobile-da",
+    "mobile-da-feed-collection",
+    "mobile-da-feed-image",
+    "mobile-native",
+    "pc-native",
+    "shopping-news"
+  ],
+  "files": [
+    {
+      "path": "communication-comment/asset-d193db32a2be61d5.jpg",
+      "bytes": 56862,
+      "sha256": "380f6aed196aae64141afa289446e32d5cfeaaff156ab8ea931165c2890166cd"
+    },
+    {
+      "path": "communication-comment/source-manifest.json",
+      "bytes": 736,
+      "sha256": "1a2fa65ed621183db48334c94133fc95c2d9d4a55001f29bdaaca55e2375a3c8"
+    },
+    {
+      "path": "communication-comment/source-spec.json",
+      "bytes": 651,
+      "sha256": "d92d7a060922e9ef650cb74fb223fd25d48ad7a30fe7b6564f72d105dea28f62"
+    },
+    {
+      "path": "communication-list/asset-96bdb1a79fba819d.png",
+      "bytes": 592,
+      "sha256": "28fa8081dcbe48a31499322210a8094e49ba461840beff182862f298ce7c4577"
+    },
+    {
+      "path": "communication-list/source-manifest.json",
+      "bytes": 733,
+      "sha256": "6661f6c5be6e5ade2da9c7584942884d5ea1749e3e5020c1fbd88859fa43af79"
+    },
+    {
+      "path": "communication-list/source-spec.json",
+      "bytes": 629,
+      "sha256": "79c2dae2d57f7666b5d52da35b1e415f553fb46558d284c8dfe8b33acd106b78"
+    },
+    {
+      "path": "image-banner-1x1/output.jpg",
+      "bytes": 754815,
+      "sha256": "cc4ad67b4aec310faab0511a8d63e69ee2d5990dc906a960f3f1132cf3e33e28"
+    },
+    {
+      "path": "image-banner-1x1/render-manifest.json",
+      "bytes": 3064,
+      "sha256": "ab6db06d5e8b5ad97d758a562442d5e8c5b9e792a2c92488cc20163d9aa905f5"
+    },
+    {
+      "path": "mobile-da-feed-collection/collection-manifest.json",
+      "bytes": 2451,
+      "sha256": "1caaf65418ef6f73cdb8ec27a57f70dc4bb8781d3febece1eaf9bbca7a4d5696"
+    },
+    {
+      "path": "mobile-da-feed-collection/item-00-77ef1951f02f9226.jpg",
+      "bytes": 221694,
+      "sha256": "e306b8430f60fadbd47c110d3630fc8843d98738c15f12653aedb1851ed1eece"
+    },
+    {
+      "path": "mobile-da-feed-collection/item-01-59908df50572502c.jpg",
+      "bytes": 221694,
+      "sha256": "e306b8430f60fadbd47c110d3630fc8843d98738c15f12653aedb1851ed1eece"
+    },
+    {
+      "path": "mobile-da-feed-collection/item-02-7c377ad0322c2a80.jpg",
+      "bytes": 221694,
+      "sha256": "e306b8430f60fadbd47c110d3630fc8843d98738c15f12653aedb1851ed1eece"
+    },
+    {
+      "path": "mobile-da-feed-collection/item-03-c2c3457b60653166.jpg",
+      "bytes": 221694,
+      "sha256": "e306b8430f60fadbd47c110d3630fc8843d98738c15f12653aedb1851ed1eece"
+    },
+    {
+      "path": "mobile-da-feed-image/asset-4f4dc61da90a74e4.jpg",
+      "bytes": 464111,
+      "sha256": "df6dcf0a632c319efd71df0a5e337ed0ef92726054f0218eb03fa2fc3851eeb9"
+    },
+    {
+      "path": "mobile-da-feed-image/asset-84b6e37d0ef29123.jpg",
+      "bytes": 56862,
+      "sha256": "380f6aed196aae64141afa289446e32d5cfeaaff156ab8ea931165c2890166cd"
+    },
+    {
+      "path": "mobile-da-feed-image/asset-e64cd1b87e107178.jpg",
+      "bytes": 640236,
+      "sha256": "4a64bf8d610d771cfb37c2c8b90fb8b2e01d59d7fadda78b161a867597cb8653"
+    },
+    {
+      "path": "mobile-da-feed-image/source-manifest.json",
+      "bytes": 778,
+      "sha256": "0a7e9738aa7c9b90deb0bc39b5dd51544646119a6007ce5ea3e2850ad8a613a5"
+    },
+    {
+      "path": "mobile-da-feed-image/source-spec.json",
+      "bytes": 1357,
+      "sha256": "a19855b60e3b26c96abce81e10a2d06384e66554b1d3485aaf9827b64bcd0bed"
+    },
+    {
+      "path": "mobile-da/output.jpg",
+      "bytes": 236894,
+      "sha256": "db002cfafc9a80190a501bb0e3a078c6f7604f7396d62fa65ed2c2885662360b"
+    },
+    {
+      "path": "mobile-da/render-manifest.json",
+      "bytes": 3073,
+      "sha256": "d5e5bf312096c933784f86a76461f44c7e77c02195aec45f1d0473ac2f977397"
+    },
+    {
+      "path": "mobile-native/asset-2f0370cff99296b9.jpg",
+      "bytes": 49499,
+      "sha256": "c19c78b4c6e63652c2d4272cb1f795510434554b1d7b2dd17c380318f4804db5"
+    },
+    {
+      "path": "mobile-native/asset-3f1b563665d8ca87.jpg",
+      "bytes": 56862,
+      "sha256": "380f6aed196aae64141afa289446e32d5cfeaaff156ab8ea931165c2890166cd"
+    },
+    {
+      "path": "mobile-native/source-manifest.json",
+      "bytes": 751,
+      "sha256": "556ba2a32eb8bb91da59aa89bc9a24b194972adf25d187d5c575dad87b14b314"
+    },
+    {
+      "path": "mobile-native/source-spec.json",
+      "bytes": 1001,
+      "sha256": "c4bcb274f48e3c4859f277cf8cc5fbf47f35b1e2bbdaabf751fedb5d64fbf3de"
+    },
+    {
+      "path": "pc-native/asset-2f0370cff99296b9.jpg",
+      "bytes": 49499,
+      "sha256": "c19c78b4c6e63652c2d4272cb1f795510434554b1d7b2dd17c380318f4804db5"
+    },
+    {
+      "path": "pc-native/asset-3f1b563665d8ca87.jpg",
+      "bytes": 56862,
+      "sha256": "380f6aed196aae64141afa289446e32d5cfeaaff156ab8ea931165c2890166cd"
+    },
+    {
+      "path": "pc-native/source-manifest.json",
+      "bytes": 743,
+      "sha256": "c079185cf203dbae9e3e9bac35f96074b2ed43c6258e719d426809bfd03abc00"
+    },
+    {
+      "path": "pc-native/source-spec.json",
+      "bytes": 993,
+      "sha256": "adfe39dbe7a3fec2465c814f5ed7e5f3abfbc46d997c891ccb7344f8efbc0000"
+    },
+    {
+      "path": "shopping-news/asset-9650fc2d40b48a5e.jpg",
+      "bytes": 232394,
+      "sha256": "140033f464a3326c9b4ab361fdb74a338011c373f6ef4ba1d880932154ac1ee2"
+    },
+    {
+      "path": "shopping-news/source-manifest.json",
+      "bytes": 722,
+      "sha256": "d1cb68653bdc69e48e0fadb2c768b89c07753bc812f9f7880df8239e2588b4cd"
+    },
+    {
+      "path": "shopping-news/source-spec.json",
+      "bytes": 746,
+      "sha256": "eb7120576a8274815859fc5569d8d0be3eae34e52f2ef3aba18b2b748d3558f8"
+    }
+  ]
+}

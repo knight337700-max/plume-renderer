@@ -67,4 +67,34 @@ describe("NAVER Platform-Composed source contract", () => {
     expect(normalized.fields.headline).toBe("가");
     expect(normalized.assets.map((asset) => asset.assetId)).toEqual(["profile", "thumb"]);
   });
+
+  it("treats an exact source canvas as authoritative when a guide ratio label is rounded", () => {
+    const profile: PlatformComposedProfile = {
+      id: "NAVER_FEED_IMAGE_SOURCE_V1",
+      placement: "MOBILE_DA_FEED",
+      artifactCardinality: "SINGLE",
+      fields: [],
+      assets: [{
+        id: "NAVER_FEED_IMAGE_16_9",
+        assetRole: "adImage",
+        required: true,
+        canvas: { width: 1200, height: 628 },
+        aspectRatio: "16:9",
+        mime: ["image/jpeg"],
+      }],
+      runtimeStatus: "CONTRACT_ONLY",
+    };
+    const result = validatePlatformComposedSource({
+      schemaVersion: NAVER_PLATFORM_SOURCE_SCHEMA_VERSION,
+      channel: "NAVER_GFA",
+      placement: "MOBILE_DA_FEED",
+      compositionMode: "PLATFORM_COMPOSED",
+      artifactCardinality: "SINGLE",
+      sourceProfileId: profile.id,
+      fields: {},
+      assets: [{ assetId: "wide", assetRole: "adImage", sourceProfileId: "NAVER_FEED_IMAGE_16_9", mime: "image/jpeg", width: 1200, height: 628, bytes: 100000 }],
+    }, profile);
+    expect(result.errors).toHaveLength(0);
+    expect(result.warnings.map((entry) => entry.code)).toEqual(["KBR-NAVER-SOURCE-RUNTIME-DEFERRED"]);
+  });
 });

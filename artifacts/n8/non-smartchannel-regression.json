@@ -1,0 +1,57 @@
+{
+  "phase": "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION",
+  "status": "PASS",
+  "goldenResults": [
+    {
+      "file": "fixtures/golden/object-right__stable__golden.png",
+      "expected": "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1",
+      "actual": "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1",
+      "status": "PASS"
+    },
+    {
+      "file": "fixtures/golden/thumbnail-box-right__valid__golden.png",
+      "expected": "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996",
+      "actual": "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996",
+      "status": "PASS"
+    },
+    {
+      "file": "fixtures/golden/thumbnail-multi-right__valid__golden.png",
+      "expected": "ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55",
+      "actual": "ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55",
+      "status": "PASS"
+    },
+    {
+      "file": "fixtures/golden/mask-semicircle-right__valid__golden.png",
+      "expected": "ad5448b368badcf1e5c304dadb8a93d3cbf4fab6f2e4d7d90334a44628d7d145",
+      "actual": "ad5448b368badcf1e5c304dadb8a93d3cbf4fab6f2e4d7d90334a44628d7d145",
+      "status": "PASS"
+    },
+    {
+      "file": "fixtures/golden/naver-freeform/naver-mobile-da__jpeg.golden.jpg",
+      "expected": "b3462e8129d8a2246a00905142bfcd09f3d81db72905d4b1f7cbfe708de7cf52",
+      "actual": "b3462e8129d8a2246a00905142bfcd09f3d81db72905d4b1f7cbfe708de7cf52",
+      "status": "PASS"
+    },
+    {
+      "file": "fixtures/golden/naver-freeform/naver-image-banner-1x1__png.golden.png",
+      "expected": "8e737308eabdb84f9bef041443cc348f9ff7ae13096db90ebb72e0a58755ae3e",
+      "actual": "8e737308eabdb84f9bef041443cc348f9ff7ae13096db90ebb72e0a58755ae3e",
+      "status": "PASS"
+    }
+  ],
+  "freeform": "PASS",
+  "platformComposed": "PASS",
+  "collection": "PASS",
+  "expectedN8Changes": [
+    "apps/desktop/electron-main/src/desktop-controller.ts",
+    "apps/desktop/electron-main/src/ipc/register-ipc.ts",
+    "apps/desktop/electron-main/src/main.ts",
+    "apps/desktop/electron-main/src/session/session-manager.ts",
+    "apps/desktop/preload/src/index.ts",
+    "apps/desktop/renderer-ui/src/features/naver/NaverDesktopEditor.tsx",
+    "apps/desktop/shared/src/channels.ts",
+    "apps/desktop/shared/src/types.ts",
+    "src/core/naver-platform-composed.ts",
+    "tests/e2e/naver-desktop.spec.ts"
+  ]
+}

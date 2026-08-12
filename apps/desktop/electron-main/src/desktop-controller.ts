@@ -312,7 +312,7 @@ export class DesktopController {
     this.#blockedNetworkRequestCount = config.blockedNetworkRequestCount;
   }
 
-  async selectProductFromPath(sourcePath: string, slot: "PRIMARY" | "SECONDARY" | "LOGO" = "PRIMARY"): Promise<ProductSelectionResult> {
+  async selectProductFromPath(sourcePath: string, slot: "PRIMARY" | "SECONDARY" | "TERTIARY" | "LOGO" = "PRIMARY"): Promise<ProductSelectionResult> {
     try {
       const asset = await this.#session.selectProduct(sourcePath, slot);
       return {
@@ -337,6 +337,10 @@ export class DesktopController {
 
   async selectSecondaryProductFromPath(sourcePath: string): Promise<ProductSelectionResult> {
     return this.selectProductFromPath(sourcePath, "SECONDARY");
+  }
+
+  async selectTertiaryProductFromPath(sourcePath: string): Promise<ProductSelectionResult> {
+    return this.selectProductFromPath(sourcePath, "TERTIARY");
   }
 
   async selectLogoFromPath(sourcePath: string): Promise<ProductSelectionResult> {
@@ -387,7 +391,8 @@ export class DesktopController {
     sessionAsset: SessionAsset,
   ) {
     const profile = materializePlatformComposedProfile(contracts.naverPlatformSourceProfiles, sourceProfileId);
-    const rule = profile?.assets.find((entry) => entry.id === asset.sourceProfileId || entry.assetRole === asset.assetRole);
+    const rule = profile?.assets.find((entry) => entry.id === asset.sourceProfileId)
+      ?? profile?.assets.find((entry) => entry.assetRole === asset.assetRole);
     return {
       assetId: asset.assetId,
       assetRole: asset.assetRole,
@@ -726,36 +731,31 @@ export class DesktopController {
       if (sourceRequest.kind !== "PLATFORM_SOURCE" || !sourceRequest.collectionItems) throw new DesktopSecurityError("DESKTOP-IPC-001", "Collection source request is required");
       const contracts = await loadContracts(this.#projectRoot);
       const built = this.#buildNaverSourceSpec(sourceRequest, contracts);
-      const source = built.spec as unknown as NaverFeedCollectionRenderRequest;
-      const result = await renderNaverFeedCollection(source, { projectRoot: this.#projectRoot, inputRoot: this.#session.inputRoot, outputRoot: output.root, contracts, publish: false });
-      if (result.errors.length > 0 || !result.manifest || !result.requestFingerprint) {
-        return { status: "BLOCKED", code: "KBR-DOWNLOAD-001", message: "Collection item validation 오류로 전체 Export가 차단되었습니다.", errors: result.errors, warnings: result.warnings };
+      const source = { ...built.spec, output: { directory: ".", baseName: sourceRequest.jobName, overwrite: false } } as unknown as NaverFeedCollectionRenderRequest;
+      const validated = await renderNaverFeedCollection(source, { projectRoot: this.#projectRoot, inputRoot: this.#session.inputRoot, outputRoot: output.root, contracts, publish: false });
+      if (validated.errors.length > 0 || !validated.manifest || !validated.requestFingerprint) {
+        return { status: "BLOCKED", code: "KBR-DOWNLOAD-001", message: "Collection item validation 오류로 전체 Export가 차단되었습니다.", errors: validated.errors, warnings: validated.warnings };
       }
-      if (request.previewFingerprint && request.previewFingerprint !== result.requestFingerprint) return { status: "BLOCKED", code: "DESKTOP-EXPORT-003", message: "Preview와 현재 Collection 순서/입력이 일치하지 않습니다.", errors: [], warnings: result.warnings };
+      if (request.previewFingerprint && request.previewFingerprint !== validated.requestFingerprint) return { status: "BLOCKED", code: "DESKTOP-EXPORT-003", message: "Preview와 현재 Collection 순서/입력이 일치하지 않습니다.", errors: [], warnings: validated.warnings };
 
-      const fileNames = new Map<string, string>();
-      const publishArtifacts: Array<{ fileName: string; bytes: Uint8Array }> = [];
-      for (const artifact of result.artifacts) {
-        fileNames.set(artifact.assetId, artifact.fileName);
-        publishArtifacts.push({ fileName: artifact.fileName, bytes: artifact.bytes });
+      const published = await renderNaverFeedCollection(source, { projectRoot: this.#projectRoot, inputRoot: this.#session.inputRoot, outputRoot: output.root, contracts, publish: true });
+      const firstArtifactPath = published.artifactPaths[0];
+      if (published.errors.length > 0 || !published.downloadAllowed || !published.manifestPath || !published.manifestDigest || !firstArtifactPath || !published.requestFingerprint) {
+        return { status: "BLOCKED", code: "KBR-DOWNLOAD-001", message: "Collection atomic publish가 완료되지 않아 Export가 차단되었습니다.", errors: published.errors, warnings: published.warnings };
       }
-      for (const [assetId, asset] of built.assets) {
-        if (fileNames.has(assetId)) continue;
-        const extension = asset.detectedMimeType === "image/png" ? "png" : "jpg";
-        const fileName = `asset-${sha256Bytes(Buffer.from(assetId, "utf8")).slice(0, 16)}.${extension}`;
-        fileNames.set(assetId, fileName);
-        publishArtifacts.push({ fileName, bytes: await readFile(asset.absolutePath) });
-      }
-      const normalized = result.manifest;
-      const finalSpec = this.#finalizeSourceSpec(built.spec, fileNames);
-      const sourceSpecText = canonicalJson(finalSpec);
-      publishArtifacts.push({ fileName: "source-spec.json", bytes: Buffer.from(sourceSpecText, "utf8") });
-      const manifestText = canonicalJson(normalized);
-      const manifestDigest = sha256Bytes(Buffer.from(manifestText, "utf8"));
-      const jobDirectory = await resolveTrustedJobDirectory(output.root, ".", sourceRequest.jobName);
-      const published = await publishCollectionArtifacts({ outputRoot: output.root, jobDirectory, artifacts: publishArtifacts, manifest: manifestText, manifestFileName: "collection-manifest.json", overwrite: false });
-      const exportToken = this.#session.registerExport(published.artifactPaths[0] ?? published.manifestPath, published.manifestPath);
-      return { status: "EXPORTED", exportToken, mode: "COLLECTION", jobName: sourceRequest.jobName, manifestFileName: "collection-manifest.json", artifactFileNames: [...publishArtifacts.map((entry) => entry.fileName), "collection-manifest.json"], manifestDigest, requestFingerprint: result.requestFingerprint, ...(result.collectionFingerprint ? { collectionFingerprint: result.collectionFingerprint } : {}), warnings: result.warnings };
+      const exportToken = this.#session.registerExport(firstArtifactPath, published.manifestPath);
+      return {
+        status: "EXPORTED",
+        exportToken,
+        mode: "COLLECTION",
+        jobName: sourceRequest.jobName,
+        manifestFileName: "collection-manifest.json",
+        artifactFileNames: [...published.artifactPaths.map((entry) => path.basename(entry)), "collection-manifest.json"],
+        manifestDigest: published.manifestDigest,
+        requestFingerprint: published.requestFingerprint,
+        ...(published.collectionFingerprint ? { collectionFingerprint: published.collectionFingerprint } : {}),
+        warnings: published.warnings,
+      };
     } catch (error) {
       return { status: "ERROR", code: error instanceof DesktopSecurityError ? error.code : error instanceof PublishError ? error.code : "DESKTOP-NAVER-999", message: error instanceof Error ? error.message : "Collection Export 중 오류가 발생했습니다.", errors: [], warnings: [] };
     }

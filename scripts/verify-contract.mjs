@@ -471,7 +471,7 @@ check(
 );
 check(
   "canonical_document_version",
-    versions?.documentVersion?.previous === "1.21.3" && versions?.documentVersion?.current === "1.21.4" && versions?.canonicalPhaseN7_7_5?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_7_6?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_8?.rendererCoreVersion === "0.8.6" && versions?.canonicalPhaseN7_8?.desktopCurrent === "0.9.11" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
+    versions?.documentVersion?.previous === "1.21.3" && versions?.documentVersion?.current === "1.21.4" && versions?.canonicalPhaseN7_7_5?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_7_6?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.rendererCoreVersion === "0.8.6" && versions?.canonicalPhaseN8?.desktopCurrent === "0.9.12" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
     `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 
