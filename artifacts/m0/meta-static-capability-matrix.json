@@ -1,0 +1,63 @@
+{
+  "phase": "M0_META_STATIC_CREATIVE_CAPABILITY_DISCOVERY_RENDERER_ARCHITECTURE",
+  "status": "PASS",
+  "contractStatus": "PROPOSED_FOR_M1_NOT_RUNTIME_ENABLED",
+  "sourceRegistry": "contracts/audits/meta-official-source-registry.json",
+  "assetProfiles": [
+    {
+      "assetProfileId": "META_STATIC_FEED_SQUARE",
+      "aspectRatio": "1:1",
+      "officialStatus": "CONFIRMED",
+      "pixelSizeStatus": "UNRESOLVED",
+      "pixelSize": null,
+      "rendererMode": "FREEFORM_REUSED",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "plannedOutputFormats": ["PNG", "JPEG"]
+    },
+    {
+      "assetProfileId": "META_STATIC_FEED_PORTRAIT",
+      "aspectRatio": "4:5",
+      "officialStatus": "CONFIRMED",
+      "pixelSizeStatus": "UNRESOLVED",
+      "pixelSize": null,
+      "rendererMode": "FREEFORM_REUSED",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "plannedOutputFormats": ["PNG", "JPEG"]
+    },
+    {
+      "assetProfileId": "META_STATIC_VERTICAL_FULL",
+      "aspectRatio": "9:16",
+      "officialStatus": "CONFIRMED",
+      "pixelSizeStatus": "UNRESOLVED",
+      "pixelSize": null,
+      "rendererMode": "FREEFORM_REUSED",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "plannedOutputFormats": ["PNG", "JPEG"]
+    },
+    {
+      "assetProfileId": "META_STATIC_LANDSCAPE",
+      "aspectRatio": null,
+      "officialStatus": "DEFER",
+      "pixelSizeStatus": "UNRESOLVED",
+      "pixelSize": null,
+      "rendererMode": "NOT_IN_M1",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "reason": "Landscape orientation exists, but the current audited official pages do not establish the ad-specific ratio needed for a frozen M1 profile"
+    }
+  ],
+  "placementSet": {
+    "id": "META_STATIC_PLACEMENT_SET_V1",
+    "status": "SUPPORTED_PLANNED",
+    "artifactCardinality": "COLLECTION",
+    "profiles": ["META_STATIC_FEED_SQUARE", "META_STATIC_FEED_PORTRAIT", "META_STATIC_VERTICAL_FULL"],
+    "adaptation": "EXPLICIT_PER_PROFILE_LAYOUT_PLAN",
+    "automaticCenterCropOnly": false,
+    "layerIdParityRequired": true
+  },
+  "runtimeImplemented": false,
+  "desktopExposed": false
+}

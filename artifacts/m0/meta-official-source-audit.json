@@ -1,0 +1,21 @@
+{
+  "phase": "M0_META_STATIC_CREATIVE_CAPABILITY_DISCOVERY_RENDERER_ARCHITECTURE",
+  "status": "PASS",
+  "retrievedAt": "2026-08-12",
+  "registry": "contracts/audits/meta-official-source-registry.json",
+  "officialRules": 14,
+  "officialMetaOnly": true,
+  "thirdPartyRulesUsed": 0,
+  "confirmed": {
+    "feedRatios": ["1:1", "4:5"],
+    "verticalDirection": "9:16",
+    "storiesAdvisoryExclusions": { "top": 0.14, "bottom": 0.2 },
+    "reelsStaticImageAccepted": true,
+    "carouselMaximumCards": 10,
+    "advantagePlusTransformsMedia": true,
+    "platformCopySeparatedFromMedia": true
+  },
+  "unresolvedCount": 8,
+  "speculativePixelRulesAdded": 0,
+  "longSourceExcerptsStored": false
+}

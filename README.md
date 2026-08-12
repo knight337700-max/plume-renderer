@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.21.4`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원한다. Desktop `0.9.12`는 capability registry 기반 `NAVER` Channel → Placement → Editor 흐름과 renderer-owned macOS original Apple SD Gothic Neo TTC source를 제공한다. SmartChannel은 TTC SHA와 face index/PostScript identity를 검증하고, backend의 face-index API 부재 때문에 table-equivalent standalone OTF를 명시 등록한다. N7.7.5의 actual-raster typography parity와 N7.7.6 canonical-driven Desktop field mapping을 유지한다. N7.8은 대표 Golden 6개를 corrected runtime으로 rebase하고 120개 전수 3회 결정성, non-SmartChannel 동결 회귀와 Windows package QA를 고정한다. N8은 기존 Mobile DA·1:1 FREEFORM, Communication·Shopping News·Native source contract, Feed single/collection capability를 형식별 Desktop E2E로 완결하고 SmartChannel을 그대로 동결한다. 시스템 폰트 설치·lookup과 runtime network는 사용하지 않는다. NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. `Integration Contract v1.8.0`과 Kakao/non-SmartChannel fingerprints는 유지된다. Variable-canvas, NAVER video, Meta/Google은 후속 Phase다.
+Canonical 계약 `1.21.4`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원한다. Desktop `0.9.12`는 capability registry 기반 `NAVER` Channel → Placement → Editor 흐름과 renderer-owned macOS original Apple SD Gothic Neo TTC source를 제공한다. SmartChannel은 TTC SHA와 face index/PostScript identity를 검증하고, backend의 face-index API 부재 때문에 table-equivalent standalone OTF를 명시 등록한다. N7.7.5의 actual-raster typography parity와 N7.7.6 canonical-driven Desktop field mapping을 유지한다. N7.8은 대표 Golden 6개를 corrected runtime으로 rebase하고 120개 전수 3회 결정성, non-SmartChannel 동결 회귀와 Windows package QA를 고정한다. N8은 기존 Mobile DA·1:1 FREEFORM, Communication·Shopping News·Native source contract, Feed single/collection capability를 형식별 Desktop E2E로 완결하고 SmartChannel을 그대로 동결한다. M0는 Meta 공식 소스만으로 static creative media와 platform-composed 광고 UI의 경계를 설계하며 runtime/selector/pixel preset은 추가하지 않는다. 시스템 폰트 설치·lookup과 runtime network는 사용하지 않는다. NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. `Integration Contract v1.8.0`과 Kakao/non-SmartChannel fingerprints는 유지된다. Variable-canvas, NAVER video, META runtime, Google은 후속 Phase다.
 
 ## 요구 환경
 
@@ -23,6 +23,8 @@ N6 NAVER Platform-Composed source provenance, collection validator, fingerprints
 manifest publish는
 `pnpm verify:naver-platform`으로 검사한다. Desktop handoff 복사본은
 `node scripts/verify-renderer-module-handoff.mjs`로 별도 검증한다.
+
+META M0 official-source/architecture audit는 `pnpm verify:m0-meta`로 검사한다. M0는 1:1·4:5·9:16 ratio family와 renderer/platform ownership을 설계하지만 META를 Desktop에 노출하거나 production pixel을 생성하지 않는다.
 
 FREEFORM Contract 전용 검증은 `pnpm verify:freeform-contract`와 `pnpm test:freeform-contract`다. F1 Core Raster 검증은 `pnpm test:freeform-core`이며 기존 Template Golden 회귀와 함께 실행한다. F3A 카탈로그/프로파일 검증은 `pnpm test:kakao-freeform-profiles`, JPEG 결정성 검증은 `pnpm test:jpeg-determinism`, F4C Desktop 배치 검증은 `pnpm test:freeform-presets`다.
 

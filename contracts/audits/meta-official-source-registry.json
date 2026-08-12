@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/audits/meta-official-source-registry-v1.0.0.json",
+  "registryVersion": "1.0.0",
+  "phase": "M0_META_STATIC_CREATIVE_CAPABILITY_DISCOVERY_RENDERER_ARCHITECTURE",
+  "retrievedAt": "2026-08-12",
+  "officialMetaOnly": true,
+  "retrievalMode": "OFFICIAL_PAGE_INDEX_AND_PUBLIC_HELP_CONTENT",
+  "rules": [
+    {
+      "rule_id": "META-FEED-PHOTO-RATIOS-001",
+      "category": "FEED_MEDIA_GEOMETRY",
+      "source_url": "https://www.facebook.com/business/ads/automation/tailored-campaigns",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Meta's mobile photo guidance recommends 1:1 or 4:5 instead of horizontal crops for feed use.",
+      "interpretation": "Define separate square and portrait media geometry families; this does not establish fixed pixel dimensions.",
+      "confidence": "HIGH",
+      "contract_effect": "CONFIRM_RATIOS_1_1_AND_4_5_PIXEL_PRESETS_UNRESOLVED"
+    },
+    {
+      "rule_id": "META-PLATFORM-COPY-BOUNDARY-001",
+      "category": "COMPOSITION_BOUNDARY",
+      "source_url": "https://www.facebook.com/business/ads/automation/tailored-campaigns",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Ads Manager treats uploaded image/video media and primary text, headline, description, CTA and destination as distinct ad inputs.",
+      "interpretation": "The renderer owns uploadable media pixels; platform copy, CTA and destination remain separate metadata.",
+      "confidence": "HIGH",
+      "contract_effect": "PLATFORM_COPY_IS_PLATFORM_COMPOSED"
+    },
+    {
+      "rule_id": "META-PHOTO-ASSET-ROLE-001",
+      "category": "STATIC_MEDIA",
+      "source_url": "https://www.facebook.com/business/ads/photo-ad-format",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Meta describes a photo ad as imagery used with engaging copy and recommends high-resolution, focused, uncluttered images.",
+      "interpretation": "MVP output is the creative photo asset, not a reproduction of the surrounding Meta application UI.",
+      "confidence": "HIGH",
+      "contract_effect": "STATIC_CREATIVE_MEDIA_IS_RENDERER_OWNED"
+    },
+    {
+      "rule_id": "META-CREATIVE-TEXT-GUIDANCE-001",
+      "category": "CREATIVE_GUIDANCE",
+      "source_url": "https://www.facebook.com/business/ads/photo-ad-format",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Meta recommends keeping image copy limited and the composition focused, but does not define a current hard percentage threshold on this page.",
+      "interpretation": "Do not restore the retired 20-percent rule; any text-density check is project guidance at INFO or WARNING severity only.",
+      "confidence": "HIGH",
+      "contract_effect": "NO_TEXT_AREA_PERCENT_ERROR"
+    },
+    {
+      "rule_id": "META-STORIES-VERTICAL-001",
+      "category": "STORIES_MEDIA_GEOMETRY",
+      "source_url": "https://www.facebook.com/business/ads/stories-ad-format",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Meta describes Stories as an immersive vertical full-screen surface for photos and videos across its Stories products.",
+      "interpretation": "Use a 9:16 vertical-full geometry family for Stories planning; no fixed pixel dimensions are inferred.",
+      "confidence": "HIGH",
+      "contract_effect": "CONFIRM_VERTICAL_FULL_FAMILY"
+    },
+    {
+      "rule_id": "META-INSTAGRAM-STORIES-CTA-SAFE-ZONE-001",
+      "category": "OFFICIAL_PLATFORM_SAFE_ZONE",
+      "source_url": "https://www.facebook.com/help/instagram/192168966243613",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Instagram advises leaving roughly 14 percent at the top and 20 percent at the bottom free of key elements so the default CTA sticker does not cover them.",
+      "interpretation": "Store normalized top/bottom exclusion guides and report intersections as WARNING; the word roughly forbids hard ERROR enforcement.",
+      "confidence": "HIGH",
+      "contract_effect": "STORIES_GUIDE_TOP_0_14_BOTTOM_0_20_WARNING"
+    },
+    {
+      "rule_id": "META-REELS-VERTICAL-AND-IMAGE-001",
+      "category": "REELS_MEDIA_GEOMETRY",
+      "source_url": "https://www.facebook.com/business/ads/facebook-instagram-reels-ads",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Meta promotes 9:16 native Reels creative, states that key messages should remain in a safe zone, and confirms that image ads can participate in Reels.",
+      "interpretation": "A static 9:16 asset profile is a valid planned Reels input, while video/audio performance claims remain outside the static renderer contract.",
+      "confidence": "HIGH",
+      "contract_effect": "CONFIRM_STATIC_REELS_COMPATIBILITY_AND_9_16_DIRECTION"
+    },
+    {
+      "rule_id": "META-REELS-SAFE-ZONE-GEOMETRY-001",
+      "category": "OFFICIAL_PLATFORM_SAFE_ZONE",
+      "source_url": "https://www.facebook.com/business/ads/facebook-instagram-reels-ads",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "The official page requires key messages in a safe zone and points to dedicated checker assets, but the current public page text does not expose exact normalized geometry.",
+      "interpretation": "Do not import third-party pixel guides; exact Reels geometry remains SOURCE_REQUIRED until official checker bytes and provenance are captured.",
+      "confidence": "HIGH",
+      "contract_effect": "REELS_SAFE_ZONE_SOURCE_REQUIRED"
+    },
+    {
+      "rule_id": "META-CAROUSEL-CARDINALITY-001",
+      "category": "CAROUSEL",
+      "source_url": "https://www.facebook.com/business/ads/carousel-ad-format",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "The carousel format supports up to ten image or video cards, each with its own link, and Meta may optimize card order unless the advertiser opts out.",
+      "interpretation": "Static card generation maps to ordered COLLECTION artifacts, but platform links, chrome and optional platform reordering are not rendered into pixels.",
+      "confidence": "HIGH",
+      "contract_effect": "CAROUSEL_MAX_10_COLLECTION_FUTURE_SCOPE"
+    },
+    {
+      "rule_id": "META-ADVANTAGE-CREATIVE-TRANSFORMATION-001",
+      "category": "EXTERNAL_PLATFORM_TRANSFORMATION",
+      "source_url": "https://www.facebook.com/business/ads/meta-advantage-plus/creative",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Advantage+ creative can resize, expand, generate backgrounds, create text variations, overlay text, animate static images and otherwise adapt creative for placements.",
+      "interpretation": "The local renderer produces deterministic source assets only and must not claim to predict or reproduce Advantage+ output.",
+      "confidence": "HIGH",
+      "contract_effect": "ADVANTAGE_PLUS_IS_EXTERNAL_TRANSFORMATION"
+    },
+    {
+      "rule_id": "META-ADVANTAGE-PLACEMENTS-001",
+      "category": "PLACEMENT_DELIVERY",
+      "source_url": "https://www.facebook.com/business/ads/meta-advantage-plus/placements",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Advantage+ placements automate delivery across Facebook, Reels, Instagram Stories, Instagram Feed, Messenger and Audience Network.",
+      "interpretation": "Placement compatibility is metadata separate from asset canvas identity and can evolve independently of renderer profiles.",
+      "confidence": "HIGH",
+      "contract_effect": "SEPARATE_ASSET_PROFILE_FROM_PLACEMENT_COMPATIBILITY"
+    },
+    {
+      "rule_id": "META-INSTAGRAM-PHOTO-ORIENTATION-001",
+      "category": "LANDSCAPE_DISCOVERY",
+      "source_url": "https://www.facebook.com/business/ads/instagram-ad",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Meta describes Instagram photo ads as supporting square, landscape and portrait orientations without establishing a fixed landscape ratio on this page.",
+      "interpretation": "Landscape is real but deferred from the M1 mobile-first profile set until an ad-specific current ratio contract is captured.",
+      "confidence": "HIGH",
+      "contract_effect": "LANDSCAPE_DEFER_RATIO_UNRESOLVED"
+    },
+    {
+      "rule_id": "META-COLLECTION-PLATFORM-UI-001",
+      "category": "COMMERCE_COLLECTION",
+      "source_url": "https://www.facebook.com/business/ads/collection-ad-format",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Meta Collection combines a primary media item, smaller product imagery and an Instant Experience or catalog-driven browsing flow.",
+      "interpretation": "Individual source creative generation may be local, but Collection presentation, catalog data and Instant Experience are platform-composed.",
+      "confidence": "HIGH",
+      "contract_effect": "COLLECTION_CATALOG_UI_PLATFORM_COMPOSED"
+    },
+    {
+      "rule_id": "META-ADS-GUIDE-ENTRYPOINT-001",
+      "category": "SPEC_DISCOVERY",
+      "source_url": "https://www.facebook.com/business/ads-guide",
+      "retrieved_at": "2026-08-12",
+      "official_domain": "www.facebook.com",
+      "source_excerpt_summary": "Meta's Ads Guide is the placement-specific specification entry point referenced by its Photo, Stories, Reels, Carousel and Collection pages.",
+      "interpretation": "M1 must re-check this live entry point before freezing any fixed dimensions or file-size limits.",
+      "confidence": "MEDIUM",
+      "contract_effect": "NO_NUMERIC_PIXEL_OR_FILESIZE_RULE_FROM_ENTRYPOINT_ALONE"
+    }
+  ],
+  "unresolvedRules": [
+    "fixed pixel size for META_STATIC_FEED_SQUARE",
+    "fixed pixel size for META_STATIC_FEED_PORTRAIT",
+    "fixed pixel size for META_STATIC_VERTICAL_FULL",
+    "minimum ad-image pixel dimensions by placement",
+    "maximum static image file size by placement",
+    "exact Reels safe-zone geometry",
+    "exact placement crop boundaries",
+    "Meta platform UI coordinates, font metrics and line clamps"
+  ]
+}

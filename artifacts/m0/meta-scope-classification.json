@@ -1,0 +1,31 @@
+{
+  "phase": "M0_META_STATIC_CREATIVE_CAPABILITY_DISCOVERY_RENDERER_ARCHITECTURE",
+  "status": "PASS",
+  "rendererScope": {
+    "classification": "STATIC_CREATIVE_MEDIA",
+    "owned": ["creative canvas", "background", "photo or product image", "logo embedded in creative", "copy embedded in creative", "graphic elements", "decorative shapes", "manual or agent-provided layout", "crop and fit", "safe-zone protection"]
+  },
+  "platformOwned": {
+    "classification": "PLATFORM_COMPOSED",
+    "fields": ["primaryText", "headline", "description", "callToAction", "destinationUrl", "pageIdentity", "instagramIdentity", "socialUi", "adDisclosure", "placementChrome", "ctaStickerUi"],
+    "renderedIntoMedia": false
+  },
+  "singleAsset": "SUPPORTED_PLANNED",
+  "placementSet": "SUPPORTED_PLANNED",
+  "carousel": {
+    "status": "DEFER_AFTER_M1",
+    "staticCardModel": "ORDERED_COLLECTION_MAXIMUM_10",
+    "platformCardLinkAndHeadline": "PLATFORM_COMPOSED_METADATA",
+    "platformChromeRendered": false
+  },
+  "collectionCatalog": {
+    "status": "PLATFORM_COMPOSED",
+    "staticSourceAssetCreation": "FUTURE_COMPATIBLE",
+    "catalogData": "OUT_OF_STATIC_RENDERER_SCOPE",
+    "instantExperienceUiRendered": false
+  },
+  "video": { "status": "OUT_OF_M0_STATIC_IMPLEMENTATION" },
+  "advantagePlusCreative": { "status": "EXTERNAL_PLATFORM_TRANSFORMATION", "predictedOrReproduced": false },
+  "font": { "metaPlatformFontCreated": false, "rendererOwnedFontArchitectureReused": true, "systemFontDependency": false },
+  "runtimeNetworkAccess": "PROHIBITED"
+}

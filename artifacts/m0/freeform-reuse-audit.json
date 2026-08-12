@@ -1,0 +1,25 @@
+{
+  "phase": "M0_META_STATIC_CREATIVE_CAPABILITY_DISCOVERY_RENDERER_ARCHITECTURE",
+  "status": "PASS",
+  "overallReuse": "PARTIAL",
+  "newFreeformRendererRequired": false,
+  "components": [
+    { "component": "CreativeLayoutPlan", "currentStatus": "IMPLEMENTED", "metaReusable": "YES", "modificationRequired": "NONE; keep one plan per asset-profile variant and preserve semantic layer IDs" },
+    { "component": "Fixed canvas FormatProfile", "currentStatus": "IMPLEMENTED", "metaReusable": "PARTIAL", "modificationRequired": "M1 needs approved fixed pixel presets or a separately contracted ratio-driven canvas; M0 supplies ratios only" },
+    { "component": "ImagePlacementSpec", "currentStatus": "IMPLEMENTED", "metaReusable": "YES", "modificationRequired": "NONE" },
+    { "component": "MANUAL_CROP", "currentStatus": "IMPLEMENTED", "metaReusable": "YES", "modificationRequired": "NONE; must remain fully functional without an Agent" },
+    { "component": "SEMANTIC_CROP_COVER", "currentStatus": "IMPLEMENTED_WITH_CANDIDATE", "metaReusable": "PARTIAL", "modificationRequired": "Agent/candidate generation remains optional; no M1 dependency" },
+    { "component": "Normalized element bounds and z-order", "currentStatus": "IMPLEMENTED", "metaReusable": "YES", "modificationRequired": "NONE" },
+    { "component": "Renderer-owned fonts", "currentStatus": "IMPLEMENTED_NO_FALLBACK", "metaReusable": "YES", "modificationRequired": "Use existing font registry or a separately approved brand font pack; no Meta platform font" },
+    { "component": "Text raster", "currentStatus": "EXPLICIT_NEWLINES_IMPLEMENTED_WORD_WRAP_NOT_SUPPORTED", "metaReusable": "PARTIAL", "modificationRequired": "M1 may use explicit-line text; automatic word wrap is a separate Core enhancement if approved" },
+    { "component": "Rectangle and ellipse shapes", "currentStatus": "IMPLEMENTED", "metaReusable": "YES", "modificationRequired": "Enable only in META profiles after profile approval" },
+    { "component": "PNG and JPEG deterministic export", "currentStatus": "IMPLEMENTED", "metaReusable": "YES", "modificationRequired": "META profile output constraints remain unresolved until official/approved values exist" },
+    { "component": "FREEFORM validator", "currentStatus": "IMPLEMENTED", "metaReusable": "PARTIAL", "modificationRequired": "Add META ratio, required-artifact, safe-zone WARNING and placement-set completeness checks" },
+    { "component": "Generic collection model", "currentStatus": "PLATFORM_COMPOSED_SOURCE_MANIFEST_IMPLEMENTED", "metaReusable": "PARTIAL", "modificationRequired": "M1 needs a renderer-composed ordered artifact-set manifest without weakening the frozen NAVER manifest" },
+    { "component": "Platform metadata", "currentStatus": "NOT_IN_CREATIVE_LAYOUT_PLAN", "metaReusable": "NO", "modificationRequired": "Add a separate non-pixel metadata envelope; do not extend TEXT elements with platform copy" },
+    { "component": "Safe-zone guide preview", "currentStatus": "PROFILE_METADATA_PATTERN_ONLY", "metaReusable": "PARTIAL", "modificationRequired": "Add non-exported guide overlay and semantic-role intersection reporting" },
+    { "component": "Multi-variant concept wrapper", "currentStatus": "NOT_IMPLEMENTED", "metaReusable": "NO", "modificationRequired": "M1 wrapper references existing per-profile CreativeLayoutPlan objects and enforces shared layer IDs" }
+  ],
+  "schemaForkRequired": false,
+  "m1AdditiveContractsRequired": ["META asset-profile registry", "platform-copy metadata envelope", "placement-set request/manifest", "safe-zone policy registry"]
+}

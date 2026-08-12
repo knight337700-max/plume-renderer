@@ -1,0 +1,39 @@
+{
+  "phase": "M0_META_STATIC_CREATIVE_CAPABILITY_DISCOVERY_RENDERER_ARCHITECTURE",
+  "status": "PASS",
+  "platform": "Windows 10/11 x64",
+  "auditOnly": true,
+  "productionPixelsChanged": false,
+  "fullCheck": {
+    "status": "PASS",
+    "command": "pnpm check",
+    "vitestFiles": 43,
+    "vitestTests": 262,
+    "playwrightTests": 34,
+    "smartChannelVariants": 120,
+    "goldensChanged": false
+  },
+  "package": {
+    "path": "release/Kakao-Bizboard-Local-Renderer-0.9.12-x64.exe",
+    "version": "0.9.12",
+    "bytes": 144325802,
+    "sha256": "2a74b6639c232bb672c1c13d120cb6b410835198511fdc01fa0482dc1824dea1",
+    "rebuiltForM0": false
+  },
+  "packageSmoke": {
+    "status": "PASS",
+    "unpacked": "PASS",
+    "portable": "PASS",
+    "runtimeNetworkRequests": 0
+  },
+  "desktopSmoke": {
+    "status": "PASS",
+    "unpacked": "PASS",
+    "portable": "PASS",
+    "naverPlacements": 8,
+    "smartChannelRegistryCount": 120,
+    "rendererErrors": 0
+  },
+  "metaRuntimeImplemented": false,
+  "metaDesktopSelectorExposed": false
+}

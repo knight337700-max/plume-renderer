@@ -144,6 +144,12 @@ const n8ContractParity = JSON.parse(await readFile(path.join(root, "artifacts/n8
 const n8E2eSummary = JSON.parse(await readFile(path.join(root, "artifacts/n8/naver-e2e-summary.json"), "utf8"));
 const n8SmartFreeze = JSON.parse(await readFile(path.join(root, "artifacts/n8/smartchannel-frozen-regression.json"), "utf8"));
 const n8Regression = JSON.parse(await readFile(path.join(root, "artifacts/n8/non-smartchannel-regression.json"), "utf8"));
+const m0OfficialSourceAudit = JSON.parse(await readFile(path.join(root, "artifacts/m0/meta-official-source-audit.json"), "utf8"));
+const m0CapabilityMatrix = JSON.parse(await readFile(path.join(root, "artifacts/m0/meta-static-capability-matrix.json"), "utf8"));
+const m0PlacementMatrix = JSON.parse(await readFile(path.join(root, "artifacts/m0/meta-placement-compatibility-matrix.json"), "utf8"));
+const m0ReuseAudit = JSON.parse(await readFile(path.join(root, "artifacts/m0/freeform-reuse-audit.json"), "utf8"));
+const m0SafeZoneAudit = JSON.parse(await readFile(path.join(root, "artifacts/m0/meta-safe-zone-audit.json"), "utf8"));
+const m0Scope = JSON.parse(await readFile(path.join(root, "artifacts/m0/meta-scope-classification.json"), "utf8"));
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -158,7 +164,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N8 NAVER channel completion handoff
+const readme = `# Renderer Module — M0 META static architecture handoff
 
 ## Purpose
 
@@ -166,7 +172,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N8 channel-completion source commit: ${sourceSha}
+- M0 META architecture source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Source verification package: ${packageArtifact?.sourcePath ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256}; generated release intentionally excluded from source handoff)` : ""}
 - Runtime network access: PROHIBITED
@@ -190,6 +196,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER SmartChannel N7.7.6: PSD text-layer metadata-driven Desktop input descriptors, 56-template 280 UI parity, mode-state preservation, and distinct render-role mapping; result: ${textInputUiParityAudit.phase.status}
 - NAVER SmartChannel N7.8: six representative Goldens rebased from the corrected production runtime, 120-template three-run validation, intentional text-only diff scope, non-SmartChannel freeze, and final package QA; result: ${finalBaselineAudit.phase.status}
 - NAVER N8: eight placements inventoried and contract-driven in Desktop; representative preview/validator/export evidence covers renderer-composed, platform-composed, and ordered collection outputs. SmartChannel remains frozen; matrix: ${n8DesktopMatrix.status}, parity: ${n8ContractParity.status}, E2E: ${n8E2eSummary.status}
+- META M0: official-source-only static creative discovery, renderer/platform composition boundary, 1:1·4:5·9:16 ratio families, FREEFORM reuse audit and M1 scope; runtime and Desktop selector remain disabled. Official audit: ${m0OfficialSourceAudit.status}, architecture: ${m0CapabilityMatrix.status}
 - Meta: not implemented
 - Google: not implemented
 
@@ -229,7 +236,9 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest completion phase is N8 while the unchanged canonical document remains v1.21.4. N7.8 remains
+The latest phase is M0 while the unchanged canonical document remains v1.21.4. M0 is design/audit only:
+META production pixels, runtime, Desktop selector and fixed pixel presets are not implemented. N8 remains the
+frozen NAVER channel completion baseline and N7.8 remains
 the immutable SmartChannel freeze baseline. N8 reuses existing capabilities, completes format-level Desktop acceptance,
 and records its inventory, matrix, E2E outputs, regressions, package, and handoff under artifacts/n8/. N7.6 remains
 an immutable audit baseline; N7.7 changed the SmartChannel runtime token mapping and N7.7.4 replaces
@@ -279,7 +288,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION",
+  handoffPhase: "M0_META_STATIC_CREATIVE_CAPABILITY_DISCOVERY_RENDERER_ARCHITECTURE",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -294,8 +303,8 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN8.rendererCoreVersion,
-    desktop: canonicalDocument.canonicalPhaseN8.desktopCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseM0.rendererCoreVersion,
+    desktop: canonicalDocument.canonicalPhaseM0.desktopCurrent,
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
@@ -391,6 +400,19 @@ const manifest = {
     nonSmartChannelRegression: n8Regression.status,
     feedVideo: n8DesktopMatrix.feedSubtypes.VIDEO,
   },
+  metaArchitectureDiscovery: {
+    phase: m0OfficialSourceAudit.phase,
+    status: m0OfficialSourceAudit.status === "PASS" && m0CapabilityMatrix.status === "PASS" && m0PlacementMatrix.status === "PASS" && m0ReuseAudit.status === "PASS" && m0SafeZoneAudit.status === "PASS" && m0Scope.status === "PASS" ? "PASS" : "FAIL",
+    officialMetaOnly: m0OfficialSourceAudit.officialMetaOnly,
+    officialRules: m0OfficialSourceAudit.officialRules,
+    unresolvedRules: m0OfficialSourceAudit.unresolvedCount,
+    assetProfiles: m0CapabilityMatrix.assetProfiles.map((entry) => ({ id: entry.assetProfileId, ratio: entry.aspectRatio, status: entry.officialStatus, pixelSizeStatus: entry.pixelSizeStatus })),
+    freeformReuse: m0ReuseAudit.overallReuse,
+    storiesSafeZone: m0SafeZoneAudit.policies.find((entry) => entry.id === "META_STORIES_KEY_CONTENT_SAFE_ZONE")?.enforcement,
+    reelsSafeZone: m0SafeZoneAudit.policies.find((entry) => entry.id === "META_REELS_KEY_CONTENT_SAFE_ZONE")?.status,
+    runtimeImplemented: m0CapabilityMatrix.runtimeImplemented,
+    desktopExposed: m0CapabilityMatrix.desktopExposed,
+  },
   channels: {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
     NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", desktopIntegration: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED", video: "DISABLED_OUT_OF_STATIC_SCOPE" },
@@ -455,6 +477,12 @@ const manifest = {
     n8EvidenceDirectory: "artifacts/n8",
     n8ImplementationRecord: "docs/implementation/naver-channel-completion-n8.md",
     n8Verifier: "scripts/verify-n8-channel-completion.mjs",
+    m0OfficialSourceRegistry: "contracts/audits/meta-official-source-registry.json",
+    m0EvidenceDirectory: "artifacts/m0",
+    m0ImplementationRecord: "docs/implementation/meta-static-renderer-architecture-m0.md",
+    m0ArchitectureAdr: "docs/adr/ADR-0057-meta-static-creative-composition-boundary.md",
+    m0SourceGuideIndex: "source-guides/meta/m0/official-source-index.md",
+    m0Verifier: "scripts/verify-m0-meta-architecture.mjs",
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

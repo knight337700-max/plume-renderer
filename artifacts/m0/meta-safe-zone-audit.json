@@ -1,0 +1,36 @@
+{
+  "phase": "M0_META_STATIC_CREATIVE_CAPABILITY_DISCOVERY_RENDERER_ARCHITECTURE",
+  "status": "PASS",
+  "safeZoneTypesSeparated": true,
+  "policies": [
+    {
+      "id": "META_STORIES_KEY_CONTENT_SAFE_ZONE",
+      "placement": "INSTAGRAM_STORIES",
+      "source": { "type": "OFFICIAL_PLATFORM", "ruleId": "META-INSTAGRAM-STORIES-CTA-SAFE-ZONE-001", "retrievedAt": "2026-08-12" },
+      "geometry": { "unit": "NORMALIZED", "topExclusion": 0.14, "bottomExclusion": 0.2, "leftExclusion": null, "rightExclusion": null },
+      "qualifier": "ROUGHLY",
+      "enforcement": "WARNING_AND_GUIDE_OVERLAY",
+      "finalArtifactOverlay": false,
+      "keyElementRoles": ["HEADLINE", "SUBCOPY", "LOGO", "CTA", "DISCLAIMER", "PRIMARY_IMAGE"]
+    },
+    {
+      "id": "META_REELS_KEY_CONTENT_SAFE_ZONE",
+      "placement": "FACEBOOK_AND_INSTAGRAM_REELS",
+      "source": { "type": "OFFICIAL_PLATFORM", "ruleId": "META-REELS-SAFE-ZONE-GEOMETRY-001", "retrievedAt": "2026-08-12" },
+      "geometry": null,
+      "status": "SOURCE_REQUIRED",
+      "enforcement": "INFO_SOURCE_REQUIRED_NO_GEOMETRY",
+      "finalArtifactOverlay": false
+    },
+    {
+      "id": "META_PROJECT_CREATIVE_COMFORT_ZONE",
+      "placement": "ALL_META_STATIC",
+      "source": { "type": "PROJECT_RECOMMENDATION", "status": "NOT_DEFINED_IN_M0" },
+      "geometry": null,
+      "status": "DEFERRED",
+      "enforcement": "NONE"
+    }
+  ],
+  "thirdPartySafeZonePixelsUsed": false,
+  "errorSeverityAssignedToAdvisoryRule": false
+}

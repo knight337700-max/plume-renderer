@@ -1,0 +1,18 @@
+{
+  "phase": "M0_META_STATIC_CREATIVE_CAPABILITY_DISCOVERY_RENDERER_ARCHITECTURE",
+  "status": "PASS",
+  "assetProfileAndPlacementAreSeparateAxes": true,
+  "placements": [
+    { "placementId": "FACEBOOK_FEED", "compatibleProfiles": ["META_STATIC_FEED_SQUARE", "META_STATIC_FEED_PORTRAIT"], "status": "CONFIRMED_GENERAL_FEED_GUIDANCE" },
+    { "placementId": "INSTAGRAM_FEED", "compatibleProfiles": ["META_STATIC_FEED_SQUARE", "META_STATIC_FEED_PORTRAIT"], "status": "CONFIRMED_GENERAL_FEED_GUIDANCE" },
+    { "placementId": "FACEBOOK_STORIES", "compatibleProfiles": ["META_STATIC_VERTICAL_FULL"], "status": "CONFIRMED_VERTICAL_FULL_SCREEN", "officialSafeZone": "SOURCE_REQUIRED_FOR_FACEBOOK_SPECIFIC_GEOMETRY" },
+    { "placementId": "INSTAGRAM_STORIES", "compatibleProfiles": ["META_STATIC_VERTICAL_FULL"], "status": "CONFIRMED_VERTICAL_FULL_SCREEN", "officialSafeZone": "META_STORIES_KEY_CONTENT_SAFE_ZONE" },
+    { "placementId": "FACEBOOK_REELS", "compatibleProfiles": ["META_STATIC_VERTICAL_FULL"], "status": "CONFIRMED_9_16_DIRECTION_STATIC_IMAGE_ACCEPTED", "officialSafeZone": "SOURCE_REQUIRED" },
+    { "placementId": "INSTAGRAM_REELS", "compatibleProfiles": ["META_STATIC_VERTICAL_FULL"], "status": "CONFIRMED_9_16_DIRECTION_STATIC_IMAGE_ACCEPTED", "officialSafeZone": "SOURCE_REQUIRED" },
+    { "placementId": "INSTAGRAM_EXPLORE", "compatibleProfiles": [], "status": "SOURCE_REQUIRED", "reason": "No audited official M0 source established a standalone static Explore asset-profile mapping" }
+  ],
+  "advantagePlusPlacements": {
+    "status": "EXTERNAL_PLATFORM_DELIVERY",
+    "rendererDoesNotPredictFinalPlacement": true
+  }
+}
