@@ -100,6 +100,25 @@ export type NaverTemplateOption = Readonly<{
   textVariant: string;
   affordance: string;
   objectPlacementToken: string;
+  textInputFields: readonly NaverSmartChannelTextInputFieldDescriptor[];
+}>;
+
+export type NaverSmartChannelTextInputKey =
+  | "headline"
+  | "headlineLine2"
+  | "subcopy"
+  | "subcopyLine4"
+  | "disclosureLine1"
+  | "disclosureLine2"
+  | "ctaOption";
+
+export type NaverSmartChannelTextInputFieldDescriptor = Readonly<{
+  key: NaverSmartChannelTextInputKey;
+  role: "HEADLINE" | "SUBCOPY" | "DISCLOSURE" | "CTA_LABEL";
+  required: true;
+  order: number;
+  labelKey: string;
+  sourceLayerName: string;
 }>;
 
 export type NaverFontPreflightInfo = Readonly<{

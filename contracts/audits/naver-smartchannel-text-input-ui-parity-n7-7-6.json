@@ -1,0 +1,106 @@
+{
+  "phase": {
+    "id": "N7_7_6_SMARTCHANNEL_280_TEXT_INPUT_SCHEMA_UI_FIELD_MAPPING_CORRECTION",
+    "status": "PASS"
+  },
+  "rootCause": {
+    "layer": "DESKTOP_UI",
+    "templateContractCorrectBefore": true,
+    "desktopFieldDerivationSourceBefore": "TEXT_VARIANT_NAME_HEURISTICS",
+    "affectedFunction": "templateFields",
+    "affectedModes": ["MAIN_TWO_LINES", "FOUR_LINE"],
+    "headlineLine2MissingReason": "variant.includes('MAIN2') is false for MAIN_TWO_LINES and FOUR_LINE"
+  },
+  "correction": {
+    "desktopFieldDerivationSourceAfter": "CANONICAL_PSD_TEXT_LAYER_METADATA",
+    "productionFunction": "deriveNaverSmartChannelTextInputFields",
+    "descriptorFields": ["key", "role", "required", "order", "labelKey", "sourceLayerName"],
+    "templateOrModeNameHardcode": false,
+    "sameDescriptorsUsedForUiAndRenderRequest": true
+  },
+  "scope": {
+    "canonicalDocumentChanged": false,
+    "rendererCoreChanged": false,
+    "typographyChanged": false,
+    "fontChanged": false,
+    "validatorChanged": false,
+    "goldensChanged": false
+  },
+  "inventory": {
+    "smartChannelTemplates": 120,
+    "templates280": 56,
+    "templates160And200": 64,
+    "mainTwoLines280": 8,
+    "fourLine280": 6,
+    "ordinaryFourLine280": 5,
+    "bottomDisclosureFourRow280": 1
+  },
+  "parity": {
+    "templatesChecked": 56,
+    "missingFields": 0,
+    "extraFields": 0,
+    "orderingErrors": 0,
+    "result": "PASS"
+  },
+  "representatives": {
+    "basicMainTwoLines": {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_NONE",
+      "fields": ["headline", "headlineLine2"],
+      "result": "PASS"
+    },
+    "emphasisMainTwoLines": {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_NONE",
+      "fields": ["headline", "headlineLine2"],
+      "result": "PASS"
+    },
+    "ordinaryFourLine": {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE",
+      "fields": ["headline", "headlineLine2", "subcopy", "subcopyLine4"],
+      "result": "PASS"
+    },
+    "sourceDisclosureFourRow": {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_FOUR_LINE_LANDING_ICON",
+      "fields": ["headline", "headlineLine2", "subcopy", "disclosureLine1"],
+      "result": "PASS_SOURCE_ROLE_PRESERVED"
+    }
+  },
+  "stateAndRequest": {
+    "canonicalKeyStatePreserved": true,
+    "hiddenKeysExcludedFromRequest": true,
+    "crossWiredValues": 0,
+    "distinctValuesReachDistinctRoles": true,
+    "result": "PASS"
+  },
+  "versions": {
+    "canonical": "1.21.4",
+    "core": "0.8.6",
+    "smartChannelTemplate": "1.10.0",
+    "desktop": "0.9.10",
+    "i18n": "0.9.10",
+    "package": "0.9.10"
+  },
+  "regression": {
+    "n7_7_5Typography": "PASS",
+    "smartChannel160": "PASS_UNIT_INVENTORY",
+    "smartChannel200": "PASS_UNIT_INVENTORY",
+    "fullCheck": "PASS",
+    "vitest": { "files": 43, "tests": 261, "status": "PASS" },
+    "playwright": { "tests": 28, "status": "PASS" },
+    "desktopSmoke": "PASS",
+    "packageSmoke": "PASS",
+    "handoffVerifier": "PENDING"
+  },
+  "portablePackage": {
+    "path": "release/Kakao-Bizboard-Local-Renderer-0.9.10-x64.exe",
+    "bytes": 144325225,
+    "sha256": "a9ebc8eb7e0ea48a37e4a6f1ee4457d2e35a9296b972028dd4d55bf007842fbc"
+  },
+  "evidence": {
+    "directory": "artifacts/n7-7-6",
+    "generator": "scripts/generate-n7-7-6-evidence.mjs",
+    "verifier": "scripts/verify-n7-7-6-smartchannel-text-input-fields.mjs",
+    "implementationReport": "docs/implementation/naver-smartchannel-280-text-input-ui-field-mapping-n7-7-6.md"
+  },
+  "goldenRebase": { "performed": false, "ready": false },
+  "blockers": []
+}

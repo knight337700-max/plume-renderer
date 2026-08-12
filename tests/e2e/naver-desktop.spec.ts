@@ -180,6 +180,93 @@ test("NAVER SmartChannel headline preserves custom and explicit empty values acr
   }
 });
 
+test("NAVER SmartChannel 280 fields follow canonical descriptors and preserve values across modes", async () => {
+  const launched = await launch(path.join(projectRoot, "fixtures", "valid", "naver-smartchannel", "N2-REP-005-object.png"));
+  const fieldKeys = () => launched.page.locator("[data-smartchannel-input-key]").evaluateAll((entries) => entries.map((entry) => entry.getAttribute("data-smartchannel-input-key")));
+  try {
+    const templateSelect = launched.page.getByTestId("naver-smartchannel-template-select");
+    await templateSelect.selectOption("NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_NONE");
+    expect(await fieldKeys()).toEqual(["headline", "headlineLine2"]);
+    await expect(launched.page.getByText("메인 카피 2행", { exact: true })).toBeVisible();
+    await launched.page.getByTestId("naver-smartchannel-field-headline").fill("보존되는 첫째 줄");
+    await launched.page.getByTestId("naver-smartchannel-field-headlineLine2").fill("보존되는 둘째 줄");
+
+    await templateSelect.selectOption("NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_NONE");
+    expect(await fieldKeys()).toEqual(["headline", "headlineLine2"]);
+    await expect(launched.page.getByTestId("naver-smartchannel-field-headline")).toHaveValue("보존되는 첫째 줄");
+    await expect(launched.page.getByTestId("naver-smartchannel-field-headlineLine2")).toHaveValue("보존되는 둘째 줄");
+
+    await templateSelect.selectOption("NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE");
+    expect(await fieldKeys()).toEqual(["headline", "headlineLine2", "subcopy", "subcopyLine4"]);
+    await launched.page.getByTestId("naver-smartchannel-field-subcopy").fill("보존되는 셋째 줄");
+    await launched.page.getByTestId("naver-smartchannel-field-subcopyLine4").fill("보존되는 넷째 줄");
+
+    await templateSelect.selectOption("NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_NONE");
+    expect(await fieldKeys()).toEqual(["headline"]);
+    await templateSelect.selectOption("NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE");
+    expect(await fieldKeys()).toEqual(["headline", "headlineLine2", "subcopy", "subcopyLine4"]);
+    await expect(launched.page.getByTestId("naver-smartchannel-field-headlineLine2")).toHaveValue("보존되는 둘째 줄");
+    await expect(launched.page.getByTestId("naver-smartchannel-field-subcopy")).toHaveValue("보존되는 셋째 줄");
+    await expect(launched.page.getByTestId("naver-smartchannel-field-subcopyLine4")).toHaveValue("보존되는 넷째 줄");
+    expect(launched.rendererErrors).toEqual([]);
+  } finally {
+    await close(launched);
+  }
+});
+
+test("NAVER SmartChannel 280 distinct Desktop fields reach distinct render roles", async () => {
+  const cases = [
+    {
+      templateId: "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_NONE",
+      fixture: "mask-semicircle-right__logo__black__pass.png",
+      fixtureDirectory: "valid",
+      jobName: "n7-7-6-main-two-basic",
+      content: { headline: "기본 첫째 줄", headlineLine2: "기본 둘째 줄" },
+    },
+    {
+      templateId: "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_NONE",
+      fixture: "N2-REP-004-object.png",
+      fixtureDirectory: path.join("valid", "naver-smartchannel"),
+      jobName: "n7-7-6-main-two-emphasis",
+      content: { headline: "강조 첫째 줄", headlineLine2: "강조 둘째 줄" },
+    },
+    {
+      templateId: "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE",
+      fixture: "N2-REP-005-object.png",
+      fixtureDirectory: path.join("valid", "naver-smartchannel"),
+      jobName: "n7-7-6-four-line",
+      content: { headline: "헤드라인 첫째 줄", headlineLine2: "헤드라인 둘째 줄", subcopy: "서브카피 셋째 줄", subcopyLine4: "서브카피 넷째 줄" },
+    },
+  ] as const;
+
+  for (const testCase of cases) {
+    const launched = await launch(path.join(projectRoot, "fixtures", testCase.fixtureDirectory, testCase.fixture));
+    try {
+      await launched.page.getByTestId("naver-smartchannel-template-select").selectOption(testCase.templateId);
+      for (const [field, value] of Object.entries(testCase.content)) {
+        await launched.page.getByTestId(`naver-smartchannel-field-${field}`).fill(value);
+      }
+      await launched.page.getByTestId("naver-job-name").fill(testCase.jobName);
+      await launched.page.getByTestId("naver-smartchannel-select-object").click();
+      await expect(launched.page.getByTestId("naver-smartchannel-editor")).toContainText(testCase.fixture);
+      await expect(launched.page.getByTestId("naver-editor")).toHaveAttribute("data-primary-selected", "true");
+      await launched.page.getByTestId("naver-request-preview").click();
+      await expect(launched.page.getByTestId("naver-validation-status")).toHaveText("PASS");
+      await launched.page.getByTestId("naver-select-output").click();
+      await launched.page.getByTestId("naver-export").click();
+      const manifestPath = path.join(launched.outputRoot, testCase.jobName, "render-manifest.json");
+      await expect.poll(() => access(manifestPath).then(() => true).catch(() => false)).toBe(true);
+      const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as { smartChannelReport: { textRoles: Array<{ inputKey: string; text: string }> } };
+      const mapped = Object.fromEntries(manifest.smartChannelReport.textRoles.map((entry) => [entry.inputKey, entry.text]));
+      expect(mapped).toMatchObject(testCase.content);
+      expect(new Set(Object.values(mapped)).size).toBe(Object.keys(mapped).length);
+      expect(launched.rendererErrors, testCase.templateId).toEqual([]);
+    } finally {
+      await close(launched);
+    }
+  }
+});
+
 test("NAVER platform-composed source flow validates and exports source artifacts without final UI", async () => {
   const sourceAsset = path.join(os.tmpdir(), `kbr-naver-source-${randomUUID()}.png`);
   await sharp({ create: { width: 112, height: 112, channels: 4, background: { r: 24, g: 116, b: 205, alpha: 1 } } }).png().toFile(sourceAsset);

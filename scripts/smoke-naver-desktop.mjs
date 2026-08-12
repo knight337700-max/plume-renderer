@@ -79,6 +79,18 @@ async function runSmartChannelInputPersistence(page, label, errors, templateIds)
   await page.keyboard.insertText("브랜드");
   await expect(headline).toHaveValue("브랜드");
 
+  const visibleKeys = () => page.locator("[data-smartchannel-input-key]").evaluateAll((entries) => entries.map((entry) => entry.getAttribute("data-smartchannel-input-key")));
+  for (const [templateId, expectedKeys] of [
+    ["NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_NONE", ["headline", "headlineLine2"]],
+    ["NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_NONE", ["headline", "headlineLine2"]],
+    ["NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE", ["headline", "headlineLine2", "subcopy", "subcopyLine4"]],
+  ]) {
+    await selectSmartFilters(page, allFilters);
+    await page.getByTestId("naver-smartchannel-template-select").selectOption(templateId);
+    const actualKeys = await visibleKeys();
+    if (JSON.stringify(actualKeys) !== JSON.stringify(expectedKeys)) throw new Error(`${label}: ${templateId} fields ${JSON.stringify(actualKeys)} !== ${JSON.stringify(expectedKeys)}`);
+  }
+
   const compatibleTemplate = "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA";
   await selectSmartFilters(page, { ...allFilters, height: "280", family: "EMPHASIS", objectKind: "THUMBNAIL", side: "LEFT", textVariant: "THREE_LINE", affordance: "APP_CTA" });
   await assertSmartChannel(page, `${label}:SMARTCHANNEL:input-compatible-transition`, errors, compatibleTemplate);
@@ -87,7 +99,7 @@ async function runSmartChannelInputPersistence(page, label, errors, templateIds)
   const fieldCases = [
     { field: "headline", match: (id) => id.includes("_MAIN_SUB_"), value: "headline 사용자 문구" },
     { field: "subcopy", match: (id) => id.includes("_MAIN_SUB_"), value: "subcopy 사용자 문구" },
-    { field: "headlineLine2", match: (id) => id.includes("_MAIN2_"), value: "두 번째 헤드라인" },
+    { field: "headlineLine2", match: (id) => id.includes("_MAIN_TWO_LINES_"), value: "두 번째 헤드라인" },
     { field: "subcopyLine4", match: (id) => id.includes("_THREE_LINE_"), value: "네 번째 줄 문구" },
     { field: "disclosureLine1", match: (id) => id.includes("_DISCLOSURE_"), value: "심의 문구" },
     { field: "disclosureLine2", match: (id) => id.includes("_DISCLOSURE_2LINE_"), value: "광고주 문구" },
@@ -107,7 +119,7 @@ async function runSmartChannelInputPersistence(page, label, errors, templateIds)
     await expect(field).toHaveValue("");
   }
   if (errors.length > 0) throw new Error(`${label}: SmartChannel input renderer errors: ${errors.join(" | ")}`);
-  return { customValue: "PASS", emptyValue: "PASS", koreanIme: "PASS", debouncePreview: "PASS", templateTransition: "PASS", allTextFieldsReviewed: fieldCases.map((entry) => entry.field) };
+  return { customValue: "PASS", emptyValue: "PASS", koreanIme: "PASS", debouncePreview: "PASS", templateTransition: "PASS", textInputDescriptorParity: "PASS", allTextFieldsReviewed: fieldCases.map((entry) => entry.field) };
 }
 
 async function runSmartChannelMatrix(page, label, errors) {

@@ -47,7 +47,7 @@ if (!(await exists(root))) {
   process.exitCode = 1;
 } else {
   const manifest = await readJson("MANIFEST.json");
-  const required = ["README.md", "MANIFEST.json", "artifacts/n7-7-4", "artifacts/n7-7-5", "contracts", "src", "packages", "scripts", "tests", "fixtures", "reference", "docs", "source-guides", "local-runtime-resources", "package.json", "pnpm-lock.yaml"];
+  const required = ["README.md", "MANIFEST.json", "artifacts/n7-7-4", "artifacts/n7-7-5", "artifacts/n7-7-6", "contracts", "src", "packages", "scripts", "tests", "fixtures", "reference", "docs", "source-guides", "local-runtime-resources", "package.json", "pnpm-lock.yaml"];
   for (const relativePath of required) check(`required_${relativePath.replaceAll("/", "_")}`, await exists(path.join(root, relativePath)), relativePath);
 
   const forbiddenNames = ["node_modules", ".git", "dist", "dist-desktop", "build", "release", "coverage", "test-results", ".cache", ".out-staging"];
@@ -112,7 +112,7 @@ if (!(await exists(root))) {
   const fixedRuntime = await readJson("contracts/naver-smartchannel-fixed-component-runtime.json");
   const fixedResources = fixedRuntime?.resources ?? [];
   const typographyAudit = await readJson("contracts/audits/naver-smartchannel-typography-audit.json");
-  check("n7_runtime_manifest", manifest?.handoffPhase === "N7_7_5_SMARTCHANNEL_TYPOGRAPHY_PARITY_CORRECTION" && manifest?.versions?.rendererCore === "0.8.6" && manifest?.versions?.desktop === "0.9.9", JSON.stringify({ phase: manifest?.handoffPhase, rendererCore: manifest?.versions?.rendererCore, desktop: manifest?.versions?.desktop }));
+  check("n7_runtime_manifest", manifest?.handoffPhase === "N7_7_6_SMARTCHANNEL_280_TEXT_INPUT_SCHEMA_UI_FIELD_MAPPING_CORRECTION" && manifest?.versions?.rendererCore === "0.8.6" && manifest?.versions?.desktop === "0.9.10", JSON.stringify({ phase: manifest?.handoffPhase, rendererCore: manifest?.versions?.rendererCore, desktop: manifest?.versions?.desktop }));
   check("n7_5_fixed_inventory", fixedRuntime?.status === "FROZEN" && fixedResources.length === 26 && fixedResources.every((entry) => entry.packagedRequired === true), `${fixedResources.length}`);
   let fixedAssetHashPass = 0;
   for (const entry of fixedResources) {
@@ -138,6 +138,10 @@ if (!(await exists(root))) {
   const parityVertical = await readJson("artifacts/n7-7-5/vertical-raster-alignment-audit.json");
   check("n7_7_5_typography_parity", manifest?.typographyParity?.status === "PASS" && parityAudit?.phase?.status === "PASS" && parityAudit?.overflow?.after?.decisionBasis === "ACTUAL_RASTER_BOUNDARY" && parityWidth?.headline?.find((entry) => entry.requestedGraphemeCount === 14)?.overflow === false && parityWidth?.subcopy?.find((entry) => entry.requestedGraphemeCount === 17)?.overflow === false && parityVertical?.auditedVisibleNonGuideLayers === 83 && parityVertical?.topDeltaAfterCounts?.["0"] === 83 && paritySmoke?.rendered === 120 && paritySmoke?.goldenRebasePerformed === false, JSON.stringify({ manifest: manifest?.typographyParity, audit: parityAudit?.phase, smoke: paritySmoke, vertical: { count: parityVertical?.auditedVisibleNonGuideLayers, after: parityVertical?.topDeltaAfterCounts } }));
   check("n7_7_5_provenance", manifest?.sourceProvenance?.n7_7_5TypographyParityJson === "contracts/audits/naver-smartchannel-typography-parity-n7-7-5.json" && manifest?.sourceProvenance?.n7_7_5TypographyParityReport === "docs/implementation/naver-smartchannel-typography-parity-correction-n7-7-5.md" && manifest?.sourceProvenance?.n7_7_5TypographyParityVerifier === "scripts/verify-n7-7-5-typography-parity.mjs" && manifest?.sourceProvenance?.n7_7_5EvidenceDirectory === "artifacts/n7-7-5", "N7.7.5 provenance");
+  const textInputUiAudit = await readJson("contracts/audits/naver-smartchannel-text-input-ui-parity-n7-7-6.json");
+  const textInputUiParity = await readJson("artifacts/n7-7-6/smartchannel-280-ui-contract-parity.json");
+  check("n7_7_6_text_input_ui_parity", manifest?.textInputUiParity?.status === "PASS" && textInputUiAudit?.phase?.status === "PASS" && textInputUiAudit?.correction?.desktopFieldDerivationSourceAfter === "CANONICAL_PSD_TEXT_LAYER_METADATA" && textInputUiParity?.templatesChecked === 56 && textInputUiParity?.missingFields === 0 && textInputUiParity?.extraFields === 0 && textInputUiParity?.orderingErrors === 0, JSON.stringify({ manifest: manifest?.textInputUiParity, audit: textInputUiAudit?.phase, parity: { templates: textInputUiParity?.templatesChecked, missing: textInputUiParity?.missingFields, extra: textInputUiParity?.extraFields, order: textInputUiParity?.orderingErrors } }));
+  check("n7_7_6_provenance", manifest?.sourceProvenance?.n7_7_6TextInputUiParityJson === "contracts/audits/naver-smartchannel-text-input-ui-parity-n7-7-6.json" && manifest?.sourceProvenance?.n7_7_6TextInputUiParityReport === "docs/implementation/naver-smartchannel-280-text-input-ui-field-mapping-n7-7-6.md" && manifest?.sourceProvenance?.n7_7_6TextInputUiParityVerifier === "scripts/verify-n7-7-6-smartchannel-text-input-fields.mjs" && manifest?.sourceProvenance?.n7_7_6EvidenceDirectory === "artifacts/n7-7-6", "N7.7.6 provenance");
 
   const secretPattern = /(AKIA[0-9A-Z]{16}|(?:ghp|gho|github_pat)_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|-----BEGIN (?:RSA|OPENSSH|EC|DSA) PRIVATE KEY-----)/;
   const textExtensions = new Set([".json", ".md", ".mjs", ".js", ".ts", ".tsx", ".yaml", ".yml", ".toml", ".txt", ".css", ".html"]);

@@ -1,6 +1,7 @@
 export { DESKTOP_CHANNEL_ALLOWLIST, DESKTOP_CHANNELS } from "./channels.js";
 export type { DesktopChannel } from "./channels.js";
 export { previewMimeType, resolvePreviewEligibility } from "./preview-artifact.js";
+export { deriveNaverSmartChannelTextInputFields } from "./smartchannel-text-input-fields.js";
 export type {
   PreviewArtifact,
   PreviewEligibility,
@@ -41,4 +42,6 @@ export type {
   NaverSourceAssetRequest,
   NaverSourceProfile,
   NaverTemplateOption,
+  NaverSmartChannelTextInputFieldDescriptor,
+  NaverSmartChannelTextInputKey,
 } from "./types.js";

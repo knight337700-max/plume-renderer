@@ -15,7 +15,7 @@ import type {
 } from "../../../../shared/src/index.js";
 import { FreeformEditor } from "../freeform/FreeformEditor.js";
 import { formatProductMetadata } from "../product-file/format.js";
-import { issueMessage } from "../validation/messages.js";
+import { issueMessage, localizedMessage } from "../validation/messages.js";
 import { reportRendererDiagnostic, setRendererDiagnosticContext } from "../../diagnostics/renderer-diagnostics.js";
 
 type SelectedProduct = Extract<ProductSelectionResult, { status: "SELECTED" }>;
@@ -79,24 +79,6 @@ const DEFAULT_SOURCE_FIELDS: Record<string, unknown> = {
   adMute: true,
   presentationVariant: "GENERAL",
 };
-
-function templateFields(template: NaverTemplateOption | undefined): string[] {
-  if (!template) return ["headline"];
-  const variant = template.textVariant;
-  const fields = new Set<string>();
-  if (variant.includes("MAIN2")) {
-    fields.add("headline");
-    fields.add("headlineLine2");
-  } else fields.add("headline");
-  if (variant.includes("SUB") || variant === "THREE_LINE" || variant === "FOUR_LINE") fields.add("subcopy");
-  if (variant.includes("FOUR_LINE") || variant === "THREE_LINE") fields.add("subcopyLine4");
-  if (variant.includes("DISCLOSURE")) {
-    fields.add("disclosureLine1");
-    if (variant.includes("2LINE")) fields.add("disclosureLine2");
-  }
-  if (template.affordance === "APP_CTA") fields.add("ctaOption");
-  return Array.from(fields);
-}
 
 function sourcePlacement(id: PlacementId): NaverPlatformSourceRequest["placement"] {
   if (id === "NAVER_MOBILE_NATIVE") return "MOBILE_NATIVE";
@@ -173,7 +155,7 @@ export function NaverDesktopEditor() {
       ? feedSubtype === "COLLECTION" ? "NAVER_FEED_COLLECTION_SOURCE_V1" : feedSubtype === "VIDEO" ? "NAVER_FEED_VIDEO_SOURCE_V1" : "NAVER_FEED_IMAGE_SOURCE_V1"
       : capability?.sourceProfileId || capability?.sourceProfileIds?.[0] || "";
   const sourceProfile = catalog?.sourceProfiles.find((entry) => entry.id === sourceProfileId);
-  const smartFields = templateFields(selectedTemplate);
+  const smartFields = selectedTemplate?.textInputFields ?? [];
   const smartChannelUnresolved = placementId === "NAVER_SMARTCHANNEL" && templates.length > 0 && !selectedTemplate;
   const isSource = capability?.compositionMode === "PLATFORM_COMPOSED";
   const isCollection = placementId === "NAVER_MOBILE_DA_FEED" && isSource && feedSubtype === "COLLECTION";
@@ -278,7 +260,7 @@ export function NaverDesktopEditor() {
       return;
     }
     const request: NaverSmartChannelRequest | NaverPlatformSourceRequest | null = placementId === "NAVER_SMARTCHANNEL"
-      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] ?? ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
+      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((field) => [field.key, smartContent[field.key] ?? ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
       : buildSourceRequest();
     if (!request || !primary) {
       setNotice(!primary ? "필수 asset과 source field를 먼저 준비하세요. (Primary asset 필요)" : "필수 asset과 source field를 먼저 준비하세요. (Source profile/asset rule 확인 필요)");
@@ -297,7 +279,7 @@ export function NaverDesktopEditor() {
   async function exportNaver() {
     if (!preview || preview.validationStatus === "ERROR" || !output) return;
     const request: NaverSmartChannelRequest | NaverPlatformSourceRequest | null = placementId === "NAVER_SMARTCHANNEL"
-      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((key) => [key, smartContent[key] ?? ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
+      ? { kind: "SMARTCHANNEL", templateId: resolvedTemplateId, content: Object.fromEntries(smartFields.map((field) => [field.key, smartContent[field.key] ?? ""])), objectAssetToken: primary?.assetToken || "", ...(logo ? { advertiserLogoAssetToken: logo.assetToken } : {}), jobName }
       : buildSourceRequest();
     if (!request) return;
     const exportRequest: NaverExportRequest = {
@@ -350,7 +332,7 @@ export function NaverDesktopEditor() {
           <label className="field-group"><span className="field-label">Template whitelist</span><select data-testid="naver-smartchannel-template-select" value={resolvedTemplateId} onChange={(event) => { const nextTemplateId = event.currentTarget.value; setTemplateId(nextTemplateId); invalidate(); }}>{filteredTemplates.map((entry) => <option key={entry.templateId} value={entry.templateId}>{entry.height}px · {entry.family} · {entry.objectKind} · {entry.side} · {entry.textVariant} · {entry.affordance}</option>)}</select></label>
           <div className="naver-template-summary" data-testid="naver-template-summary"><strong>{selectedTemplate?.templateId || "—"}</strong><span>Object token · {selectedTemplate?.objectPlacementToken || "—"}</span><span>Source whitelist only · Cartesian product 금지</span></div>
           {smartChannelUnresolved ? <div className="issue issue-error" data-testid="naver-smartchannel-resolution-error"><strong>SmartChannel selection unresolved</strong><p>현재 필터 조합에 대응하는 source-backed template이 없습니다. 필터를 다시 선택하세요. Render/Download는 차단됩니다.</p></div> : null}
-          {smartFields.map((field) => <label className="field-group" key={field}><span className="field-label">{field}</span><input data-testid={"naver-smartchannel-field-" + field} value={smartContent[field] ?? ""} onChange={(event) => { const nextValue = event.currentTarget.value; setSmartContent((previous) => ({ ...previous, [field]: nextValue })); invalidate(); }} /></label>)}
+          {smartFields.map((field) => <label className="field-group" key={field.key} data-smartchannel-input-key={field.key} data-smartchannel-role={field.role}><span className="field-label">{localizedMessage(field.labelKey)}</span><input data-testid={"naver-smartchannel-field-" + field.key} value={smartContent[field.key] ?? ""} onChange={(event) => { const nextValue = event.currentTarget.value; setSmartContent((previous) => ({ ...previous, [field.key]: nextValue })); invalidate(); }} /></label>)}
           <div className="asset-card"><strong>Object image</strong>{primary ? <><span>{primary.displayName}</span><small>{formatProductMetadata(primary)}</small></> : <span>선택하지 않음</span>}<button type="button" onClick={() => void selectPrimary()} data-testid="naver-smartchannel-select-object">Object 선택</button></div>
           <div className="asset-card"><strong>Advertiser logo · optional</strong>{logo ? <span>{logo.displayName}</span> : <span>선택하지 않음</span>}<button type="button" className="secondary" onClick={() => void selectLogo()} data-testid="naver-smartchannel-select-logo">Logo 선택</button></div>
           <div className="font-preflight" data-testid="naver-smartchannel-font-preflight"><strong>SmartChannel renderer-owned PSD-exact font preflight</strong><span>Renderer resource provider · OS/system font lookup 없음</span>{catalog.fontPreflight.requiredAssets.map((font) => <small key={font.token}>{font.token} · {font.expectedFilename} · {font.expectedSha256 || "SHA unresolved"}</small>)}<small>필수 바이너리의 SHA/identity/glyph 검증 실패 시 SmartChannel render/download는 차단됩니다.</small></div>

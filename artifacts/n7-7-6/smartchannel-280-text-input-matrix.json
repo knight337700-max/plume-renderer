@@ -1,0 +1,717 @@
+{
+  "phase": "N7_7_6_SMARTCHANNEL_280_TEXT_INPUT_SCHEMA_UI_FIELD_MAPPING_CORRECTION",
+  "status": "PASS",
+  "templates": 56,
+  "matrix": [
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_NONE",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "ONE_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_NONE",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_TWO_LINES",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN2_SUB",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "ONE_LINE",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_LANDING_ICON",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_LANDING_ICON",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_TWO_LINES",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_LANDING_ICON",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN2_SUB",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_APP_CTA",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "ONE_LINE",
+      "affordance": "APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "ctaOption"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_APP_CTA",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "ctaOption"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_APP_CTA",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_TWO_LINES",
+      "affordance": "APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "ctaOption"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_APP_CTA",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN2_SUB",
+      "affordance": "APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "ctaOption"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_ONE_LINE_NONE",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "RIGHT",
+      "textVariant": "ONE_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN_SUB_NONE",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "RIGHT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN_TWO_LINES_NONE",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "RIGHT",
+      "textVariant": "MAIN_TWO_LINES",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN2_SUB_NONE",
+      "family": "BASIC",
+      "objectKind": "STANDARD",
+      "side": "RIGHT",
+      "textVariant": "MAIN2_SUB",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_DISCLOSURE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB_DISCLOSURE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_DISCLOSURE_2LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1",
+        "disclosureLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN2_DISCLOSURE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_2LINE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN2_DISCLOSURE_2LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "disclosureLine1",
+        "disclosureLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_2LINE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB_DISCLOSURE_2LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1",
+        "disclosureLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_LANDING_ICON",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_DISCLOSURE",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_LANDING_ICON",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB_DISCLOSURE",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_SUB_LANDING_ICON",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "MAIN2_SUB",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_FOUR_LINE_LANDING_ICON",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "LEFT",
+      "textVariant": "FOUR_LINE",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "RIGHT",
+      "textVariant": "MAIN_DISCLOSURE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_SUB_DISCLOSURE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "RIGHT",
+      "textVariant": "MAIN_SUB_DISCLOSURE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_2LINE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "RIGHT",
+      "textVariant": "MAIN_DISCLOSURE_2LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1",
+        "disclosureLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN2_DISCLOSURE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "RIGHT",
+      "textVariant": "MAIN2_DISCLOSURE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "disclosureLine1"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN2_DISCLOSURE_2LINE_NONE",
+      "family": "BOTTOM_DISCLOSURE",
+      "objectKind": "STANDARD",
+      "side": "RIGHT",
+      "textVariant": "MAIN2_DISCLOSURE_2LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "disclosureLine1",
+        "disclosureLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "ONE_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "MAIN_TWO_LINES",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "THREE_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_FOUR_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "FOUR_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_LANDING_ICON",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "ONE_LINE",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_LANDING_ICON",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_LANDING_ICON",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "MAIN_TWO_LINES",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_LANDING_ICON",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "THREE_LINE",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_FOUR_LINE_LANDING_ICON",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "FOUR_LINE",
+      "affordance": "LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_APP_CTA",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "ONE_LINE",
+      "affordance": "APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "ctaOption"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_APP_CTA",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "ctaOption"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_APP_CTA",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "MAIN_TWO_LINES",
+      "affordance": "APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "ctaOption"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "LEFT",
+      "textVariant": "THREE_LINE",
+      "affordance": "APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "ctaOption"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_MAIN_SUB_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "PERSON_MOVIE",
+      "side": "LEFT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_THREE_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "PERSON_MOVIE",
+      "side": "LEFT",
+      "textVariant": "THREE_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_FOUR_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "PERSON_MOVIE",
+      "side": "LEFT",
+      "textVariant": "FOUR_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_ONE_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "RIGHT",
+      "textVariant": "ONE_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_MAIN_SUB_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "RIGHT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_MAIN_TWO_LINES_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "RIGHT",
+      "textVariant": "MAIN_TWO_LINES",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "RIGHT",
+      "textVariant": "THREE_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_FOUR_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "THUMBNAIL",
+      "side": "RIGHT",
+      "textVariant": "FOUR_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_MAIN_SUB_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "PERSON_MOVIE",
+      "side": "RIGHT",
+      "textVariant": "MAIN_SUB",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_THREE_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "PERSON_MOVIE",
+      "side": "RIGHT",
+      "textVariant": "THREE_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ]
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE",
+      "family": "EMPHASIS",
+      "objectKind": "PERSON_MOVIE",
+      "side": "RIGHT",
+      "textVariant": "FOUR_LINE",
+      "affordance": "NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ]
+    }
+  ]
+}

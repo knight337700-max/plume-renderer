@@ -1,0 +1,43 @@
+{
+  "phase": "N7_7_6_SMARTCHANNEL_280_TEXT_INPUT_SCHEMA_UI_FIELD_MAPPING_CORRECTION",
+  "status": "PASS",
+  "canonicalDocumentChanged": false,
+  "rendererCoreChanged": false,
+  "typographyChanged": false,
+  "validatorChanged": false,
+  "goldensChanged": false,
+  "matrix": {
+    "templates280": 56,
+    "missingFields": 0,
+    "extraFields": 0,
+    "orderingErrors": 0
+  },
+  "renderRequestMapping": {
+    "mainTwo": {
+      "headline": "첫 번째 헤드라인",
+      "headlineLine2": "두 번째 헤드라인"
+    },
+    "fourLine": {
+      "headline": "헤드라인 첫째 줄",
+      "headlineLine2": "헤드라인 둘째 줄",
+      "subcopy": "서브카피 셋째 줄",
+      "subcopyLine4": "서브카피 넷째 줄"
+    }
+  },
+  "unit": "PASS",
+  "desktopE2E": "PASS",
+  "n7_7_5Regression": "PASS",
+  "fullCheck": "PASS",
+  "vitest": { "files": 43, "tests": 261, "status": "PASS" },
+  "playwright": { "tests": 28, "status": "PASS" },
+  "packageSmoke": "PASS",
+  "desktopSmoke": "PASS",
+  "handoffVerifier": "PENDING",
+  "portablePackage": {
+    "path": "release/Kakao-Bizboard-Local-Renderer-0.9.10-x64.exe",
+    "bytes": 144325225,
+    "sha256": "a9ebc8eb7e0ea48a37e4a6f1ee4457d2e35a9296b972028dd4d55bf007842fbc"
+  },
+  "goldenRebasePerformed": false,
+  "readyForGoldenRebase": false
+}

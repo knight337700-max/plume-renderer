@@ -1,0 +1,870 @@
+{
+  "phase": "N7_7_6_SMARTCHANNEL_280_TEXT_INPUT_SCHEMA_UI_FIELD_MAPPING_CORRECTION",
+  "status": "PASS",
+  "templatesChecked": 56,
+  "missingFields": 0,
+  "extraFields": 0,
+  "orderingErrors": 0,
+  "rows": [
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_NONE",
+      "canonicalKeys": [
+        "headline"
+      ],
+      "desktopKeys": [
+        "headline"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
+      "canonicalKeys": [
+        "headline"
+      ],
+      "desktopKeys": [
+        "headline"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "ctaOption"
+      ],
+      "desktopKeys": [
+        "headline",
+        "ctaOption"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_SUB_APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "ctaOption"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy",
+        "ctaOption"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN_TWO_LINES_APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "ctaOption"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "ctaOption"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "ctaOption"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "ctaOption"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_ONE_LINE_NONE",
+      "canonicalKeys": [
+        "headline"
+      ],
+      "desktopKeys": [
+        "headline"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN_SUB_NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN_TWO_LINES_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_RIGHT_MAIN2_SUB_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_2LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_2LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_2LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_DISCLOSURE_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN_SUB_DISCLOSURE_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_SUB_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_FOUR_LINE_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_SUB_DISCLOSURE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN_DISCLOSURE_2LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN2_DISCLOSURE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "disclosureLine1"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_RIGHT_MAIN2_DISCLOSURE_2LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "disclosureLine1",
+        "disclosureLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_NONE",
+      "canonicalKeys": [
+        "headline"
+      ],
+      "desktopKeys": [
+        "headline"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_FOUR_LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_LANDING_ICON",
+      "canonicalKeys": [
+        "headline"
+      ],
+      "desktopKeys": [
+        "headline"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_FOUR_LINE_LANDING_ICON",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_ONE_LINE_APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "ctaOption"
+      ],
+      "desktopKeys": [
+        "headline",
+        "ctaOption"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_SUB_APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "subcopy",
+        "ctaOption"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy",
+        "ctaOption"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_MAIN_TWO_LINES_APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "ctaOption"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "ctaOption"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "ctaOption"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "ctaOption"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_MAIN_SUB_NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_THREE_LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_LEFT_FOUR_LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_ONE_LINE_NONE",
+      "canonicalKeys": [
+        "headline"
+      ],
+      "desktopKeys": [
+        "headline"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_MAIN_SUB_NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_MAIN_TWO_LINES_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_RIGHT_FOUR_LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_MAIN_SUB_NONE",
+      "canonicalKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_THREE_LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    },
+    {
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE",
+      "canonicalKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "desktopKeys": [
+        "headline",
+        "headlineLine2",
+        "subcopy",
+        "subcopyLine4"
+      ],
+      "missingInUi": [],
+      "extraInUi": [],
+      "orderMatch": true
+    }
+  ]
+}

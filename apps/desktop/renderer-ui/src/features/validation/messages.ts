@@ -8,8 +8,12 @@ export function hasIssueMessageTranslation(messageKey: string): boolean {
   return typeof messages[messageKey] === "string" && messages[messageKey].length > 0;
 }
 
+export function localizedMessage(messageKey: string): string {
+  return messages[messageKey] ?? `등록된 번역이 없습니다: ${messageKey}`;
+}
+
 export function issueMessage(issue: ValidationIssue): string {
-  const base = messages[issue.messageKey] ?? `등록된 번역이 없습니다: ${issue.messageKey}`;
+  const base = localizedMessage(issue.messageKey);
   if (!issue.actual || typeof issue.actual !== "object") return base;
   const actual = issue.actual as Record<string, unknown>;
   if (issue.code.startsWith("KBR-TEXT-COUNT-") && typeof actual.actual === "number") {

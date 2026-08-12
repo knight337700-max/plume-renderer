@@ -63,6 +63,7 @@ import type {
   ProductSelectionResult,
   UiRenderInput,
 } from "../../shared/src/index.js";
+import { deriveNaverSmartChannelTextInputFields } from "../../shared/src/index.js";
 import { assertSafeJobName } from "./security/safe-filename.js";
 import {
   DesktopSecurityError,
@@ -170,7 +171,7 @@ function naverSourceProfilesFromContracts(registry: Record<string, unknown>): Na
   });
 }
 
-function smartChannelTemplatesFromContracts(registry: Record<string, unknown>): NaverCatalog["templates"] {
+function smartChannelTemplatesFromContracts(registry: Record<string, unknown>, psdMetadata: Record<string, unknown>): NaverCatalog["templates"] {
   return (Array.isArray(registry.templates) ? registry.templates : []).flatMap((entry) => {
     const raw = asRecord(entry);
     if (typeof raw.templateId !== "string") return [];
@@ -183,6 +184,7 @@ function smartChannelTemplatesFromContracts(registry: Record<string, unknown>): 
       textVariant: String(raw.textVariant),
       affordance: String(raw.affordance),
       objectPlacementToken: String(raw.objectPlacementToken),
+      textInputFields: deriveNaverSmartChannelTextInputFields(psdMetadata, raw.templateId, String(raw.affordance)),
     }];
   });
 }
@@ -362,7 +364,7 @@ export class DesktopController {
     return {
       capabilities,
       sourceProfiles: naverSourceProfilesFromContracts(contracts.naverPlatformSourceProfiles),
-      templates: smartChannelTemplatesFromContracts(contracts.naverTemplateContract),
+      templates: smartChannelTemplatesFromContracts(contracts.naverTemplateContract, contracts.naverPsdMetadata),
       fontPreflight,
     };
   }
