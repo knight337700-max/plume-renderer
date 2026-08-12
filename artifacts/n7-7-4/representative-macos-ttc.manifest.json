@@ -1,0 +1,54 @@
+{
+  "phase": "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION",
+  "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE",
+  "fontContractVersion": "1.2.0",
+  "sourceCollection": {
+    "assetId": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MACOS19_TTC",
+    "sha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66"
+  },
+  "fonts": [
+    {
+      "token": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
+      "derivedResourceDigest": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+      "runtimePostScriptName": "AppleSDGothicNeo-Bold",
+      "collectionAssetId": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MACOS19_TTC",
+      "collectionDigest": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "collectionFaceIndex": 6,
+      "collectionFacePostScriptName": "AppleSDGothicNeo-Bold",
+      "fontContractVersion": "1.2.0",
+      "integrationMode": "VERIFIED_DERIVED_STANDALONE_FACE"
+    },
+    {
+      "token": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
+      "derivedResourceDigest": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+      "runtimePostScriptName": "AppleSDGothicNeo-Regular",
+      "collectionAssetId": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MACOS19_TTC",
+      "collectionDigest": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "collectionFaceIndex": 0,
+      "collectionFacePostScriptName": "AppleSDGothicNeo-Regular",
+      "fontContractVersion": "1.2.0",
+      "integrationMode": "VERIFIED_DERIVED_STANDALONE_FACE"
+    },
+    {
+      "token": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
+      "derivedResourceDigest": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73",
+      "runtimePostScriptName": "AppleSDGothicNeo-SemiBold",
+      "collectionAssetId": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MACOS19_TTC",
+      "collectionDigest": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "collectionFaceIndex": 4,
+      "collectionFacePostScriptName": "AppleSDGothicNeo-SemiBold",
+      "fontContractVersion": "1.2.0",
+      "integrationMode": "VERIFIED_DERIVED_STANDALONE_FACE"
+    }
+  ],
+  "artifact": {
+    "pngDigest": "78d7252b74c859fd07b5294ae705943299388892e469bb58844e19e6ac54c601",
+    "bytes": 21302
+  },
+  "pixelFingerprint": "6dda91c75867696073b377dbdf7fb404da0b2f153b276e10887ea8f1c7ddcc9b",
+  "manualAcceptance": {
+    "approvedCreativeMatch": {
+      "status": "NOT_REVIEWED"
+    }
+  }
+}

@@ -1,9 +1,29 @@
 # Naver SmartChannel renderer-owned font assets
 
-## N7.7 PSD-exact runtime resources
+## N7.7.4 macOS original TTC source
 
-The SmartChannel renderer uses the three SHA-256-pinned Apple SD Gothic Neo
-resource files below for visible final roles. They were copied byte-for-byte
+The renderer-owned source of truth is `AppleSDGothicNeo.ttc`, 28,427,796
+bytes, SHA-256
+`0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66`.
+It is consumed from the trusted resource provider and never installed as an OS
+font. The backend cannot select TTC indices 4 and 6 directly, so runtime uses
+standalone OTF faces extracted by copying source SFNT tables. Normalized table
+equivalence, collection identity, face identity, and derived SHA are verified
+before registration.
+
+| Logical token | TTC face | Runtime file | Runtime SHA-256 | PostScript |
+|---|---:|---|---|---|
+| `NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD` | 6 | `AppleSDGothicNeo-macOS19-Bold.otf` | `ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7` | `AppleSDGothicNeo-Bold` |
+| `NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR` | 0 | `AppleSDGothicNeo-macOS19-Regular.otf` | `f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff` | `AppleSDGothicNeo-Regular` |
+| `NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD` | 4 | `AppleSDGothicNeo-macOS19-SemiBold.otf` | `e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73` | `AppleSDGothicNeo-SemiBold` |
+
+License status is `UNCONFIRMED_REVIEW_REQUIRED_BEFORE_EXTERNAL_REDISTRIBUTION`.
+Current usage scope is `PRIVATE_LOCAL_RENDERER_MODULE`.
+
+## Historical N7.7 converted TTF resources
+
+The three N7.7 converted TTF candidates below are retained for controlled A/B
+evidence and are `DEPRECATED_FOR_SMARTCHANNEL`. They were copied byte-for-byte
 from the already-present `.local-fonts/naver-smartchannel/` source candidate;
 no download, substitution, or OS font lookup was used.
 

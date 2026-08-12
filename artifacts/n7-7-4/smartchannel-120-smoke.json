@@ -1,0 +1,16 @@
+{
+  "phase": "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION",
+  "status": "PASS",
+  "attempted": 120,
+  "rendered": 120,
+  "fontResolutionErrors": 0,
+  "newValidatorErrors": 0,
+  "crashes": 0,
+  "threeRunDeterminism": true,
+  "goldenRebasePerformed": false,
+  "ctaOptionCoverage": {
+    "compact160": 11,
+    "compact200": 11,
+    "height280": 11
+  }
+}

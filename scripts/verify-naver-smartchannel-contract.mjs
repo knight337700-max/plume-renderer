@@ -57,12 +57,12 @@ expect(metadataTokenIds.size === 25 && metadataTokenIds.size === new Set(typogra
 expect(templates.every((entry) => entry.sourceMetadataRef?.templateId === entry.templateId), "template metadata references are incomplete");
 expect(templates.every((entry) => entry.source.sourceRevisionRef), "source revision references are incomplete");
 
-expect(typography.registryVersion === "1.4.0", "typography registry version mismatch");
-expect(typography.status === "SOURCE_METADATA_FROZEN_RUNTIME_MAPPING_CORRECTED", "typography source metadata is not frozen with correction record");
+expect(typography.registryVersion === "1.5.0", "typography registry version mismatch");
+expect(typography.status === "SOURCE_METADATA_FROZEN_MACOS_TTC_RUNTIME_MAPPING", "typography source metadata is not frozen with correction record");
 expect(typography.exactSourceFontIdentity === "PASS", "exact source font identity is not PASS");
 expect(typography.tokens.length === 25 && typography.tokens.every((token) => token.classification === "DERIVED_FROM_EXACT_SOURCE_METADATA"), "typography token registry mismatch");
-expect(typography.runtimeResolution === "PSD_EXACT_RENDERER_OWNED", "runtime font contract status mismatch");
-expect(typography.runtimeFontMode === "PSD_EXACT_RENDERER_OWNED" && JSON.stringify(typography.sfRuntimeFonts ?? []) === JSON.stringify([]), "runtime typography must use exact Apple resources without SF runtime");
+expect(typography.runtimeResolution === "MACOS_SOURCE_TTC_VERIFIED_DERIVED", "runtime font contract status mismatch");
+expect(typography.runtimeFontMode === "MACOS_SOURCE_TTC_VERIFIED_DERIVED" && JSON.stringify(typography.sfRuntimeFonts ?? []) === JSON.stringify([]), "runtime typography must use exact Apple resources without SF runtime");
 expect(typography.n2Blocking === false, "resolved official fonts must not block SmartChannel runtime");
 expect(typography.runtimeFontAssets.length === 7 && typography.runtimeFontAssets.filter((asset) => asset.required !== false).length === 3 && typography.runtimeFontAssets.filter((asset) => asset.required !== false).every((asset) => asset.resolution === "RESOLVED" && asset.bundleAllowed === true), "font runtime role registry mismatch");
 expect(contract.runtimeFontPolicyRef === "contracts/naver-smartchannel-runtime-font-policy.json", "runtime font policy reference missing");
@@ -70,15 +70,15 @@ expect(contract.fontContractRef === "contracts/naver-smartchannel-font-contract.
 expect(contract.fontResolutionPolicy?.fallbackAllowed === false && contract.fontResolutionPolicy?.exactIdentityRequired === true && contract.fontResolutionPolicy?.runtimeIdentityRequired === true, "SmartChannel fallback/runtime identity policy mismatch");
 expect(contract.fontResolutionPolicy?.sourceIdentityPolicy === "SOURCE_EXACT_RENDERER_OWNED_BINARY" && contract.fontResolutionPolicy?.runtimeLookupKey === "fontToken", "SmartChannel source/runtime font lookup policy mismatch");
 expect(JSON.stringify(contract.fontResolutionPolicy?.allowedModes) === JSON.stringify(["BUNDLED_EXACT", "EXTERNAL_EXACT"]), "SmartChannel resolution modes mismatch");
-expect(runtimeFontPolicy.status === "FROZEN_FAIL_CLOSED_PSD_EXACT" && runtimeFontPolicy.registryVersion === "1.4.0" && runtimeFontPolicy.templateContractVersion === "1.10.0", "runtime font policy status/version mismatch");
+expect(runtimeFontPolicy.status === "FROZEN_FAIL_CLOSED_MACOS_SOURCE_TTC" && runtimeFontPolicy.registryVersion === "1.5.0" && runtimeFontPolicy.templateContractVersion === "1.10.0", "runtime font policy status/version mismatch");
 expect(runtimeFontPolicy.requiredSourceFonts?.length === 6, "runtime source font inventory must contain six fonts");
 expect(runtimeFontPolicy.requiredSourceFonts?.every((font) => font.postScriptName && typeof font.classification === "string" && typeof font.runtimeRequired === "boolean"), "runtime source font inventory is incomplete");
 expect(runtimeFontPolicy.fallbackAllowed === false && runtimeFontPolicy.externalExactContract?.networkUrlAllowed === false && runtimeFontPolicy.externalExactContract?.pathTraversalAllowed === false, "external exact security policy mismatch");
-expect(runtimeFontPolicy.runtimeStatus === "READY_RENDERER_OWNED_PSD_EXACT" && runtimeFontPolicy.runtimeLookupKey === "fontToken", "runtime font contract mode mismatch");
+expect(runtimeFontPolicy.runtimeStatus === "READY_MACOS_SOURCE_TTC_VERIFIED_DERIVED" && runtimeFontPolicy.runtimeLookupKey === "fontToken", "runtime font contract mode mismatch");
 expect(runtimeFontPolicy.runtimeAssets?.filter((entry) => entry.required).length === 3 && runtimeFontPolicy.runtimeAssets?.filter((entry) => entry.required).every((entry) => entry.runtimeDigest && entry.resolutionClass === "BUNDLED_EXACT" && entry.smartChannelAllowed === true && entry.owner === "RENDERER"), "PSD-exact runtime asset gate mismatch");
-expect(fontCompatibility.status === "PSD_EXACT_RENDERER_OWNED_PINNED" && fontCompatibility.runtimeFontMode === "PSD_EXACT_RENDERER_OWNED" && fontCompatibility.sourceFontBinaryExact === true && fontCompatibility.photoshopBytePixelParityClaim === false, "font compatibility registry mismatch");
+expect(fontCompatibility.status === "MACOS_SOURCE_TTC_VERIFIED_DERIVED_PINNED" && fontCompatibility.runtimeFontMode === "MACOS_SOURCE_TTC_VERIFIED_DERIVED" && fontCompatibility.sourceFontBinaryExact === true && fontCompatibility.photoshopBytePixelParityClaim === false, "font compatibility registry mismatch");
 expect(fontCompatibility.approvedDigestAllowlist && Object.keys(fontCompatibility.approvedDigestAllowlist).length === 0, "font registry digest allowlist must remain empty");
-expect(metricFixtures.status === "RESOLVED_PSD_EXACT_ASSET" && metricFixtures.summary?.overflow === 0 && metricFixtures.summary?.total >= 9, "representative metric fixture gate failed");
+expect(metricFixtures.status === "RESOLVED_MACOS_SOURCE_TTC_VERIFIED_DERIVED" && metricFixtures.summary?.overflow === 0 && metricFixtures.summary?.total >= 9, "representative metric fixture gate failed");
 
 const component = (id) => fixed.components.find((entry) => entry.id === id);
 expect(component("LANDING_ICON_COMPACT")?.status === "FROZEN", "compact landing icon is not frozen");

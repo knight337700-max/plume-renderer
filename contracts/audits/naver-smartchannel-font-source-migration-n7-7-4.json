@@ -1,0 +1,71 @@
+{
+  "phase": {
+    "id": "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION",
+    "status": "PASS",
+    "canonicalDocumentVersion": "1.21.3",
+    "templateContractVersion": "1.9.0",
+    "smartChannelTemplateContractVersion": "1.10.0"
+  },
+  "sourceFont": {
+    "assetId": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MACOS19_TTC",
+    "file": "assets/fonts/naver-smartchannel/AppleSDGothicNeo.ttc",
+    "sizeBytes": 28427796,
+    "sha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+    "shaMatch": true,
+    "sourceType": "MACOS_ORIGINAL_TTC"
+  },
+  "faces": {
+    "regular": { "index": 0, "postScriptName": "AppleSDGothicNeo-Regular", "version": "19.0d2e1", "unitsPerEm": 1000, "glyphCount": 18662, "outlineFormat": "CFF", "resolved": true },
+    "semibold": { "index": 4, "postScriptName": "AppleSDGothicNeo-SemiBold", "version": "19.0d2e1", "unitsPerEm": 1000, "glyphCount": 18662, "outlineFormat": "CFF", "resolved": true },
+    "bold": { "index": 6, "postScriptName": "AppleSDGothicNeo-Bold", "version": "19.0d2e1", "unitsPerEm": 1000, "glyphCount": 18662, "outlineFormat": "CFF", "resolved": true }
+  },
+  "fontBackend": {
+    "coreLanguage": "TypeScript/Node.js",
+    "rasterLibrary": "@napi-rs/canvas 1.0.3 / Skia",
+    "fontRegistrationMethod": "GlobalFonts.registerFromPath",
+    "directTtcSupported": false,
+    "directTtcEvidence": "register/registerFromPath has no face-index selector and actual registration resolves collection index 0 only",
+    "integrationMode": "VERIFIED_DERIVED_STANDALONE_FACE",
+    "systemFontDependency": false
+  },
+  "derivedResources": [
+    { "token": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR", "sourceFaceIndex": 0, "postScriptName": "AppleSDGothicNeo-Regular", "file": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-macOS19-Regular.otf", "sha256": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff", "equivalenceVerified": true },
+    { "token": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD", "sourceFaceIndex": 4, "postScriptName": "AppleSDGothicNeo-SemiBold", "file": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-macOS19-SemiBold.otf", "sha256": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73", "equivalenceVerified": true },
+    { "token": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD", "sourceFaceIndex": 6, "postScriptName": "AppleSDGothicNeo-Bold", "file": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-macOS19-Bold.otf", "sha256": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7", "equivalenceVerified": true }
+  ],
+  "representative": {
+    "template": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE",
+    "legacyN77": { "outputSha256": "b8a120723c2fddf39c82946805fda662f95d0bb6b248a38d78dd5b24d521a463", "pixelSha256": "afbcbc45bbb1ca7f549d1264d1418ae63da0caf18538cef5abe846d4cd5a892c" },
+    "macosTtc": { "outputSha256": "78d7252b74c859fd07b5294ae705943299388892e469bb58844e19e6ac54c601", "pixelSha256": "d5695a5e67823c7f7db6d5e641a817c23564b13ab07f8cbc274948197704aae5" },
+    "abDiff": { "changedPixels": 10490, "totalPixels": 210000, "changedRatio": 0.04995238095238095, "maxChannelDelta": 255, "meanAbsDelta": 1.6306309523809523 },
+    "manualAcceptance": { "approvedCreativeMatch": "NOT_REVIEWED" }
+  },
+  "determinism": { "runs": 3, "pixelIdentical": true, "outputBytesIdentical": true },
+  "providerParity": { "status": "PASS", "collectionShaMatch": true, "faceIndexMatch": true, "postScriptMatch": true, "pixelMatch": true },
+  "systemFontIndependence": { "osFontLookupRequired": false, "verified": true },
+  "smartChannel120": { "attempted": 120, "rendered": 120, "fontResolutionErrors": 0, "newValidatorErrors": 0, "crashes": 0 },
+  "regression": {
+    "kakaoFrozenGoldens": "UNCHANGED",
+    "naverFixedComponents": "UNCHANGED",
+    "naverNonSmartChannel": "UNCHANGED",
+    "freeform": "UNCHANGED",
+    "platformComposedContracts": "UNCHANGED",
+    "vitest": { "filesPassed": 41, "testsPassed": 252, "status": "PASS" },
+    "desktopPlaywright": { "passed": 26, "status": "PASS" },
+    "desktopSmoke": "PASS",
+    "packageSmoke": "PASS",
+    "handoffVerifier": "PASS"
+  },
+  "package": {
+    "file": "release/Kakao-Bizboard-Local-Renderer-0.9.8-x64.exe",
+    "artifactDigestRecord": "EXTERNAL_HANDOFF_MANIFEST_TO_AVOID_PACKAGE_SELF_REFERENCE",
+    "sourceCollectionDigestMatch": true,
+    "derivedResourceDigestsMatch": true
+  },
+  "geometry": { "fontSizeChanged": false, "baselineChanged": false, "trackingChanged": false, "leadingChanged": false, "textOriginChanged": false, "placementChanged": false, "templateCoordinatesChanged": false },
+  "legacyFont": { "convertedTtfRuntimeStatus": "DEPRECATED_FOR_SMARTCHANNEL", "deleted": false },
+  "license": { "status": "UNCONFIRMED_REVIEW_REQUIRED_BEFORE_EXTERNAL_REDISTRIBUTION", "currentScope": "PRIVATE_LOCAL_RENDERER_MODULE" },
+  "runtimeNetworkAccess": "PROHIBITED",
+  "goldenRebasePerformed": false,
+  "blockers": []
+}

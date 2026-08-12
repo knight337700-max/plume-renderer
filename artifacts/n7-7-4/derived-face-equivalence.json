@@ -1,0 +1,430 @@
+{
+  "phase": "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION",
+  "integrationMode": "VERIFIED_DERIVED_STANDALONE_FACE",
+  "sourceCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+  "extractionTool": "scripts/extract-apple-sd-gothic-neo-ttc.mjs",
+  "extractionToolVersion": "1.0.0",
+  "mutationPolicy": "SFNT table bytes are copied byte-for-byte; only head.checkSumAdjustment changes for standalone packaging",
+  "derived": [
+    {
+      "role": "regular",
+      "outputPath": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-macOS19-Regular.otf",
+      "sizeBytes": 3463568,
+      "sha256": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+      "postScriptName": "AppleSDGothicNeo-Regular",
+      "version": "19.0d2e1",
+      "sourceFaceIndex": 0,
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableEquivalence": [
+        {
+          "tag": "BASE",
+          "status": "IDENTICAL",
+          "sourceSha256": "b03b07e4034a27645de40cfa373e7c32108c85895cc8b214c33512f960bb51c4",
+          "derivedSha256": "b03b07e4034a27645de40cfa373e7c32108c85895cc8b214c33512f960bb51c4",
+          "length": 222
+        },
+        {
+          "tag": "CFF ",
+          "status": "IDENTICAL",
+          "sourceSha256": "37f887b6d3b718bf8f26c18113fa876a00b1f0cda3a4ad0966f48dcf00de5758",
+          "derivedSha256": "37f887b6d3b718bf8f26c18113fa876a00b1f0cda3a4ad0966f48dcf00de5758",
+          "length": 2983711
+        },
+        {
+          "tag": "GPOS",
+          "status": "IDENTICAL",
+          "sourceSha256": "ecde36255769274d8c32c671ab86cc6c3190400b1ecdae10913f680f0673d987",
+          "derivedSha256": "ecde36255769274d8c32c671ab86cc6c3190400b1ecdae10913f680f0673d987",
+          "length": 3170
+        },
+        {
+          "tag": "GSUB",
+          "status": "IDENTICAL",
+          "sourceSha256": "11183069c5e8289da933f0f5c2862d12d0c9d02916dcafaadc0bbf4936bcaa51",
+          "derivedSha256": "11183069c5e8289da933f0f5c2862d12d0c9d02916dcafaadc0bbf4936bcaa51",
+          "length": 11308
+        },
+        {
+          "tag": "OS/2",
+          "status": "IDENTICAL",
+          "sourceSha256": "57362e9658188571382a84d3532f432861af66156f60d0072898ac12bd77f565",
+          "derivedSha256": "57362e9658188571382a84d3532f432861af66156f60d0072898ac12bd77f565",
+          "length": 96
+        },
+        {
+          "tag": "VORG",
+          "status": "IDENTICAL",
+          "sourceSha256": "6be1f4f55c357a9a8d2ebbcea9e90766c45f6acb9b546d11dc4c576213b0d506",
+          "derivedSha256": "6be1f4f55c357a9a8d2ebbcea9e90766c45f6acb9b546d11dc4c576213b0d506",
+          "length": 8
+        },
+        {
+          "tag": "cmap",
+          "status": "IDENTICAL",
+          "sourceSha256": "cd40773c1c4957b5efcb8f39d1c4de0650cdfe73a12eef8a00d1466555a2a5cd",
+          "derivedSha256": "cd40773c1c4957b5efcb8f39d1c4de0650cdfe73a12eef8a00d1466555a2a5cd",
+          "length": 66044
+        },
+        {
+          "tag": "feat",
+          "status": "IDENTICAL",
+          "sourceSha256": "7ac13d14672a1596ff7c51d7131a92e76c131e374db4c0453a9251a076075ce4",
+          "derivedSha256": "7ac13d14672a1596ff7c51d7131a92e76c131e374db4c0453a9251a076075ce4",
+          "length": 28
+        },
+        {
+          "tag": "head",
+          "status": "SEMANTICALLY_IDENTICAL_CHECKSUM_ADJUSTMENT_ONLY",
+          "sourceSha256": "1b48d6c21f7b4734de5c7fd0a6c141628df7c04c9c2b526e3f377e44862e9719",
+          "derivedSha256": "1b48d6c21f7b4734de5c7fd0a6c141628df7c04c9c2b526e3f377e44862e9719",
+          "length": 54
+        },
+        {
+          "tag": "hhea",
+          "status": "IDENTICAL",
+          "sourceSha256": "5fe87bd93422f1ddae54ddad4422939dac7ab9f00da7754ad5ec6a4d6fcd597e",
+          "derivedSha256": "5fe87bd93422f1ddae54ddad4422939dac7ab9f00da7754ad5ec6a4d6fcd597e",
+          "length": 36
+        },
+        {
+          "tag": "hmtx",
+          "status": "IDENTICAL",
+          "sourceSha256": "1f94a984e5831107ab6ba68c06ae54e19dd2e1ae35e5319e9ec3b58206cfac42",
+          "derivedSha256": "1f94a984e5831107ab6ba68c06ae54e19dd2e1ae35e5319e9ec3b58206cfac42",
+          "length": 74618
+        },
+        {
+          "tag": "maxp",
+          "status": "IDENTICAL",
+          "sourceSha256": "f346c3e6d7a87f78751484ab33df3ee66086d393649a3b10594fa588dc26507c",
+          "derivedSha256": "f346c3e6d7a87f78751484ab33df3ee66086d393649a3b10594fa588dc26507c",
+          "length": 6
+        },
+        {
+          "tag": "meta",
+          "status": "IDENTICAL",
+          "sourceSha256": "63d20522b1f5a0235b00cd3e6a3f6663dd3c79f5d82b1c2d94d61772a5a7fd22",
+          "derivedSha256": "63d20522b1f5a0235b00cd3e6a3f6663dd3c79f5d82b1c2d94d61772a5a7fd22",
+          "length": 2901
+        },
+        {
+          "tag": "morx",
+          "status": "IDENTICAL",
+          "sourceSha256": "4b668cf3288d1340048a7649b2755f18af069721bb97feb19cd3bacfc50fb510",
+          "derivedSha256": "4b668cf3288d1340048a7649b2755f18af069721bb97feb19cd3bacfc50fb510",
+          "length": 282700
+        },
+        {
+          "tag": "name",
+          "status": "IDENTICAL",
+          "sourceSha256": "216c2223a1a118554400500f5401b3e22e3a22832e2e9dcea5f0d77a16c5e6eb",
+          "derivedSha256": "216c2223a1a118554400500f5401b3e22e3a22832e2e9dcea5f0d77a16c5e6eb",
+          "length": 956
+        },
+        {
+          "tag": "post",
+          "status": "IDENTICAL",
+          "sourceSha256": "77a232e4db6b60c21f7b76ccf821e3c80c519901f11d10efb8c8df04ca82a4e8",
+          "derivedSha256": "77a232e4db6b60c21f7b76ccf821e3c80c519901f11d10efb8c8df04ca82a4e8",
+          "length": 32
+        },
+        {
+          "tag": "vhea",
+          "status": "IDENTICAL",
+          "sourceSha256": "870b0f0907754361be50172a4f9c4b70f53b32ca6d8d5423a6e1a97f283b44e5",
+          "derivedSha256": "870b0f0907754361be50172a4f9c4b70f53b32ca6d8d5423a6e1a97f283b44e5",
+          "length": 36
+        },
+        {
+          "tag": "vmtx",
+          "status": "IDENTICAL",
+          "sourceSha256": "d17fba993a7e93226d28156224e24669d48c3bb49d724d97681acf9c148f66a5",
+          "derivedSha256": "d17fba993a7e93226d28156224e24669d48c3bb49d724d97681acf9c148f66a5",
+          "length": 37326
+        }
+      ]
+    },
+    {
+      "role": "semibold",
+      "outputPath": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-macOS19-SemiBold.otf",
+      "sizeBytes": 3247896,
+      "sha256": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73",
+      "postScriptName": "AppleSDGothicNeo-SemiBold",
+      "version": "19.0d2e1",
+      "sourceFaceIndex": 4,
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableEquivalence": [
+        {
+          "tag": "BASE",
+          "status": "IDENTICAL",
+          "sourceSha256": "b03b07e4034a27645de40cfa373e7c32108c85895cc8b214c33512f960bb51c4",
+          "derivedSha256": "b03b07e4034a27645de40cfa373e7c32108c85895cc8b214c33512f960bb51c4",
+          "length": 222
+        },
+        {
+          "tag": "CFF ",
+          "status": "IDENTICAL",
+          "sourceSha256": "ca66f2d302341f093207695071e4178a5f9be6a6f15b0699ab13e757c1fda078",
+          "derivedSha256": "ca66f2d302341f093207695071e4178a5f9be6a6f15b0699ab13e757c1fda078",
+          "length": 2767069
+        },
+        {
+          "tag": "GPOS",
+          "status": "IDENTICAL",
+          "sourceSha256": "a29247fe41298a708d23f4e612fd63be2cfa5d0c89d6b60275625ca9975ef904",
+          "derivedSha256": "a29247fe41298a708d23f4e612fd63be2cfa5d0c89d6b60275625ca9975ef904",
+          "length": 3216
+        },
+        {
+          "tag": "GSUB",
+          "status": "IDENTICAL",
+          "sourceSha256": "0af91919fe8bc8debc49cc9a8e34a8189d29dc52914e89c68c232fac9761d47a",
+          "derivedSha256": "0af91919fe8bc8debc49cc9a8e34a8189d29dc52914e89c68c232fac9761d47a",
+          "length": 12126
+        },
+        {
+          "tag": "OS/2",
+          "status": "IDENTICAL",
+          "sourceSha256": "d1436522409ee0ce7c10d421bc499b8b0d29b059022010df037606f7efacffd1",
+          "derivedSha256": "d1436522409ee0ce7c10d421bc499b8b0d29b059022010df037606f7efacffd1",
+          "length": 96
+        },
+        {
+          "tag": "VORG",
+          "status": "IDENTICAL",
+          "sourceSha256": "6be1f4f55c357a9a8d2ebbcea9e90766c45f6acb9b546d11dc4c576213b0d506",
+          "derivedSha256": "6be1f4f55c357a9a8d2ebbcea9e90766c45f6acb9b546d11dc4c576213b0d506",
+          "length": 8
+        },
+        {
+          "tag": "cmap",
+          "status": "IDENTICAL",
+          "sourceSha256": "cd40773c1c4957b5efcb8f39d1c4de0650cdfe73a12eef8a00d1466555a2a5cd",
+          "derivedSha256": "cd40773c1c4957b5efcb8f39d1c4de0650cdfe73a12eef8a00d1466555a2a5cd",
+          "length": 66044
+        },
+        {
+          "tag": "feat",
+          "status": "IDENTICAL",
+          "sourceSha256": "7ac13d14672a1596ff7c51d7131a92e76c131e374db4c0453a9251a076075ce4",
+          "derivedSha256": "7ac13d14672a1596ff7c51d7131a92e76c131e374db4c0453a9251a076075ce4",
+          "length": 28
+        },
+        {
+          "tag": "head",
+          "status": "SEMANTICALLY_IDENTICAL_CHECKSUM_ADJUSTMENT_ONLY",
+          "sourceSha256": "d25ed677b598838c5d9321ca0ac8da3f290c40bc3455d1098319cd30c4d2d2b7",
+          "derivedSha256": "d25ed677b598838c5d9321ca0ac8da3f290c40bc3455d1098319cd30c4d2d2b7",
+          "length": 54
+        },
+        {
+          "tag": "hhea",
+          "status": "IDENTICAL",
+          "sourceSha256": "e486f261e1b6c5e270e4cc668d38598dd64b23a0f244e9ee51b0dfe7b98f477c",
+          "derivedSha256": "e486f261e1b6c5e270e4cc668d38598dd64b23a0f244e9ee51b0dfe7b98f477c",
+          "length": 36
+        },
+        {
+          "tag": "hmtx",
+          "status": "IDENTICAL",
+          "sourceSha256": "991a6ecce8167946b2940266297aed2c776859e485c0cc22dfb0307cd12acdb0",
+          "derivedSha256": "991a6ecce8167946b2940266297aed2c776859e485c0cc22dfb0307cd12acdb0",
+          "length": 74618
+        },
+        {
+          "tag": "maxp",
+          "status": "IDENTICAL",
+          "sourceSha256": "f346c3e6d7a87f78751484ab33df3ee66086d393649a3b10594fa588dc26507c",
+          "derivedSha256": "f346c3e6d7a87f78751484ab33df3ee66086d393649a3b10594fa588dc26507c",
+          "length": 6
+        },
+        {
+          "tag": "meta",
+          "status": "IDENTICAL",
+          "sourceSha256": "c52aa7c5ad7be97123b9f159205faae560900b14106be77bfcb9167db0454555",
+          "derivedSha256": "c52aa7c5ad7be97123b9f159205faae560900b14106be77bfcb9167db0454555",
+          "length": 2905
+        },
+        {
+          "tag": "morx",
+          "status": "IDENTICAL",
+          "sourceSha256": "4b668cf3288d1340048a7649b2755f18af069721bb97feb19cd3bacfc50fb510",
+          "derivedSha256": "4b668cf3288d1340048a7649b2755f18af069721bb97feb19cd3bacfc50fb510",
+          "length": 282700
+        },
+        {
+          "tag": "name",
+          "status": "IDENTICAL",
+          "sourceSha256": "ea57c07daccaa1827392e3f8c539eb66078771f9a1d23e1ec31a48b4938eae97",
+          "derivedSha256": "ea57c07daccaa1827392e3f8c539eb66078771f9a1d23e1ec31a48b4938eae97",
+          "length": 1056
+        },
+        {
+          "tag": "post",
+          "status": "IDENTICAL",
+          "sourceSha256": "77a232e4db6b60c21f7b76ccf821e3c80c519901f11d10efb8c8df04ca82a4e8",
+          "derivedSha256": "77a232e4db6b60c21f7b76ccf821e3c80c519901f11d10efb8c8df04ca82a4e8",
+          "length": 32
+        },
+        {
+          "tag": "vhea",
+          "status": "IDENTICAL",
+          "sourceSha256": "289be456c1c4fc126d8276a08669999ada5962378a38b3b67c9ef80c94dc1394",
+          "derivedSha256": "289be456c1c4fc126d8276a08669999ada5962378a38b3b67c9ef80c94dc1394",
+          "length": 36
+        },
+        {
+          "tag": "vmtx",
+          "status": "IDENTICAL",
+          "sourceSha256": "537f11406e69c488d67a470abcde2f2e852bde6e7ab292729e9b1b6900cadc88",
+          "derivedSha256": "537f11406e69c488d67a470abcde2f2e852bde6e7ab292729e9b1b6900cadc88",
+          "length": 37326
+        }
+      ]
+    },
+    {
+      "role": "bold",
+      "outputPath": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-macOS19-Bold.otf",
+      "sizeBytes": 3438328,
+      "sha256": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+      "postScriptName": "AppleSDGothicNeo-Bold",
+      "version": "19.0d2e1",
+      "sourceFaceIndex": 6,
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableEquivalence": [
+        {
+          "tag": "BASE",
+          "status": "IDENTICAL",
+          "sourceSha256": "b03b07e4034a27645de40cfa373e7c32108c85895cc8b214c33512f960bb51c4",
+          "derivedSha256": "b03b07e4034a27645de40cfa373e7c32108c85895cc8b214c33512f960bb51c4",
+          "length": 222
+        },
+        {
+          "tag": "CFF ",
+          "status": "IDENTICAL",
+          "sourceSha256": "e08b45152e40ef4182e7ac076dbf04a8e993d708f8273d5ce1e148ca0dd0c3a2",
+          "derivedSha256": "e08b45152e40ef4182e7ac076dbf04a8e993d708f8273d5ce1e148ca0dd0c3a2",
+          "length": 2957312
+        },
+        {
+          "tag": "GPOS",
+          "status": "IDENTICAL",
+          "sourceSha256": "b2a40bd5e0a48780e5c66e3d639ff1dfa1515cff0a89ebd349a3125e7112ce41",
+          "derivedSha256": "b2a40bd5e0a48780e5c66e3d639ff1dfa1515cff0a89ebd349a3125e7112ce41",
+          "length": 3510
+        },
+        {
+          "tag": "GSUB",
+          "status": "IDENTICAL",
+          "sourceSha256": "5c0ab5abcd232c3cc3ef1b5882686331c5e50dc60bdd064573d100182961b307",
+          "derivedSha256": "5c0ab5abcd232c3cc3ef1b5882686331c5e50dc60bdd064573d100182961b307",
+          "length": 12138
+        },
+        {
+          "tag": "OS/2",
+          "status": "IDENTICAL",
+          "sourceSha256": "89647d0213df0b3a7fbfd7b6fb1fa351a2168492dbacd0291f8e41a6617e2a4d",
+          "derivedSha256": "89647d0213df0b3a7fbfd7b6fb1fa351a2168492dbacd0291f8e41a6617e2a4d",
+          "length": 96
+        },
+        {
+          "tag": "VORG",
+          "status": "IDENTICAL",
+          "sourceSha256": "6be1f4f55c357a9a8d2ebbcea9e90766c45f6acb9b546d11dc4c576213b0d506",
+          "derivedSha256": "6be1f4f55c357a9a8d2ebbcea9e90766c45f6acb9b546d11dc4c576213b0d506",
+          "length": 8
+        },
+        {
+          "tag": "cmap",
+          "status": "IDENTICAL",
+          "sourceSha256": "cd40773c1c4957b5efcb8f39d1c4de0650cdfe73a12eef8a00d1466555a2a5cd",
+          "derivedSha256": "cd40773c1c4957b5efcb8f39d1c4de0650cdfe73a12eef8a00d1466555a2a5cd",
+          "length": 66044
+        },
+        {
+          "tag": "feat",
+          "status": "IDENTICAL",
+          "sourceSha256": "7ac13d14672a1596ff7c51d7131a92e76c131e374db4c0453a9251a076075ce4",
+          "derivedSha256": "7ac13d14672a1596ff7c51d7131a92e76c131e374db4c0453a9251a076075ce4",
+          "length": 28
+        },
+        {
+          "tag": "head",
+          "status": "SEMANTICALLY_IDENTICAL_CHECKSUM_ADJUSTMENT_ONLY",
+          "sourceSha256": "73d3afabf792ee24f8d360dd446a5051a06c855c85b99bdd4601015d51c55d20",
+          "derivedSha256": "73d3afabf792ee24f8d360dd446a5051a06c855c85b99bdd4601015d51c55d20",
+          "length": 54
+        },
+        {
+          "tag": "hhea",
+          "status": "IDENTICAL",
+          "sourceSha256": "edda2b98f91461f96e9cbc1095d35d06b65f3e9c71bf1cecd1c04f1b83e9aa47",
+          "derivedSha256": "edda2b98f91461f96e9cbc1095d35d06b65f3e9c71bf1cecd1c04f1b83e9aa47",
+          "length": 36
+        },
+        {
+          "tag": "hmtx",
+          "status": "IDENTICAL",
+          "sourceSha256": "12492b67b908bbf8cf07ebbf87974d476c401ec5def3b039642c3e9e58f8cf67",
+          "derivedSha256": "12492b67b908bbf8cf07ebbf87974d476c401ec5def3b039642c3e9e58f8cf67",
+          "length": 74618
+        },
+        {
+          "tag": "maxp",
+          "status": "IDENTICAL",
+          "sourceSha256": "f346c3e6d7a87f78751484ab33df3ee66086d393649a3b10594fa588dc26507c",
+          "derivedSha256": "f346c3e6d7a87f78751484ab33df3ee66086d393649a3b10594fa588dc26507c",
+          "length": 6
+        },
+        {
+          "tag": "meta",
+          "status": "IDENTICAL",
+          "sourceSha256": "3a5930e6f6c4fe0f17ffa9ec9cf182a02c147adc0b50f59338933baeece456dc",
+          "derivedSha256": "3a5930e6f6c4fe0f17ffa9ec9cf182a02c147adc0b50f59338933baeece456dc",
+          "length": 2905
+        },
+        {
+          "tag": "morx",
+          "status": "IDENTICAL",
+          "sourceSha256": "4b668cf3288d1340048a7649b2755f18af069721bb97feb19cd3bacfc50fb510",
+          "derivedSha256": "4b668cf3288d1340048a7649b2755f18af069721bb97feb19cd3bacfc50fb510",
+          "length": 282700
+        },
+        {
+          "tag": "name",
+          "status": "IDENTICAL",
+          "sourceSha256": "c99a34a8b773c145e0c648b71a13b4582d3bf031f07db674043c451c57fb5ca5",
+          "derivedSha256": "c99a34a8b773c145e0c648b71a13b4582d3bf031f07db674043c451c57fb5ca5",
+          "length": 940
+        },
+        {
+          "tag": "post",
+          "status": "IDENTICAL",
+          "sourceSha256": "77a232e4db6b60c21f7b76ccf821e3c80c519901f11d10efb8c8df04ca82a4e8",
+          "derivedSha256": "77a232e4db6b60c21f7b76ccf821e3c80c519901f11d10efb8c8df04ca82a4e8",
+          "length": 32
+        },
+        {
+          "tag": "vhea",
+          "status": "IDENTICAL",
+          "sourceSha256": "f5932266771f412539d08e8e23bfd10587e7b8de377bcdff20b2e235ef532d31",
+          "derivedSha256": "f5932266771f412539d08e8e23bfd10587e7b8de377bcdff20b2e235ef532d31",
+          "length": 36
+        },
+        {
+          "tag": "vmtx",
+          "status": "IDENTICAL",
+          "sourceSha256": "8e26bf552b718c12c411b9a106ca0293e7164df833b4830aaead525e899c7e71",
+          "derivedSha256": "8e26bf552b718c12c411b9a106ca0293e7164df833b4830aaead525e899c7e71",
+          "length": 37326
+        }
+      ]
+    }
+  ]
+}

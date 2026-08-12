@@ -61,7 +61,7 @@ describe("NAVER SmartChannel N2 template engine", () => {
     const provider = createSmartChannelFontResourceProvider({ id: "MissingResourceProvider", root: path.join(temp, "missing-fonts") });
     const result = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts, fontResourceProvider: provider, publish: false });
     expect(result.status).toBe("FAIL");
-    expect(result.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE")).toBe(true);
+    expect(result.errors.some((issue) => issue.code === "FONT_RESOURCE_MISSING")).toBe(true);
   });
 
   it("fails deterministically for wrong font, fixed-component, and placement registry digests", async () => {
@@ -75,12 +75,48 @@ describe("NAVER SmartChannel N2 template engine", () => {
     firstRuntimeAsset.runtimeDigest = "0".repeat(64);
     const wrongFont = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts: { ...contracts, naverRuntimeFontPolicy: wrongFontPolicy }, publish: false });
     expect(wrongFont.status).toBe("FAIL");
-    expect(wrongFont.errors.some((issue) => issue.code === "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH")).toBe(true);
+    expect(wrongFont.errors.some((issue) => issue.code === "FONT_RESOURCE_SHA_MISMATCH")).toBe(true);
 
     const wrongPlacement = structuredClone(contracts.naverObjectPlacement) as Record<string, unknown>;
     wrongPlacement.tokens = (wrongPlacement.tokens as Array<Record<string, unknown>>).filter((entry) => entry.token !== "NAVER_SC_160_BASIC_STANDARD_LEFT_NONE");
     const placement = await renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts: { ...contracts, naverObjectPlacement: wrongPlacement }, publish: false });
     expect(placement.status).toBe("FAIL");
     expect(placement.errors[0]?.code).toBe("NAVER_SMARTCHANNEL_OBJECT_PLACEMENT_UNRESOLVED");
+  });
+
+  it("fails closed for every collection identity and derived provenance boundary", async () => {
+    const contracts = await loadContracts(projectRoot);
+    const temp = path.join(os.tmpdir(), `kbr-n774-font-boundaries-${process.pid}`);
+    await mkdir(temp, { recursive: true });
+    const runMutation = async (mutate: (asset: Record<string, unknown>, source: Record<string, unknown>, face: Record<string, unknown>) => void) => {
+      const policy = structuredClone(contracts.naverRuntimeFontPolicy) as Record<string, unknown>;
+      const asset = (policy.runtimeAssets as Array<Record<string, unknown>>)[0];
+      if (!asset) throw new Error("Naver runtime font policy has no runtime assets");
+      const source = asset.sourceCollection as Record<string, unknown>;
+      const face = source.face as Record<string, unknown>;
+      mutate(asset, source, face);
+      return renderSmartChannel(await requestFor("N2-REP-001"), { projectRoot, inputRoot: projectRoot, outputRoot: temp, contracts: { ...contracts, naverRuntimeFontPolicy: policy }, publish: false });
+    };
+
+    const sourceShaMismatch = await runMutation((_asset, source) => { source.sha256 = "0".repeat(64); });
+    expect(sourceShaMismatch.errors.some((issue) => issue.code === "FONT_RESOURCE_SHA_MISMATCH")).toBe(true);
+
+    const faceMissing = await runMutation((_asset, _source, face) => { face.index = 99; });
+    expect(faceMissing.errors.some((issue) => issue.code === "FONT_COLLECTION_FACE_NOT_FOUND")).toBe(true);
+
+    const faceIdentityMismatch = await runMutation((_asset, _source, face) => { face.postScriptName = "AppleSDGothicNeo-NotTheFace"; });
+    expect(faceIdentityMismatch.errors.some((issue) => issue.code === "FONT_COLLECTION_FACE_IDENTITY_MISMATCH")).toBe(true);
+
+    const unsupportedCollection = await runMutation((asset, source) => {
+      source.relativePath = asset.relativePath;
+      source.sha256 = asset.runtimeDigest;
+    });
+    expect(unsupportedCollection.errors.some((issue) => issue.code === "FONT_COLLECTION_UNSUPPORTED")).toBe(true);
+
+    const provenanceMismatch = await runMutation((asset) => {
+      asset.runtimePostScriptName = "AppleSDGothicNeo-NotTheFace";
+      asset.binaryPostScriptNames = ["AppleSDGothicNeo-NotTheFace"];
+    });
+    expect(provenanceMismatch.errors.some((issue) => issue.code === "FONT_DERIVED_RESOURCE_PROVENANCE_MISMATCH")).toBe(true);
   });
 });

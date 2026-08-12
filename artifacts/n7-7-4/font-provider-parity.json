@@ -1,0 +1,15 @@
+{
+  "phase": "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION",
+  "status": "PASS",
+  "providers": [
+    "CoreTestProvider",
+    "DesktopResourceProvider",
+    "PackageHandoffProvider"
+  ],
+  "collectionShaMatch": true,
+  "faceIndexMatch": true,
+  "postScriptMatch": true,
+  "pixelMatch": true,
+  "pngMatch": true,
+  "physicalAbsolutePathInFingerprint": false
+}

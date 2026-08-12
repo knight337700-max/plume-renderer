@@ -10,8 +10,11 @@ import { createIssue, sortAndDedupeIssues, splitIssues } from "./errors.js";
 import { sha256Bytes } from "./hash.js";
 import { inspectImageFile } from "./image-input.js";
 import {
+  compareFontCollectionFaceToStandalone,
   evaluateFontIdentity,
   createSmartChannelFontResourceProvider,
+  inspectFontCollection,
+  inspectFontCollectionFaceGlyphCoverage,
   inspectFontGlyphCoverage,
   inspectFontIdentity,
   preflightResolvedExactFont,
@@ -120,7 +123,18 @@ type NaverTextLayer = {
   typographyTokenId?: string;
 };
 
-type ResolvedFont = { token: string; path: string; digest: string; runtimePostScriptName: string };
+type ResolvedFont = {
+  token: string;
+  path: string;
+  digest: string;
+  runtimePostScriptName: string;
+  collectionAssetId: string;
+  collectionDigest: string;
+  collectionFaceIndex: number;
+  collectionFacePostScriptName: string;
+  fontContractVersion: string;
+  integrationMode: "VERIFIED_DERIVED_STANDALONE_FACE" | "LEGACY_N77_SINGLE_FONT";
+};
 export type DecodedRgba = { bytes: Buffer; width: number; height: number };
 
 export type SmartChannelObjectDiagnostics = {
@@ -267,6 +281,8 @@ const NAVER_SMARTCHANNEL_GLYPH_SAMPLE = "일이삼사오륙칠팔구십 광고 �
 
 async function preflightFonts(projectRoot: string, contracts: ContractBundle, provider?: SmartChannelFontResourceProvider): Promise<{ fonts: ResolvedFont[]; issues: ValidationIssue[] }> {
   const policy = jsonObject(contracts.naverRuntimeFontPolicy);
+  const fontContract = jsonObject(contracts.naverFontContract);
+  const fontContractVersion = String(fontContract.registryVersion ?? "UNKNOWN");
   const runtimeAssets = jsonArray(policy.runtimeAssets);
   const issues: ValidationIssue[] = [];
   const resourceProvider = provider ?? createSmartChannelFontResourceProvider({ id: "DESKTOP_RESOURCE_PROVIDER", root: projectRoot, resolutionMode: "BUNDLED_EXACT" });
@@ -275,38 +291,137 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle, pr
   for (const asset of runtimeAssets) {
     const token = String(asset.id);
     if (asset.required === false) continue;
+    const resourceKind = String(asset.resourceKind ?? "DERIVED_STANDALONE_FACE");
+    const sourceCollection = jsonObject(asset.sourceCollection);
+    const sourceFace = jsonObject(sourceCollection.face);
+    const collectionAssetId = String(sourceCollection.assetId ?? "");
+    const collectionRelativePath = String(sourceCollection.relativePath ?? "");
+    const collectionDigest = String(sourceCollection.sha256 ?? "");
+    const collectionFaceIndex = Number(sourceFace.index);
+    const collectionFacePostScriptName = String(sourceFace.postScriptName ?? "");
+    const collectionFaceVersion = String(sourceFace.version ?? "");
     const relativePath = typeof asset.relativePath === "string" ? asset.relativePath : "";
     const runtimeDigest = typeof asset.runtimeDigest === "string" ? asset.runtimeDigest : "";
     const runtimePostScriptName = String(asset.runtimePostScriptName ?? token);
     const identityPostScriptNames = stringArray(asset.binaryPostScriptNames);
-    if (!relativePath || !runtimeDigest || asset.assetStatus === "UNRESOLVED_ASSET" || asset.smartChannelAllowed === false) {
+    if (resourceKind === "SINGLE_FONT") {
+      if (!relativePath || !runtimeDigest) {
+        issues.push(issueFor(contracts, "FONT_RESOURCE_MISSING", `/fonts/${token}`, { fontId: token, resourceKind: "SINGLE_FONT" }, { relativePath, runtimeDigest }));
+        continue;
+      }
+      const resolved = await resourceProvider.resolve({ token, assetId: token, kind: "SINGLE_FONT", relativePath, expectedSha256: runtimeDigest, expectedPostScriptName: runtimePostScriptName });
+      if (!resolved) {
+        issues.push(issueFor(contracts, "FONT_RESOURCE_MISSING", `/fonts/${token}`, { fontId: token, relativePath }, null));
+        continue;
+      }
+      const requirement: SmartChannelFontRequirement = { requiredPostScriptName: runtimePostScriptName, runtimePostScriptName, identityPostScriptNames: identityPostScriptNames.length > 0 ? identityPostScriptNames : [runtimePostScriptName], fontToken: token, sourceIdentityStatus: "SOURCE_DIFFERENT_BUILD", compatibilityStatus: "PROJECT_COMPATIBLE_VERIFIED", allowedResolutionModes: [resolutionMode], expectedSha256: runtimeDigest };
+      const result = await preflightResolvedExactFont(requirement, resolved.path, resolutionMode);
+      if (result.status !== "PASS" || !result.resolvedPath || !result.digest) {
+        for (const preflightIssue of result.issues) issues.push(issueFor(contracts, preflightIssue.path === "/font/sha256" ? "FONT_RESOURCE_SHA_MISMATCH" : preflightIssue.code, `/fonts/${token}`, preflightIssue.expected, preflightIssue.actual));
+        continue;
+      }
+      const bytes = await readFile(result.resolvedPath);
+      const coverage = inspectFontGlyphCoverage(bytes, typeof asset.glyphCoverageSample === "string" ? asset.glyphCoverageSample : NAVER_SMARTCHANNEL_GLYPH_SAMPLE);
+      if (!coverage.covered) {
+        issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, "required glyph coverage", coverage));
+        continue;
+      }
+      const registrationName = String(asset.runtimeRegistrationName ?? runtimePostScriptName);
+      if (!registeredNaverFonts.has(registrationName)) {
+        if (GlobalFonts.registerFromPath(result.resolvedPath, registrationName) === null) {
+          issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, "registered legacy candidate font", null));
+          continue;
+        }
+        registeredNaverFonts.add(registrationName);
+      }
+      fonts.push({ token, path: result.resolvedPath, digest: result.digest, runtimePostScriptName: registrationName, collectionAssetId: token, collectionDigest: result.digest, collectionFaceIndex: -1, collectionFacePostScriptName: runtimePostScriptName, fontContractVersion, integrationMode: "LEGACY_N77_SINGLE_FONT" });
+      continue;
+    }
+    if (!collectionAssetId || !collectionRelativePath || !collectionDigest || !Number.isInteger(collectionFaceIndex) || collectionFaceIndex < 0 || !collectionFacePostScriptName || !collectionFaceVersion) {
       issues.push(issueFor(
         contracts,
-        "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE",
+        "FONT_COLLECTION_UNSUPPORTED",
         `/fonts/${token}`,
-        { fontId: token, status: "approved runtime asset with canonical digest" },
-        { assetStatus: String(asset.assetStatus ?? "UNRESOLVED_ASSET"), relativePath: relativePath || null, runtimeDigest: runtimeDigest || null },
+        { fontId: token, status: "complete FONT_COLLECTION source descriptor" },
+        { sourceCollection },
       ));
       continue;
     }
-    const resolved = await resourceProvider.resolve({ token, relativePath, expectedSha256: runtimeDigest, expectedPostScriptName: runtimePostScriptName });
+    const resolvedCollection = await resourceProvider.resolve({
+      token,
+      assetId: collectionAssetId,
+      kind: "FONT_COLLECTION",
+      relativePath: collectionRelativePath,
+      expectedSha256: collectionDigest,
+      expectedPostScriptName: collectionFacePostScriptName,
+      face: { index: collectionFaceIndex, postScriptName: collectionFacePostScriptName, version: collectionFaceVersion },
+    });
+    if (!resolvedCollection || resolvedCollection.environmentIndependent !== true || resolvedCollection.providerId !== resourceProvider.id) {
+      issues.push(issueFor(contracts, "FONT_RESOURCE_MISSING", `/fonts/${token}/sourceCollection`, { assetId: collectionAssetId, relativePath: collectionRelativePath }, { providerId: resourceProvider.id }));
+      continue;
+    }
+    let collectionBytes: Buffer;
+    try {
+      collectionBytes = await readFile(resolvedCollection.path);
+    } catch (error) {
+      issues.push(issueFor(contracts, "FONT_RESOURCE_MISSING", `/fonts/${token}/sourceCollection`, { assetId: collectionAssetId }, error instanceof Error ? error.message : String(error)));
+      continue;
+    }
+    const actualCollectionDigest = sha256Bytes(collectionBytes);
+    if (actualCollectionDigest !== collectionDigest.toLowerCase()) {
+      issues.push(issueFor(contracts, "FONT_RESOURCE_SHA_MISMATCH", `/fonts/${token}/sourceCollection/sha256`, collectionDigest.toLowerCase(), actualCollectionDigest));
+      continue;
+    }
+    const inventory = inspectFontCollection(collectionBytes);
+    if (!inventory) {
+      issues.push(issueFor(contracts, "FONT_COLLECTION_UNSUPPORTED", `/fonts/${token}/sourceCollection`, "decodable TTC collection", "unsupported or invalid collection"));
+      continue;
+    }
+    const selectedFace = inventory.faces[collectionFaceIndex];
+    if (!selectedFace) {
+      issues.push(issueFor(contracts, "FONT_COLLECTION_FACE_NOT_FOUND", `/fonts/${token}/sourceCollection/face/index`, collectionFaceIndex, { faceCount: inventory.faceCount }));
+      continue;
+    }
+    if (!selectedFace.postScriptNames.includes(collectionFacePostScriptName) || !selectedFace.versions.includes(collectionFaceVersion)) {
+      issues.push(issueFor(contracts, "FONT_COLLECTION_FACE_IDENTITY_MISMATCH", `/fonts/${token}/sourceCollection/face`, { index: collectionFaceIndex, postScriptName: collectionFacePostScriptName, version: collectionFaceVersion }, { index: selectedFace.index, postScriptNames: selectedFace.postScriptNames, versions: selectedFace.versions }));
+      continue;
+    }
+    const sample = typeof asset.glyphCoverageSample === "string" ? asset.glyphCoverageSample : NAVER_SMARTCHANNEL_GLYPH_SAMPLE;
+    const collectionCoverage = inspectFontCollectionFaceGlyphCoverage(collectionBytes, collectionFaceIndex, sample);
+    if (!collectionCoverage.covered) {
+      issues.push(issueFor(contracts, "FONT_COLLECTION_FACE_IDENTITY_MISMATCH", `/fonts/${token}/sourceCollection/face/cmap`, { fontId: token, status: "required glyph coverage" }, collectionCoverage));
+      continue;
+    }
+    if (!relativePath || !runtimeDigest || asset.assetStatus === "UNRESOLVED_ASSET" || asset.smartChannelAllowed === false) {
+      issues.push(issueFor(contracts, "FONT_RESOURCE_MISSING", `/fonts/${token}/derivedResource`, { fontId: token, status: "verified derived standalone face" }, { assetStatus: String(asset.assetStatus ?? "UNRESOLVED_ASSET"), relativePath: relativePath || null, runtimeDigest: runtimeDigest || null }));
+      continue;
+    }
+    const resolved = await resourceProvider.resolve({ token, assetId: `${collectionAssetId}:FACE_${collectionFaceIndex}`, kind: "DERIVED_STANDALONE_FACE", relativePath, expectedSha256: runtimeDigest, expectedPostScriptName: runtimePostScriptName, face: { index: collectionFaceIndex, postScriptName: collectionFacePostScriptName, version: collectionFaceVersion } });
     if (!resolved || resolved.environmentIndependent !== true || resolved.providerId !== resourceProvider.id) {
-      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "renderer-owned exact font resource" }, { providerId: resourceProvider.id, relativePath }));
+      issues.push(issueFor(contracts, "FONT_RESOURCE_MISSING", `/fonts/${token}/derivedResource`, { fontId: token, status: "renderer-owned verified derived face" }, { providerId: resourceProvider.id, relativePath }));
       continue;
     }
     const requirement: SmartChannelFontRequirement = {
       requiredPostScriptName: runtimePostScriptName,
       runtimePostScriptName,
-      identityPostScriptNames: identityPostScriptNames.length > 0 ? identityPostScriptNames : [runtimePostScriptName],
+      identityPostScriptNames: identityPostScriptNames.length > 0 ? identityPostScriptNames : [collectionFacePostScriptName],
       fontToken: token,
       sourceIdentityStatus: "SOURCE_EXACT",
       compatibilityStatus: "PSD_EXACT_RENDERER_OWNED",
       allowedResolutionModes: [resolutionMode],
       expectedSha256: runtimeDigest,
+      expectedVersion: collectionFaceVersion,
     };
     const result = await preflightResolvedExactFont(requirement, resolved.path, resolutionMode);
     if (result.status !== "PASS" || !result.resolvedPath || !result.digest) {
-      for (const preflightIssue of result.issues) issues.push(issueFor(contracts, preflightIssue.code, `/fonts/${token}`, preflightIssue.expected, preflightIssue.actual));
+      for (const preflightIssue of result.issues) {
+        const code = preflightIssue.path === "/font/sha256"
+          ? "FONT_RESOURCE_SHA_MISMATCH"
+          : preflightIssue.path === "/font/postScriptName" || preflightIssue.path === "/font/version"
+            ? "FONT_DERIVED_RESOURCE_PROVENANCE_MISMATCH"
+            : preflightIssue.code;
+        issues.push(issueFor(contracts, code, `/fonts/${token}/derivedResource`, preflightIssue.expected, preflightIssue.actual));
+      }
       continue;
     }
     const bytes = await readFile(result.resolvedPath);
@@ -320,9 +435,15 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle, pr
       for (const preflightIssue of identityResult.issues) issues.push(issueFor(contracts, preflightIssue.code, `/fonts/${token}`, preflightIssue.expected, preflightIssue.actual));
       continue;
     }
-    const glyphCoverage = inspectFontGlyphCoverage(bytes, typeof asset.glyphCoverageSample === "string" ? asset.glyphCoverageSample : NAVER_SMARTCHANNEL_GLYPH_SAMPLE);
+    const glyphCoverage = inspectFontGlyphCoverage(bytes, sample);
     if (!glyphCoverage.covered) {
-      issues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", `/fonts/${token}`, { fontId: token, status: "required glyph coverage" }, glyphCoverage));
+      issues.push(issueFor(contracts, "FONT_DERIVED_RESOURCE_PROVENANCE_MISMATCH", `/fonts/${token}/derivedResource/cmap`, { fontId: token, status: "required glyph coverage" }, glyphCoverage));
+      continue;
+    }
+    const equivalence = compareFontCollectionFaceToStandalone(collectionBytes, collectionFaceIndex, bytes);
+    const equivalenceFailures = equivalence?.filter((table) => table.status === "MISSING" || table.status === "MISMATCH") ?? [];
+    if (!equivalence || equivalenceFailures.length > 0 || identity.postScriptNames.includes(collectionFacePostScriptName) === false || identity.versions.includes(collectionFaceVersion) === false || identity.weightClass !== selectedFace.weightClass) {
+      issues.push(issueFor(contracts, "FONT_DERIVED_RESOURCE_PROVENANCE_MISMATCH", `/fonts/${token}/derivedResource`, { sourceCollectionSha256: collectionDigest, faceIndex: collectionFaceIndex, postScriptName: collectionFacePostScriptName, version: collectionFaceVersion, weightClass: selectedFace.weightClass, tableEquivalence: "IDENTICAL_OR_HEAD_CHECKSUM_ONLY" }, { postScriptNames: identity.postScriptNames, versions: identity.versions, weightClass: identity.weightClass, equivalenceFailures }));
       continue;
     }
     const registrationName = String(asset.runtimeRegistrationName ?? asset.runtimePostScriptName);
@@ -334,7 +455,7 @@ async function preflightFonts(projectRoot: string, contracts: ContractBundle, pr
       }
       registeredNaverFonts.add(registrationName);
     }
-    fonts.push({ token, path: result.resolvedPath, digest: result.digest, runtimePostScriptName: registrationName });
+    fonts.push({ token, path: result.resolvedPath, digest: result.digest, runtimePostScriptName: registrationName, collectionAssetId, collectionDigest, collectionFaceIndex, collectionFacePostScriptName, fontContractVersion, integrationMode: "VERIFIED_DERIVED_STANDALONE_FACE" });
   }
   return { fonts, issues: sortAndDedupeIssues(issues) };
 }
@@ -743,6 +864,30 @@ function drawTrackedText(context: ReturnType<Canvas["getContext"]>, text: string
   return Math.max(0, x - startX - (text.length > 0 ? tracking : 0));
 }
 
+function drawTrackedTextWithRasterEvidence(canvas: Canvas, text: string, layer: NaverTextLayer, font: ResolvedFont, color: string, style: Record<string, string>): { width: number; bounds: BBox | null; nonTransparentPixelCount: number } {
+  const isolated = createCanvas(canvas.width, canvas.height);
+  const isolatedContext = isolated.getContext("2d");
+  const width = drawTrackedText(isolatedContext, text, layer, font, color, style);
+  const rgba = isolatedContext.getImageData(0, 0, canvas.width, canvas.height).data;
+  let minX = canvas.width;
+  let minY = canvas.height;
+  let maxX = -1;
+  let maxY = -1;
+  let nonTransparentPixelCount = 0;
+  for (let y = 0; y < canvas.height; y += 1) {
+    for (let x = 0; x < canvas.width; x += 1) {
+      if ((rgba[((y * canvas.width) + x) * 4 + 3] ?? 0) === 0) continue;
+      nonTransparentPixelCount += 1;
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+  }
+  canvas.getContext("2d").drawImage(isolated, 0, 0);
+  return { width, bounds: maxX < minX || maxY < minY ? null : { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 }, nonTransparentPixelCount };
+}
+
 function layerInputKey(role: NaverTextLayer["role"], index: number): keyof SmartChannelContent {
   if (role === "HEADLINE") return index === 0 ? "headline" : "headlineLine2";
   if (role === "SUBCOPY") return index === 0 ? "subcopy" : "subcopyLine4";
@@ -925,7 +1070,6 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
   const canvas = createCanvas(NAVER_SMARTCHANNEL_CANVAS_WIDTH, template.height);
   if (objectRaster.legacyPrecomposed) drawSourceObject(canvas, objectAsset.image, token);
   else putImageData(canvas, objectRaster.image, objectRaster.destination.x, objectRaster.destination.y);
-  const context = canvas.getContext("2d");
   const layers = visibleTextLayers(metadata, request.templateId);
   const textReports: SmartChannelTextRoleReport[] = [];
   const roleCounters = new Map<string, number>();
@@ -960,10 +1104,11 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
       textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_INPUT_INVALID", `/template/${request.templateId}/typographyTokenId`, "typography token style run", layer.typographyTokenId));
       continue;
     }
-    const width = drawTrackedText(context, text, layer, font, parseFillColor(style.FillColor), style);
+    const textRaster = drawTrackedTextWithRasterEvidence(canvas, text, layer, font, parseFillColor(style.FillColor), style);
+    const width = textRaster.width;
     const overflow = !validateTextRole(layer, width) || layer.textPlacement.boxX + width > NAVER_SMARTCHANNEL_CANVAS_WIDTH;
     if (overflow) textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", `/content/${inputKey}`, { maxWidth: layer.textPlacement.boxWidth }, width, "POST_RENDER"));
-    textReports.push({ role: layer.role, inputKey, text, sourceLayer: layer.name, typographyTokenId: String(layer.typographyTokenId ?? ""), box: { x: layer.textPlacement.boxX, y: layer.textPlacement.boxY, width: layer.textPlacement.boxWidth, height: layer.textPlacement.boxHeight }, expectedOrigin: { x: layer.textPlacement.originX, y: layer.textPlacement.baselineY }, actualRasterBounds: layer.pixelBounds.length >= 4 ? { x: Number(layer.pixelBounds[0]), y: Number(layer.pixelBounds[1]), width: Number(layer.pixelBounds[2]) - Number(layer.pixelBounds[0]), height: Number(layer.pixelBounds[3]) - Number(layer.pixelBounds[1]) } : null, baselineY: layer.textPlacement.baselineY, measuredWidth: width, overflow });
+    textReports.push({ role: layer.role, inputKey, text, sourceLayer: layer.name, typographyTokenId: String(layer.typographyTokenId ?? ""), box: { x: layer.textPlacement.boxX, y: layer.textPlacement.boxY, width: layer.textPlacement.boxWidth, height: layer.textPlacement.boxHeight }, expectedOrigin: { x: layer.textPlacement.originX, y: layer.textPlacement.baselineY }, actualRasterBounds: textRaster.bounds, baselineY: layer.textPlacement.baselineY, measuredWidth: width, overflow });
   }
 
   const fixedComponents: SmartChannelReport["fixedComponents"] = [];
@@ -1043,10 +1188,11 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
           if (!ctaFont) throw issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", "/content/ctaOption", "approved runtime CTA typography font", ctaTypography.fontNames[0]);
           const style = ctaTypography.styleRuns[0];
           if (!style) throw issueFor(contracts, "NAVER_SMARTCHANNEL_INPUT_INVALID", `/template/${request.templateId}/typographyTokenId`, "CTA typography token style run", ctaLayer.typographyTokenId);
-          const ctaWidth = drawTrackedText(context, label, ctaLayer, ctaFont, parseFillColor(style.FillColor), style);
+          const ctaRaster = drawTrackedTextWithRasterEvidence(canvas, label, ctaLayer, ctaFont, parseFillColor(style.FillColor), style);
+          const ctaWidth = ctaRaster.width;
           const ctaOverflow = !validateTextRole(ctaLayer, ctaWidth);
           if (ctaOverflow) textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", "/content/ctaOption", { maxWidth: ctaLayer.textPlacement.boxWidth }, ctaWidth, "POST_RENDER"));
-          textReports.push({ role: "CTA_LABEL", inputKey: "ctaOption", text: label, sourceLayer: ctaLayer.name, typographyTokenId: String(ctaLayer.typographyTokenId ?? ""), box: { x: ctaLayer.textPlacement.boxX, y: ctaLayer.textPlacement.boxY, width: ctaLayer.textPlacement.boxWidth, height: ctaLayer.textPlacement.boxHeight }, expectedOrigin: { x: ctaLayer.textPlacement.originX, y: ctaLayer.textPlacement.baselineY }, actualRasterBounds: ctaLayer.pixelBounds.length >= 4 ? { x: Number(ctaLayer.pixelBounds[0]), y: Number(ctaLayer.pixelBounds[1]), width: Number(ctaLayer.pixelBounds[2]) - Number(ctaLayer.pixelBounds[0]), height: Number(ctaLayer.pixelBounds[3]) - Number(ctaLayer.pixelBounds[1]) } : null, baselineY: ctaLayer.textPlacement.baselineY, measuredWidth: ctaWidth, overflow: ctaOverflow });
+          textReports.push({ role: "CTA_LABEL", inputKey: "ctaOption", text: label, sourceLayer: ctaLayer.name, typographyTokenId: String(ctaLayer.typographyTokenId ?? ""), box: { x: ctaLayer.textPlacement.boxX, y: ctaLayer.textPlacement.boxY, width: ctaLayer.textPlacement.boxWidth, height: ctaLayer.textPlacement.boxHeight }, expectedOrigin: { x: ctaLayer.textPlacement.originX, y: ctaLayer.textPlacement.baselineY }, actualRasterBounds: ctaRaster.bounds, baselineY: ctaLayer.textPlacement.baselineY, measuredWidth: ctaWidth, overflow: ctaOverflow });
         } catch (error) { textIssues.push(error as ValidationIssue); }
       }
     }
@@ -1067,7 +1213,8 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
   const requestFingerprint = canonicalDigest(request);
   const fixedDigestInputs = fixedComponents.map((entry) => ({ id: entry.id, digest: entry.digest, x: entry.x, y: entry.y, width: entry.width, height: entry.height }));
   const objectFrame = expectedObjectRegion;
-  const pixelFingerprint = canonicalDigest({ rendererPixelContract: "naver-smartchannel-raster-v1", encoderVersion: NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION, assetNormalizationContract: "naver-smartchannel-asset-normalization-v1.0.0", templateContractVersion: String(templateRegistry.templateContractVersion), templateId: request.templateId, objectPlacementToken: token.token, objectDigest: objectAsset.digest, objectFrame: token.placementFrame, objectDiagnostics: diagnostics, text: content, textMetadata: textReports.map((entry) => ({ role: entry.role, sourceLayer: entry.sourceLayer, typographyTokenId: entry.typographyTokenId, box: entry.box, baselineY: entry.baselineY })), fixedComponents: fixedDigestInputs, fonts: preflight.fonts.map((font) => ({ token: font.token, digest: font.digest, runtimePostScriptName: font.runtimePostScriptName })) });
+  const fontFingerprintMaterial = preflight.fonts.map((font) => ({ token: font.token, collectionAssetId: font.collectionAssetId, collectionDigest: font.collectionDigest, faceIndex: font.collectionFaceIndex, facePostScriptName: font.collectionFacePostScriptName, fontContractVersion: font.fontContractVersion }));
+  const pixelFingerprint = canonicalDigest({ rendererPixelContract: "naver-smartchannel-raster-v1", encoderVersion: NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION, assetNormalizationContract: "naver-smartchannel-asset-normalization-v1.0.0", templateContractVersion: String(templateRegistry.templateContractVersion), templateId: request.templateId, objectPlacementToken: token.token, objectDigest: objectAsset.digest, objectFrame: token.placementFrame, objectDiagnostics: diagnostics, text: content, textMetadata: textReports.map((entry) => ({ role: entry.role, sourceLayer: entry.sourceLayer, typographyTokenId: entry.typographyTokenId, box: entry.box, baselineY: entry.baselineY })), fixedComponents: fixedDigestInputs, fonts: fontFingerprintMaterial });
   const renderFingerprint = pixelFingerprint;
   const report: SmartChannelReport = { templateId: request.templateId, objectPlacementToken: token.token, canvas: { width: NAVER_SMARTCHANNEL_CANVAS_WIDTH, height: template.height, format: "PNG", colorType: "RGBA", bitDepth: 8, hasAlpha: true }, object: { placementToken: token.token, expectedRegion: objectFrame, actualRasterBounds: diagnostics.finalBounds, sourceRuleId: token.sourceAssetRuleId, sourceMimeType: objectAsset.mime, sourceDigest: objectAsset.digest, frame: { x: objectFrame.x, y: objectFrame.y, width: diagnostics.normalizedSize.width, height: diagnostics.normalizedSize.height }, transform: token.coordinateSpace.type === "SMART_OBJECT_FRAME_SOURCE" ? "SOURCE_TRANSFORM" : "NONE", sourceCanvas: diagnostics.sourceCanvas, alphaBounds: diagnostics.alphaBounds, normalizedSize: diagnostics.normalizedSize, finalBounds: diagnostics.finalBounds, targetRegion: diagnostics.targetRegion, opaquePixelCount: diagnostics.opaquePixelCount, maxOpaquePixelCount: diagnostics.maxOpaquePixelCount }, textRoles: textReports, fixedComponents, fonts: preflight.fonts.map((font) => ({ token: font.token, runtimePostScriptName: font.runtimePostScriptName, digest: font.digest })), artifact: { pngDigest, bytes: png.byteLength } };
   const issueGroups = splitIssues(sortAndDedupeIssues([...preIssues, ...assetIssues, ...textIssues, ...postIssues]));
@@ -1080,7 +1227,7 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
     inputSchemaVersion: "1.2.0",
     outputSchemaVersion: "2.0.0",
     validatorResult: { errorCount: 0, warningCount: issueGroups.warnings.length, infoCount: issueGroups.infos.length, issues: [...issueGroups.warnings, ...issueGroups.infos] },
-    assetDigests: { product: { id: "NAVER_SMARTCHANNEL_OBJECT", sha256: objectAsset.digest }, fonts: preflight.fonts.map((font) => ({ id: font.token, sha256: font.digest })), approvedIcons: fixedComponents.map((entry) => ({ id: entry.id, sha256: entry.digest })), referenceFixture: { id: "NAVER_SMARTCHANNEL_TEMPLATE_CONTRACT", sha256: canonicalDigest(templateRegistry) }, images: [{ id: "NAVER_SMARTCHANNEL_OBJECT", sha256: objectAsset.digest }] },
+    assetDigests: { product: { id: "NAVER_SMARTCHANNEL_OBJECT", sha256: objectAsset.digest }, fonts: preflight.fonts.map((font) => ({ id: font.token, sha256: font.collectionDigest })), approvedIcons: fixedComponents.map((entry) => ({ id: entry.id, sha256: entry.digest })), referenceFixture: { id: "NAVER_SMARTCHANNEL_TEMPLATE_CONTRACT", sha256: canonicalDigest(templateRegistry) }, images: [{ id: "NAVER_SMARTCHANNEL_OBJECT", sha256: objectAsset.digest }] },
     templateId: request.templateId,
     formatProfileId: NAVER_SMARTCHANNEL_FORMAT_PROFILE_ID,
     pixelFingerprint,

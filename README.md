@@ -1,6 +1,6 @@
 # Kakao Bizboard local renderer
 
-Canonical 계약 `1.21.2`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원한다. Desktop `0.9.7`은 capability registry 기반 `NAVER` Channel → Placement → Editor 흐름, SmartChannel PNG, renderer-owned SHA-256-pinned Apple SD Gothic Neo font provider, source export, Feed Collection source artifact 편집, local-only renderer diagnostics/Error Boundary, SmartChannel 선택 상태 reconciliation, editor-owned SmartChannel copy와 empty-string 보존을 제공한다. NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. 기존 plume 코드나 서버, DB, Queue를 사용하지 않고 실행 중 네트워크 접근을 하지 않는다. `Integration Contract v1.8.0`과 Kakao/non-SmartChannel fingerprints는 유지되며, SmartChannel text fingerprint 변화는 N7.7 golden migration으로 기록된다. Variable-canvas, NAVER video, Meta/Google은 후속 Phase다.
+Canonical 계약 `1.21.3`과 Template Contract `1.9.0`을 구현한 Windows 10/11 x64용 독립 실행형 Core·CLI·Electron Desktop 앱이다. `OBJECT_RIGHT`, `THUMBNAIL_BOX_RIGHT`, `THUMBNAIL_MULTI_RIGHT`, `MASK_SEMICIRCLE_RIGHT`를 실제 렌더링하고 Kakao/NAVER FREEFORM 및 NAVER SmartChannel 120개를 지원한다. Desktop `0.9.8`은 capability registry 기반 `NAVER` Channel → Placement → Editor 흐름과 renderer-owned macOS original Apple SD Gothic Neo TTC source를 제공한다. SmartChannel은 TTC SHA와 face index/PostScript identity를 검증하고, backend의 face-index API 부재 때문에 table-equivalent standalone OTF를 명시 등록한다. 시스템 폰트 설치·lookup과 runtime network는 사용하지 않는다. NAVER `PLATFORM_COMPOSED`는 최종 UI를 렌더링하지 않는 source contract로 동결되어 있다. `Integration Contract v1.8.0`과 Kakao/non-SmartChannel fingerprints는 유지되며, SmartChannel golden rebase는 수동 시각 검수 전까지 수행하지 않는다. Variable-canvas, NAVER video, Meta/Google은 후속 Phase다.
 
 ## 요구 환경
 
@@ -65,7 +65,7 @@ pnpm smoke:desktop
 
 ```text
 release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe
-release/Kakao-Bizboard-Local-Renderer-0.9.7-x64.exe
+release/Kakao-Bizboard-Local-Renderer-0.9.8-x64.exe
 ```
 
 Portable 앱은 설치와 관리자 권한을 요구하지 않는다. 코드 서명과 자동 업데이트가 없으므로 Windows SmartScreen 경고가 표시될 수 있다. 앱은 비공식 로컬 Renderer이며 카카오 공식 서비스가 아니고 실제 광고 심사 승인을 보장하지 않는다.

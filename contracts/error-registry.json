@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.7.0",
+  "registryVersion": "1.8.0",
   "messageContract": "messageKey is stable; localized or AJV-native prose is not part of the external contract",
   "codes": [
     { "code": "KBR-INPUT-001", "severity": "ERROR", "messageKey": "input.json_parse_failed", "condition": "Raw JSON cannot be parsed" },
@@ -192,6 +192,12 @@
     { "code": "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", "severity": "ERROR", "messageKey": "naver_smartchannel.font_unavailable", "condition": "A required approved SmartChannel official font asset is missing, unresolved, unreadable, undecodable, or an external reference is not trusted" },
     { "code": "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.font_identity_mismatch", "condition": "A resolved SmartChannel font PostScript identity or SHA-256 digest does not match the frozen source requirement" },
     { "code": "NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.font_version_mismatch", "condition": "A resolved SmartChannel font version does not match the frozen source version requirement" },
+    { "code": "FONT_RESOURCE_MISSING", "severity": "ERROR", "messageKey": "font.resource_missing", "condition": "A renderer-owned SmartChannel collection or verified derived font resource cannot be resolved by the trusted provider" },
+    { "code": "FONT_RESOURCE_SHA_MISMATCH", "severity": "ERROR", "messageKey": "font.resource_sha_mismatch", "condition": "Resolved renderer-owned font resource bytes differ from the frozen collection or derived-resource SHA-256" },
+    { "code": "FONT_COLLECTION_FACE_NOT_FOUND", "severity": "ERROR", "messageKey": "font.collection_face_not_found", "condition": "The frozen face index is absent from the resolved renderer-owned font collection" },
+    { "code": "FONT_COLLECTION_FACE_IDENTITY_MISMATCH", "severity": "ERROR", "messageKey": "font.collection_face_identity_mismatch", "condition": "The collection face at the frozen index has a different PostScript identity, version, or required glyph coverage" },
+    { "code": "FONT_COLLECTION_UNSUPPORTED", "severity": "ERROR", "messageKey": "font.collection_unsupported", "condition": "The collection descriptor or resolved TTC cannot be decoded deterministically by the renderer preflight" },
+    { "code": "FONT_DERIVED_RESOURCE_PROVENANCE_MISMATCH", "severity": "ERROR", "messageKey": "font.derived_resource_provenance_mismatch", "condition": "A standalone runtime face differs semantically from its pinned source TTC face or its provenance is incomplete" },
     { "code": "NAVER_SMARTCHANNEL_INPUT_INVALID", "severity": "ERROR", "messageKey": "naver_smartchannel.input_invalid", "condition": "A SmartChannel input is missing a required canonical field or contains a prohibited string" },
     { "code": "NAVER_SMARTCHANNEL_TEMPLATE_UNKNOWN", "severity": "ERROR", "messageKey": "naver_smartchannel.template_unknown", "condition": "templateId is not present in the frozen SmartChannel template registry" },
     { "code": "NAVER_SMARTCHANNEL_TEMPLATE_NOT_ENABLED", "severity": "ERROR", "messageKey": "naver_smartchannel.template_not_enabled", "condition": "A known SmartChannel template is outside the six N2 runtime candidates" },

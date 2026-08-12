@@ -1,0 +1,859 @@
+{
+  "phase": "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION",
+  "source": {
+    "fileName": "AppleSDGothicNeo.ttc",
+    "sizeBytes": 28427796,
+    "sha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+    "type": "MACOS_ORIGINAL_TTC"
+  },
+  "signature": "ttcf",
+  "faceCount": 18,
+  "faces": [
+    {
+      "index": 0,
+      "faceOffset": 96,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        "AppleSDGothicNeo-Regular"
+      ],
+      "familyNames": [
+        "Apple SD Gothic Neo",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Regular",
+        "ÀÏ¹ÝÃ¼"
+      ],
+      "fullNames": [
+        "Apple SD Gothic Neo Regular",
+        "Apple SD »êµ¹°íµñ Neo ÀÏ¹ÝÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "BASE",
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 1,
+      "faceOffset": 396,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        ".AppleSDGothicNeoI-Regular"
+      ],
+      "familyNames": [
+        ".Apple SD Gothic NeoI",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Regular",
+        "ÀÏ¹ÝÃ¼"
+      ],
+      "fullNames": [
+        ".Apple SD Gothic NeoI Regular",
+        "Apple SD »êµ¹°íµñ Neo ÀÏ¹ÝÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "bsln",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 2,
+      "faceOffset": 696,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        "AppleSDGothicNeo-Medium"
+      ],
+      "familyNames": [
+        "Apple SD Gothic Neo",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Medium",
+        "Áß°£Ã¼"
+      ],
+      "fullNames": [
+        "Apple SD Gothic Neo Medium",
+        "Apple SD »êµ¹°íµñ Neo Áß°£Ã¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "BASE",
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 3,
+      "faceOffset": 996,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        ".AppleSDGothicNeoI-Medium"
+      ],
+      "familyNames": [
+        ".Apple SD Gothic NeoI",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Medium",
+        "Áß°£Ã¼"
+      ],
+      "fullNames": [
+        ".Apple SD Gothic NeoI Medium",
+        "Apple SD »êµ¹°íµñ Neo Áß°£Ã¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "bsln",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 4,
+      "faceOffset": 1296,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        "AppleSDGothicNeo-SemiBold"
+      ],
+      "familyNames": [
+        "Apple SD Gothic Neo",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "SemiBold",
+        "¼¼¹Ìº¼µåÃ¼"
+      ],
+      "fullNames": [
+        "Apple SD Gothic Neo SemiBold",
+        "Apple SD »êµ¹°íµñ Neo ¼¼¹Ìº¼µåÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "BASE",
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 5,
+      "faceOffset": 1596,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        ".AppleSDGothicNeoI-SemiBold"
+      ],
+      "familyNames": [
+        ".Apple SD Gothic NeoI",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "SemiBold",
+        "¼¼¹Ìº¼µåÃ¼"
+      ],
+      "fullNames": [
+        ".Apple SD Gothic NeoI SemiBold",
+        "Apple SD »êµ¹°íµñ Neo ¼¼¹Ìº¼µåÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "bsln",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 6,
+      "faceOffset": 1896,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        "AppleSDGothicNeo-Bold"
+      ],
+      "familyNames": [
+        "Apple SD Gothic Neo",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Bold",
+        "º¼µåÃ¼"
+      ],
+      "fullNames": [
+        "Apple SD Gothic Neo Bold",
+        "Apple SD »êµ¹°íµñ Neo º¼µåÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "BASE",
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 7,
+      "faceOffset": 2196,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        ".AppleSDGothicNeoI-Bold"
+      ],
+      "familyNames": [
+        ".Apple SD Gothic NeoI",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Bold",
+        "º¼µåÃ¼"
+      ],
+      "fullNames": [
+        ".Apple SD Gothic NeoI Bold",
+        "Apple SD »êµ¹°íµñ Neo º¼µåÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "bsln",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 8,
+      "faceOffset": 2496,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        "AppleSDGothicNeo-Light"
+      ],
+      "familyNames": [
+        "Apple SD Gothic Neo",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Light",
+        "¿¶ÀºÃ¼"
+      ],
+      "fullNames": [
+        "Apple SD Gothic Neo Light",
+        "Apple SD »êµ¹°íµñ Neo ¿¶ÀºÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "BASE",
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 9,
+      "faceOffset": 2796,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        ".AppleSDGothicNeoI-Light"
+      ],
+      "familyNames": [
+        ".Apple SD Gothic NeoI",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Light",
+        "¿¶ÀºÃ¼"
+      ],
+      "fullNames": [
+        ".Apple SD Gothic NeoI Light",
+        "Apple SD »êµ¹°íµñ Neo ¿¶ÀºÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "bsln",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 10,
+      "faceOffset": 3096,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        "AppleSDGothicNeo-Thin"
+      ],
+      "familyNames": [
+        "Apple SD Gothic Neo",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Thin",
+        "¾ãÀºÃ¼"
+      ],
+      "fullNames": [
+        "Apple SD Gothic Neo Thin",
+        "Apple SD »êµ¹°íµñ Neo ¾ãÀºÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "BASE",
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 11,
+      "faceOffset": 3396,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        ".AppleSDGothicNeoI-Thin"
+      ],
+      "familyNames": [
+        ".Apple SD Gothic NeoI",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Thin",
+        "¾ãÀºÃ¼"
+      ],
+      "fullNames": [
+        ".Apple SD Gothic NeoI Thin",
+        "Apple SD »êµ¹°íµñ Neo ¾ãÀºÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "bsln",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 12,
+      "faceOffset": 3696,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        "AppleSDGothicNeo-UltraLight"
+      ],
+      "familyNames": [
+        "Apple SD Gothic Neo",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "UltraLight",
+        "¾ÆÁÖ¿¶ÀºÃ¼"
+      ],
+      "fullNames": [
+        "Apple SD Gothic Neo UltraLight",
+        "Apple SD »êµ¹°íµñ Neo ¾ÆÁÖ¿¶ÀºÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "BASE",
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 13,
+      "faceOffset": 3996,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        ".AppleSDGothicNeoI-UltraLight"
+      ],
+      "familyNames": [
+        ".Apple SD Gothic NeoI",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "UltraLight",
+        "¾ÆÁÖ¿¶ÀºÃ¼"
+      ],
+      "fullNames": [
+        ".Apple SD Gothic NeoI UltraLight",
+        "Apple SD »êµ¹°íµñ Neo ¾ÆÁÖ¿¶ÀºÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "bsln",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 14,
+      "faceOffset": 4296,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        "AppleSDGothicNeo-ExtraBold"
+      ],
+      "familyNames": [
+        "Apple SD Gothic Neo",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "ExtraBold",
+        "°­ÇÑº¼µåÃ¼"
+      ],
+      "fullNames": [
+        "Apple SD Gothic Neo ExtraBold",
+        "Apple SD »êµ¹°íµñ Neo °­ÇÑ º¼µåÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "BASE",
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 15,
+      "faceOffset": 4596,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        ".AppleSDGothicNeoI-ExtraBold"
+      ],
+      "familyNames": [
+        ".Apple SD Gothic NeoI",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "ExtraBold",
+        "°­ÇÑº¼µåÃ¼"
+      ],
+      "fullNames": [
+        ".Apple SD Gothic NeoI ExtraBold",
+        "Apple SD »êµ¹°íµñ Neo °­ÇÑ º¼µåÃ¼"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "bsln",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 16,
+      "faceOffset": 4896,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        "AppleSDGothicNeo-Heavy"
+      ],
+      "familyNames": [
+        "Apple SD Gothic Neo",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Heavy",
+        "¹«°Å¿î"
+      ],
+      "fullNames": [
+        "Apple SD Gothic Neo Heavy",
+        "Apple SD »êµ¹°íµñ Neo ¹«°Å¿î"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "BASE",
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    },
+    {
+      "index": 17,
+      "faceOffset": 5196,
+      "sfntVersion": "OTTO",
+      "postScriptNames": [
+        ".AppleSDGothicNeoI-Heavy"
+      ],
+      "familyNames": [
+        ".Apple SD Gothic NeoI",
+        "Apple SD »êµ¹°íµñ Neo"
+      ],
+      "subfamilyNames": [
+        "Heavy",
+        "¹«°Å¿î"
+      ],
+      "fullNames": [
+        ".Apple SD Gothic NeoI Heavy",
+        "Apple SD »êµ¹°íµñ Neo ¹«°Å¿î"
+      ],
+      "versions": [
+        "19.0d2e1"
+      ],
+      "unitsPerEm": 1000,
+      "glyphCount": 18662,
+      "outlineFormat": "CFF",
+      "tableCount": 18,
+      "tableTags": [
+        "CFF ",
+        "GPOS",
+        "GSUB",
+        "OS/2",
+        "VORG",
+        "bsln",
+        "cmap",
+        "feat",
+        "head",
+        "hhea",
+        "hmtx",
+        "maxp",
+        "meta",
+        "morx",
+        "name",
+        "post",
+        "vhea",
+        "vmtx"
+      ]
+    }
+  ]
+}

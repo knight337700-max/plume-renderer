@@ -1,0 +1,186 @@
+{
+  "phase": "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION",
+  "currentTextStack": {
+    "coreLanguage": "TypeScript/Node.js",
+    "rasterLibrary": "@napi-rs/canvas 1.0.3 / Skia",
+    "shapingLibrary": "Skia text stack exposed by @napi-rs/canvas",
+    "fontParser": "Core read-only SFNT/TTC parser",
+    "fontRegistrationMethod": "GlobalFonts.registerFromPath",
+    "fontLoadingApi": "register(Buffer, alias) or registerFromPath(path, alias); no face-index parameter",
+    "currentTtfLoadingPath": "Renderer-owned trusted-root-relative provider resource",
+    "browserOrCanvasDependency": "Node Canvas API surface; no browser FontFace",
+    "nativeDependency": "@napi-rs/canvas-win32-x64-msvc 1.0.3",
+    "ttcCollectionSupport": {
+      "status": "UNSUPPORTED_FOR_DETERMINISTIC_MULTI_FACE_SELECTION",
+      "evidence": "Isolated actual registerFromPath preflight exposes one weight-400 style; 400/600/700 requests all match derived face index 0 Regular while derived indices 4 and 6 have distinct metrics"
+    }
+  },
+  "directTtc": {
+    "supported": false,
+    "blocker": "SemiBold index 4 and Bold index 6 cannot be selected",
+    "backend": "@napi-rs/canvas 1.0.3 / Skia",
+    "preflight": {
+      "systemFontsDisabled": true,
+      "backend": "@napi-rs/canvas 1.0.3 / Skia",
+      "apiHasFaceIndexParameter": false,
+      "directRegisterSucceeded": true,
+      "directStyles": [
+        {
+          "weight": 400,
+          "width": "normal",
+          "style": "normal"
+        }
+      ],
+      "requestedWeightWidths": {
+        "regular": 390.739990234375,
+        "semibold": 390.739990234375,
+        "bold": 390.739990234375
+      },
+      "derivedFaceWidths": {
+        "regular": 390.739990234375,
+        "semibold": 391.4100036621094,
+        "bold": 391.4800109863281
+      },
+      "directMatchesRegular": true,
+      "distinctRequiredFaces": true,
+      "deterministicMultiFaceSelectionSupported": false,
+      "faces": {
+        "regular": {
+          "requestedIndex": 0,
+          "requestedPostScript": "AppleSDGothicNeo-Regular",
+          "load": "PASS",
+          "resolvedIndex": 0,
+          "resolvedPostScript": "AppleSDGothicNeo-Regular"
+        },
+        "semibold": {
+          "requestedIndex": 4,
+          "requestedPostScript": "AppleSDGothicNeo-SemiBold",
+          "load": "FAIL",
+          "resolvedIndex": 0,
+          "resolvedPostScript": "AppleSDGothicNeo-Regular"
+        },
+        "bold": {
+          "requestedIndex": 6,
+          "requestedPostScript": "AppleSDGothicNeo-Bold",
+          "load": "FAIL",
+          "resolvedIndex": 0,
+          "resolvedPostScript": "AppleSDGothicNeo-Regular"
+        }
+      }
+    }
+  },
+  "integrationMode": "VERIFIED_DERIVED_STANDALONE_FACE",
+  "systemFontsDisabled": true,
+  "globalFontFamiliesAfterExplicitRegistration": [
+    {
+      "family": "AppleSDGothicNeoB00",
+      "styles": [
+        {
+          "weight": 400,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    },
+    {
+      "family": "N77-AppleSDGothicNeo-Bold",
+      "styles": [
+        {
+          "weight": 400,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    },
+    {
+      "family": "AppleSDGothicNeoR00",
+      "styles": [
+        {
+          "weight": 400,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    },
+    {
+      "family": "N77-AppleSDGothicNeo-Regular",
+      "styles": [
+        {
+          "weight": 400,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    },
+    {
+      "family": "AppleSDGothicNeoSB00",
+      "styles": [
+        {
+          "weight": 400,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    },
+    {
+      "family": "N77-AppleSDGothicNeo-SemiBold",
+      "styles": [
+        {
+          "weight": 400,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    },
+    {
+      "family": "Apple SD Gothic Neo",
+      "styles": [
+        {
+          "weight": 700,
+          "width": "normal",
+          "style": "normal"
+        },
+        {
+          "weight": 400,
+          "width": "normal",
+          "style": "normal"
+        },
+        {
+          "weight": 600,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    },
+    {
+      "family": "AppleSDGothicNeo-Bold",
+      "styles": [
+        {
+          "weight": 700,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    },
+    {
+      "family": "AppleSDGothicNeo-Regular",
+      "styles": [
+        {
+          "weight": 400,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    },
+    {
+      "family": "AppleSDGothicNeo-SemiBold",
+      "styles": [
+        {
+          "weight": 600,
+          "width": "normal",
+          "style": "normal"
+        }
+      ]
+    }
+  ]
+}

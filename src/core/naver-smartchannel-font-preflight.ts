@@ -8,6 +8,12 @@ export const NAVER_SMARTCHANNEL_FONT_ERROR_CODES = {
   unavailable: "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE",
   identityMismatch: "NAVER_SMARTCHANNEL_FONT_IDENTITY_MISMATCH",
   versionMismatch: "NAVER_SMARTCHANNEL_FONT_VERSION_MISMATCH",
+  resourceMissing: "FONT_RESOURCE_MISSING",
+  resourceShaMismatch: "FONT_RESOURCE_SHA_MISMATCH",
+  collectionFaceNotFound: "FONT_COLLECTION_FACE_NOT_FOUND",
+  collectionFaceIdentityMismatch: "FONT_COLLECTION_FACE_IDENTITY_MISMATCH",
+  collectionUnsupported: "FONT_COLLECTION_UNSUPPORTED",
+  derivedProvenanceMismatch: "FONT_DERIVED_RESOURCE_PROVENANCE_MISMATCH",
 } as const;
 
 export type NaverSmartChannelFontErrorCode =
@@ -52,11 +58,31 @@ export type FontGlyphCoverage = {
   covered: boolean;
 };
 
+export type FontCollectionFace = ParsedFontIdentity & {
+  index: number;
+  offset: number;
+  unitsPerEm: number | null;
+  glyphCount: number | null;
+  outlineFormat: "CFF" | "CFF2" | "GLYF" | "UNKNOWN";
+  tableTags: string[];
+};
+
+export type FontCollectionInventory = {
+  format: "TTC";
+  faceCount: number;
+  faces: FontCollectionFace[];
+};
+
+export type FontResourceKind = "SINGLE_FONT" | "FONT_COLLECTION" | "DERIVED_STANDALONE_FACE";
+
 export type SmartChannelFontResourceRequest = {
   token: string;
+  assetId?: string;
+  kind?: FontResourceKind;
   relativePath: string;
   expectedSha256: string;
   expectedPostScriptName: string;
+  face?: { index: number; postScriptName: string; version?: string };
 };
 
 export type SmartChannelFontResourceResolution = {
@@ -95,7 +121,7 @@ export type FontPreflightResult = {
   compatibilityStatus?: "PSD_EXACT_RENDERER_OWNED" | "PROJECT_COMPATIBLE_VERIFIED" | "PROJECT_COMPATIBLE_UNVERIFIED" | "INCOMPATIBLE";
 };
 
-type TableRecord = { offset: number; length: number };
+type TableRecord = { tag: string; offset: number; length: number };
 
 function readUInt16(bytes: Uint8Array, offset: number): number | null {
   if (offset < 0 || offset + 2 > bytes.byteLength) return null;
@@ -141,26 +167,30 @@ function nameValue(values: Map<number, Set<string>>, nameId: number): string[] {
   return [...(values.get(nameId) ?? new Set<string>())].filter(Boolean).sort();
 }
 
-function tableDirectory(bytes: Uint8Array): Map<string, TableRecord> | null {
-  const signature = new TextDecoder("latin1").decode(bytes.subarray(0, 4));
+function tableDirectory(bytes: Uint8Array, sfntOffset = 0): Map<string, TableRecord> | null {
+  const signature = new TextDecoder("latin1").decode(bytes.subarray(sfntOffset, sfntOffset + 4));
   if (!(signature === "OTTO" || signature === "true" || signature === "typ1" || signature === "\u0000\u0001\u0000\u0000")) return null;
-  const tableCount = readUInt16(bytes, 4);
+  const tableCount = readUInt16(bytes, sfntOffset + 4);
   if (tableCount === null || tableCount > 4096) return null;
   const tables = new Map<string, TableRecord>();
   for (let index = 0; index < tableCount; index += 1) {
-    const rowOffset = 12 + (index * 16);
+    const rowOffset = sfntOffset + 12 + (index * 16);
     if (rowOffset + 16 > bytes.length) return null;
     const tag = new TextDecoder("latin1").decode(bytes.subarray(rowOffset, rowOffset + 4));
     const offset = readUInt32(bytes, rowOffset + 8);
     const length = readUInt32(bytes, rowOffset + 12);
     if (offset === null || length === null || offset + length > bytes.length) return null;
-    tables.set(tag, { offset, length });
+    tables.set(tag, { tag, offset, length });
   }
   return tables;
 }
 
 export function inspectFontIdentity(bytes: Uint8Array): ParsedFontIdentity | null {
-  const tables = tableDirectory(bytes);
+  return inspectFontIdentityAtOffset(bytes, 0);
+}
+
+function inspectFontIdentityAtOffset(bytes: Uint8Array, sfntOffset: number): ParsedFontIdentity | null {
+  const tables = tableDirectory(bytes, sfntOffset);
   const nameTable = tables?.get("name");
   if (!tables || !nameTable) return null;
   const format = readUInt16(bytes, nameTable.offset);
@@ -194,6 +224,33 @@ export function inspectFontIdentity(bytes: Uint8Array): ParsedFontIdentity | nul
     versions: nameValue(values, 5),
     weightClass,
   };
+}
+
+export function inspectFontCollection(bytes: Uint8Array): FontCollectionInventory | null {
+  const signature = new TextDecoder("latin1").decode(bytes.subarray(0, 4));
+  if (signature !== "ttcf") return null;
+  const faceCount = readUInt32(bytes, 8);
+  if (faceCount === null || faceCount < 1 || faceCount > 4096 || 12 + (faceCount * 4) > bytes.length) return null;
+  const faces: FontCollectionFace[] = [];
+  for (let index = 0; index < faceCount; index += 1) {
+    const offset = readUInt32(bytes, 12 + (index * 4));
+    if (offset === null) return null;
+    const identity = inspectFontIdentityAtOffset(bytes, offset);
+    const tables = tableDirectory(bytes, offset);
+    if (!identity || !tables) return null;
+    const head = tables.get("head");
+    const maxp = tables.get("maxp");
+    faces.push({
+      ...identity,
+      index,
+      offset,
+      unitsPerEm: head && head.length >= 20 ? readUInt16(bytes, head.offset + 18) : null,
+      glyphCount: maxp && maxp.length >= 6 ? readUInt16(bytes, maxp.offset + 4) : null,
+      outlineFormat: tables.has("CFF2") ? "CFF2" : tables.has("CFF ") ? "CFF" : tables.has("glyf") ? "GLYF" : "UNKNOWN",
+      tableTags: [...tables.keys()].sort(),
+    });
+  }
+  return { format: "TTC", faceCount, faces };
 }
 
 function cmapSubtables(bytes: Uint8Array, table: TableRecord): Array<{ format: number; offset: number; length: number }> {
@@ -262,11 +319,59 @@ function cmapHasCodePoint(bytes: Uint8Array, subtable: { format: number; offset:
 }
 
 export function inspectFontGlyphCoverage(bytes: Uint8Array, text: string): FontGlyphCoverage {
+  return inspectFontGlyphCoverageAtOffset(bytes, text, 0);
+}
+
+export function inspectFontCollectionFaceGlyphCoverage(bytes: Uint8Array, faceIndex: number, text: string): FontGlyphCoverage {
+  const face = inspectFontCollection(bytes)?.faces[faceIndex];
+  if (!face) return { requiredCodePoints: [], missingCodePoints: [], covered: false };
+  return inspectFontGlyphCoverageAtOffset(bytes, text, face.offset);
+}
+
+function inspectFontGlyphCoverageAtOffset(bytes: Uint8Array, text: string, sfntOffset: number): FontGlyphCoverage {
   const requiredCodePoints = [...new Set([...text.normalize("NFC")].map((character) => character.codePointAt(0)).filter((value): value is number => value !== undefined))].sort((left, right) => left - right);
-  const cmap = tableDirectory(bytes)?.get("cmap");
+  const cmap = tableDirectory(bytes, sfntOffset)?.get("cmap");
   const subtables = cmap ? cmapSubtables(bytes, cmap) : [];
   const missingCodePoints = requiredCodePoints.filter((codePoint) => !subtables.some((subtable) => cmapHasCodePoint(bytes, subtable, codePoint)));
   return { requiredCodePoints, missingCodePoints, covered: missingCodePoints.length === 0 };
+}
+
+export type FontTableEquivalence = {
+  tag: string;
+  status: "IDENTICAL" | "SEMANTICALLY_IDENTICAL_CHECKSUM_ADJUSTMENT_ONLY" | "MISSING" | "MISMATCH";
+  sourceSha256?: string;
+  derivedSha256?: string;
+};
+
+function normalizedTableBytes(bytes: Uint8Array, table: TableRecord): Buffer {
+  const value = Buffer.from(bytes.subarray(table.offset, table.offset + table.length));
+  if (table.tag === "head" && value.length >= 12) value.writeUInt32BE(0, 8);
+  return value;
+}
+
+export function compareFontCollectionFaceToStandalone(collectionBytes: Uint8Array, faceIndex: number, standaloneBytes: Uint8Array): FontTableEquivalence[] | null {
+  const face = inspectFontCollection(collectionBytes)?.faces[faceIndex];
+  const sourceTables = face ? tableDirectory(collectionBytes, face.offset) : null;
+  const derivedTables = tableDirectory(standaloneBytes);
+  if (!face || !sourceTables || !derivedTables) return null;
+  const tags = [...new Set([...sourceTables.keys(), ...derivedTables.keys()])].sort();
+  return tags.map((tag) => {
+    const source = sourceTables.get(tag);
+    const derived = derivedTables.get(tag);
+    if (!source || !derived) return { tag, status: "MISSING" as const };
+    const sourceBytes = normalizedTableBytes(collectionBytes, source);
+    const derivedBytes = normalizedTableBytes(standaloneBytes, derived);
+    const sourceSha256 = createHash("sha256").update(sourceBytes).digest("hex");
+    const derivedSha256 = createHash("sha256").update(derivedBytes).digest("hex");
+    return {
+      tag,
+      status: sourceSha256 === derivedSha256
+        ? tag === "head" ? "SEMANTICALLY_IDENTICAL_CHECKSUM_ADJUSTMENT_ONLY" as const : "IDENTICAL" as const
+        : "MISMATCH" as const,
+      sourceSha256,
+      derivedSha256,
+    };
+  });
 }
 
 function issue(

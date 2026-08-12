@@ -1,7 +1,7 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.21.2
+- **Document version:** 1.21.3
 - **Status:** Frozen Implementation Contract — Phase N7.7 SmartChannel PSD-exact renderer-owned runtime font correction
 - **Checked date:** 2026-08-11 (KST)
 - **Owner:** Local Renderer Project
@@ -4731,3 +4731,80 @@ human report is `docs/implementation/naver-smartchannel-psd-exact-runtime-font-c
 and the deterministic verifier is `scripts/verify-n7-7-smartchannel-runtime-font-correction.mjs`.
 The renderer remains standalone; plume, Railway, PostgreSQL, Queue, telemetry, upload approval,
 and remote services remain out of scope. **[PROJECT]**
+
+## 46. Phase N7.7.4 — macOS original TTC source integration [PROJECT]
+
+SmartChannel의 renderer-owned source of truth는
+`assets/fonts/naver-smartchannel/AppleSDGothicNeo.ttc`이다. 파일 크기는 `28427796`
+bytes이고 SHA-256은
+`0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66`이다. Runtime은
+Windows/macOS font installation, Font Book, user font directory 또는 OS font lookup에
+의존하지 않는다. License status는
+`UNCONFIRMED_REVIEW_REQUIRED_BEFORE_EXTERNAL_REDISTRIBUTION`, 현재 usage scope는
+`PRIVATE_LOCAL_RENDERER_MODULE`이다. **[PROJECT]**
+
+### 46.1 Collection faces and backend decision [PROJECT]
+
+| Logical token | TTC face index | PostScript | Version | Runtime derived face |
+|---|---:|---|---|---|
+| `NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR` | 0 | `AppleSDGothicNeo-Regular` | `19.0d2e1` | `AppleSDGothicNeo-macOS19-Regular.otf` |
+| `NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD` | 4 | `AppleSDGothicNeo-SemiBold` | `19.0d2e1` | `AppleSDGothicNeo-macOS19-SemiBold.otf` |
+| `NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD` | 6 | `AppleSDGothicNeo-Bold` | `19.0d2e1` | `AppleSDGothicNeo-macOS19-Bold.otf` |
+
+현재 text backend는 TypeScript/Node.js Core, `@napi-rs/canvas 1.0.3`의 Skia raster와
+`GlobalFonts.register`/`registerFromPath`이다. 실제 TTC preflight에서 collection index 0은
+등록되지만 API에 face-index selector가 없어 index 4/6을 deterministic하게 선택할 수 없다.
+따라서 integration mode는 `VERIFIED_DERIVED_STANDALONE_FACE`이다. 원 TTC의 선택 face에서
+SFNT table bytes를 그대로 복사하며 glyph outline, cmap, metrics, GSUB/GPOS/GDEF, kerning,
+name 또는 PostScript identity를 재작성하지 않는다. 독립 SFNT checksum을 위한
+`head.checkSumAdjustment`만 달라질 수 있고, normalized table SHA, glyph count `18662`,
+unitsPerEm `1000`, CFF outline identity를 매 실행 preflight에서 검증한다. **[PROJECT]**
+
+### 46.2 Fail-closed resource and fingerprint contract [PROJECT]
+
+Font resource는 `SINGLE_FONT`, `FONT_COLLECTION`, `DERIVED_STANDALONE_FACE`를 표현한다.
+Current SmartChannel mapping은 collection asset ID/SHA, face index/PostScript/version과 derived
+resource SHA/provenance를 모두 요구한다. `FONT_RESOURCE_MISSING`,
+`FONT_RESOURCE_SHA_MISMATCH`, `FONT_COLLECTION_FACE_NOT_FOUND`,
+`FONT_COLLECTION_FACE_IDENTITY_MISMATCH`, `FONT_COLLECTION_UNSUPPORTED`,
+`FONT_DERIVED_RESOURCE_PROVENANCE_MISMATCH`는 render 시작 전에 fail closed한다. 다른 폰트로
+silent fallback하지 않는다. **[PROJECT]**
+
+Pixel fingerprint의 font material은 logical token, collection asset ID, collection SHA-256,
+face index, face PostScript name, font contract version이다. Machine-specific absolute path는
+포함하지 않는다. Provider가 source TTC와 derived face를 동일 bytes로 공급하면 Core,
+Desktop QA, package/handoff에서 동일 fingerprint와 PNG digest를 생성해야 한다. Runtime
+network access는 계속 금지한다. **[PROJECT]**
+
+### 46.3 Frozen geometry, evidence, and acceptance [PROJECT]
+
+Font size, baseline, tracking, leading, origin, layout box, placement geometry, template/object/fixed
+component coordinates는 변경하지 않는다. 대표 template
+`NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE`는 동일 copy/assets/settings로
+legacy N7.7 TTF와 macOS TTC derived face를 A/B 렌더한다. Decoded RGBA pixel SHA, 실제 text
+alpha bounds, ink bounds, pixel count, measured width 및 diff metric을 기록한다.
+`actualRasterBounds`는 PSD box를 복사하지 않고 각 text role의 격리 raster alpha scan으로
+계산한다. **[PROJECT]**
+
+macOS TTC candidate는 동일 프로세스 3회 PNG bytes 및 decoded pixels가 동일해야 한다.
+SmartChannel 120개 smoke는 render/font/validator/crash 오류 0이어야 한다. Legacy converted TTF는
+삭제하지 않고 `DEPRECATED_FOR_SMARTCHANNEL` evidence 용도로 보존한다. SmartChannel golden
+rebase는 `manual_acceptance.approved_creative_match=NOT_REVIEWED`인 동안 금지한다. **[PROJECT]**
+
+### 46.4 Version and artifacts [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.21.2 | 1.21.3 | macOS TTC source/provenance integration |
+| Renderer Core | 0.8.4 | 0.8.5 | TTC parser, face/provenance preflight, collection fingerprint |
+| Desktop/package | 0.9.7 | 0.9.8 | TTC and verified derived faces packaging |
+| Font contract | 1.1.0 | 1.2.0 | Collection/derived resource union |
+| Runtime font policy | 1.4.0 | 1.5.0 | TTC face mapping and fail-closed sequence |
+| Font compatibility | 1.2.0 | 1.3.0 | macOS source TTC compatibility state |
+| Asset manifest | 1.1.0 | 1.2.0 | source TTC and extraction provenance |
+| Typography registry | 1.4.0 | 1.5.0 | token-to-collection-face mapping; token IDs preserved |
+
+Machine-readable audit는
+`contracts/audits/naver-smartchannel-font-source-migration-n7-7-4.json`, 구현 보고서는
+`docs/implementation/naver-smartchannel-macos-original-ttc-integration-n7-7-4.md`, 검증 자료는
+`artifacts/n7-7-4/`에 둔다. **[PROJECT]**

@@ -80,13 +80,13 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
     expect(affordances.find((entry) => entry.id === "NONE")?.enabled).toBe(true);
     expect(affordances.filter((entry) => entry.enabled).map((entry) => entry.id)).toEqual(["NONE"]);
     expect(affordances.filter((entry) => entry.id !== "NONE").every((entry) => entry.enabled === false)).toBe(true);
-    expect(typography.registryVersion).toBe("1.4.0");
-    expect(typography.status).toBe("SOURCE_METADATA_FROZEN_RUNTIME_MAPPING_CORRECTED");
+    expect(typography.registryVersion).toBe("1.5.0");
+    expect(typography.status).toBe("SOURCE_METADATA_FROZEN_MACOS_TTC_RUNTIME_MAPPING");
     expect(typography.exactSourceFontIdentity).toBe("PASS");
     expect(typography.sourceFonts.every((font) => font.classification === "SOURCE_CONFIRMED")).toBe(true);
     expect(typography.tokens).toHaveLength(25);
     expect(typography.tokens.every((token) => token.classification === "DERIVED_FROM_EXACT_SOURCE_METADATA")).toBe(true);
-    expect(typography.runtimeResolution).toBe("PSD_EXACT_RENDERER_OWNED");
+    expect(typography.runtimeResolution).toBe("MACOS_SOURCE_TTC_VERIFIED_DERIVED");
     expect(typography.runtimeFontAssets).toHaveLength(7);
     expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false)).toHaveLength(3);
     expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false).every((asset) => asset.resolution === "RESOLVED" && asset.bundleAllowed === true)).toBe(true);

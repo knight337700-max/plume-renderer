@@ -1,0 +1,195 @@
+{
+  "phase": "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION",
+  "template": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE",
+  "copy": {
+    "headline": "에스더버니리틀과 가을 준비!",
+    "headlineLine2": "깜찍하게 시작하는 공주룩",
+    "subcopy": "알림 받기 35% 쿠폰 + 무료 교환 반품"
+  },
+  "sourceCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+  "geometryChanged": false,
+  "legacyN77": {
+    "outputSha256": "b8a120723c2fddf39c82946805fda662f95d0bb6b248a38d78dd5b24d521a463",
+    "pixelSha256": "afbcbc45bbb1ca7f549d1264d1418ae63da0caf18538cef5abe846d4cd5a892c",
+    "textRoles": [
+      {
+        "role": "HEADLINE",
+        "inputKey": "headline",
+        "actualRasterBounds": {
+          "x": 304,
+          "y": 76,
+          "width": 364,
+          "height": 32
+        },
+        "inkBounds": {
+          "x": 304,
+          "y": 76,
+          "width": 364,
+          "height": 32
+        },
+        "scannedNonTransparentPixels": 5544,
+        "measuredGlyphWidth": 367.0500087738037,
+        "baselineY": 106.45703125,
+        "box": {
+          "x": 305,
+          "y": 77,
+          "width": 399,
+          "height": 32
+        }
+      },
+      {
+        "role": "HEADLINE",
+        "inputKey": "headlineLine2",
+        "actualRasterBounds": {
+          "x": 303,
+          "y": 124,
+          "width": 330,
+          "height": 32
+        },
+        "inkBounds": {
+          "x": 303,
+          "y": 124,
+          "width": 330,
+          "height": 32
+        },
+        "scannedNonTransparentPixels": 4970,
+        "measuredGlyphWidth": 330.50000762939453,
+        "baselineY": 154.45703125,
+        "box": {
+          "x": 305,
+          "y": 125,
+          "width": 399,
+          "height": 32
+        }
+      },
+      {
+        "role": "SUBCOPY",
+        "inputKey": "subcopy",
+        "actualRasterBounds": {
+          "x": 305,
+          "y": 177,
+          "width": 391,
+          "height": 26
+        },
+        "inkBounds": {
+          "x": 305,
+          "y": 177,
+          "width": 391,
+          "height": 26
+        },
+        "scannedNonTransparentPixels": 3722,
+        "measuredGlyphWidth": 392.3300024032589,
+        "baselineY": 201.45703125,
+        "box": {
+          "x": 305,
+          "y": 177,
+          "width": 400,
+          "height": 27
+        }
+      }
+    ]
+  },
+  "macosTtc": {
+    "outputSha256": "78d7252b74c859fd07b5294ae705943299388892e469bb58844e19e6ac54c601",
+    "pixelSha256": "d5695a5e67823c7f7db6d5e641a817c23564b13ab07f8cbc274948197704aae5",
+    "textRoles": [
+      {
+        "role": "HEADLINE",
+        "inputKey": "headline",
+        "actualRasterBounds": {
+          "x": 304,
+          "y": 78,
+          "width": 364,
+          "height": 32
+        },
+        "inkBounds": {
+          "x": 304,
+          "y": 78,
+          "width": 364,
+          "height": 32
+        },
+        "scannedNonTransparentPixels": 5556,
+        "measuredGlyphWidth": 367.0500087738037,
+        "baselineY": 106.45703125,
+        "box": {
+          "x": 305,
+          "y": 77,
+          "width": 399,
+          "height": 32
+        }
+      },
+      {
+        "role": "HEADLINE",
+        "inputKey": "headlineLine2",
+        "actualRasterBounds": {
+          "x": 303,
+          "y": 126,
+          "width": 330,
+          "height": 32
+        },
+        "inkBounds": {
+          "x": 303,
+          "y": 126,
+          "width": 330,
+          "height": 32
+        },
+        "scannedNonTransparentPixels": 4982,
+        "measuredGlyphWidth": 330.50000762939453,
+        "baselineY": 154.45703125,
+        "box": {
+          "x": 305,
+          "y": 125,
+          "width": 399,
+          "height": 32
+        }
+      },
+      {
+        "role": "SUBCOPY",
+        "inputKey": "subcopy",
+        "actualRasterBounds": {
+          "x": 305,
+          "y": 177,
+          "width": 391,
+          "height": 27
+        },
+        "inkBounds": {
+          "x": 305,
+          "y": 177,
+          "width": 391,
+          "height": 27
+        },
+        "scannedNonTransparentPixels": 3858,
+        "measuredGlyphWidth": 392.3300024032589,
+        "baselineY": 201.45703125,
+        "box": {
+          "x": 305,
+          "y": 177,
+          "width": 400,
+          "height": 27
+        }
+      }
+    ]
+  },
+  "pixelDiff": {
+    "changedPixels": 10490,
+    "totalPixels": 210000,
+    "changedRatio": 0.04995238095238095,
+    "maxChannelDelta": 255,
+    "meanAbsDelta": 1.6306309523809523
+  },
+  "determinism": {
+    "runs": 3,
+    "outputDigests": [
+      "78d7252b74c859fd07b5294ae705943299388892e469bb58844e19e6ac54c601",
+      "78d7252b74c859fd07b5294ae705943299388892e469bb58844e19e6ac54c601",
+      "78d7252b74c859fd07b5294ae705943299388892e469bb58844e19e6ac54c601"
+    ],
+    "pixelDigests": [
+      "d5695a5e67823c7f7db6d5e641a817c23564b13ab07f8cbc274948197704aae5",
+      "d5695a5e67823c7f7db6d5e641a817c23564b13ab07f8cbc274948197704aae5",
+      "d5695a5e67823c7f7db6d5e641a817c23564b13ab07f8cbc274948197704aae5"
+    ],
+    "outputBytesIdentical": true,
+    "pixelIdentical": true
+  }
+}

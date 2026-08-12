@@ -1,98 +1,117 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-font-compatibility-v1.2.0.json",
-  "registryVersion": "1.2.0",
-  "status": "PSD_EXACT_RENDERER_OWNED_PINNED",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-font-compatibility-v1.3.0.json",
+  "registryVersion": "1.3.0",
+  "status": "MACOS_SOURCE_TTC_VERIFIED_DERIVED_PINNED",
   "channel": "NAVER_GFA",
   "placement": "SMARTCHANNEL",
   "sourceMetadataRef": "contracts/naver-smartchannel-psd-metadata.json",
   "fontContractRef": "contracts/naver-smartchannel-font-contract.json",
   "sourceFontBinaryExact": true,
   "sourceLayoutMetadataPreserved": true,
-  "runtimeFontMode": "PSD_EXACT_RENDERER_OWNED",
+  "runtimeFontMode": "MACOS_SOURCE_TTC_VERIFIED_DERIVED",
   "runtimeLookupKey": "fontToken",
   "photoshopBytePixelParityClaim": false,
   "fonts": [
     {
       "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
-      "role": "HEADLINE",
-      "requiredRoles": ["HEADLINE", "HEADLINE_LINE_2"],
-      "sourcePostScriptNames": ["AppleSDGothicNeo-Bold"],
+      "role": "MAIN",
+      "sourcePostScriptNames": [
+        "AppleSDGothicNeo-Bold"
+      ],
       "family": "AppleSDGothicNeo",
       "style": "Bold",
       "cssWeight": 700,
       "required": true,
       "runtime": {
         "status": "RESOLVED",
-        "localRelativePath": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-Bold.ttf",
-        "localSha256": "a652ea0a3c4bf8658845f044b5d6f40c39ecf03207e43f325c1451127528402b",
-        "runtimePostScriptName": "AppleSDGothicNeo-Bold",
-        "binaryPostScriptNames": ["AppleSDGothicNeoB00"],
-        "runtimeRegistrationName": "AppleSDGothicNeo-Bold",
+        "localRelativePath": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-macOS19-Bold.otf",
+        "localSha256": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
         "lookupKey": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
         "bundleAllowed": true,
         "commitAllowed": true,
         "networkFetchAllowed": false,
-        "owner": "RENDERER",
-        "pinned": true,
-        "environmentIndependent": true
+        "runtimePostScriptName": "AppleSDGothicNeo-Bold",
+        "binaryPostScriptNames": [
+          "AppleSDGothicNeo-Bold"
+        ],
+        "resourceKind": "DERIVED_STANDALONE_FACE",
+        "sourceCollection": {
+          "assetId": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MACOS19_TTC",
+          "sha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+          "faceIndex": 6,
+          "postScriptName": "AppleSDGothicNeo-Bold"
+        }
       }
     },
     {
       "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
       "role": "SUB_AND_DISCLAIMER",
-      "requiredRoles": ["SUBCOPY", "THIRD_LINE", "FOURTH_LINE", "DISCLOSURE_LINE_1", "DISCLOSURE_LINE_2"],
-      "sourcePostScriptNames": ["AppleSDGothicNeo-Regular"],
+      "sourcePostScriptNames": [
+        "AppleSDGothicNeo-Regular"
+      ],
       "family": "AppleSDGothicNeo",
       "style": "Regular",
       "cssWeight": 400,
       "required": true,
       "runtime": {
         "status": "RESOLVED",
-        "localRelativePath": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-Regular.ttf",
-        "localSha256": "f44eec027992b99dc25de0229c5726fe209a6cb80761aaef98d050cdc0bc6cfe",
-        "runtimePostScriptName": "AppleSDGothicNeo-Regular",
-        "binaryPostScriptNames": ["AppleSDGothicNeoR00"],
-        "runtimeRegistrationName": "AppleSDGothicNeo-Regular",
+        "localRelativePath": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-macOS19-Regular.otf",
+        "localSha256": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
         "lookupKey": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
         "bundleAllowed": true,
         "commitAllowed": true,
         "networkFetchAllowed": false,
-        "owner": "RENDERER",
-        "pinned": true,
-        "environmentIndependent": true
+        "runtimePostScriptName": "AppleSDGothicNeo-Regular",
+        "binaryPostScriptNames": [
+          "AppleSDGothicNeo-Regular"
+        ],
+        "resourceKind": "DERIVED_STANDALONE_FACE",
+        "sourceCollection": {
+          "assetId": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MACOS19_TTC",
+          "sha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+          "faceIndex": 0,
+          "postScriptName": "AppleSDGothicNeo-Regular"
+        }
       }
     },
     {
       "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
       "role": "APP_CTA_TEXT",
-      "requiredRoles": ["APP_CTA_TEXT"],
-      "sourcePostScriptNames": ["AppleSDGothicNeo-SemiBold"],
+      "sourcePostScriptNames": [
+        "AppleSDGothicNeo-SemiBold"
+      ],
       "family": "AppleSDGothicNeo",
       "style": "SemiBold",
       "cssWeight": 600,
       "required": true,
       "runtime": {
         "status": "RESOLVED",
-        "localRelativePath": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-SemiBold.ttf",
-        "localSha256": "a9c5ffb4dadce253d8748b18019954a8af19b7cfcc3b586fce64ef1f6bd71492",
-        "runtimePostScriptName": "AppleSDGothicNeo-SemiBold",
-        "binaryPostScriptNames": ["AppleSDGothicNeoSB00"],
-        "runtimeRegistrationName": "AppleSDGothicNeo-SemiBold",
+        "localRelativePath": "assets/fonts/naver-smartchannel/AppleSDGothicNeo-macOS19-SemiBold.otf",
+        "localSha256": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73",
         "lookupKey": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD",
         "bundleAllowed": true,
         "commitAllowed": true,
         "networkFetchAllowed": false,
-        "owner": "RENDERER",
-        "pinned": true,
-        "environmentIndependent": true
+        "runtimePostScriptName": "AppleSDGothicNeo-SemiBold",
+        "binaryPostScriptNames": [
+          "AppleSDGothicNeo-SemiBold"
+        ],
+        "resourceKind": "DERIVED_STANDALONE_FACE",
+        "sourceCollection": {
+          "assetId": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MACOS19_TTC",
+          "sha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+          "faceIndex": 4,
+          "postScriptName": "AppleSDGothicNeo-SemiBold"
+        }
       }
     },
     {
       "fontToken": "NAVER_SC_APPLE_SD_GOTHIC_NEO_MEDIUM",
       "role": "GUIDE_TEXT",
-      "requiredRoles": ["GUIDE_TEXT"],
-      "sourcePostScriptNames": ["AppleSDGothicNeo-Medium"],
+      "sourcePostScriptNames": [
+        "AppleSDGothicNeo-Medium"
+      ],
       "family": "AppleSDGothicNeo",
       "style": "Medium",
       "cssWeight": 500,
@@ -120,10 +139,9 @@
         "localRelativePath": "assets/fonts/naver-smartchannel/NanumBarunGothicBold.ttf",
         "localSha256": "39bba4cd9bd2986143825c8654abbb62443914ab33b346c0c929a916f5d98bf2",
         "lookupKey": "NAVER_SC_NANUM_BARUN_GOTHIC_BOLD",
-        "bundleAllowed": true,
-        "commitAllowed": true,
-        "networkFetchAllowed": false,
-        "smartChannelAllowed": false
+        "bundleAllowed": false,
+        "commitAllowed": false,
+        "networkFetchAllowed": false
       }
     },
     {
@@ -139,16 +157,18 @@
         "localRelativePath": "assets/fonts/naver-smartchannel/NanumBarunGothic.ttf",
         "localSha256": "9b872773134e2e4d8c0b17021266786576db06c843ede0d0b523b214a450756c",
         "lookupKey": "NAVER_SC_NANUM_BARUN_GOTHIC_REGULAR",
-        "bundleAllowed": true,
-        "commitAllowed": true,
-        "networkFetchAllowed": false,
-        "smartChannelAllowed": false
+        "bundleAllowed": false,
+        "commitAllowed": false,
+        "networkFetchAllowed": false
       }
     },
     {
       "fontToken": "NAVER_SC_SAN_FRANCISCO_BOLD",
       "role": "MAIN_ENGLISH_ONLY",
-      "sourcePostScriptNames": ["SFProDisplay-Bold", "SFUIDisplay-Bold"],
+      "sourcePostScriptNames": [
+        "SFProDisplay-Bold",
+        "SFUIDisplay-Bold"
+      ],
       "family": "San Francisco",
       "style": "Bold",
       "cssWeight": 700,
@@ -166,29 +186,18 @@
   ],
   "approvedDigestAllowlist": {},
   "glyphCoverage": {
-    "sample": "일이삼사오륙칠팔구십 광고 앱 고지문구 및 심의필 입력 영역 APP",
-    "sourceTextCodePointCount": 28,
-    "allRequiredRuntimeFontsCovered": true,
-    "status": "RESOLVED_RUNTIME_RESOURCE"
+    "sourceTextCodePointCount": 0,
+    "allFontsCovered": false,
+    "perFont": [],
+    "status": "UNRESOLVED_ASSET"
   },
   "styleRoleSeparation": {
-    "status": "RESOLVED_PSD_ROLE_MAPPING",
-    "mapping": {
-      "HEADLINE": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
-      "HEADLINE_LINE_2": "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD",
-      "SUBCOPY": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
-      "THIRD_LINE": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
-      "FOURTH_LINE": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
-      "DISCLOSURE_LINE_1": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
-      "DISCLOSURE_LINE_2": "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR",
-      "APP_CTA_TEXT": "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD"
-    }
+    "status": "RESOLVED_ROLE_MAPPING"
   },
   "security": {
     "runtimeNetworkAccess": "PROHIBITED",
     "arbitraryFallbackAllowed": false,
     "systemFontLookupAllowed": false,
-    "windowsAbsoluteFontPathAllowed": false,
     "wrongDigestRejected": true
   }
 }

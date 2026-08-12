@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -36,6 +36,8 @@
     "verify:naver-fixed-components": "node scripts/verify-naver-smartchannel-fixed-components.mjs",
     "verify:n7-6-typography": "node scripts/verify-n7-6-smartchannel-typography-audit.mjs",
     "verify:n7-7-font-correction": "node scripts/verify-n7-7-smartchannel-runtime-font-correction.mjs",
+    "verify:n7-7-4-ttc": "node scripts/verify-n7-7-4-macos-ttc-integration.mjs",
+    "evidence:n7-7-4-ttc": "pnpm build && node scripts/generate-n7-7-4-evidence.mjs",
     "verify:naver-desktop": "node scripts/verify-naver-desktop-integration.mjs",
     "verify:naver-runtime": "pnpm build && node scripts/verify-naver-smartchannel-runtime.mjs",
     "verify:naver-exhaustive": "pnpm build && node scripts/verify-naver-smartchannel-n3-exhaustive.mjs",

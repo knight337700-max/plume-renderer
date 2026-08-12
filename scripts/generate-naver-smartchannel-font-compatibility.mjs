@@ -39,16 +39,18 @@ const fonts = (fontContract.roles ?? []).map((role) => {
       networkFetchAllowed: false,
       ...(role.runtimeRegistrationName ? { runtimePostScriptName: role.runtimeRegistrationName } : {}),
       ...(role.binaryPostScriptNames ? { binaryPostScriptNames: role.binaryPostScriptNames } : {}),
+      ...(role.resourceKind ? { resourceKind: role.resourceKind } : {}),
+      ...(role.sourceCollection ? { sourceCollection: { assetId: role.sourceCollection.assetId, sha256: role.sourceCollection.sha256, faceIndex: role.sourceCollection.face.index, postScriptName: role.sourceCollection.face.postScriptName } } : {}),
     },
   };
 });
 
 const compatibility = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-font-compatibility-v1.2.0.json",
-  registryVersion: "1.2.0",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-font-compatibility-v1.3.0.json",
+  registryVersion: "1.3.0",
   status: (fontContract.roles ?? []).filter((role) => role.required === true).every((role) => role.assetStatus === "RESOLVED" && role.assetPath && role.sha256)
-    ? "PSD_EXACT_RENDERER_OWNED_PINNED"
+    ? "MACOS_SOURCE_TTC_VERIFIED_DERIVED_PINNED"
     : "PSD_EXACT_ASSET_UNRESOLVED",
   channel: "NAVER_GFA",
   placement: "SMARTCHANNEL",
@@ -56,7 +58,7 @@ const compatibility = {
   fontContractRef: "contracts/naver-smartchannel-font-contract.json",
   sourceFontBinaryExact: true,
   sourceLayoutMetadataPreserved: true,
-  runtimeFontMode: "PSD_EXACT_RENDERER_OWNED",
+  runtimeFontMode: "MACOS_SOURCE_TTC_VERIFIED_DERIVED",
   runtimeLookupKey: "fontToken",
   photoshopBytePixelParityClaim: false,
   fonts,
@@ -73,10 +75,10 @@ const compatibility = {
 
 const metricFixtures = {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://kbr.local/contracts/naver-smartchannel-font-metric-fixtures-v1.2.0.json",
-  registryVersion: "1.2.0",
+  "$id": "https://kbr.local/contracts/naver-smartchannel-font-metric-fixtures-v1.3.0.json",
+  registryVersion: "1.3.0",
   status: (fontContract.roles ?? []).filter((role) => role.required === true).every((role) => role.assetStatus === "RESOLVED" && role.assetPath && role.sha256)
-    ? "RESOLVED_PSD_EXACT_ASSET"
+    ? "RESOLVED_MACOS_SOURCE_TTC_VERIFIED_DERIVED"
     : "BLOCKED_UNRESOLVED_ASSET",
   fontContractRef: "contracts/naver-smartchannel-font-contract.json",
   fixtures: [],
@@ -105,13 +107,13 @@ if (resolvedRoles.length === 3) {
       metricFixtures.fixtures.push({ id: `${role.id}_${sample.id}`, fontToken: role.id, postScriptName: postScript, text: sample.text, fontSize: sample.size, measuredWidth: width, deterministic: true, overflow: false });
     }
   }
-  metricFixtures.status = "RESOLVED_PSD_EXACT_ASSET";
+  metricFixtures.status = "RESOLVED_MACOS_SOURCE_TTC_VERIFIED_DERIVED";
   metricFixtures.summary = { total: metricFixtures.fixtures.length, pass: metricFixtures.fixtures.length, overflow: 0, status: "PASS" };
 }
 
-typography.runtimeFontMode = "PSD_EXACT_RENDERER_OWNED";
-typography.runtimeResolution = "PSD_EXACT_RENDERER_OWNED";
-typography.n2Blocking = compatibility.status !== "PSD_EXACT_RENDERER_OWNED_PINNED";
+typography.runtimeFontMode = "MACOS_SOURCE_TTC_VERIFIED_DERIVED";
+typography.runtimeResolution = "MACOS_SOURCE_TTC_VERIFIED_DERIVED";
+typography.n2Blocking = compatibility.status !== "MACOS_SOURCE_TTC_VERIFIED_DERIVED_PINNED";
 typography.sfRuntimeFonts = [];
 typography.fontCompatibilityRef = "contracts/naver-smartchannel-font-compatibility.json";
 typography.metricFixturesRef = "contracts/naver-smartchannel-font-metric-fixtures.json";

@@ -5,6 +5,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   assertSmartChannelFallbackProhibited,
+  compareFontCollectionFaceToStandalone,
+  inspectFontCollection,
+  inspectFontCollectionFaceGlyphCoverage,
   inspectFontIdentity,
   isTrustedFontReference,
   preflightExternalExactFont,
@@ -16,6 +19,22 @@ const boldPath = path.join(root, boldReference);
 const boldDigest = "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef";
 
 describe("NAVER SmartChannel fail-closed font preflight helper", () => {
+  it("inventories the pinned macOS TTC and verifies derived face table equivalence", async () => {
+    const collection = await readFile(path.join(root, "assets/fonts/naver-smartchannel/AppleSDGothicNeo.ttc"));
+    const inventory = inspectFontCollection(collection);
+    expect(inventory?.faceCount).toBe(18);
+    for (const expected of [
+      { index: 0, postScriptName: "AppleSDGothicNeo-Regular", fileName: "AppleSDGothicNeo-macOS19-Regular.otf" },
+      { index: 4, postScriptName: "AppleSDGothicNeo-SemiBold", fileName: "AppleSDGothicNeo-macOS19-SemiBold.otf" },
+      { index: 6, postScriptName: "AppleSDGothicNeo-Bold", fileName: "AppleSDGothicNeo-macOS19-Bold.otf" },
+    ]) {
+      expect(inventory?.faces[expected.index]).toMatchObject({ index: expected.index, postScriptNames: [expected.postScriptName], versions: ["19.0d2e1"], unitsPerEm: 1000, glyphCount: 18662, outlineFormat: "CFF" });
+      expect(inspectFontCollectionFaceGlyphCoverage(collection, expected.index, "가나다라마바사아자차카타파하 APP").covered).toBe(true);
+      const derived = await readFile(path.join(root, "assets/fonts/naver-smartchannel", expected.fileName));
+      expect(compareFontCollectionFaceToStandalone(collection, expected.index, derived)?.every((table) => table.status === "IDENTICAL" || table.status === "SEMANTICALLY_IDENTICAL_CHECKSUM_ADJUSTMENT_ONLY")).toBe(true);
+    }
+  });
+
   it("accepts a trusted exact resource when identity, digest, and version match", async () => {
     const bytes = await readFile(boldPath);
     const identity = inspectFontIdentity(bytes);

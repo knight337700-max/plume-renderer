@@ -308,7 +308,17 @@ export type SmartChannelReport = {
   };
   textRoles: SmartChannelTextRoleReport[];
   fixedComponents: Array<{ id: string; digest: string; x: number; y: number; width: number; height: number }>;
-  fonts: Array<{ token: string; runtimePostScriptName: string; digest: string }>;
+  fonts: Array<{
+    token: string;
+    runtimePostScriptName: string;
+    digest: string;
+    collectionAssetId?: string;
+    collectionDigest?: string;
+    collectionFaceIndex?: number;
+    collectionFacePostScriptName?: string;
+    fontContractVersion?: string;
+    integrationMode?: "VERIFIED_DERIVED_STANDALONE_FACE" | "LEGACY_N77_SINGLE_FONT";
+  }>;
   artifact: { pngDigest: string; bytes: number };
 };
 
