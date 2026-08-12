@@ -1,10 +1,12 @@
 {
   "phase": "N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA",
-  "status": "PENDING",
+  "status": "PASS",
   "rendererModule": "C:/Users/Lenovo/Desktop/Renderer Module",
-  "verifier": "PENDING",
-  "filesVerified": 0,
-  "fontHashes": "PENDING",
-  "goldenHashes": "PENDING",
+  "verifier": "PASS",
+  "filesVerified": 765,
+  "verifierChecks": 50,
+  "initialVerificationSourceSha": "974775a01a52f10eef54689170fe0db8064651e3",
+  "fontHashes": "PASS",
+  "goldenHashes": "PASS",
   "sourceShaPolicy": "MATCH_FINAL_REPOSITORY_HEAD_AT_FINAL_SYNC"
 }

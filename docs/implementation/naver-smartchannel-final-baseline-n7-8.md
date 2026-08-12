@@ -1,7 +1,8 @@
 # NAVER SmartChannel Final Baseline — N7.8
 
-Status: PASS candidate pending final package/handoff recording  
-Phase: `N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA`  
+Status: PASS
+
+Phase: `N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA`
 Source runtime commit: `a6318e0df7940290743b455a26cc168d985e9bee`
 
 ## Decision and scope

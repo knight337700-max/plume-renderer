@@ -41,7 +41,7 @@
     "fullCheck": "PASS",
     "packageSmoke": "PASS",
     "desktopSmoke": "PASS",
-    "handoffVerifier": "PENDING"
+    "handoffVerifier": "PASS"
   },
   "versions": {
     "canonical": "1.21.4",
