@@ -136,6 +136,8 @@ const fontCorrectionAudit = JSON.parse(await readFile(path.join(root, "contracts
 const fontSourceMigrationAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-font-source-migration-n7-7-4.json"), "utf8"));
 const typographyParityAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-typography-parity-n7-7-5.json"), "utf8"));
 const textInputUiParityAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-text-input-ui-parity-n7-7-6.json"), "utf8"));
+const finalBaselineAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-final-baseline-n7-8.json"), "utf8"));
+const goldenRebaseManifest = JSON.parse(await readFile(path.join(root, "artifacts/n7-8/golden-rebase-manifest.json"), "utf8"));
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -150,7 +152,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N7.7.6 SmartChannel text input UI parity handoff
+const readme = `# Renderer Module — N7.8 SmartChannel final frozen baseline handoff
 
 ## Purpose
 
@@ -158,7 +160,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N7.7.6 integration source commit: ${sourceSha}
+- N7.8 final baseline source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Source verification package: ${packageArtifact?.sourcePath ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256}; generated release intentionally excluded from source handoff)` : ""}
 - Runtime network access: PROHIBITED
@@ -180,6 +182,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER SmartChannel N7.7.4: pinned macOS original Apple SD Gothic Neo TTC, deterministic face identity selection, verified standalone-face derivation for the collection-limited raster backend, provider parity, three-run determinism, and 120-template smoke; result: ${fontSourceMigrationAudit.phase.status}
 - NAVER SmartChannel N7.7.5: actual-alpha-raster overflow boundary, source-proven 14/17 copy acceptance, token-scoped headline vertical parity, Korean overflow localization, and 120-template deterministic smoke; result: ${typographyParityAudit.phase.status}
 - NAVER SmartChannel N7.7.6: PSD text-layer metadata-driven Desktop input descriptors, 56-template 280 UI parity, mode-state preservation, and distinct render-role mapping; result: ${textInputUiParityAudit.phase.status}
+- NAVER SmartChannel N7.8: six representative Goldens rebased from the corrected production runtime, 120-template three-run validation, intentional text-only diff scope, non-SmartChannel freeze, and final package QA; result: ${finalBaselineAudit.phase.status}
 - Meta: not implemented
 - Google: not implemented
 
@@ -219,7 +222,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest implementation phase is N7.7.6 while the unchanged canonical document remains v1.21.4. N7.6 remains
+The latest freeze phase is N7.8 while the unchanged canonical document remains v1.21.4. N7.6 remains
 an immutable audit baseline; N7.7 changed the SmartChannel runtime token mapping and N7.7.4 replaces
 its font source with the verified macOS original TTC without changing geometry. N7.7.5 corrects
 source-known text overflow and the source-evidenced Bold headline raster offset without changing
@@ -255,8 +258,11 @@ docs/implementation/naver-smartchannel-typography-parity-correction-n7-7-5.md,
 scripts/verify-n7-7-5-typography-parity.mjs, and artifacts/n7-7-5/. N7.7.6 UI parity artifacts are
 contracts/audits/naver-smartchannel-text-input-ui-parity-n7-7-6.json,
 docs/implementation/naver-smartchannel-280-text-input-ui-field-mapping-n7-7-6.md,
-scripts/verify-n7-7-6-smartchannel-text-input-fields.mjs, and artifacts/n7-7-6/. The next decision is
-AWAIT_ADDITIONAL_USER_REPORTED_SMARTCHANNEL_ISSUES_BEFORE_ANY_GOLDEN_REBASE.
+scripts/verify-n7-7-6-smartchannel-text-input-fields.mjs, and artifacts/n7-7-6/. N7.8 final baseline artifacts are
+contracts/audits/naver-smartchannel-final-baseline-n7-8.json,
+docs/implementation/naver-smartchannel-final-baseline-n7-8.md,
+scripts/verify-n7-8-smartchannel-final-baseline.mjs, and artifacts/n7-8/. The corrected SmartChannel
+runtime is frozen and ready as the baseline for the next channel work.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
 const readmeEntry = files.find((entry) => entry.path === "README.md");
@@ -264,7 +270,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N7_7_6_SMARTCHANNEL_280_TEXT_INPUT_SCHEMA_UI_FIELD_MAPPING_CORRECTION",
+  handoffPhase: "N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -279,8 +285,8 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN7_7_6.rendererCoreVersion,
-    desktop: canonicalDocument.canonicalPhaseN7_7_6.desktopCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseN7_8.rendererCoreVersion,
+    desktop: canonicalDocument.canonicalPhaseN7_8.desktopCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
     platformComposedSourceRegistry: canonicalDocument.platformComposedSourceRegistryVersion,
@@ -350,6 +356,19 @@ const manifest = {
     orderingErrors: textInputUiParityAudit.parity.orderingErrors,
     goldenRebasePerformed: textInputUiParityAudit.goldenRebase.performed,
   },
+  goldenBaseline: {
+    phase: finalBaselineAudit.phase.id,
+    status: finalBaselineAudit.phase.status,
+    report: "docs/implementation/naver-smartchannel-final-baseline-n7-8.md",
+    verifier: "scripts/verify-n7-8-smartchannel-final-baseline.mjs",
+    evidenceDirectory: "artifacts/n7-8",
+    registry: "fixtures/golden/naver-smartchannel/registry.json",
+    registryVersion: finalBaselineAudit.goldenTopology.registryVersion,
+    representativeGoldens: goldenRebaseManifest.representativeGoldenCount,
+    exhaustiveTemplates: goldenRebaseManifest.exhaustiveTemplateCount,
+    intentionalChangesOnly: goldenRebaseManifest.intentionalChangesOnly,
+    deterministic: goldenRebaseManifest.deterministic,
+  },
   channels: {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
     NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", desktopIntegration: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED", video: "DISABLED_OUT_OF_STATIC_SCOPE" },
@@ -402,6 +421,11 @@ const manifest = {
     n7_7_6TextInputUiParityReport: "docs/implementation/naver-smartchannel-280-text-input-ui-field-mapping-n7-7-6.md",
     n7_7_6TextInputUiParityVerifier: "scripts/verify-n7-7-6-smartchannel-text-input-fields.mjs",
     n7_7_6EvidenceDirectory: "artifacts/n7-7-6",
+    n7_8FinalBaselineAudit: "contracts/audits/naver-smartchannel-final-baseline-n7-8.json",
+    n7_8FinalBaselineReport: "docs/implementation/naver-smartchannel-final-baseline-n7-8.md",
+    n7_8FinalBaselineVerifier: "scripts/verify-n7-8-smartchannel-final-baseline.mjs",
+    n7_8EvidenceDirectory: "artifacts/n7-8",
+    n7_8GoldenRegistry: "fixtures/golden/naver-smartchannel/registry.json",
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

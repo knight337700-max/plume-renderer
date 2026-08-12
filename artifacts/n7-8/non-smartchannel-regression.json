@@ -1,0 +1,49 @@
+{
+  "phase": "N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA",
+  "status": "PASS",
+  "comparisonBaseline": "a6318e0df7940290743b455a26cc168d985e9bee",
+  "kakao": [
+    {
+      "file": "fixtures/golden/object-right__stable__golden.png",
+      "expected": "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1",
+      "actual": "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1",
+      "status": "PASS"
+    },
+    {
+      "file": "fixtures/golden/thumbnail-box-right__valid__golden.png",
+      "expected": "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996",
+      "actual": "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996",
+      "status": "PASS"
+    },
+    {
+      "file": "fixtures/golden/thumbnail-multi-right__valid__golden.png",
+      "expected": "ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55",
+      "actual": "ec3689f320a20bb242f649759228bae27cec1ea74fe9ff4f3fbcea0988f3cd55",
+      "status": "PASS"
+    },
+    {
+      "file": "fixtures/golden/mask-semicircle-right__valid__golden.png",
+      "expected": "ad5448b368badcf1e5c304dadb8a93d3cbf4fab6f2e4d7d90334a44628d7d145",
+      "actual": "ad5448b368badcf1e5c304dadb8a93d3cbf4fab6f2e4d7d90334a44628d7d145",
+      "status": "PASS"
+    }
+  ],
+  "categories": {
+    "naverFixedComponents": {
+      "changedFiles": [],
+      "unchanged": true
+    },
+    "naverNonSmartChannel": {
+      "changedFiles": [],
+      "unchanged": true
+    },
+    "freeform": {
+      "changedFiles": [],
+      "unchanged": true
+    },
+    "platformComposed": {
+      "changedFiles": [],
+      "unchanged": true
+    }
+  }
+}

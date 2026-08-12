@@ -1,0 +1,181 @@
+{
+  "phase": "N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA",
+  "status": "PASS",
+  "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+  "canonicalVersion": "1.21.4",
+  "goldenRegistryVersion": "1.0.1",
+  "productionRenderPath": true,
+  "representativeGoldenCount": 6,
+  "exhaustiveTemplateCount": 120,
+  "intentionalChangesOnly": true,
+  "deterministic": true,
+  "uiOnlyN7_7_6PixelChange": false,
+  "candidates": [
+    {
+      "id": "N2-REP-001",
+      "templateId": "NAVER_SMARTCHANNEL_160_BASIC_STANDARD_LEFT_MAIN_SUB_NONE",
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-001.input.json",
+      "oldPngSha256": "137539fde736a384df8419437306768a0694cd1e179dc48b88dce46df957eaee",
+      "outputPngSha256": "4ad95c055c3ab60dbc2aed433833f20607d56be48489582bc19aad3050892d85",
+      "pixelSha256": "eb0ac487c03614cca5058836b36912ebc4ecca7bd4e4da7eaeebf6f15ffaa1ac",
+      "requestFingerprint": "01b3d268e6374881b368828024f875e74591c1a0777f094bb2c92f8ac1c1bbdd",
+      "renderFingerprint": "90ba7ed51bee7a6d973bc4f81b6f66240463d4ed39f737c5e0f5269aa02d49fb",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "intentional": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "diffMetricsPath": "artifacts/n7-8/golden-diffs/N2-REP-001/metrics.json"
+    },
+    {
+      "id": "N2-REP-002",
+      "templateId": "NAVER_SMARTCHANNEL_200_EMPHASIS_THUMBNAIL_RIGHT_THREE_LINE_NONE",
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-002.input.json",
+      "oldPngSha256": "9864041dd041944c75720f820afc51f193e0f7b115b38eed1d8bbbecccaadd36",
+      "outputPngSha256": "2358a7235667baa29edc3e74da74c19ab50178b4fae2e1ecbdb6824e8d9340ba",
+      "pixelSha256": "1ae971c33780a4742417ff2be724fb644d5b124fdcbd691c6179b482f8d0d31e",
+      "requestFingerprint": "43982867e98fe3e65d48e5ad2b3a4cb4c3695d2cbaebeca73598d93af6cbf3f2",
+      "renderFingerprint": "ea290209b8021a2bf6ff1be3d0d39b283f1dbeddc8e9959ba2e17822702cf6a9",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "intentional": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "diffMetricsPath": "artifacts/n7-8/golden-diffs/N2-REP-002/metrics.json"
+    },
+    {
+      "id": "N2-REP-003",
+      "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_ONE_LINE_LANDING_ICON",
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-003.input.json",
+      "oldPngSha256": "53aeb385f04720a799c725ef9f5c9a971f2d0bb347da0362e91a0082df18866c",
+      "outputPngSha256": "944107f9b344a4f1a146bf986e6095902806b47e818bfae31acb4ebe3eda639a",
+      "pixelSha256": "174ae48b5cf31510c3e8f19967a6e3e74c5c54eb9c197d7fa2e63b1db36cc5e5",
+      "requestFingerprint": "256e5026b60d18a91c97a24a89275e0010ccf4469577fde826b87a1ea86443fb",
+      "renderFingerprint": "8d1cd77828d32fb232df4558d4eb5b3aeb2bec9f696719e80539698d4be1f968",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "HEADLINE_VERTICAL_PARITY_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "intentional": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "diffMetricsPath": "artifacts/n7-8/golden-diffs/N2-REP-003/metrics.json"
+    },
+    {
+      "id": "N2-REP-004",
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_THUMBNAIL_LEFT_THREE_LINE_APP_CTA",
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-004.input.json",
+      "oldPngSha256": "791a757c89e9e87da679066fc5c2e8de41d72ec9261994e49e8c19c1d1250479",
+      "outputPngSha256": "fc8c54b6cab21ce2e9e9324a16a6eac714f36e4dcbd4ca032c27ddec3af42db2",
+      "pixelSha256": "dbced7e6350d4631f246503f8864c991c236a5a7d0eadab672c0154dd7341eb3",
+      "requestFingerprint": "e57739d821da148232212be7a25d1276ecda2817692119a9e013e9e4dd89e8bf",
+      "renderFingerprint": "a1ef840d98b108e8b5cbe8073e448c315d1dc7540dfcc4cdff4fe3bf62e69180",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "HEADLINE_VERTICAL_PARITY_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "intentional": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "diffMetricsPath": "artifacts/n7-8/golden-diffs/N2-REP-004/metrics.json"
+    },
+    {
+      "id": "N2-REP-005",
+      "templateId": "NAVER_SMARTCHANNEL_280_EMPHASIS_PERSON_MOVIE_RIGHT_FOUR_LINE_NONE",
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-005.input.json",
+      "oldPngSha256": "9c6a3d65734979f3f829ab86e4a48bf205bd3c2800b52ac6ae38c8d0e5b43c26",
+      "outputPngSha256": "bd0f155f2e4f451c245f29bbb333c138061d50f412a38e57f55140073cfce127",
+      "pixelSha256": "27d51914321bd9d12a3b9dcea449521165e1acb34908a7dc1890e9dcbd42720a",
+      "requestFingerprint": "596679ad94ffff957633e164229746ea37cca76573511585dd9f991e292ac844",
+      "renderFingerprint": "65be9a83b2d55abf92525bac2d4e2f83727cddae9fdedb0ba4329c4a7e2a66f0",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "HEADLINE_VERTICAL_PARITY_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "intentional": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "diffMetricsPath": "artifacts/n7-8/golden-diffs/N2-REP-005/metrics.json"
+    },
+    {
+      "id": "N2-REP-006",
+      "templateId": "NAVER_SMARTCHANNEL_280_BOTTOM_DISCLOSURE_STANDARD_LEFT_MAIN2_DISCLOSURE_2LINE_NONE",
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-006.input.json",
+      "oldPngSha256": "3ff0f84ce4820a8ee7966b833e465eafe3f4701a61120111a99ae55f07e132e8",
+      "outputPngSha256": "627d7f5ca263f01c8389f90a4cc238e547c005b80ffad028b2f255a1265b472c",
+      "pixelSha256": "e29be8f702fab02b40bae735d8d412cc68502ccf5d45ca78e33fc15cbb25e9e5",
+      "requestFingerprint": "1427c06f9ab6e06d088b2f1283b241c7577eb6adc7454d203815ddc09534be76",
+      "renderFingerprint": "4309452b504a3add12478f9b5bdee9fde5c9bf5cb3e993695eb15e244b40f721",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "HEADLINE_VERTICAL_PARITY_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "intentional": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "diffMetricsPath": "artifacts/n7-8/golden-diffs/N2-REP-006/metrics.json"
+    }
+  ]
+}

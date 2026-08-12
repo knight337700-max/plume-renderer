@@ -8,6 +8,8 @@ const root = process.cwd();
 const registry = JSON.parse(await readFile(path.join(root, "fixtures/golden/naver-smartchannel/registry.json"), "utf8"));
 const expectedIds = ["N2-REP-001", "N2-REP-002", "N2-REP-003", "N2-REP-004", "N2-REP-005", "N2-REP-006"];
 if (JSON.stringify(registry.candidates.map((entry) => entry.id)) !== JSON.stringify(expectedIds)) throw new Error("N2 golden candidate set is not exactly the six approved candidates");
+if (registry.registryVersion !== "1.0.1" || registry.status !== "FROZEN_REPRESENTATIVE_GOLDENS_N7_8") throw new Error("SmartChannel Golden registry is not the N7.8 frozen baseline");
+if (registry.sourceCommit !== "a6318e0df7940290743b455a26cc168d985e9bee") throw new Error("SmartChannel Golden source commit mismatch");
 const outputRoot = path.join(root, ".tmp-n2-runtime-verification");
 await mkdir(outputRoot, { recursive: true });
 const renderer = await createKakaoBizboardRenderer({ projectRoot: root, inputRoot: root, outputRoot });
@@ -33,7 +35,9 @@ for (const entry of registry.candidates) {
   if (sha256(goldenManifestBytes) !== entry.manifestSha256) throw new Error(`${entry.id} golden manifest SHA-256 mismatch`);
   const goldenManifest = JSON.parse(goldenManifestBytes.toString("utf8"));
   if (goldenManifest.outputPngDigest !== entry.pngSha256 || goldenManifest.templateId !== entry.templateId || goldenManifest.smartChannelReport.objectPlacementToken !== entry.objectPlacementToken || Object.prototype.hasOwnProperty.call(goldenManifest, "manifestDigest")) throw new Error(`${entry.id} golden manifest contract mismatch`);
-  const historicalNanumGolden = goldenManifest.assetDigests?.fonts?.some((font) => String(font.id).includes("NANUM")) === true;
+  if (goldenManifest.assetDigests?.fonts?.some((font) => String(font.id).includes("NANUM")) === true) throw new Error(`${entry.id} still references the stale Nanum Golden baseline`);
+  if (entry.intentional !== true || entry.deterministic !== true || entry.reasonForRebase !== "SOURCE_FONT_CORRECTION") throw new Error(`${entry.id} N7.8 rebase provenance mismatch`);
+  if (!Array.isArray(entry.runDigests) || entry.runDigests.length !== 3 || entry.runDigests.some((digest) => digest !== entry.pngSha256)) throw new Error(`${entry.id} frozen three-run digest evidence mismatch`);
   const input = JSON.parse(await readFile(path.join(root, "fixtures/valid/naver-smartchannel", `${entry.id}.input.json`), "utf8"));
   const runs = [];
   for (let run = 0; run < 3; run += 1) {
@@ -45,12 +49,12 @@ for (const entry of registry.candidates) {
     const runtimeTokens = runtimeManifest?.smartChannelReport?.fonts?.map((font) => font.token).sort() ?? [];
     const requiredTokens = runtimeFontPolicy.runtimeAssets.filter((asset) => asset.required === true).map((asset) => asset.id).sort();
     if (JSON.stringify(runtimeTokens) !== JSON.stringify(requiredTokens)) throw new Error(`${entry.id} required exact runtime font token mismatch: ${JSON.stringify(runtimeTokens)}`);
-    if (!historicalNanumGolden && (result.pixelFingerprint !== entry.pixelFingerprint || result.renderFingerprint !== entry.renderFingerprint)) throw new Error(`${entry.id} current golden fingerprint mismatch`);
+    if (result.pixelFingerprint !== entry.pixelFingerprint || result.renderFingerprint !== entry.renderFingerprint) throw new Error(`${entry.id} current golden fingerprint mismatch`);
     runs.push(result.pngDigest);
   }
   if (new Set(runs).size !== 1) throw new Error(`${entry.id} repeated render is not byte deterministic`);
-  if (!historicalNanumGolden && runs[0] !== entry.pngSha256) throw new Error(`${entry.id} current golden digest mismatch`);
+  if (runs[0] !== entry.pngSha256) throw new Error(`${entry.id} current golden digest mismatch`);
   const manifest = JSON.parse(await readFile(path.join(outputRoot, "naver-smartchannel", entry.id, "render-manifest.json"), "utf8"));
   if (manifest.smartChannelReport.textRoles.some((role) => role.overflow)) throw new Error(`${entry.id} has text overflow`);
 }
-console.log(`PASS naver_smartchannel_runtime: ${registry.candidates.length}/${expectedIds.length} historical goldens preserved; N7.7 exact-font outputs 3-run byte deterministic; golden migration recorded`);
+console.log(`PASS naver_smartchannel_runtime: ${registry.candidates.length}/${expectedIds.length} N7.8 exact-font representative goldens frozen; all outputs 3-run byte deterministic`);

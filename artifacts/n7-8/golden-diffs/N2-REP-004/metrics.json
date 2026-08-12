@@ -1,0 +1,117 @@
+{
+  "width": 750,
+  "height": 280,
+  "changedPixels": 14315,
+  "changedRatio": 0.06816666666666667,
+  "meanAbsDelta": 4.068813095238095,
+  "maxChannelDelta": 255,
+  "changedBounds": {
+    "x": 268,
+    "y": 44,
+    "width": 409,
+    "height": 183
+  },
+  "allowedChangeClass": "TEXT_AND_CTA_TEXT_RASTER_ONLY",
+  "allowedRegions": [
+    {
+      "x": 266,
+      "y": 40,
+      "width": 435,
+      "height": 40
+    },
+    {
+      "x": 266,
+      "y": 40,
+      "width": 435,
+      "height": 40
+    },
+    {
+      "x": 266,
+      "y": 88,
+      "width": 435,
+      "height": 40
+    },
+    {
+      "x": 266,
+      "y": 88,
+      "width": 435,
+      "height": 40
+    },
+    {
+      "x": 266,
+      "y": 140,
+      "width": 433,
+      "height": 35
+    },
+    {
+      "x": 266,
+      "y": 140,
+      "width": 433,
+      "height": 35
+    },
+    {
+      "x": 605,
+      "y": 204,
+      "width": 74,
+      "height": 27
+    },
+    {
+      "x": 605,
+      "y": 204,
+      "width": 74,
+      "height": 27
+    },
+    {
+      "x": 266,
+      "y": 40,
+      "width": 435,
+      "height": 40
+    },
+    {
+      "x": 265,
+      "y": 40,
+      "width": 221,
+      "height": 40
+    },
+    {
+      "x": 266,
+      "y": 88,
+      "width": 435,
+      "height": 40
+    },
+    {
+      "x": 264,
+      "y": 88,
+      "width": 281,
+      "height": 40
+    },
+    {
+      "x": 266,
+      "y": 140,
+      "width": 433,
+      "height": 35
+    },
+    {
+      "x": 265,
+      "y": 140,
+      "width": 262,
+      "height": 35
+    },
+    {
+      "x": 605,
+      "y": 204,
+      "width": 74,
+      "height": 27
+    },
+    {
+      "x": 605,
+      "y": 204,
+      "width": 74,
+      "height": 27
+    }
+  ],
+  "changedOutsideAllowedRegions": 0,
+  "expectedScopePass": true,
+  "oldPixelSha256": "05122dfce81f0963b043caf97bcd8f393829c520d2ad64d90e1803022cf74143",
+  "newPixelSha256": "dbced7e6350d4631f246503f8864c991c236a5a7d0eadab672c0154dd7341eb3"
+}

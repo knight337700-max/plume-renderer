@@ -1,0 +1,45 @@
+{
+  "width": 750,
+  "height": 280,
+  "changedPixels": 5481,
+  "changedRatio": 0.0261,
+  "meanAbsDelta": 1.5746607142857143,
+  "maxChannelDelta": 255,
+  "changedBounds": {
+    "x": 303,
+    "y": 124,
+    "width": 247,
+    "height": 36
+  },
+  "allowedChangeClass": "TEXT_AND_CTA_TEXT_RASTER_ONLY",
+  "allowedRegions": [
+    {
+      "x": 301,
+      "y": 120,
+      "width": 319,
+      "height": 40
+    },
+    {
+      "x": 301,
+      "y": 120,
+      "width": 319,
+      "height": 40
+    },
+    {
+      "x": 301,
+      "y": 120,
+      "width": 319,
+      "height": 40
+    },
+    {
+      "x": 300,
+      "y": 120,
+      "width": 250,
+      "height": 40
+    }
+  ],
+  "changedOutsideAllowedRegions": 0,
+  "expectedScopePass": true,
+  "oldPixelSha256": "f0a5e50b857964388e09bd2150ef172a70b60654f345b9f1a955570c7ff241f3",
+  "newPixelSha256": "174ae48b5cf31510c3e8f19967a6e3e74c5c54eb9c197d7fa2e63b1db36cc5e5"
+}

@@ -1,6 +1,8 @@
 {
-  "registryVersion": "1.0.0",
-  "status": "FROZEN_REPRESENTATIVE_GOLDENS",
+  "registryVersion": "1.0.1",
+  "status": "FROZEN_REPRESENTATIVE_GOLDENS_N7_8",
+  "topology": "SIX_REPRESENTATIVE_GOLDENS_WITH_120_TEMPLATE_EXHAUSTIVE_VALIDATION",
+  "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
   "candidates": [
     {
       "id": "N2-REP-001",
@@ -9,18 +11,47 @@
       "width": 750,
       "height": 160,
       "transparent": true,
-      "pngSha256": "137539fde736a384df8419437306768a0694cd1e179dc48b88dce46df957eaee",
-      "manifestSha256": "d7051fa2c52c2845439b5162d059030abf99666b1ce727e7622569ad8bce1b00",
-      "pixelFingerprint": "1b3eeec864b76519af2de1f73a804c4cfeef196296e735506ebef859d6e8661c",
+      "pngSha256": "4ad95c055c3ab60dbc2aed433833f20607d56be48489582bc19aad3050892d85",
+      "manifestSha256": "a84ccca4828c3f3563269c9039a5f2018e645c18f0a077ffba74fde05c158ebd",
+      "pixelFingerprint": "90ba7ed51bee7a6d973bc4f81b6f66240463d4ed39f737c5e0f5269aa02d49fb",
       "requestFingerprint": "01b3d268e6374881b368828024f875e74591c1a0777f094bb2c92f8ac1c1bbdd",
-      "renderFingerprint": "1b3eeec864b76519af2de1f73a804c4cfeef196296e735506ebef859d6e8661c",
+      "renderFingerprint": "90ba7ed51bee7a6d973bc4f81b6f66240463d4ed39f737c5e0f5269aa02d49fb",
       "runDigests": [
-        "137539fde736a384df8419437306768a0694cd1e179dc48b88dce46df957eaee",
-        "137539fde736a384df8419437306768a0694cd1e179dc48b88dce46df957eaee",
-        "137539fde736a384df8419437306768a0694cd1e179dc48b88dce46df957eaee"
+        "4ad95c055c3ab60dbc2aed433833f20607d56be48489582bc19aad3050892d85",
+        "4ad95c055c3ab60dbc2aed433833f20607d56be48489582bc19aad3050892d85",
+        "4ad95c055c3ab60dbc2aed433833f20607d56be48489582bc19aad3050892d85"
       ],
       "path": "fixtures/golden/naver-smartchannel/N2-REP-001.png",
-      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-001.manifest.json"
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-001.manifest.json",
+      "pixelSha256": "eb0ac487c03614cca5058836b36912ebc4ecca7bd4e4da7eaeebf6f15ffaa1ac",
+      "pixelRunDigests": [
+        "eb0ac487c03614cca5058836b36912ebc4ecca7bd4e4da7eaeebf6f15ffaa1ac",
+        "eb0ac487c03614cca5058836b36912ebc4ecca7bd4e4da7eaeebf6f15ffaa1ac",
+        "eb0ac487c03614cca5058836b36912ebc4ecca7bd4e4da7eaeebf6f15ffaa1ac"
+      ],
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-001.input.json",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "uiOnlyChangeAffectedPixels": false,
+      "intentional": true,
+      "deterministic": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "oldPngSha256": "137539fde736a384df8419437306768a0694cd1e179dc48b88dce46df957eaee",
+      "oldManifestSha256": "d7051fa2c52c2845439b5162d059030abf99666b1ce727e7622569ad8bce1b00",
+      "changedPixels": 9355,
+      "changedRatio": 0.07795833333333334
     },
     {
       "id": "N2-REP-002",
@@ -29,18 +60,47 @@
       "width": 750,
       "height": 200,
       "transparent": true,
-      "pngSha256": "9864041dd041944c75720f820afc51f193e0f7b115b38eed1d8bbbecccaadd36",
-      "manifestSha256": "806837e2da722553889c86ebf8e0226e21ca57d53153401bfb97362c2fee9bfd",
-      "pixelFingerprint": "7842783d32cb71a980bda4c09d75a2798916a1c399cd977bf3f9103ddb205e55",
+      "pngSha256": "2358a7235667baa29edc3e74da74c19ab50178b4fae2e1ecbdb6824e8d9340ba",
+      "manifestSha256": "782dafbb5c84971c20b18c26d16464389f77c7710f010f1a518a0db707a71254",
+      "pixelFingerprint": "ea290209b8021a2bf6ff1be3d0d39b283f1dbeddc8e9959ba2e17822702cf6a9",
       "requestFingerprint": "43982867e98fe3e65d48e5ad2b3a4cb4c3695d2cbaebeca73598d93af6cbf3f2",
-      "renderFingerprint": "7842783d32cb71a980bda4c09d75a2798916a1c399cd977bf3f9103ddb205e55",
+      "renderFingerprint": "ea290209b8021a2bf6ff1be3d0d39b283f1dbeddc8e9959ba2e17822702cf6a9",
       "runDigests": [
-        "9864041dd041944c75720f820afc51f193e0f7b115b38eed1d8bbbecccaadd36",
-        "9864041dd041944c75720f820afc51f193e0f7b115b38eed1d8bbbecccaadd36",
-        "9864041dd041944c75720f820afc51f193e0f7b115b38eed1d8bbbecccaadd36"
+        "2358a7235667baa29edc3e74da74c19ab50178b4fae2e1ecbdb6824e8d9340ba",
+        "2358a7235667baa29edc3e74da74c19ab50178b4fae2e1ecbdb6824e8d9340ba",
+        "2358a7235667baa29edc3e74da74c19ab50178b4fae2e1ecbdb6824e8d9340ba"
       ],
       "path": "fixtures/golden/naver-smartchannel/N2-REP-002.png",
-      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-002.manifest.json"
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-002.manifest.json",
+      "pixelSha256": "1ae971c33780a4742417ff2be724fb644d5b124fdcbd691c6179b482f8d0d31e",
+      "pixelRunDigests": [
+        "1ae971c33780a4742417ff2be724fb644d5b124fdcbd691c6179b482f8d0d31e",
+        "1ae971c33780a4742417ff2be724fb644d5b124fdcbd691c6179b482f8d0d31e",
+        "1ae971c33780a4742417ff2be724fb644d5b124fdcbd691c6179b482f8d0d31e"
+      ],
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-002.input.json",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "uiOnlyChangeAffectedPixels": false,
+      "intentional": true,
+      "deterministic": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "oldPngSha256": "9864041dd041944c75720f820afc51f193e0f7b115b38eed1d8bbbecccaadd36",
+      "oldManifestSha256": "806837e2da722553889c86ebf8e0226e21ca57d53153401bfb97362c2fee9bfd",
+      "changedPixels": 7364,
+      "changedRatio": 0.049093333333333336
     },
     {
       "id": "N2-REP-003",
@@ -49,18 +109,48 @@
       "width": 750,
       "height": 280,
       "transparent": true,
-      "pngSha256": "53aeb385f04720a799c725ef9f5c9a971f2d0bb347da0362e91a0082df18866c",
-      "manifestSha256": "70e70b92c391cdf8127ca95892f316c7fc0c4522734ec9727e04d4666cb695aa",
-      "pixelFingerprint": "b67b718efb7a029122c7dcdafa66f60df9cb369ff86637cdc48b789ad2690e28",
+      "pngSha256": "944107f9b344a4f1a146bf986e6095902806b47e818bfae31acb4ebe3eda639a",
+      "manifestSha256": "097d0bc424576854c61fb6159189680e9295d517fd5798bb5b3e43f3610c8f2c",
+      "pixelFingerprint": "8d1cd77828d32fb232df4558d4eb5b3aeb2bec9f696719e80539698d4be1f968",
       "requestFingerprint": "256e5026b60d18a91c97a24a89275e0010ccf4469577fde826b87a1ea86443fb",
-      "renderFingerprint": "b67b718efb7a029122c7dcdafa66f60df9cb369ff86637cdc48b789ad2690e28",
+      "renderFingerprint": "8d1cd77828d32fb232df4558d4eb5b3aeb2bec9f696719e80539698d4be1f968",
       "runDigests": [
-        "53aeb385f04720a799c725ef9f5c9a971f2d0bb347da0362e91a0082df18866c",
-        "53aeb385f04720a799c725ef9f5c9a971f2d0bb347da0362e91a0082df18866c",
-        "53aeb385f04720a799c725ef9f5c9a971f2d0bb347da0362e91a0082df18866c"
+        "944107f9b344a4f1a146bf986e6095902806b47e818bfae31acb4ebe3eda639a",
+        "944107f9b344a4f1a146bf986e6095902806b47e818bfae31acb4ebe3eda639a",
+        "944107f9b344a4f1a146bf986e6095902806b47e818bfae31acb4ebe3eda639a"
       ],
       "path": "fixtures/golden/naver-smartchannel/N2-REP-003.png",
-      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-003.manifest.json"
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-003.manifest.json",
+      "pixelSha256": "174ae48b5cf31510c3e8f19967a6e3e74c5c54eb9c197d7fa2e63b1db36cc5e5",
+      "pixelRunDigests": [
+        "174ae48b5cf31510c3e8f19967a6e3e74c5c54eb9c197d7fa2e63b1db36cc5e5",
+        "174ae48b5cf31510c3e8f19967a6e3e74c5c54eb9c197d7fa2e63b1db36cc5e5",
+        "174ae48b5cf31510c3e8f19967a6e3e74c5c54eb9c197d7fa2e63b1db36cc5e5"
+      ],
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-003.input.json",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "HEADLINE_VERTICAL_PARITY_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "uiOnlyChangeAffectedPixels": false,
+      "intentional": true,
+      "deterministic": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "oldPngSha256": "53aeb385f04720a799c725ef9f5c9a971f2d0bb347da0362e91a0082df18866c",
+      "oldManifestSha256": "70e70b92c391cdf8127ca95892f316c7fc0c4522734ec9727e04d4666cb695aa",
+      "changedPixels": 5481,
+      "changedRatio": 0.0261
     },
     {
       "id": "N2-REP-004",
@@ -69,18 +159,48 @@
       "width": 750,
       "height": 280,
       "transparent": true,
-      "pngSha256": "791a757c89e9e87da679066fc5c2e8de41d72ec9261994e49e8c19c1d1250479",
-      "manifestSha256": "98728fee03c8b9d1f337dbcf70c257faf90d3088ee2af5469cd1e8cf58675a22",
-      "pixelFingerprint": "2e1bbef61169707be9297af88a32a0c076f869ab0d0b00acd26f44263aa31e5e",
+      "pngSha256": "fc8c54b6cab21ce2e9e9324a16a6eac714f36e4dcbd4ca032c27ddec3af42db2",
+      "manifestSha256": "7e99a1adfe9155c0add3fdc0016aed518ea3c001ac6a47d2277dad1bc271fc65",
+      "pixelFingerprint": "a1ef840d98b108e8b5cbe8073e448c315d1dc7540dfcc4cdff4fe3bf62e69180",
       "requestFingerprint": "e57739d821da148232212be7a25d1276ecda2817692119a9e013e9e4dd89e8bf",
-      "renderFingerprint": "2e1bbef61169707be9297af88a32a0c076f869ab0d0b00acd26f44263aa31e5e",
+      "renderFingerprint": "a1ef840d98b108e8b5cbe8073e448c315d1dc7540dfcc4cdff4fe3bf62e69180",
       "runDigests": [
-        "791a757c89e9e87da679066fc5c2e8de41d72ec9261994e49e8c19c1d1250479",
-        "791a757c89e9e87da679066fc5c2e8de41d72ec9261994e49e8c19c1d1250479",
-        "791a757c89e9e87da679066fc5c2e8de41d72ec9261994e49e8c19c1d1250479"
+        "fc8c54b6cab21ce2e9e9324a16a6eac714f36e4dcbd4ca032c27ddec3af42db2",
+        "fc8c54b6cab21ce2e9e9324a16a6eac714f36e4dcbd4ca032c27ddec3af42db2",
+        "fc8c54b6cab21ce2e9e9324a16a6eac714f36e4dcbd4ca032c27ddec3af42db2"
       ],
       "path": "fixtures/golden/naver-smartchannel/N2-REP-004.png",
-      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-004.manifest.json"
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-004.manifest.json",
+      "pixelSha256": "dbced7e6350d4631f246503f8864c991c236a5a7d0eadab672c0154dd7341eb3",
+      "pixelRunDigests": [
+        "dbced7e6350d4631f246503f8864c991c236a5a7d0eadab672c0154dd7341eb3",
+        "dbced7e6350d4631f246503f8864c991c236a5a7d0eadab672c0154dd7341eb3",
+        "dbced7e6350d4631f246503f8864c991c236a5a7d0eadab672c0154dd7341eb3"
+      ],
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-004.input.json",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "HEADLINE_VERTICAL_PARITY_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "uiOnlyChangeAffectedPixels": false,
+      "intentional": true,
+      "deterministic": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "oldPngSha256": "791a757c89e9e87da679066fc5c2e8de41d72ec9261994e49e8c19c1d1250479",
+      "oldManifestSha256": "98728fee03c8b9d1f337dbcf70c257faf90d3088ee2af5469cd1e8cf58675a22",
+      "changedPixels": 14315,
+      "changedRatio": 0.06816666666666667
     },
     {
       "id": "N2-REP-005",
@@ -89,18 +209,48 @@
       "width": 750,
       "height": 280,
       "transparent": true,
-      "pngSha256": "9c6a3d65734979f3f829ab86e4a48bf205bd3c2800b52ac6ae38c8d0e5b43c26",
-      "manifestSha256": "4b457fefc675b7b4a0956d21762589e3cc0ead10731b7c40346207d23cbc0f19",
-      "pixelFingerprint": "4088b332b817d2a7debfcd967aa143c0ed7c43ddb8fe007ec2409767548752d8",
+      "pngSha256": "bd0f155f2e4f451c245f29bbb333c138061d50f412a38e57f55140073cfce127",
+      "manifestSha256": "c30523094fd8a4fba4eb6dd0bebcdc53f7fe5019044af8f304a82f75286b61f9",
+      "pixelFingerprint": "65be9a83b2d55abf92525bac2d4e2f83727cddae9fdedb0ba4329c4a7e2a66f0",
       "requestFingerprint": "596679ad94ffff957633e164229746ea37cca76573511585dd9f991e292ac844",
-      "renderFingerprint": "4088b332b817d2a7debfcd967aa143c0ed7c43ddb8fe007ec2409767548752d8",
+      "renderFingerprint": "65be9a83b2d55abf92525bac2d4e2f83727cddae9fdedb0ba4329c4a7e2a66f0",
       "runDigests": [
-        "9c6a3d65734979f3f829ab86e4a48bf205bd3c2800b52ac6ae38c8d0e5b43c26",
-        "9c6a3d65734979f3f829ab86e4a48bf205bd3c2800b52ac6ae38c8d0e5b43c26",
-        "9c6a3d65734979f3f829ab86e4a48bf205bd3c2800b52ac6ae38c8d0e5b43c26"
+        "bd0f155f2e4f451c245f29bbb333c138061d50f412a38e57f55140073cfce127",
+        "bd0f155f2e4f451c245f29bbb333c138061d50f412a38e57f55140073cfce127",
+        "bd0f155f2e4f451c245f29bbb333c138061d50f412a38e57f55140073cfce127"
       ],
       "path": "fixtures/golden/naver-smartchannel/N2-REP-005.png",
-      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-005.manifest.json"
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-005.manifest.json",
+      "pixelSha256": "27d51914321bd9d12a3b9dcea449521165e1acb34908a7dc1890e9dcbd42720a",
+      "pixelRunDigests": [
+        "27d51914321bd9d12a3b9dcea449521165e1acb34908a7dc1890e9dcbd42720a",
+        "27d51914321bd9d12a3b9dcea449521165e1acb34908a7dc1890e9dcbd42720a",
+        "27d51914321bd9d12a3b9dcea449521165e1acb34908a7dc1890e9dcbd42720a"
+      ],
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-005.input.json",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "HEADLINE_VERTICAL_PARITY_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "uiOnlyChangeAffectedPixels": false,
+      "intentional": true,
+      "deterministic": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "oldPngSha256": "9c6a3d65734979f3f829ab86e4a48bf205bd3c2800b52ac6ae38c8d0e5b43c26",
+      "oldManifestSha256": "4b457fefc675b7b4a0956d21762589e3cc0ead10731b7c40346207d23cbc0f19",
+      "changedPixels": 15673,
+      "changedRatio": 0.07463333333333333
     },
     {
       "id": "N2-REP-006",
@@ -109,18 +259,48 @@
       "width": 750,
       "height": 280,
       "transparent": true,
-      "pngSha256": "3ff0f84ce4820a8ee7966b833e465eafe3f4701a61120111a99ae55f07e132e8",
-      "manifestSha256": "f1f99a3a503560bbf980db2643d66242809a47d0d0165abadff46e1b34c37b7f",
-      "pixelFingerprint": "71e5930b899c9bff9c9ca4641b9fe76b552683710538b12e0a266dc20773c7de",
+      "pngSha256": "627d7f5ca263f01c8389f90a4cc238e547c005b80ffad028b2f255a1265b472c",
+      "manifestSha256": "d0f2e65cfee07a423053a721f3a552646abb10c24d9f0be1c832ca6cca2aeb90",
+      "pixelFingerprint": "4309452b504a3add12478f9b5bdee9fde5c9bf5cb3e993695eb15e244b40f721",
       "requestFingerprint": "1427c06f9ab6e06d088b2f1283b241c7577eb6adc7454d203815ddc09534be76",
-      "renderFingerprint": "71e5930b899c9bff9c9ca4641b9fe76b552683710538b12e0a266dc20773c7de",
+      "renderFingerprint": "4309452b504a3add12478f9b5bdee9fde5c9bf5cb3e993695eb15e244b40f721",
       "runDigests": [
-        "3ff0f84ce4820a8ee7966b833e465eafe3f4701a61120111a99ae55f07e132e8",
-        "3ff0f84ce4820a8ee7966b833e465eafe3f4701a61120111a99ae55f07e132e8",
-        "3ff0f84ce4820a8ee7966b833e465eafe3f4701a61120111a99ae55f07e132e8"
+        "627d7f5ca263f01c8389f90a4cc238e547c005b80ffad028b2f255a1265b472c",
+        "627d7f5ca263f01c8389f90a4cc238e547c005b80ffad028b2f255a1265b472c",
+        "627d7f5ca263f01c8389f90a4cc238e547c005b80ffad028b2f255a1265b472c"
       ],
       "path": "fixtures/golden/naver-smartchannel/N2-REP-006.png",
-      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-006.manifest.json"
+      "manifestPath": "fixtures/golden/naver-smartchannel/N2-REP-006.manifest.json",
+      "pixelSha256": "e29be8f702fab02b40bae735d8d412cc68502ccf5d45ca78e33fc15cbb25e9e5",
+      "pixelRunDigests": [
+        "e29be8f702fab02b40bae735d8d412cc68502ccf5d45ca78e33fc15cbb25e9e5",
+        "e29be8f702fab02b40bae735d8d412cc68502ccf5d45ca78e33fc15cbb25e9e5",
+        "e29be8f702fab02b40bae735d8d412cc68502ccf5d45ca78e33fc15cbb25e9e5"
+      ],
+      "inputFixture": "fixtures/valid/naver-smartchannel/N2-REP-006.input.json",
+      "fontCollectionSha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66",
+      "runtimeFaceDigests": {
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_BOLD": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_REGULAR": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff",
+        "NAVER_SC_APPLE_SD_GOTHIC_NEO_SEMIBOLD": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73"
+      },
+      "templateContractVersion": "1.9.0",
+      "smartChannelTemplateContractVersion": "1.10.0",
+      "canonicalVersion": "1.21.4",
+      "reasonForRebase": "SOURCE_FONT_CORRECTION",
+      "reasonTaxonomy": [
+        "SOURCE_FONT_CORRECTION",
+        "HEADLINE_VERTICAL_PARITY_CORRECTION",
+        "ACTUAL_RASTER_PARITY_CORRECTION"
+      ],
+      "uiOnlyChangeAffectedPixels": false,
+      "intentional": true,
+      "deterministic": true,
+      "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee",
+      "oldPngSha256": "3ff0f84ce4820a8ee7966b833e465eafe3f4701a61120111a99ae55f07e132e8",
+      "oldManifestSha256": "f1f99a3a503560bbf980db2643d66242809a47d0d0165abadff46e1b34c37b7f",
+      "changedPixels": 11340,
+      "changedRatio": 0.054
     }
   ]
 }

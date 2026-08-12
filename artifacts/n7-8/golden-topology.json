@@ -1,0 +1,17 @@
+{
+  "phase": "N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA",
+  "status": "PASS",
+  "existingGoldenCount": 6,
+  "representativeGoldens": [
+    "N2-REP-001",
+    "N2-REP-002",
+    "N2-REP-003",
+    "N2-REP-004",
+    "N2-REP-005",
+    "N2-REP-006"
+  ],
+  "exhaustiveFixtureCount": 120,
+  "smartChannelTemplatesTotal": 120,
+  "policy": "PRESERVE_EXISTING_SIX_REPRESENTATIVE_GOLDENS",
+  "generatedAdditionalGoldens": 0
+}

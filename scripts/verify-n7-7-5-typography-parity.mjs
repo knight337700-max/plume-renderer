@@ -27,7 +27,7 @@ const smoke = readJson("artifacts/n7-7-5/smartchannel-120-smoke.json");
 const manifest = readJson("artifacts/n7-7-5/representative-after-current-fixes.manifest.json");
 
 check("phase", audit.phase.id === "N7_7_5_SMARTCHANNEL_TYPOGRAPHY_PARITY_CORRECTION" && audit.phase.status === "PASS", JSON.stringify(audit.phase));
-check("versions", versions.documentVersion.current === "1.21.4" && versions.canonicalPhaseN7_7_5.rendererCoreVersion === "0.8.6" && versions.canonicalPhaseN7_7_6.rendererCoreVersion === "0.8.6" && versions.desktopAppVersion === "0.9.10" && packageJson.version === "0.9.10" && errors.registryVersion === "1.8.1" && typography.registryVersion === "1.6.0", JSON.stringify({ document: versions.documentVersion, historical: versions.canonicalPhaseN7_7_5, current: versions.canonicalPhaseN7_7_6, package: packageJson.version }));
+check("versions", versions.documentVersion.current === "1.21.4" && versions.canonicalPhaseN7_7_5.rendererCoreVersion === "0.8.6" && versions.canonicalPhaseN7_8.rendererCoreVersion === "0.8.6" && versions.desktopAppVersion === "0.9.11" && packageJson.version === "0.9.11" && errors.registryVersion === "1.8.1" && typography.registryVersion === "1.6.0", JSON.stringify({ document: versions.documentVersion, historical: versions.canonicalPhaseN7_7_5, current: versions.canonicalPhaseN7_8, package: packageJson.version }));
 check("template_geometry_frozen", versions.templateContractVersion === "1.9.0" && versions.smartChannelTemplateContractVersion === "1.10.0" && versions.canonicalPhaseN7_7_5.templateCoordinatesChanged === false, JSON.stringify(versions.canonicalPhaseN7_7_5));
 
 const expectedArtifacts = [

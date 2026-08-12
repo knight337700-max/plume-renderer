@@ -228,6 +228,19 @@ try {
     },
     failures,
   };
+  const reportPath = process.env.KBR_SMARTCHANNEL_EXHAUSTIVE_REPORT;
+  if (reportPath) {
+    const absoluteReportPath = path.resolve(root, reportPath);
+    await fs.mkdir(path.dirname(absoluteReportPath), { recursive: true });
+    await fs.writeFile(absoluteReportPath, `${JSON.stringify({
+      phase: process.env.KBR_SMARTCHANNEL_EXHAUSTIVE_PHASE ?? "N3_SMARTCHANNEL_EXHAUSTIVE",
+      ...result,
+      rendered: templatesPassed,
+      fontErrors: failures.filter((failure) => failure.includes("font") || failure.includes("FONT_")).length,
+      validatorErrors: failures.filter((failure) => failure.includes("validation") || failure.includes("overflow")).length,
+      crashes: failures.filter((failure) => failure.includes("crash")).length,
+    }, null, 2)}\n`, "utf8");
+  }
   console.log(JSON.stringify(result, null, 2));
   if (failures.length > 0) process.exitCode = 1;
 } finally {

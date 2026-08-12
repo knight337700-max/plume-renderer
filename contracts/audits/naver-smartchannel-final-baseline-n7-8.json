@@ -1,0 +1,59 @@
+{
+  "phase": {
+    "id": "N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA",
+    "status": "PASS",
+    "sourceCommit": "a6318e0df7940290743b455a26cc168d985e9bee"
+  },
+  "authorization": {
+    "basis": "USER_DIRECT_DESKTOP_REVALIDATION_AND_EXPLICIT_N7_8_REBASE_INSTRUCTION",
+    "additionalErrorsReported": 0,
+    "rebaseApproved": true,
+    "priorNotReviewedBlockerResolvedForThisGoldenFreeze": true
+  },
+  "scope": {
+    "canonicalDocumentChanged": false,
+    "rendererCoreChanged": false,
+    "smartChannelTemplateContractChanged": false,
+    "typographyChanged": false,
+    "fontResourcesChanged": false,
+    "validatorChanged": false,
+    "uiFieldMappingChanged": false,
+    "smartChannelGoldensChanged": true,
+    "nonSmartChannelGoldensChanged": false
+  },
+  "goldenTopology": {
+    "policy": "SIX_REPRESENTATIVE_GOLDENS_WITH_120_TEMPLATE_EXHAUSTIVE_VALIDATION",
+    "existingGoldenCount": 6,
+    "rebasedGoldenCount": 6,
+    "unchangedGoldenCount": 0,
+    "exhaustiveTemplates": 120,
+    "generatedAdditionalGoldens": 0,
+    "registryVersion": "1.0.1"
+  },
+  "acceptance": {
+    "smartChannel120": "PASS",
+    "representativeThreeRunDeterminism": "PASS",
+    "sourceFixtureRegression": "PASS",
+    "uiContractParity": "PASS",
+    "intentionalDiffScope": "PASS",
+    "nonSmartChannelRegression": "PASS",
+    "runtimeNetworkAccess": "PROHIBITED",
+    "fullCheck": "PASS",
+    "packageSmoke": "PASS",
+    "desktopSmoke": "PASS",
+    "handoffVerifier": "PENDING"
+  },
+  "versions": {
+    "canonical": "1.21.4",
+    "rendererCore": "0.8.6",
+    "smartChannelTemplate": "1.10.0",
+    "smartChannelTypography": "1.6.0",
+    "validator": "1.8.1",
+    "desktop": "0.9.11",
+    "package": "0.9.11"
+  },
+  "evidenceDirectory": "artifacts/n7-8",
+  "finalBaselineDocument": "docs/implementation/naver-smartchannel-final-baseline-n7-8.md",
+  "verifier": "scripts/verify-n7-8-smartchannel-final-baseline.mjs",
+  "blockers": []
+}

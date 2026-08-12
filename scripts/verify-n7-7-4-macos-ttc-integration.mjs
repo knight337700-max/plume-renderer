@@ -27,7 +27,7 @@ const backend = readJson("artifacts/n7-7-4/font-backend-audit.json");
 const smoke = readJson("artifacts/n7-7-4/smartchannel-120-smoke.json");
 
 check("phase", audit.phase.id === "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION" && audit.phase.status === "PASS", JSON.stringify(audit.phase));
-check("versions", versions.documentVersion.current === "1.21.4" && versions.desktopAppVersion === "0.9.10" && versions.canonicalPhaseN7_7_4.rendererCoreVersion === "0.8.5" && versions.canonicalPhaseN7_7_6.rendererCoreVersion === "0.8.6" && contract.registryVersion === "1.2.0" && policy.registryVersion === "1.5.0" && manifest.manifestVersion === "1.2.0", JSON.stringify({ historical: versions.canonicalPhaseN7_7_4, current: versions.canonicalPhaseN7_7_6 }));
+check("versions", versions.documentVersion.current === "1.21.4" && versions.desktopAppVersion === "0.9.11" && versions.canonicalPhaseN7_7_4.rendererCoreVersion === "0.8.5" && versions.canonicalPhaseN7_8.rendererCoreVersion === "0.8.6" && contract.registryVersion === "1.2.0" && policy.registryVersion === "1.5.0" && manifest.manifestVersion === "1.2.0", JSON.stringify({ historical: versions.canonicalPhaseN7_7_4, current: versions.canonicalPhaseN7_8 }));
 check("source_collection", fs.statSync(path.join(root, manifest.source.relativePath)).size === 28427796 && sha256(manifest.source.relativePath) === expectedCollectionSha && manifest.source.sha256 === expectedCollectionSha, JSON.stringify(manifest.source));
 check("inventory", inventory.faceCount === 18 && inventory.source.sha256 === expectedCollectionSha, JSON.stringify({ faceCount: inventory.faceCount, source: inventory.source }));
 const expectedFaces = [

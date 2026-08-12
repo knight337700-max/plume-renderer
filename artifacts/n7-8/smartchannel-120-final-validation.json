@@ -1,0 +1,17 @@
+{
+  "phase": "N7_8_SMARTCHANNEL_GOLDEN_REBASE_FINAL_PACKAGE_QA",
+  "status": "PASS",
+  "templatesAttempted": 120,
+  "templatesPassed": 120,
+  "threeRunDeterminism": true,
+  "ctaOptionCoverage": {
+    "compact160": 11,
+    "compact200": 11,
+    "height280": 11
+  },
+  "failures": [],
+  "rendered": 120,
+  "fontErrors": 0,
+  "validatorErrors": 0,
+  "crashes": 0
+}
