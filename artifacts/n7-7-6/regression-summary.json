@@ -32,7 +32,7 @@
   "playwright": { "tests": 28, "status": "PASS" },
   "packageSmoke": "PASS",
   "desktopSmoke": "PASS",
-  "handoffVerifier": "PENDING",
+  "handoffVerifier": "PASS",
   "portablePackage": {
     "path": "release/Kakao-Bizboard-Local-Renderer-0.9.10-x64.exe",
     "bytes": 144325225,
