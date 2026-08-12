@@ -1,0 +1,18 @@
+{
+  "phase": "N7_7_5_SMARTCHANNEL_TYPOGRAPHY_PARITY_CORRECTION",
+  "status": "PASS",
+  "attempted": 120,
+  "rendered": 120,
+  "newFontErrors": 0,
+  "newValidatorErrors": 0,
+  "crashes": 0,
+  "threeRunDeterminism": true,
+  "ctaOptionCoverage": {
+    "compact160": 11,
+    "compact200": 11,
+    "height280": 11
+  },
+  "failures": [],
+  "goldenRebasePerformed": false,
+  "readyForGoldenRebase": false
+}

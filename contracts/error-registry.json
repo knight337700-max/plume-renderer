@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.8.0",
+  "registryVersion": "1.8.1",
   "messageContract": "messageKey is stable; localized or AJV-native prose is not part of the external contract",
   "codes": [
     { "code": "KBR-INPUT-001", "severity": "ERROR", "messageKey": "input.json_parse_failed", "condition": "Raw JSON cannot be parsed" },
@@ -211,7 +211,7 @@
     { "code": "NAVER_SMARTCHANNEL_FIXED_COMPONENT_INVALID", "severity": "ERROR", "messageKey": "naver_smartchannel.fixed_component_invalid", "condition": "A frozen landing icon, CTA raster, or fixed component cannot be verified or placed" },
     { "code": "NAVER_SMARTCHANNEL_CTA_INVALID", "severity": "ERROR", "messageKey": "naver_smartchannel.cta_invalid", "condition": "An APP_CTA candidate has a label outside the frozen CTA option registry" },
     { "code": "NAVER_SMARTCHANNEL_TEXT_REQUIRED", "severity": "ERROR", "messageKey": "naver_smartchannel.text_required", "condition": "A visible PSD text role has no corresponding input value" },
-    { "code": "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", "severity": "ERROR", "messageKey": "naver_smartchannel.text_overflow", "condition": "Rendered SmartChannel text exceeds its source metadata box or canvas" },
+    { "code": "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", "severity": "ERROR", "messageKey": "naver_smartchannel.text_overflow", "condition": "The inclusive rightmost alpha pixel from the isolated SmartChannel text raster exceeds the source-effective right boundary, the canvas boundary, or the diagnostic raster is clipped" },
     { "code": "NAVER_SMARTCHANNEL_OUTPUT_INVALID", "severity": "ERROR", "messageKey": "naver_smartchannel.output_invalid", "condition": "The rendered artifact is not a transparent RGBA PNG with the selected SmartChannel dimensions" },
     { "code": "NAVER_SMARTCHANNEL_GOLDEN_MISMATCH", "severity": "ERROR", "messageKey": "naver_smartchannel.golden_mismatch", "condition": "A representative SmartChannel output differs from its frozen deterministic golden" }
   ]

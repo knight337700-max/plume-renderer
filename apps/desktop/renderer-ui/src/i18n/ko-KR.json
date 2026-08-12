@@ -57,6 +57,7 @@
   "naver_smartchannel.object_opaque_pixel_limit": "오브젝트의 불투명 픽셀이 허용 한도(29,120px)를 초과했습니다.",
   "naver_smartchannel.fixed_component_invalid": "스마트채널 고정 구성요소를 사용할 수 없습니다.",
   "naver_smartchannel.font_unavailable": "스마트채널 렌더에 필요한 지정 폰트를 사용할 수 없습니다.",
+  "naver_smartchannel.text_overflow": "텍스트가 스마트채널 허용 영역을 벗어났습니다.",
   "font.resource_missing": "Renderer 소유 폰트 리소스를 찾을 수 없습니다.",
   "font.resource_sha_mismatch": "폰트 리소스의 SHA-256이 고정 계약과 일치하지 않습니다.",
   "font.collection_face_not_found": "폰트 컬렉션에서 지정한 face index를 찾을 수 없습니다.",

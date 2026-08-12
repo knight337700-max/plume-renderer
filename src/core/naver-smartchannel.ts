@@ -48,6 +48,7 @@ export const NAVER_SMARTCHANNEL_MAX_UPSCALE = 1.5;
 // excluded from the visible trim seed. The source RGBA bytes are untouched.
 export const NAVER_SMARTCHANNEL_MIN_VISIBLE_COMPONENT_PIXELS = 16;
 const NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION = "napi-rs-canvas-png-v1";
+const NAVER_SMARTCHANNEL_DIAGNOSTIC_RASTER_WIDTH = 1500;
 
 type SmartChannelJson = Record<string, unknown>;
 type SmartChannelAsset = { path: string; expectedSha256?: string | null };
@@ -87,6 +88,28 @@ export type SmartChannelRenderOptions = {
 export type SmartChannelRenderResult = RenderResponse & {
   png?: Buffer | null;
   report?: SmartChannelReport;
+};
+
+export type SmartChannelTextRasterDiagnostic = {
+  templateId: string;
+  canvas: { width: number; height: number };
+  textRoles: SmartChannelTextRoleReport[];
+};
+
+export type SmartChannelTypographyRasterAlignmentAudit = {
+  typographyTokenId: string;
+  rows: Array<{
+    templateId: string;
+    role: NaverTextLayer["role"];
+    sourceLayer: string;
+    sourceText: string;
+    sourcePixelBounds: number[];
+    runtimeBoundsBefore: BBox | null;
+    runtimeBoundsAfter: BBox | null;
+    baselineDeltaY: number;
+    topDeltaBefore: number | null;
+    topDeltaAfter: number | null;
+  }>;
 };
 
 type NaverTemplate = {
@@ -847,7 +870,17 @@ async function drawVerifiedFixedAsset(
   return { id, digest, x: expectedBounds.x, y: expectedBounds.y, width: image.width, height: image.height };
 }
 
-function drawTrackedText(context: ReturnType<Canvas["getContext"]>, text: string, layer: NaverTextLayer, font: ResolvedFont, color: string, style: Record<string, string>): number {
+function rasterBaselineDelta(layer: NaverTextLayer, typographyRegistry: Record<string, unknown>): number {
+  const adapter = jsonArray(typographyRegistry.rasterAlignmentAdapters).find((entry) =>
+    stringArray(entry.typographyTokenIds).includes(String(layer.typographyTokenId ?? ""))
+    && stringArray(entry.roles).includes(layer.role),
+  );
+  const delta = Number(adapter?.baselineDeltaY ?? 0);
+  if (!Number.isFinite(delta) || !Number.isInteger(delta)) throw new Error("Typography raster alignment adapter has an invalid baselineDeltaY");
+  return delta;
+}
+
+function drawTrackedText(context: ReturnType<Canvas["getContext"]>, text: string, layer: NaverTextLayer, font: ResolvedFont, color: string, style: Record<string, string>, baselineDeltaY: number): number {
   const fontSize = Number(style.FontSize);
   const trackingValue = Number(style.Tracking);
   if (!Number.isFinite(fontSize) || !Number.isFinite(trackingValue) || fontSize <= 0) throw new Error("Typography token has invalid FontSize or Tracking");
@@ -857,26 +890,30 @@ function drawTrackedText(context: ReturnType<Canvas["getContext"]>, text: string
   context.fillStyle = color;
   let x = layer.role === "CTA_LABEL" ? layer.textPlacement.boxX : layer.textPlacement.originX;
   for (const character of [...text]) {
-    context.fillText(character, x, layer.textPlacement.baselineY);
+    context.fillText(character, x, layer.textPlacement.baselineY + baselineDeltaY);
     x += context.measureText(character).width + tracking;
   }
   const startX = layer.role === "CTA_LABEL" ? layer.textPlacement.boxX : layer.textPlacement.originX;
   return Math.max(0, x - startX - (text.length > 0 ? tracking : 0));
 }
 
-function drawTrackedTextWithRasterEvidence(canvas: Canvas, text: string, layer: NaverTextLayer, font: ResolvedFont, color: string, style: Record<string, string>): { width: number; bounds: BBox | null; nonTransparentPixelCount: number } {
-  const isolated = createCanvas(canvas.width, canvas.height);
+function drawTrackedTextWithRasterEvidence(canvas: Canvas, text: string, layer: NaverTextLayer, font: ResolvedFont, color: string, style: Record<string, string>, baselineDeltaY: number): { width: number; bounds: BBox | null; nonTransparentPixelCount: number; diagnosticSurfaceClipped: boolean } {
+  // The isolated surface deliberately extends past the 750 px production canvas.
+  // Validation therefore observes overrun ink instead of clipping it at the
+  // canvas or the PSD layout box. Compositing below still crops to final canvas.
+  const diagnosticWidth = Math.max(canvas.width, NAVER_SMARTCHANNEL_DIAGNOSTIC_RASTER_WIDTH);
+  const isolated = createCanvas(diagnosticWidth, canvas.height);
   const isolatedContext = isolated.getContext("2d");
-  const width = drawTrackedText(isolatedContext, text, layer, font, color, style);
-  const rgba = isolatedContext.getImageData(0, 0, canvas.width, canvas.height).data;
-  let minX = canvas.width;
+  const width = drawTrackedText(isolatedContext, text, layer, font, color, style, baselineDeltaY);
+  const rgba = isolatedContext.getImageData(0, 0, diagnosticWidth, canvas.height).data;
+  let minX = diagnosticWidth;
   let minY = canvas.height;
   let maxX = -1;
   let maxY = -1;
   let nonTransparentPixelCount = 0;
   for (let y = 0; y < canvas.height; y += 1) {
-    for (let x = 0; x < canvas.width; x += 1) {
-      if ((rgba[((y * canvas.width) + x) * 4 + 3] ?? 0) === 0) continue;
+    for (let x = 0; x < diagnosticWidth; x += 1) {
+      if ((rgba[((y * diagnosticWidth) + x) * 4 + 3] ?? 0) === 0) continue;
       nonTransparentPixelCount += 1;
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
@@ -885,7 +922,12 @@ function drawTrackedTextWithRasterEvidence(canvas: Canvas, text: string, layer: 
     }
   }
   canvas.getContext("2d").drawImage(isolated, 0, 0);
-  return { width, bounds: maxX < minX || maxY < minY ? null : { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 }, nonTransparentPixelCount };
+  return {
+    width,
+    bounds: maxX < minX || maxY < minY ? null : { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 },
+    nonTransparentPixelCount,
+    diagnosticSurfaceClipped: maxX === diagnosticWidth - 1,
+  };
 }
 
 function layerInputKey(role: NaverTextLayer["role"], index: number): keyof SmartChannelContent {
@@ -979,13 +1021,122 @@ function validateInputShape(request: unknown, contracts: ContractBundle): { requ
   };
 }
 
-function validateTextRole(layer: NaverTextLayer, width: number): boolean {
-  const boxRight = layer.textPlacement.boxX + layer.textPlacement.boxWidth;
-  // NAPI canvas reports fractional advances for the project-compatible font build;
-  // the frozen PSD pixel boxes include a small anti-aliasing allowance for CTA rows.
-  const allowance = layer.role === "CTA_LABEL" ? 5 : 0.01;
-  const startX = layer.role === "CTA_LABEL" ? layer.textPlacement.boxX : layer.textPlacement.originX;
-  return startX + width <= boxRight + allowance;
+function horizontalOverflowEvidence(layer: NaverTextLayer, raster: { width: number; bounds: BBox | null; diagnosticSurfaceClipped: boolean }): SmartChannelTextRoleReport["horizontalOverflowEvidence"] {
+  const sourceRight = Number(layer.pixelBounds[2]);
+  const rightBoundary = Number.isFinite(sourceRight) ? sourceRight : layer.textPlacement.boxX + layer.textPlacement.boxWidth;
+  // Pixel coordinates are compared inclusively. `actualRasterBounds` remains a
+  // conventional x/width bbox, while actualRightEdge is its last alpha pixel.
+  const actualRightEdge = raster.bounds ? raster.bounds.x + raster.bounds.width - 1 : null;
+  const clipped = actualRightEdge !== null && actualRightEdge > NAVER_SMARTCHANNEL_CANVAS_WIDTH - 1;
+  const overflow = actualRightEdge === null || actualRightEdge > rightBoundary || clipped || raster.diagnosticSurfaceClipped;
+  return {
+    measuredWidth: raster.width,
+    actualRasterBounds: raster.bounds,
+    rightBoundary,
+    actualRightEdge,
+    decisionBasis: "ACTUAL_RASTER_BOUNDARY",
+    overflow,
+    clipped,
+    diagnosticSurfaceClipped: raster.diagnosticSurfaceClipped,
+  };
+}
+
+/**
+ * Internal/test diagnostic preflight. It does not expose a public JSON render
+ * mode, publish files, or bypass the production text primitive. Each role is
+ * rasterized on the same isolated draw path used by renderSmartChannel.
+ */
+export async function diagnoseSmartChannelTextRaster(
+  templateId: string,
+  content: SmartChannelContent,
+  options: Pick<SmartChannelRenderOptions, "projectRoot" | "contracts" | "fontResourceProvider">,
+): Promise<SmartChannelTextRasterDiagnostic> {
+  const template = templates(options.contracts.naverTemplateContract).find((entry) => entry.templateId === templateId);
+  if (!template) throw new Error(`Unknown SmartChannel template: ${templateId}`);
+  const preflight = await preflightFonts(options.projectRoot, options.contracts, options.fontResourceProvider);
+  const fontErrors = preflight.issues.filter((issue) => issue.severity === "ERROR");
+  if (fontErrors.length > 0) throw new Error(`SmartChannel font preflight failed: ${JSON.stringify(fontErrors)}`);
+  const canvas = createCanvas(NAVER_SMARTCHANNEL_CANVAS_WIDTH, template.height);
+  const layers = visibleTextLayers(options.contracts.naverPsdMetadata, templateId);
+  const roleCounters = new Map<string, number>();
+  const textRoles: SmartChannelTextRoleReport[] = [];
+  for (const layer of layers) {
+    const index = roleCounters.get(layer.role) ?? 0;
+    roleCounters.set(layer.role, index + 1);
+    const inputKey = layerInputKey(layer.role, index);
+    const text = content[inputKey];
+    if (!text) continue;
+    const typography = typographyForLayer(layer, options.contracts.naverTypography);
+    const style = typography?.styleRuns[0];
+    const fontToken = typography ? sourceFontToToken(typography.fontNames[0] ?? "", options.contracts.naverFontCompatibility) : null;
+    const font = fontToken ? fontByToken(preflight.fonts, fontToken) : undefined;
+    if (!typography || !style || !font) throw new Error(`Unresolved diagnostic typography for ${templateId}/${inputKey}`);
+    const baselineDeltaY = rasterBaselineDelta(layer, options.contracts.naverTypography);
+    const raster = drawTrackedTextWithRasterEvidence(canvas, text, layer, font, parseFillColor(style.FillColor), style, baselineDeltaY);
+    const evidence = horizontalOverflowEvidence(layer, raster);
+    textRoles.push({
+      role: layer.role,
+      inputKey,
+      text,
+      sourceLayer: layer.name,
+      typographyTokenId: String(layer.typographyTokenId ?? ""),
+      box: { x: layer.textPlacement.boxX, y: layer.textPlacement.boxY, width: layer.textPlacement.boxWidth, height: layer.textPlacement.boxHeight },
+      expectedOrigin: { x: layer.textPlacement.originX, y: layer.textPlacement.baselineY },
+      actualRasterBounds: raster.bounds,
+      baselineY: layer.textPlacement.baselineY,
+      rasterBaselineY: layer.textPlacement.baselineY + baselineDeltaY,
+      measuredWidth: raster.width,
+      horizontalOverflowEvidence: evidence,
+      overflow: evidence.overflow,
+    });
+  }
+  return { templateId, canvas: { width: canvas.width, height: canvas.height }, textRoles };
+}
+
+/** Reproducible source-layer audit for token-scoped PSD-to-Skia adapters. */
+export async function auditSmartChannelTypographyTokenRasterAlignment(
+  typographyTokenId: string,
+  options: Pick<SmartChannelRenderOptions, "projectRoot" | "contracts" | "fontResourceProvider">,
+): Promise<SmartChannelTypographyRasterAlignmentAudit> {
+  const preflight = await preflightFonts(options.projectRoot, options.contracts, options.fontResourceProvider);
+  const fontErrors = preflight.issues.filter((issue) => issue.severity === "ERROR");
+  if (fontErrors.length > 0) throw new Error(`SmartChannel font preflight failed: ${JSON.stringify(fontErrors)}`);
+  const rows: SmartChannelTypographyRasterAlignmentAudit["rows"] = [];
+  for (const sourceTemplate of jsonArray(options.contracts.naverPsdMetadata.templates)) {
+    const templateId = String(sourceTemplate.templateId);
+    const template = templates(options.contracts.naverTemplateContract).find((entry) => entry.templateId === templateId);
+    if (!template) continue;
+    for (const entry of jsonArray(sourceTemplate.textLayers)) {
+      if (entry.visible === false || entry.guideLayer === true || String(entry.typographyTokenId ?? "") !== typographyTokenId) continue;
+      const layer = entry as unknown as NaverTextLayer;
+      if (!["HEADLINE", "SUBCOPY", "DISCLOSURE", "CTA_LABEL"].includes(layer.role)) continue;
+      const sourceText = String(entry.text ?? "");
+      if (!sourceText) continue;
+      const typography = typographyForLayer(layer, options.contracts.naverTypography);
+      const style = typography?.styleRuns[0];
+      const fontToken = typography ? sourceFontToToken(typography.fontNames[0] ?? "", options.contracts.naverFontCompatibility) : null;
+      const font = fontToken ? fontByToken(preflight.fonts, fontToken) : undefined;
+      if (!style || !font) throw new Error(`Unresolved source audit typography for ${templateId}/${layer.name}`);
+      const baselineDeltaY = rasterBaselineDelta(layer, options.contracts.naverTypography);
+      const before = drawTrackedTextWithRasterEvidence(createCanvas(NAVER_SMARTCHANNEL_CANVAS_WIDTH, template.height), sourceText, layer, font, parseFillColor(style.FillColor), style, 0);
+      const after = drawTrackedTextWithRasterEvidence(createCanvas(NAVER_SMARTCHANNEL_CANVAS_WIDTH, template.height), sourceText, layer, font, parseFillColor(style.FillColor), style, baselineDeltaY);
+      const sourcePixelBounds = numberArray(entry.pixelBounds);
+      const sourceTop = sourcePixelBounds[1];
+      rows.push({
+        templateId,
+        role: layer.role,
+        sourceLayer: layer.name,
+        sourceText,
+        sourcePixelBounds,
+        runtimeBoundsBefore: before.bounds,
+        runtimeBoundsAfter: after.bounds,
+        baselineDeltaY,
+        topDeltaBefore: sourceTop !== undefined && before.bounds ? before.bounds.y - sourceTop : null,
+        topDeltaAfter: sourceTop !== undefined && after.bounds ? after.bounds.y - sourceTop : null,
+      });
+    }
+  }
+  return { typographyTokenId, rows };
 }
 
 export function isSmartChannelRenderRequest(value: unknown): value is SmartChannelRenderRequest {
@@ -1104,11 +1255,13 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
       textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_INPUT_INVALID", `/template/${request.templateId}/typographyTokenId`, "typography token style run", layer.typographyTokenId));
       continue;
     }
-    const textRaster = drawTrackedTextWithRasterEvidence(canvas, text, layer, font, parseFillColor(style.FillColor), style);
+    const baselineDeltaY = rasterBaselineDelta(layer, contracts.naverTypography);
+    const textRaster = drawTrackedTextWithRasterEvidence(canvas, text, layer, font, parseFillColor(style.FillColor), style, baselineDeltaY);
     const width = textRaster.width;
-    const overflow = !validateTextRole(layer, width) || layer.textPlacement.boxX + width > NAVER_SMARTCHANNEL_CANVAS_WIDTH;
-    if (overflow) textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", `/content/${inputKey}`, { maxWidth: layer.textPlacement.boxWidth }, width, "POST_RENDER"));
-    textReports.push({ role: layer.role, inputKey, text, sourceLayer: layer.name, typographyTokenId: String(layer.typographyTokenId ?? ""), box: { x: layer.textPlacement.boxX, y: layer.textPlacement.boxY, width: layer.textPlacement.boxWidth, height: layer.textPlacement.boxHeight }, expectedOrigin: { x: layer.textPlacement.originX, y: layer.textPlacement.baselineY }, actualRasterBounds: textRaster.bounds, baselineY: layer.textPlacement.baselineY, measuredWidth: width, overflow });
+    const overflowEvidence = horizontalOverflowEvidence(layer, textRaster);
+    const overflow = overflowEvidence.overflow;
+    if (overflow) textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", `/content/${inputKey}`, { rightBoundary: overflowEvidence.rightBoundary, decisionBasis: overflowEvidence.decisionBasis }, { measuredWidth: width, actualRightEdge: overflowEvidence.actualRightEdge, clipped: overflowEvidence.clipped }, "POST_RENDER"));
+    textReports.push({ role: layer.role, inputKey, text, sourceLayer: layer.name, typographyTokenId: String(layer.typographyTokenId ?? ""), box: { x: layer.textPlacement.boxX, y: layer.textPlacement.boxY, width: layer.textPlacement.boxWidth, height: layer.textPlacement.boxHeight }, expectedOrigin: { x: layer.textPlacement.originX, y: layer.textPlacement.baselineY }, actualRasterBounds: textRaster.bounds, baselineY: layer.textPlacement.baselineY, rasterBaselineY: layer.textPlacement.baselineY + baselineDeltaY, measuredWidth: width, horizontalOverflowEvidence: overflowEvidence, overflow });
   }
 
   const fixedComponents: SmartChannelReport["fixedComponents"] = [];
@@ -1188,11 +1341,13 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
           if (!ctaFont) throw issueFor(contracts, "NAVER_SMARTCHANNEL_FONT_UNAVAILABLE", "/content/ctaOption", "approved runtime CTA typography font", ctaTypography.fontNames[0]);
           const style = ctaTypography.styleRuns[0];
           if (!style) throw issueFor(contracts, "NAVER_SMARTCHANNEL_INPUT_INVALID", `/template/${request.templateId}/typographyTokenId`, "CTA typography token style run", ctaLayer.typographyTokenId);
-          const ctaRaster = drawTrackedTextWithRasterEvidence(canvas, label, ctaLayer, ctaFont, parseFillColor(style.FillColor), style);
+          const ctaBaselineDeltaY = rasterBaselineDelta(ctaLayer, contracts.naverTypography);
+          const ctaRaster = drawTrackedTextWithRasterEvidence(canvas, label, ctaLayer, ctaFont, parseFillColor(style.FillColor), style, ctaBaselineDeltaY);
           const ctaWidth = ctaRaster.width;
-          const ctaOverflow = !validateTextRole(ctaLayer, ctaWidth);
-          if (ctaOverflow) textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", "/content/ctaOption", { maxWidth: ctaLayer.textPlacement.boxWidth }, ctaWidth, "POST_RENDER"));
-          textReports.push({ role: "CTA_LABEL", inputKey: "ctaOption", text: label, sourceLayer: ctaLayer.name, typographyTokenId: String(ctaLayer.typographyTokenId ?? ""), box: { x: ctaLayer.textPlacement.boxX, y: ctaLayer.textPlacement.boxY, width: ctaLayer.textPlacement.boxWidth, height: ctaLayer.textPlacement.boxHeight }, expectedOrigin: { x: ctaLayer.textPlacement.originX, y: ctaLayer.textPlacement.baselineY }, actualRasterBounds: ctaRaster.bounds, baselineY: ctaLayer.textPlacement.baselineY, measuredWidth: ctaWidth, overflow: ctaOverflow });
+          const ctaOverflowEvidence = horizontalOverflowEvidence(ctaLayer, ctaRaster);
+          const ctaOverflow = ctaOverflowEvidence.overflow;
+          if (ctaOverflow) textIssues.push(issueFor(contracts, "NAVER_SMARTCHANNEL_TEXT_OVERFLOW", "/content/ctaOption", { rightBoundary: ctaOverflowEvidence.rightBoundary, decisionBasis: ctaOverflowEvidence.decisionBasis }, { measuredWidth: ctaWidth, actualRightEdge: ctaOverflowEvidence.actualRightEdge, clipped: ctaOverflowEvidence.clipped }, "POST_RENDER"));
+          textReports.push({ role: "CTA_LABEL", inputKey: "ctaOption", text: label, sourceLayer: ctaLayer.name, typographyTokenId: String(ctaLayer.typographyTokenId ?? ""), box: { x: ctaLayer.textPlacement.boxX, y: ctaLayer.textPlacement.boxY, width: ctaLayer.textPlacement.boxWidth, height: ctaLayer.textPlacement.boxHeight }, expectedOrigin: { x: ctaLayer.textPlacement.originX, y: ctaLayer.textPlacement.baselineY }, actualRasterBounds: ctaRaster.bounds, baselineY: ctaLayer.textPlacement.baselineY, rasterBaselineY: ctaLayer.textPlacement.baselineY + ctaBaselineDeltaY, measuredWidth: ctaWidth, horizontalOverflowEvidence: ctaOverflowEvidence, overflow: ctaOverflow });
         } catch (error) { textIssues.push(error as ValidationIssue); }
       }
     }
@@ -1214,7 +1369,7 @@ export async function renderSmartChannel(requestValue: unknown, options: SmartCh
   const fixedDigestInputs = fixedComponents.map((entry) => ({ id: entry.id, digest: entry.digest, x: entry.x, y: entry.y, width: entry.width, height: entry.height }));
   const objectFrame = expectedObjectRegion;
   const fontFingerprintMaterial = preflight.fonts.map((font) => ({ token: font.token, collectionAssetId: font.collectionAssetId, collectionDigest: font.collectionDigest, faceIndex: font.collectionFaceIndex, facePostScriptName: font.collectionFacePostScriptName, fontContractVersion: font.fontContractVersion }));
-  const pixelFingerprint = canonicalDigest({ rendererPixelContract: "naver-smartchannel-raster-v1", encoderVersion: NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION, assetNormalizationContract: "naver-smartchannel-asset-normalization-v1.0.0", templateContractVersion: String(templateRegistry.templateContractVersion), templateId: request.templateId, objectPlacementToken: token.token, objectDigest: objectAsset.digest, objectFrame: token.placementFrame, objectDiagnostics: diagnostics, text: content, textMetadata: textReports.map((entry) => ({ role: entry.role, sourceLayer: entry.sourceLayer, typographyTokenId: entry.typographyTokenId, box: entry.box, baselineY: entry.baselineY })), fixedComponents: fixedDigestInputs, fonts: fontFingerprintMaterial });
+  const pixelFingerprint = canonicalDigest({ rendererPixelContract: "naver-smartchannel-raster-v1.1.0", encoderVersion: NAVER_SMARTCHANNEL_PNG_ENCODER_VERSION, assetNormalizationContract: "naver-smartchannel-asset-normalization-v1.0.0", templateContractVersion: String(templateRegistry.templateContractVersion), typographyRegistryVersion: String(contracts.naverTypography.registryVersion), templateId: request.templateId, objectPlacementToken: token.token, objectDigest: objectAsset.digest, objectFrame: token.placementFrame, objectDiagnostics: diagnostics, text: content, textMetadata: textReports.map((entry) => ({ role: entry.role, sourceLayer: entry.sourceLayer, typographyTokenId: entry.typographyTokenId, box: entry.box, baselineY: entry.baselineY, rasterBaselineY: entry.rasterBaselineY, actualRasterBounds: entry.actualRasterBounds, rightBoundary: entry.horizontalOverflowEvidence.rightBoundary })), fixedComponents: fixedDigestInputs, fonts: fontFingerprintMaterial });
   const renderFingerprint = pixelFingerprint;
   const report: SmartChannelReport = { templateId: request.templateId, objectPlacementToken: token.token, canvas: { width: NAVER_SMARTCHANNEL_CANVAS_WIDTH, height: template.height, format: "PNG", colorType: "RGBA", bitDepth: 8, hasAlpha: true }, object: { placementToken: token.token, expectedRegion: objectFrame, actualRasterBounds: diagnostics.finalBounds, sourceRuleId: token.sourceAssetRuleId, sourceMimeType: objectAsset.mime, sourceDigest: objectAsset.digest, frame: { x: objectFrame.x, y: objectFrame.y, width: diagnostics.normalizedSize.width, height: diagnostics.normalizedSize.height }, transform: token.coordinateSpace.type === "SMART_OBJECT_FRAME_SOURCE" ? "SOURCE_TRANSFORM" : "NONE", sourceCanvas: diagnostics.sourceCanvas, alphaBounds: diagnostics.alphaBounds, normalizedSize: diagnostics.normalizedSize, finalBounds: diagnostics.finalBounds, targetRegion: diagnostics.targetRegion, opaquePixelCount: diagnostics.opaquePixelCount, maxOpaquePixelCount: diagnostics.maxOpaquePixelCount }, textRoles: textReports, fixedComponents, fonts: preflight.fonts.map((font) => ({ token: font.token, runtimePostScriptName: font.runtimePostScriptName, digest: font.digest })), artifact: { pngDigest, bytes: png.byteLength } };
   const issueGroups = splitIssues(sortAndDedupeIssues([...preIssues, ...assetIssues, ...textIssues, ...postIssues]));

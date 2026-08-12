@@ -281,7 +281,18 @@ export type SmartChannelTextRoleReport = {
   expectedOrigin: { x: number; y: number };
   actualRasterBounds: BBox | null;
   baselineY: number;
+  rasterBaselineY: number;
   measuredWidth: number;
+  horizontalOverflowEvidence: {
+    measuredWidth: number;
+    actualRasterBounds: BBox | null;
+    rightBoundary: number;
+    actualRightEdge: number | null;
+    decisionBasis: "ACTUAL_RASTER_BOUNDARY";
+    overflow: boolean;
+    clipped: boolean;
+    diagnosticSurfaceClipped: boolean;
+  };
   overflow: boolean;
 };
 

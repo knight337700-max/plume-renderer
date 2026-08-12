@@ -1,0 +1,10 @@
+{
+  "phase": "N7_7_5_SMARTCHANNEL_TYPOGRAPHY_PARITY_CORRECTION",
+  "status": "PASS",
+  "errorCode": "NAVER_SMARTCHANNEL_TEXT_OVERFLOW",
+  "messageKey": "naver_smartchannel.text_overflow",
+  "registered": true,
+  "localizedMessage": "텍스트가 스마트채널 허용 영역을 벗어났습니다.",
+  "missingTranslationFallbackVisible": false,
+  "hardcodedUiString": false
+}

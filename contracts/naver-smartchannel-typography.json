@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.5.0",
+  "registryVersion": "1.6.0",
   "status": "SOURCE_METADATA_FROZEN_MACOS_TTC_RUNTIME_MAPPING",
   "classification": "SOURCE_CONFIRMED",
   "extractorRef": "contracts/naver-smartchannel-psd-metadata.json",
@@ -1587,6 +1587,60 @@
       "SFProDisplay-Bold",
       "SFUIDisplay-Bold"
     ]
+  },
+  "rasterAlignmentAdapters": [
+    {
+      "id": "PSD_TO_SKIA_HEADLINE_BOLD_35_KO_MINUS_1Y",
+      "typographyTokenIds": [
+        "PSD_TYPE_TOKEN_3cb00cba41e436f4"
+      ],
+      "roles": [
+        "HEADLINE"
+      ],
+      "baselineDeltaY": -1,
+      "scope": "TYPOGRAPHY_TOKEN_AND_ROLE",
+      "classification": "DERIVED_FROM_EXACT_SOURCE_METADATA_AND_RUNTIME_RASTER_AUDIT",
+      "sourceEvidence": {
+        "auditedVisibleNonGuideLayerCount": 83,
+        "runtimeTopDeltaBeforeCounts": {
+          "+1": 83
+        },
+        "runtimeTopDeltaAfterCounts": {
+          "0": 83
+        },
+        "representativeTemplateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE",
+        "representativeSourceTops": [
+          77,
+          125
+        ],
+        "representativeRuntimeTopsBefore": [
+          78,
+          126
+        ],
+        "representativeRuntimeTopsAfter": [
+          77,
+          125
+        ]
+      },
+      "preserves": [
+        "SOURCE_BASELINE",
+        "SOURCE_BOX",
+        "FONT_SIZE",
+        "TRACKING",
+        "FILL_COLOR",
+        "FONT_BINARY"
+      ]
+    }
+  ],
+  "horizontalOverflowDecision": {
+    "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+    "raster": "ISOLATED_SAME_DRAW_PRIMITIVE_WITHOUT_LAYOUT_BOX_CLIP",
+    "actualRightEdgeConvention": "INCLUSIVE_LAST_NON_TRANSPARENT_PIXEL_X",
+    "rightBoundarySource": "PSD_PIXEL_BOUNDS_RIGHT_EFFECTIVE",
+    "characterCountHardcode": false,
+    "arbitraryPadding": false,
+    "measurementAdvanceIsDecisionSource": false,
+    "classification": "PROJECT_SOURCE_COMPATIBILITY_RULE"
   },
   "runtimePolicyRef": "contracts/naver-smartchannel-runtime-font-policy.json",
   "fontContractRef": "contracts/naver-smartchannel-font-contract.json",

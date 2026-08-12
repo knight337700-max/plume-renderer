@@ -16,6 +16,8 @@ type TypographyRecord = {
   runtimeResolution: string;
   runtimeFontAssets: Array<{ resolution: string; sourceIdentityToPSD: string; bundleAllowed?: boolean; required?: boolean }>;
   n2Blocking: boolean;
+  rasterAlignmentAdapters: Array<{ typographyTokenIds: string[]; roles: string[]; baselineDeltaY: number; sourceEvidence: { auditedVisibleNonGuideLayerCount: number } }>;
+  horizontalOverflowDecision: { decisionBasis: string; characterCountHardcode: boolean; arbitraryPadding: boolean };
 };
 type FixedRecord = {
   components: Array<{ id: string; status: string; n2Blocking?: boolean }>;
@@ -80,7 +82,7 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
     expect(affordances.find((entry) => entry.id === "NONE")?.enabled).toBe(true);
     expect(affordances.filter((entry) => entry.enabled).map((entry) => entry.id)).toEqual(["NONE"]);
     expect(affordances.filter((entry) => entry.id !== "NONE").every((entry) => entry.enabled === false)).toBe(true);
-    expect(typography.registryVersion).toBe("1.5.0");
+    expect(typography.registryVersion).toBe("1.6.0");
     expect(typography.status).toBe("SOURCE_METADATA_FROZEN_MACOS_TTC_RUNTIME_MAPPING");
     expect(typography.exactSourceFontIdentity).toBe("PASS");
     expect(typography.sourceFonts.every((font) => font.classification === "SOURCE_CONFIRMED")).toBe(true);
@@ -91,6 +93,10 @@ describe("NAVER SmartChannel N1C source-resolution contract", () => {
     expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false)).toHaveLength(3);
     expect(typography.runtimeFontAssets.filter((asset) => asset.required !== false).every((asset) => asset.resolution === "RESOLVED" && asset.bundleAllowed === true)).toBe(true);
     expect(typography.n2Blocking).toBe(false);
+    expect(typography.rasterAlignmentAdapters).toEqual(expect.arrayContaining([
+      expect.objectContaining({ typographyTokenIds: ["PSD_TYPE_TOKEN_3cb00cba41e436f4"], roles: ["HEADLINE"], baselineDeltaY: -1, sourceEvidence: expect.objectContaining({ auditedVisibleNonGuideLayerCount: 83 }) }),
+    ]));
+    expect(typography.horizontalOverflowDecision).toMatchObject({ decisionBasis: "ACTUAL_RASTER_BOUNDARY", characterCountHardcode: false, arbitraryPadding: false });
     const fixedAffordances = fixed.components.filter((entry) => entry.id.startsWith("LANDING_ICON") || entry.id.startsWith("APP_CTA"));
     expect(fixedAffordances.every((entry) => entry.status === "FROZEN")).toBe(true);
     expect(fixed.specialGeometry.disclosure160TwoLine.status).toBe("FROZEN");

@@ -360,7 +360,35 @@
           "items": {
             "type": "object", "additionalProperties": false,
             "required": ["role", "inputKey", "text", "sourceLayer", "typographyTokenId", "box", "expectedOrigin", "actualRasterBounds", "baselineY", "measuredWidth", "overflow"],
-            "properties": { "role": { "enum": ["HEADLINE", "SUBCOPY", "DISCLOSURE", "CTA_LABEL"] }, "inputKey": { "type": "string" }, "text": { "type": "string" }, "sourceLayer": { "type": "string" }, "typographyTokenId": { "type": "string" }, "box": { "$ref": "#/$defs/pixelRect" }, "expectedOrigin": { "type": "object", "additionalProperties": false, "required": ["x", "y"], "properties": { "x": { "type": "number" }, "y": { "type": "number" } } }, "actualRasterBounds": { "anyOf": [{ "$ref": "#/$defs/pixelRect" }, { "type": "null" }] }, "baselineY": { "type": "number" }, "measuredWidth": { "type": "number", "minimum": 0 }, "overflow": { "type": "boolean" } }
+            "properties": {
+              "role": { "enum": ["HEADLINE", "SUBCOPY", "DISCLOSURE", "CTA_LABEL"] },
+              "inputKey": { "type": "string" },
+              "text": { "type": "string" },
+              "sourceLayer": { "type": "string" },
+              "typographyTokenId": { "type": "string" },
+              "box": { "$ref": "#/$defs/pixelRect" },
+              "expectedOrigin": { "type": "object", "additionalProperties": false, "required": ["x", "y"], "properties": { "x": { "type": "number" }, "y": { "type": "number" } } },
+              "actualRasterBounds": { "anyOf": [{ "$ref": "#/$defs/pixelRect" }, { "type": "null" }] },
+              "baselineY": { "type": "number" },
+              "rasterBaselineY": { "type": "number" },
+              "measuredWidth": { "type": "number", "minimum": 0 },
+              "horizontalOverflowEvidence": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["measuredWidth", "actualRasterBounds", "rightBoundary", "actualRightEdge", "decisionBasis", "overflow", "clipped", "diagnosticSurfaceClipped"],
+                "properties": {
+                  "measuredWidth": { "type": "number", "minimum": 0 },
+                  "actualRasterBounds": { "anyOf": [{ "$ref": "#/$defs/pixelRect" }, { "type": "null" }] },
+                  "rightBoundary": { "type": "number" },
+                  "actualRightEdge": { "type": ["number", "null"] },
+                  "decisionBasis": { "const": "ACTUAL_RASTER_BOUNDARY" },
+                  "overflow": { "type": "boolean" },
+                  "clipped": { "type": "boolean" },
+                  "diagnosticSurfaceClipped": { "type": "boolean" }
+                }
+              },
+              "overflow": { "type": "boolean" }
+            }
           }
         },
         "fixedComponents": {

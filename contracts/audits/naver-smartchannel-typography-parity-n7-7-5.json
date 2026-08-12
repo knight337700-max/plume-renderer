@@ -1,0 +1,114 @@
+{
+  "phase": {
+    "id": "N7_7_5_SMARTCHANNEL_TYPOGRAPHY_PARITY_CORRECTION",
+    "status": "PASS",
+    "canonicalDocumentVersion": "1.21.4",
+    "rendererCoreVersion": "0.8.6",
+    "desktopPackageVersion": "0.9.9"
+  },
+  "scope": {
+    "currentKnownIssuesFixedTogether": true,
+    "fontChanged": false,
+    "fontSizeChanged": false,
+    "trackingChanged": false,
+    "sourceColorsChanged": false,
+    "sourceBaselineValuesChanged": false,
+    "goldensChanged": false
+  },
+  "overflow": {
+    "before": {
+      "decisionBasis": "FRACTIONAL_GLYPH_ADVANCE",
+      "measurementApi": "per-code-point context.measureText(character).width plus tracking",
+      "threshold": "originX + advance <= boxX + boxWidth plus role allowance"
+    },
+    "after": {
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "sameDrawPathAsFinalRender": true,
+      "rightEdgeConvention": "INCLUSIVE_LAST_NON_TRANSPARENT_PIXEL_X",
+      "rightBoundarySource": "PSD_PIXEL_BOUNDS_RIGHT_EFFECTIVE",
+      "characterCountHardcode": false,
+      "arbitraryPadding": false,
+      "layoutBoxClipping": false
+    },
+    "headline14": {
+      "text": "일이삼사오륙칠팔구십일이삼사",
+      "measuredWidth": 401.1700096130371,
+      "actualRasterBounds": { "x": 304, "y": 77, "width": 400, "height": 32 },
+      "rightBoundary": 704,
+      "actualRightEdge": 703,
+      "overflow": false,
+      "result": "PASS"
+    },
+    "subcopy17": {
+      "text": "일이삼사오륙칠팔구십일이삼사오륙칠",
+      "measuredWidth": 403.3300025939938,
+      "actualRasterBounds": { "x": 305, "y": 177, "width": 401, "height": 27 },
+      "rightBoundary": 705,
+      "actualRightEdge": 705,
+      "overflow": false,
+      "result": "PASS"
+    }
+  },
+  "verticalParity": {
+    "adapterId": "PSD_TO_SKIA_HEADLINE_BOLD_35_KO_MINUS_1Y",
+    "typographyTokenId": "PSD_TYPE_TOKEN_3cb00cba41e436f4",
+    "roles": ["HEADLINE"],
+    "baselineDeltaY": -1,
+    "auditedVisibleNonGuideLayers": 83,
+    "topDeltaBefore": { "+1": 83 },
+    "topDeltaAfter": { "0": 83 },
+    "representative": {
+      "headline1": { "sourceTop": 77, "runtimeBefore": 78, "runtimeAfter": 77, "result": "PASS" },
+      "headline2": { "sourceTop": 125, "runtimeBefore": 126, "runtimeAfter": 125, "result": "PASS" },
+      "subcopy": { "sourceTop": 177, "runtimeBefore": 177, "runtimeAfter": 177, "unchanged": true }
+    }
+  },
+  "i18n": {
+    "errorCode": "NAVER_SMARTCHANNEL_TEXT_OVERFLOW",
+    "messageKey": "naver_smartchannel.text_overflow",
+    "registered": true,
+    "missingTranslationVisible": false
+  },
+  "fonts": {
+    "sourceCollection": { "sha256": "0452cde17bbdfe71106680879df943034a003c537c95a4137bab124b3cfa4b66" },
+    "regular": { "sha256": "f41058fdd3ccdf7233abcef16d8d22f66c7dc35c14a5b4f665043f1ab20c86ff" },
+    "semibold": { "sha256": "e6aa5c5757cdb7f1b790dd0bfe6d627a4db2bd90a6751b4290733ae21419ba73" },
+    "bold": { "sha256": "ae71ed736249e8c07191e6b7ec81d7ec8898f51fdc7d00ea49d2a6592e386cd7" },
+    "changed": false
+  },
+  "acceptance": {
+    "representativeThreeRunDeterminism": true,
+    "smartChannelAttempted": 120,
+    "smartChannelRendered": 120,
+    "newFontErrors": 0,
+    "newValidatorErrors": 0,
+    "crashes": 0,
+    "goldenRebasePerformed": false,
+    "readyForGoldenRebase": false
+  },
+  "regression": {
+    "fullCheck": "PASS",
+    "vitest": { "files": 42, "tests": 256, "status": "PASS" },
+    "playwright": { "tests": 26, "status": "PASS" },
+    "kakaoFrozenGoldensUnchanged": true,
+    "naverFixedComponentsUnchanged": true,
+    "naverNonSmartChannelUnchanged": true,
+    "freeformUnchanged": true,
+    "platformComposedUnchanged": true,
+    "macosOriginalTtcIntegration": "PASS",
+    "desktopSmoke": "PASS",
+    "packageSmoke": "PASS",
+    "portablePackage": {
+      "path": "release/Kakao-Bizboard-Local-Renderer-0.9.9-x64.exe",
+      "bytes": 144353973,
+      "sha256": "60f068da7f7e7a7c718bfb1e27076a8df7fd56c6448ca252b1db0bc0c823dd7b"
+    }
+  },
+  "evidence": {
+    "directory": "artifacts/n7-7-5",
+    "generator": "scripts/generate-n7-7-5-evidence.mjs",
+    "verifier": "scripts/verify-n7-7-5-typography-parity.mjs",
+    "implementationReport": "docs/implementation/naver-smartchannel-typography-parity-correction-n7-7-5.md"
+  },
+  "blockers": []
+}

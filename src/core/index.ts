@@ -6,6 +6,8 @@ export {
 } from "./renderer.js";
 export {
   isSmartChannelRenderRequest,
+  diagnoseSmartChannelTextRaster,
+  auditSmartChannelTypographyTokenRasterAlignment,
   renderSmartChannel,
   NAVER_SMARTCHANNEL_CANVAS_WIDTH,
   NAVER_SMARTCHANNEL_FORMAT_PROFILE_ID,
@@ -24,6 +26,8 @@ export type {
   SmartChannelRenderOptions,
   SmartChannelRenderRequest,
   SmartChannelRenderResult,
+  SmartChannelTextRasterDiagnostic,
+  SmartChannelTypographyRasterAlignmentAudit,
 } from "./naver-smartchannel.js";
 export {
   freeformResponseFromResult,

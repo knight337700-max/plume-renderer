@@ -1,0 +1,280 @@
+{
+  "phase": "N7_7_5_SMARTCHANNEL_TYPOGRAPHY_PARITY_CORRECTION",
+  "status": "PASS",
+  "templateId": "NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE",
+  "algorithmBefore": {
+    "sourceFile": "src/core/naver-smartchannel.ts",
+    "function": "validateTextRole",
+    "measurementApi": "per-code-point context.measureText(character).width accumulated with tracking",
+    "trackingFormula": "Tracking * FontSize / 1000",
+    "thresholdSource": "originX + measured advance <= boxX + boxWidth (+ role allowance)",
+    "comparisonOperator": "<=",
+    "happensBeforeRasterEvidenceDecision": true,
+    "decisionBasis": "FRACTIONAL_GLYPH_ADVANCE"
+  },
+  "algorithmAfter": {
+    "sourceFile": "src/core/naver-smartchannel.ts",
+    "functions": [
+      "drawTrackedTextWithRasterEvidence",
+      "horizontalOverflowEvidence"
+    ],
+    "measurementApi": "isolated alpha scan using the production drawTrackedText primitive",
+    "trackingFormula": "Tracking * FontSize / 1000",
+    "thresholdSource": "PSD pixelBounds[2] source-effective right boundary",
+    "comparisonOperator": "inclusive actualRightEdge <= rightBoundary",
+    "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+    "sameDrawPathAsFinalRender": true,
+    "characterCountHardcode": false,
+    "arbitraryPadding": false,
+    "layoutBoxClipping": false
+  },
+  "tracking": {
+    "value": -50,
+    "rendererFormula": "trackingPx = Tracking * FontSize / 1000",
+    "includedInMeasurement": true,
+    "includedInDraw": true,
+    "validationRenderSemanticsIdentical": true
+  },
+  "headline": [
+    {
+      "requestedGraphemeCount": 13,
+      "sourceProven": false,
+      "inputKey": "headline",
+      "text": "일이삼사오륙칠팔구십일이삼",
+      "graphemeCount": 13,
+      "measuredWidth": 372.6400089263916,
+      "actualRasterBounds": {
+        "x": 304,
+        "y": 77,
+        "width": 372,
+        "height": 32
+      },
+      "rightBoundary": 704,
+      "actualRightEdge": 675,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": false,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 105.45703125
+    },
+    {
+      "requestedGraphemeCount": 14,
+      "sourceProven": true,
+      "inputKey": "headline",
+      "text": "일이삼사오륙칠팔구십일이삼사",
+      "graphemeCount": 14,
+      "measuredWidth": 401.1700096130371,
+      "actualRasterBounds": {
+        "x": 304,
+        "y": 77,
+        "width": 400,
+        "height": 32
+      },
+      "rightBoundary": 704,
+      "actualRightEdge": 703,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": false,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 105.45703125
+    },
+    {
+      "requestedGraphemeCount": 15,
+      "sourceProven": false,
+      "inputKey": "headline",
+      "text": "일이삼사오륙칠팔구십일이삼사오",
+      "graphemeCount": 15,
+      "measuredWidth": 429.7000102996826,
+      "actualRasterBounds": {
+        "x": 304,
+        "y": 77,
+        "width": 428,
+        "height": 32
+      },
+      "rightBoundary": 704,
+      "actualRightEdge": 731,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": true,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 105.45703125
+    }
+  ],
+  "subcopy": [
+    {
+      "requestedGraphemeCount": 16,
+      "sourceProven": false,
+      "inputKey": "subcopy",
+      "text": "일이삼사오륙칠팔구십일이삼사오륙",
+      "graphemeCount": 16,
+      "measuredWidth": 379.69000244140597,
+      "actualRasterBounds": {
+        "x": 305,
+        "y": 177,
+        "width": 378,
+        "height": 27
+      },
+      "rightBoundary": 705,
+      "actualRightEdge": 682,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": false,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 201.45703125
+    },
+    {
+      "requestedGraphemeCount": 17,
+      "sourceProven": true,
+      "inputKey": "subcopy",
+      "text": "일이삼사오륙칠팔구십일이삼사오륙칠",
+      "graphemeCount": 17,
+      "measuredWidth": 403.3300025939938,
+      "actualRasterBounds": {
+        "x": 305,
+        "y": 177,
+        "width": 401,
+        "height": 27
+      },
+      "rightBoundary": 705,
+      "actualRightEdge": 705,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": false,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 201.45703125
+    },
+    {
+      "requestedGraphemeCount": 18,
+      "sourceProven": false,
+      "inputKey": "subcopy",
+      "text": "일이삼사오륙칠팔구십일이삼사오륙칠팔",
+      "graphemeCount": 18,
+      "measuredWidth": 426.97000274658166,
+      "actualRasterBounds": {
+        "x": 305,
+        "y": 177,
+        "width": 426,
+        "height": 27
+      },
+      "rightBoundary": 705,
+      "actualRightEdge": 730,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": true,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 201.45703125
+    }
+  ],
+  "mixed": [
+    {
+      "inputKey": "headline",
+      "text": "ABCDEFGHIJKLMNO",
+      "graphemeCount": 15,
+      "measuredWidth": 296.310001373291,
+      "actualRasterBounds": {
+        "x": 303,
+        "y": 80,
+        "width": 295,
+        "height": 25
+      },
+      "rightBoundary": 704,
+      "actualRightEdge": 597,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": false,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 105.45703125
+    },
+    {
+      "inputKey": "headline",
+      "text": "123456789012345",
+      "graphemeCount": 15,
+      "measuredWidth": 255.5900001525879,
+      "actualRasterBounds": {
+        "x": 304,
+        "y": 80,
+        "width": 254,
+        "height": 25
+      },
+      "rightBoundary": 704,
+      "actualRightEdge": 557,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": false,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 105.45703125
+    },
+    {
+      "inputKey": "headline",
+      "text": "AB CD EF GH IJK",
+      "graphemeCount": 15,
+      "measuredWidth": 235.8400001525879,
+      "actualRasterBounds": {
+        "x": 303,
+        "y": 80,
+        "width": 236,
+        "height": 25
+      },
+      "rightBoundary": 704,
+      "actualRightEdge": 538,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": false,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 105.45703125
+    },
+    {
+      "inputKey": "headline",
+      "text": "SAVE 20% + 2026",
+      "graphemeCount": 15,
+      "measuredWidth": 257.35999965667725,
+      "actualRasterBounds": {
+        "x": 304,
+        "y": 80,
+        "width": 255,
+        "height": 27
+      },
+      "rightBoundary": 704,
+      "actualRightEdge": 558,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": false,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 105.45703125
+    },
+    {
+      "inputKey": "headline",
+      "text": "네이버 SMART 2026",
+      "graphemeCount": 14,
+      "measuredWidth": 279.3200035095215,
+      "actualRasterBounds": {
+        "x": 305,
+        "y": 77,
+        "width": 276,
+        "height": 32
+      },
+      "rightBoundary": 704,
+      "actualRightEdge": 580,
+      "decisionBasis": "ACTUAL_RASTER_BOUNDARY",
+      "overflow": false,
+      "clipped": false,
+      "diagnosticSurfaceClipped": false,
+      "rasterBaselineY": 105.45703125
+    }
+  ],
+  "determinism": {
+    "runs": 3,
+    "outputDigests": [
+      "a2f2790bae1d12e76b0a766b9e1d9417fdd57b01e796d39359621cb876ff27d6",
+      "a2f2790bae1d12e76b0a766b9e1d9417fdd57b01e796d39359621cb876ff27d6",
+      "a2f2790bae1d12e76b0a766b9e1d9417fdd57b01e796d39359621cb876ff27d6"
+    ],
+    "pixelFingerprints": [
+      "66a1c6dea88ff1c400c886dd451fdb877f5f45b3c4991e1aadebd620a52a76ac",
+      "66a1c6dea88ff1c400c886dd451fdb877f5f45b3c4991e1aadebd620a52a76ac",
+      "66a1c6dea88ff1c400c886dd451fdb877f5f45b3c4991e1aadebd620a52a76ac"
+    ],
+    "artifactBytesIdentical": true,
+    "pixelIdentical": true
+  }
+}

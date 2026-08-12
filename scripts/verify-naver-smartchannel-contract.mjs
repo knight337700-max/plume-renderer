@@ -57,7 +57,8 @@ expect(metadataTokenIds.size === 25 && metadataTokenIds.size === new Set(typogra
 expect(templates.every((entry) => entry.sourceMetadataRef?.templateId === entry.templateId), "template metadata references are incomplete");
 expect(templates.every((entry) => entry.source.sourceRevisionRef), "source revision references are incomplete");
 
-expect(typography.registryVersion === "1.5.0", "typography registry version mismatch");
+expect(typography.registryVersion === "1.6.0", "typography registry version mismatch");
+expect(typography.horizontalOverflowDecision?.decisionBasis === "ACTUAL_RASTER_BOUNDARY" && typography.rasterAlignmentAdapters?.some((entry) => entry.typographyTokenIds?.includes("PSD_TYPE_TOKEN_3cb00cba41e436f4") && entry.baselineDeltaY === -1), "N7.7.5 typography parity registry mismatch");
 expect(typography.status === "SOURCE_METADATA_FROZEN_MACOS_TTC_RUNTIME_MAPPING", "typography source metadata is not frozen with correction record");
 expect(typography.exactSourceFontIdentity === "PASS", "exact source font identity is not PASS");
 expect(typography.tokens.length === 25 && typography.tokens.every((token) => token.classification === "DERIVED_FROM_EXACT_SOURCE_METADATA"), "typography token registry mismatch");

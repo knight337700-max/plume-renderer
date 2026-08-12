@@ -1,7 +1,7 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.21.3
+- **Document version:** 1.21.4
 - **Status:** Frozen Implementation Contract — Phase N7.7 SmartChannel PSD-exact renderer-owned runtime font correction
 - **Checked date:** 2026-08-11 (KST)
 - **Owner:** Local Renderer Project
@@ -4808,3 +4808,88 @@ Machine-readable audit는
 `contracts/audits/naver-smartchannel-font-source-migration-n7-7-4.json`, 구현 보고서는
 `docs/implementation/naver-smartchannel-macos-original-ttc-integration-n7-7-4.md`, 검증 자료는
 `artifacts/n7-7-4/`에 둔다. **[PROJECT]**
+
+## 47. Phase N7.7.5 — SmartChannel typography parity correction [PROJECT]
+
+N7.7.5는 현재 확인된 SmartChannel text 문제 세 개만 함께 교정한다. 대상은 source-known
+copy의 false overflow, `naver_smartchannel.text_overflow` 한국어 번역 누락, 그리고
+`PSD_TYPE_TOKEN_3cb00cba41e436f4` headline raster의 PSD 대비 +1px 수직 차이다. Font binary,
+source font identity, font size, tracking, fill color, source baseline, source box와 template/object/
+fixed-component 좌표는 변경하지 않는다. **[PROJECT]**
+
+### 47.1 Actual horizontal raster boundary [PROJECT]
+
+SmartChannel text overflow의 최종 판정 근거는 fractional glyph advance가 아니라 production과
+같은 `fillText` primitive, font, size, tracking, origin 및 raster baseline을 사용한 격리 alpha
+scan이다. Diagnostic surface는 layout box로 clip하지 않고 production canvas보다 넓게 생성한다.
+`actualRasterBounds`는 일반적인 `x/y/width/height` bbox로 유지하고, 판정용
+`actualRightEdge`는 `bounds.x + bounds.width - 1`인 마지막 non-transparent pixel의 포함 좌표다.
+Source-effective `rightBoundary`는 해당 PSD layer의 `pixelBounds[2]`이며, 다음 조건이면
+`NAVER_SMARTCHANNEL_TEXT_OVERFLOW` ERROR다. **[PROJECT]**
+
+1. visible alpha pixel이 없거나 `actualRightEdge > rightBoundary`
+2. `actualRightEdge > 749`여서 750px final canvas에서 clip되는 경우
+3. 넓은 diagnostic surface 자체의 우측 끝까지 alpha가 닿아 진단이 clip된 경우
+
+Character/grapheme count hardcode, arbitrary padding, font/tracking 축소, validator disable 또는
+severity downgrade는 금지한다. `measuredWidth`는 진단 호환 필드로 유지하지만 overflow decision
+source가 아니다. `horizontalOverflowEvidence`는 measured width, actual raster bounds,
+right boundary, actual right edge, decision basis, overflow 및 clipping 상태를 additive하게 기록한다.
+**[PROJECT]**
+
+대표 `NAVER_SMARTCHANNEL_280_BASIC_STANDARD_LEFT_MAIN2_SUB_NONE`의 source-known 결과는
+다음과 같다. **[TOOL_OUTPUT]**
+
+| Role | Copy length | Measured advance | Actual raster | Right boundary | Actual right edge | Result |
+|---|---:|---:|---|---:|---:|---|
+| Headline 1/2 | 14 | `401.1700096130371` | H1 `(304,77,400,32)`, H2 `(304,125,400,32)` | 704 | 703 | PASS |
+| Subcopy | 17 | `403.3300025939938` | `(305,177,401,27)` | 705 | 705 | PASS |
+
+동일 알고리즘에서 Korean headline 13/14/15는 PASS/PASS/OVERFLOW, subcopy 16/17/18은
+PASS/PASS/OVERFLOW다. 같은 15 grapheme의 Latin/numeric/space/`%`/`+` sample은 실제 raster
+폭에 따라 판정되므로 Korean 15와 결과가 다를 수 있다. **[TOOL_OUTPUT]**
+
+### 47.2 Token-scoped PSD-to-Skia raster adapter [PROJECT]
+
+Pinned `AppleSDGothicNeo-macOS19-Bold.otf`와 frozen 35px, tracking -50, fractional PSD baseline을
+Skia로 rasterize한 source text를 감사한 결과, token
+`PSD_TYPE_TOKEN_3cb00cba41e436f4`를 사용하는 visible non-guide headline layer 83개 모두 source
+pixel top보다 정확히 +1px 아래였다. 같은 token/role에 `baselineDeltaY=-1`인
+`PSD_TO_SKIA_HEADLINE_BOLD_35_KO_MINUS_1Y` adapter를 적용하면 83개 모두 top delta 0이 된다.
+다른 token, role, font 또는 channel에는 적용하지 않는다. **[TOOL_OUTPUT]**
+
+Adapter는 source `baselineY`, expected origin, box 및 pixel bounds를 재작성하지 않는다. Report의
+`baselineY`는 source 값을 유지하고 실제 draw coordinate는 additive `rasterBaselineY`에 기록한다.
+대표 H1/H2는 source top `77/125`, runtime before `78/126`, runtime after `77/125`이며 Regular
+subcopy는 `177`로 변하지 않는다. **[PROJECT]**
+
+### 47.3 Localization, determinism, and acceptance [PROJECT]
+
+Error Registry의 `NAVER_SMARTCHANNEL_TEXT_OVERFLOW`는 안정된 message key
+`naver_smartchannel.text_overflow`를 유지한다. Desktop `ko-KR` registry에는
+`텍스트가 스마트채널 허용 영역을 벗어났습니다.`를 등록하며 hardcoded UI string 또는
+missing-translation fallback을 사용하지 않는다. **[PROJECT]**
+
+대표 source-known input 3회의 PNG SHA-256과 pixel fingerprint는 각각 단일 값이어야 한다.
+SmartChannel 120개 template은 각 3회 렌더, compact 160/200 및 280 CTA 11개 option을 포함해
+120/120 PASS, new font/validator error 0, crash 0이어야 한다. Kakao frozen goldens,
+NAVER fixed components와 non-SmartChannel, FREEFORM, platform-composed는 회귀 없이 유지한다.
+Debug boundary overlay는 production output에 합성하지 않는다. 추가 사용자 오류가 예상되므로
+golden rebase는 수행하지 않고 `readyForGoldenRebase=false`를 유지한다. **[PROJECT]**
+
+### 47.4 Version and evidence [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.21.3 | 1.21.4 | Current-known typography parity corrections |
+| Renderer Core | 0.8.5 | 0.8.6 | Actual raster boundary validator and token-scoped adapter |
+| Validator/Error Registry | 1.8.0 | 1.8.1 | Stable overflow condition clarification; code/key unchanged |
+| SmartChannel Template Contract | 1.10.0 | 1.10.0 | Source template geometry unchanged |
+| Typography Registry | 1.5.0 | 1.6.0 | Add deterministic raster adapter and overflow decision contract |
+| Desktop/i18n/package | 0.9.8 | 0.9.9 | Korean localization and corrected Core packaging |
+
+Machine-readable audit는
+`contracts/audits/naver-smartchannel-typography-parity-n7-7-5.json`, 구현 보고서는
+`docs/implementation/naver-smartchannel-typography-parity-correction-n7-7-5.md`, 재현 자료는
+`artifacts/n7-7-5/`에 둔다. Font/TTC/OTF SHA-256은 N7.7.4 값에서 변경하지 않으며 runtime
+network access는 계속 금지한다. **[PROJECT]**

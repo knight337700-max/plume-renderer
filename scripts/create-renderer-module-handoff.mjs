@@ -134,6 +134,7 @@ const canonicalDocument = JSON.parse(await readFile(path.join(root, "contracts/c
 const typographyAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-typography-audit.json"), "utf8"));
 const fontCorrectionAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-runtime-font-correction-n7-7.json"), "utf8"));
 const fontSourceMigrationAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-font-source-migration-n7-7-4.json"), "utf8"));
+const typographyParityAudit = JSON.parse(await readFile(path.join(root, "contracts/audits/naver-smartchannel-typography-parity-n7-7-5.json"), "utf8"));
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -148,7 +149,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — N7.7.4 macOS original TTC integration handoff
+const readme = `# Renderer Module — N7.7.5 SmartChannel typography parity handoff
 
 ## Purpose
 
@@ -156,7 +157,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- N7.7.4 integration source commit: ${sourceSha}
+- N7.7.5 integration source commit: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Source verification package: ${packageArtifact?.sourcePath ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256}; generated release intentionally excluded from source handoff)` : ""}
 - Runtime network access: PROHIBITED
@@ -176,6 +177,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER SmartChannel N7.6: audit-only global typography re-analysis of all 120 source PSDs, 25 frozen typography tokens, source/runtime mapping, and local raster metrics; result: ${typographyAudit.phase.status}
 - NAVER SmartChannel N7.7: renderer-owned SHA-256-pinned Apple SD Gothic Neo runtime mapping, trusted provider parity, explicit binary registration, and 120-template deterministic acceptance; result: ${fontCorrectionAudit.phase.status}
 - NAVER SmartChannel N7.7.4: pinned macOS original Apple SD Gothic Neo TTC, deterministic face identity selection, verified standalone-face derivation for the collection-limited raster backend, provider parity, three-run determinism, and 120-template smoke; result: ${fontSourceMigrationAudit.phase.status}
+- NAVER SmartChannel N7.7.5: actual-alpha-raster overflow boundary, source-proven 14/17 copy acceptance, token-scoped headline vertical parity, Korean overflow localization, and 120-template deterministic smoke; result: ${typographyParityAudit.phase.status}
 - Meta: not implemented
 - Google: not implemented
 
@@ -215,9 +217,11 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest implementation phase is N7.7.4 in docs/kakao-bizboard-renderer-spec-v1.md. N7.6 remains
+The latest implementation phase is N7.7.5 in docs/kakao-bizboard-renderer-spec-v1.md. N7.6 remains
 an immutable audit baseline; N7.7 changed the SmartChannel runtime token mapping and N7.7.4 replaces
-its font source with the verified macOS original TTC without changing geometry. Both phases record
+its font source with the verified macOS original TTC without changing geometry. N7.7.5 corrects
+source-known text overflow and the source-evidenced Bold headline raster offset without changing
+font binaries, source baseline values, font size, tracking, colors, or template coordinates. These phases record
 an expected SmartChannel text-golden migration without blanket overwrite. N7.5
 SmartChannel fixed component runtime acceptance uses source/runtime/package digest evidence and
 final placement validation.
@@ -237,12 +241,15 @@ docs/implementation/naver-smartchannel-global-typography-audit-n7-6.md, and
 scripts/verify-n7-6-smartchannel-typography-audit.mjs. N7.7 correction artifacts are
 contracts/audits/naver-smartchannel-runtime-font-correction-n7-7.json,
 docs/implementation/naver-smartchannel-psd-exact-runtime-font-correction-n7-7.md, and
-scripts/verify-n7-7-smartchannel-runtime-font-correction.mjs. The next recommended phase is
+scripts/verify-n7-7-smartchannel-runtime-font-correction.mjs.
 N7.7.4 source-migration artifacts are
 contracts/audits/naver-smartchannel-font-source-migration-n7-7-4.json,
 docs/implementation/naver-smartchannel-macos-original-ttc-integration-n7-7-4.md,
-scripts/verify-n7-7-4-macos-ttc-integration.mjs, and artifacts/n7-7-4/. The next decision is
-MANUAL_AB_CREATIVE_REVIEW_BEFORE_ANY_GOLDEN_REBASE.
+scripts/verify-n7-7-4-macos-ttc-integration.mjs, and artifacts/n7-7-4/.
+N7.7.5 parity artifacts are contracts/audits/naver-smartchannel-typography-parity-n7-7-5.json,
+docs/implementation/naver-smartchannel-typography-parity-correction-n7-7-5.md,
+scripts/verify-n7-7-5-typography-parity.mjs, and artifacts/n7-7-5/. The next decision is
+AWAIT_ADDITIONAL_USER_REPORTED_SMARTCHANNEL_ISSUES_BEFORE_ANY_GOLDEN_REBASE.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
 const readmeEntry = files.find((entry) => entry.path === "README.md");
@@ -250,7 +257,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "N7_7_4_MACOS_ORIGINAL_TTC_RENDERER_INTEGRATION",
+  handoffPhase: "N7_7_5_SMARTCHANNEL_TYPOGRAPHY_PARITY_CORRECTION",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -265,8 +272,8 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseN7_7_4.rendererCoreVersion,
-    desktop: canonicalDocument.canonicalPhaseN7_7_4.desktopCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseN7_7_5.rendererCoreVersion,
+    desktop: canonicalDocument.canonicalPhaseN7_7_5.desktopCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
     platformComposedSourceRegistry: canonicalDocument.platformComposedSourceRegistryVersion,
@@ -309,6 +316,18 @@ const manifest = {
     providerParity: fontSourceMigrationAudit.providerParity.status,
     deterministicRuns: fontSourceMigrationAudit.determinism.runs,
     goldenRebasePerformed: fontSourceMigrationAudit.goldenRebasePerformed,
+  },
+  typographyParity: {
+    phase: typographyParityAudit.phase.id,
+    status: typographyParityAudit.phase.status,
+    json: "contracts/audits/naver-smartchannel-typography-parity-n7-7-5.json",
+    report: "docs/implementation/naver-smartchannel-typography-parity-correction-n7-7-5.md",
+    verifier: "scripts/verify-n7-7-5-typography-parity.mjs",
+    evidenceDirectory: "artifacts/n7-7-5",
+    decisionBasis: typographyParityAudit.overflow.after.decisionBasis,
+    auditedHeadlineLayers: typographyParityAudit.verticalParity.auditedVisibleNonGuideLayers,
+    templatesRendered: typographyParityAudit.acceptance.smartChannelRendered,
+    goldenRebasePerformed: typographyParityAudit.acceptance.goldenRebasePerformed,
   },
   channels: {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
@@ -354,6 +373,10 @@ const manifest = {
     n7_7_4FontSourceMigrationReport: "docs/implementation/naver-smartchannel-macos-original-ttc-integration-n7-7-4.md",
     n7_7_4FontSourceMigrationVerifier: "scripts/verify-n7-7-4-macos-ttc-integration.mjs",
     n7_7_4EvidenceDirectory: "artifacts/n7-7-4",
+    n7_7_5TypographyParityJson: "contracts/audits/naver-smartchannel-typography-parity-n7-7-5.json",
+    n7_7_5TypographyParityReport: "docs/implementation/naver-smartchannel-typography-parity-correction-n7-7-5.md",
+    n7_7_5TypographyParityVerifier: "scripts/verify-n7-7-5-typography-parity.mjs",
+    n7_7_5EvidenceDirectory: "artifacts/n7-7-5",
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

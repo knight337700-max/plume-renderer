@@ -74,7 +74,7 @@ check(
 );
 check(
   "error_registry_version",
-  errorRegistry?.registryVersion === "1.8.0",
+  errorRegistry?.registryVersion === "1.8.1",
   `errorRegistry=${errorRegistry?.registryVersion ?? "missing"}`,
 );
 
@@ -471,7 +471,7 @@ check(
 );
 check(
   "canonical_document_version",
-    versions?.documentVersion?.previous === "1.21.2" && versions?.documentVersion?.current === "1.21.3" && versions?.canonicalPhaseN7_7_4?.documentCurrent === "1.21.3" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
+    versions?.documentVersion?.previous === "1.21.3" && versions?.documentVersion?.current === "1.21.4" && versions?.canonicalPhaseN7_7_5?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_7_5?.rendererCoreVersion === "0.8.6" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
     `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 
