@@ -1,4 +1,16 @@
 {
   "phase": "N8_NAVER_REMAINING_FORMATS_DESKTOP_INTEGRATION_CHANNEL_COMPLETION",
-  "status": "PENDING"
+  "status": "PASS",
+  "rendererModule": "C:/Users/Lenovo/Desktop/Renderer Module",
+  "verifier": "PASS",
+  "checksPassed": 53,
+  "filesVerified": 809,
+  "hashMismatches": 0,
+  "smartchannelPsdCount": 120,
+  "smartchannelPsdHashes": "120/120",
+  "officialGuideHashes": "5/5",
+  "secretsFound": 0,
+  "initialVerificationSourceSha": "8eccd0756e949fc59e1f5162b414a478510bb9f8",
+  "initialManifestSha256": "09e5e64724a45579d4dbfaebd9de6bc03c5a9efe31997cc215c586ea0e720f10",
+  "sourceShaPolicy": "MATCH_FINAL_REPOSITORY_HEAD_AT_FINAL_SYNC"
 }
