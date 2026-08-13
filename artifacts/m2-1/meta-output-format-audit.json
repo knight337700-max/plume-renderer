@@ -1,0 +1,45 @@
+{
+  "candidateFormat": "JPEG",
+  "candidates": {
+    "portrait": {
+      "canvas": {
+        "exact": true,
+        "height": 1350,
+        "width": 1080
+      },
+      "mime": "image/jpeg"
+    },
+    "reels": {
+      "canvas": {
+        "exact": true,
+        "height": 1920,
+        "width": 1080
+      },
+      "mime": "image/jpeg"
+    },
+    "square": {
+      "canvas": {
+        "exact": true,
+        "height": 1080,
+        "width": 1080
+      },
+      "mime": "image/jpeg"
+    },
+    "stories": {
+      "canvas": {
+        "exact": true,
+        "height": 1920,
+        "width": 1080
+      },
+      "mime": "image/jpeg"
+    }
+  },
+  "officialAcceptanceClaim": false,
+  "phase": "M2_1",
+  "photoFirstJpeg": "PROJECT_GUIDANCE_ONLY",
+  "rendererSupportedFormats": [
+    "PNG",
+    "JPEG"
+  ],
+  "status": "PASS"
+}

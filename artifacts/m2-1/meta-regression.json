@@ -1,0 +1,10 @@
+{
+  "fullCheckBaseline": "PASS",
+  "kakaoPixelsChanged": false,
+  "m1BaselinePreserved": true,
+  "m2BaselinePreserved": true,
+  "naverPixelsChanged": false,
+  "phase": "M2_1",
+  "status": "PASS",
+  "validatorIsolation": "PASS"
+}

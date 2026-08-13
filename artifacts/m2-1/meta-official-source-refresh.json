@@ -1,0 +1,55 @@
+{
+  "exactMaximumBytes": null,
+  "exactMaximumStatus": "NO_EXACT_MAX_PINNED",
+  "officialDomainsOnly": true,
+  "phase": "M2_1",
+  "retrievalStatus": "PUBLIC_RESPONSE_LOGIN_OR_TEMPORARY_BLOCK",
+  "retrievedAt": "2026-08-13",
+  "runtimeNetworkAccess": "PROHIBITED",
+  "sources": [
+    {
+      "effect": "NO_EXACT_MAX_PINNED",
+      "interpretation": "Do not pin a numeric maximum; keep unresolved",
+      "retrievedAt": "2026-08-13",
+      "rule": "No exact placement-specific static-image maximum exposed in accessible response",
+      "url": "https://www.facebook.com/business/ads-guide"
+    },
+    {
+      "effect": "NO_EXACT_MAX_PINNED",
+      "interpretation": "Do not pin a numeric maximum; keep unresolved",
+      "retrievedAt": "2026-08-13",
+      "rule": "No exact placement-specific static-image maximum exposed in accessible response",
+      "url": "https://www.facebook.com/business/ads/photo-ad-format"
+    },
+    {
+      "effect": "NO_EXACT_MAX_PINNED",
+      "interpretation": "Do not pin a numeric maximum; keep unresolved",
+      "retrievedAt": "2026-08-13",
+      "rule": "No exact placement-specific static-image maximum exposed in accessible response",
+      "url": "https://www.facebook.com/business/ads/stories-ad-format"
+    },
+    {
+      "effect": "NO_EXACT_MAX_PINNED",
+      "interpretation": "Do not pin a numeric maximum; keep unresolved",
+      "retrievedAt": "2026-08-13",
+      "rule": "No exact placement-specific static-image maximum exposed in accessible response",
+      "url": "https://www.facebook.com/business/ads/facebook-instagram-reels-ads"
+    },
+    {
+      "effect": "NO_EXACT_MAX_PINNED",
+      "interpretation": "Do not pin a numeric maximum; keep unresolved",
+      "retrievedAt": "2026-08-13",
+      "rule": "No exact placement-specific static-image maximum exposed in accessible response",
+      "url": "https://www.facebook.com/business/ads/instagram-ad"
+    },
+    {
+      "effect": "NO_EXACT_MAX_PINNED",
+      "interpretation": "Do not pin a numeric maximum; keep unresolved",
+      "retrievedAt": "2026-08-13",
+      "rule": "No exact placement-specific static-image maximum exposed in accessible response",
+      "url": "https://www.facebook.com/help/instagram/192168966243613"
+    }
+  ],
+  "status": "PASS",
+  "thirdPartySourcesUsed": 0
+}

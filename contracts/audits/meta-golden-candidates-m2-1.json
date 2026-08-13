@@ -1,0 +1,116 @@
+{
+  "candidates": [
+    {
+      "artifact": "artifacts/m2-1/manual-review/01-feed-square-fullbleed.jpg",
+      "artifactSha": "7c350824952460267922341e287eeb4a484dbd173426c965c11ae5e8d9db9b5e",
+      "cropPlan": "artifacts/m2-1/manual-review/crop-plans/square.json",
+      "format": "JPEG",
+      "height": 1080,
+      "id": "META_GC_FEED_SQUARE_M2_1",
+      "key": "square",
+      "manifest": "artifacts/m2-1/manual-review/manifests/META_GC_FEED_SQUARE_M2_1.manifest.json",
+      "manifestSha": "df896c5ec32c66ba8eb6f19b4e175e0a25e7419333894d5edd0ee9904d7862ec",
+      "pixelSha": "9f2776f4388eb7412c2a8d6f91ca07e3c45e880f1bc1b1900c5bc360d72f3e24",
+      "placementPolicy": "MANUAL_CROP",
+      "profile": "META_STATIC_FEED_SQUARE",
+      "status": "CANDIDATE_NOT_APPROVED",
+      "subjectReview": "MANUAL_REVIEW_REQUIRED",
+      "width": 1080
+    },
+    {
+      "artifact": "artifacts/m2-1/manual-review/02-feed-portrait-fullbleed.jpg",
+      "artifactSha": "22c38aea588be8b1fccf0d2c092a6709520c1890c91358b1c1396a3cfa956691",
+      "cropPlan": "artifacts/m2-1/manual-review/crop-plans/portrait.json",
+      "format": "JPEG",
+      "height": 1350,
+      "id": "META_GC_FEED_PORTRAIT_M2_1",
+      "key": "portrait",
+      "manifest": "artifacts/m2-1/manual-review/manifests/META_GC_FEED_PORTRAIT_M2_1.manifest.json",
+      "manifestSha": "bb50be201c80a4f9645494495012fca8d2963a3bfaac52099647ecdbc6a673c8",
+      "pixelSha": "69e98b40ee2d5ef8eeef8437cadbe3120f0530d3b7094b5595136e0835a7ea6f",
+      "placementPolicy": "MANUAL_CROP",
+      "profile": "META_STATIC_FEED_PORTRAIT",
+      "status": "CANDIDATE_NOT_APPROVED",
+      "subjectReview": "MANUAL_REVIEW_REQUIRED",
+      "width": 1080
+    },
+    {
+      "artifact": "artifacts/m2-1/manual-review/03-vertical-stories-fullbleed.jpg",
+      "artifactSha": "a22f7629ec21d2ec1ada11fac4b8a75d1afb2ae9419fb00e48098825febe3bea",
+      "cropPlan": "artifacts/m2-1/manual-review/crop-plans/stories.json",
+      "format": "JPEG",
+      "height": 1920,
+      "id": "META_GC_VERTICAL_STORIES_M2_1",
+      "key": "stories",
+      "manifest": "artifacts/m2-1/manual-review/manifests/META_GC_VERTICAL_STORIES_M2_1.manifest.json",
+      "manifestSha": "c310acfbf77f2acc5a889bc3d05d90f5a3d839c4b6c3cccbfe3f5382870a34fd",
+      "pixelSha": "9a85e5dcc62ecfda25144aeec224310859f132d0e2e7a4fd0139f3d96f5fe33d",
+      "placementPolicy": "MANUAL_CROP",
+      "profile": "META_STATIC_VERTICAL_FULL",
+      "status": "CANDIDATE_NOT_APPROVED",
+      "subjectReview": "MANUAL_REVIEW_REQUIRED",
+      "width": 1080
+    },
+    {
+      "artifact": "artifacts/m2-1/manual-review/05-vertical-reels-fullbleed.jpg",
+      "artifactSha": "a22f7629ec21d2ec1ada11fac4b8a75d1afb2ae9419fb00e48098825febe3bea",
+      "cropPlan": "artifacts/m2-1/manual-review/crop-plans/reels.json",
+      "format": "JPEG",
+      "height": 1920,
+      "id": "META_GC_VERTICAL_REELS_M2_1",
+      "key": "reels",
+      "manifest": "artifacts/m2-1/manual-review/manifests/META_GC_VERTICAL_REELS_M2_1.manifest.json",
+      "manifestSha": "f54af9214c59e08ecc432d71d4b7864955178c18b3018f3a6fb478d07950cd0b",
+      "pixelSha": "9a85e5dcc62ecfda25144aeec224310859f132d0e2e7a4fd0139f3d96f5fe33d",
+      "placementPolicy": "MANUAL_CROP",
+      "profile": "META_STATIC_VERTICAL_FULL",
+      "status": "CANDIDATE_NOT_APPROVED",
+      "subjectReview": "MANUAL_REVIEW_REQUIRED",
+      "width": 1080
+    }
+  ],
+  "finalGoldenFrozen": false,
+  "guidePreview": "artifacts/m2-1/manual-review/04-vertical-stories-guide.png",
+  "manualAcceptanceStatus": "NOT_REVIEWED",
+  "nextPhase": "M2_2_META_MANUAL_ACCEPTANCE_OR_FURTHER_CORRECTION",
+  "noContactSheet": true,
+  "oldM2Candidates": [
+    {
+      "artifact": "artifacts/m2/golden-candidates/META_GC_FEED_SQUARE_V1.png",
+      "artifactSha": "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba",
+      "id": "META_GC_FEED_SQUARE_V1",
+      "previousStatus": "CANDIDATE_NOT_APPROVED",
+      "status": "SUPERSEDED_FOR_VISUAL_ACCEPTANCE"
+    },
+    {
+      "artifact": "artifacts/m2/golden-candidates/META_GC_FEED_PORTRAIT_V1.png",
+      "artifactSha": "f5c1d4676591efe5c9dd79015bee8aa770ab5152268c8a6b69a1cf9a7c887eb3",
+      "id": "META_GC_FEED_PORTRAIT_V1",
+      "previousStatus": "CANDIDATE_NOT_APPROVED",
+      "status": "SUPERSEDED_FOR_VISUAL_ACCEPTANCE"
+    },
+    {
+      "artifact": "artifacts/m2/golden-candidates/META_GC_VERTICAL_STORIES_V1.png",
+      "artifactSha": "7cf8008730915ad74c24c598356fa1a5965a0c4918dbd43f102a3efe992e03d3",
+      "id": "META_GC_VERTICAL_STORIES_V1",
+      "previousStatus": "CANDIDATE_NOT_APPROVED",
+      "status": "SUPERSEDED_FOR_VISUAL_ACCEPTANCE"
+    },
+    {
+      "artifact": "artifacts/m2/golden-candidates/META_GC_VERTICAL_REELS_V1.png",
+      "artifactSha": "dd9e63f5210e00a1e2f5ca83a83961ac8a3e8d891888c42599829ee66e836cd4",
+      "id": "META_GC_VERTICAL_REELS_V1",
+      "previousStatus": "CANDIDATE_NOT_APPROVED",
+      "status": "SUPERSEDED_FOR_VISUAL_ACCEPTANCE"
+    },
+    {
+      "artifact": "artifacts/m2/golden-candidates",
+      "artifactSha": null,
+      "id": "META_GC_PLACEMENT_SET_V1",
+      "previousStatus": "CANDIDATE_NOT_APPROVED",
+      "status": "SUPERSEDED_FOR_VISUAL_ACCEPTANCE"
+    }
+  ],
+  "phase": "M2_1_META_VISUAL_CANDIDATE_CORRECTION_OUTPUT_COMPLIANCE_AUDIT",
+  "status": "CANDIDATE_NOT_APPROVED"
+}

@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.22.0
-- **Status:** Frozen Implementation Contract — Phase M1 META static asset profiles and renderer-composed placement set
+- **Document version:** 1.23.0
+- **Status:** Frozen Implementation Contract — Phase M2.1 META visual candidate correction and output-compliance audit
 - **Checked date:** 2026-08-11 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, and additive `META` static renderer capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **45. Phase N7.7 SmartChannel PSD-exact runtime font correction**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **50. Phase M2.1 META visual candidate correction and output-compliance audit**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -5036,3 +5036,82 @@ The audit verifier is `scripts/verify-m2-meta-static.mjs`; the reproducible gene
 `docs/implementation/meta-artifact-audit-golden-candidates-m2.md`, and the complete evidence set is
 under `artifacts/m2/`. Manual acceptance remains `NOT_REVIEWED`; the next phase is user visual
 acceptance and correction. **[PROJECT]**
+
+## 50. Phase M2.1 — META visual candidate correction and output-compliance audit [PROJECT]
+
+M2.1 is an audit and correction phase for the M2 visual candidates. The old M2 candidates remain
+valid outputs of the renderer's `CENTER_CONTAIN` behavior, but their layout choice is not accepted
+as a full-bleed visual Golden. They are retained as historical evidence and marked
+`SUPERSEDED_FOR_VISUAL_ACCEPTANCE`; no production Golden is frozen. **[PROJECT]**
+
+### 50.1 CENTER_CONTAIN and MANUAL_CROP boundary [PROJECT]
+
+`CENTER_CONTAIN` preserves the complete source crop and can leave unused pixels inside its target
+box. It remains a valid generic FREEFORM renderer policy. M2.1 candidate creatives MUST instead use
+independent normalized `MANUAL_CROP` plans with `source=MANUAL`, `fitMode=COVER`, and an explicit
+`cropRect` per output profile. Crop rectangles are chosen before rasterization from the same
+source asset; they are not inferred from a shared layout plan, and no stretching, letterbox band,
+or accidental cross-profile crop is allowed. **[PROJECT]**
+
+The review source is the supplied central sofa/stool photograph. The checked-in deterministic
+review derivative is 2048×1365 and records the original user asset dimensions and SHA-256 in the
+M2.1 provenance evidence. This derivative preserves the source visual content; it is not an
+official Meta asset. **[TOOL_OUTPUT] [PROJECT]**
+
+### 50.2 Corrected full-bleed candidate set [PROJECT]
+
+M2.1 creates four independent full-bleed manual-review candidates from the same source:
+
+| Candidate | Canvas | Crop plan | Artifact | Status |
+|---|---:|---|---|---|
+| Feed square | 1080×1080 | normalized square `MANUAL_CROP` | JPEG | `CANDIDATE_NOT_APPROVED` |
+| Feed portrait | 1080×1350 | normalized 4:5 `MANUAL_CROP` | JPEG | `CANDIDATE_NOT_APPROVED` |
+| Stories | 1080×1920 | normalized 9:16 `MANUAL_CROP` | JPEG | `CANDIDATE_NOT_APPROVED` |
+| Reels | 1080×1920 | normalized 9:16 `MANUAL_CROP` | JPEG | `CANDIDATE_NOT_APPROVED` |
+
+The image occupies the complete output canvas. Crop aspect and destination aspect are checked
+independently so the renderer never stretches a source crop to fit. The central sofa/stool subject
+is a manual-review concern; automated evidence records the crop geometry but does not claim visual
+approval. **[PROJECT] [MANUAL]**
+
+Stories exclusion guides remain preview-only: top `0.14` and bottom `0.20` are advisory. A
+background/photo occupying those regions is not an ERROR; a managed `KEY_CREATIVE` overlay may
+produce WARNING only. The guide PNG is stored separately and is never composited into the final
+Stories JPEG. **[PROJECT] [OFFICIAL]**
+
+Reels exact safe-zone geometry remains `SOURCE_REQUIRED`. The corrected candidate records an INFO
+state and never invents an overlay or guessed coordinate. **[PROJECT] [OFFICIAL]**
+
+### 50.3 META output constraints and provenance [PROJECT]
+
+The M1 META `maximumBytes=300000` rule was an inherited project default, not a current official Meta
+maximum. M2.1 removes it from the three META Format Profiles, so the generic validator does not
+emit `KBR-FREEFORM-FILE-SIZE-EXCEEDED` for META solely because of that unpinned value. Generic
+optional byte constraints and all Kakao/NAVER profile constraints remain unchanged. This does not
+claim that Meta accepts every file size; upload acceptance remains platform-owned and unresolved.
+
+The current official Meta Ads Guide, Photo, Stories, Reels, Instagram, and Instagram Help entry
+points were rechecked for a placement-specific exact static-image maximum. The accessible public
+responses did not expose an exact value, so the registry records `NO_EXACT_MAX_PINNED`,
+classification `UNKNOWN`, enforcement `NOT_MACHINE_ENFORCED`, and no replacement numeric limit.
+Photo-first JPEG is renderer/project guidance only; PNG and JPEG remain renderer-supported and are
+not asserted as mutually exclusive official acceptance rules. **[OFFICIAL] [PROJECT]**
+
+### 50.4 Evidence, regression, and version policy [PROJECT]
+
+M2.1 evidence is under `artifacts/m2-1/`, with the manual-review package at
+`artifacts/m2-1/manual-review/`. It contains crop plans, per-candidate manifests, clean final
+artifacts, a separate Stories guide preview, file-size provenance, MIME classification, validator
+isolation, deterministic reruns, and regression status. No contact sheet is used. The candidate
+registry is `contracts/audits/meta-golden-candidates-m2-1.json`; manual acceptance remains
+`NOT_REVIEWED` and `finalGoldenFrozen=false`. **[PROJECT]**
+
+M2.1 changes no template coordinates (`templateContractVersion=1.9.0` remains frozen), no Core or
+Validator implementation version, and no Desktop/package version. The Canonical document advances
+from `1.22.0` to `1.23.0`; the FREEFORM Format Profile registry advances from `1.3.0` to `1.4.0`
+because the unsupported META byte constraint is removed. **[PROJECT]**
+
+The machine-readable audit is `contracts/audits/meta-output-constraint-provenance-m2-1.json`, the
+implementation report is `docs/implementation/meta-visual-candidate-correction-output-compliance-m2-1.md`,
+and verification uses `scripts/verify-m2-1-meta.mjs`. Runtime network access remains prohibited;
+official-source refresh is documentation/evidence only. **[PROJECT]**

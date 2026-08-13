@@ -1,0 +1,272 @@
+{
+  "allManualCrop": true,
+  "candidates": {
+    "portrait": {
+      "artifact": "artifacts/m2-1/manual-review/02-feed-portrait-fullbleed.jpg",
+      "artifactSha256": "22c38aea588be8b1fccf0d2c092a6709520c1890c91358b1c1396a3cfa956691",
+      "bytes": 386225,
+      "candidateId": "META_GC_FEED_PORTRAIT_M2_1",
+      "canvas": {
+        "exact": true,
+        "height": 1350,
+        "width": 1080
+      },
+      "context": "INSTAGRAM_FEED",
+      "crop": {
+        "destinationRatio": 0.8,
+        "fitMode": "COVER",
+        "normalized": {
+          "height": 1,
+          "width": 0.533203125,
+          "x": 0.2333984375,
+          "y": 0
+        },
+        "noStretch": true,
+        "policy": "MANUAL_CROP",
+        "ratioDelta": 0,
+        "source": "MANUAL",
+        "sourceCropRatio": 0.8
+      },
+      "deterministicInputs": {
+        "planId": "META_GC_FEED_PORTRAIT_M2_1",
+        "profileId": "META_STATIC_FEED_PORTRAIT",
+        "sourceAssetSha256": "9dd206a7863d4ff6079e1352b54e1d7c1f0b9965e22b39127de244fe345159a5"
+      },
+      "fullBleed": {
+        "bounds": {
+          "height": 1,
+          "width": 1,
+          "x": 0,
+          "y": 0
+        },
+        "edge": {
+          "nearWhiteEdgeFraction": 0,
+          "nearWhiteEdgePixels": 0,
+          "noDominantWhiteBand": true,
+          "sampledEdgePixels": 4856
+        },
+        "letterboxDetected": false
+      },
+      "manifest": "artifacts/m2-1/manual-review/manifests/META_GC_FEED_PORTRAIT_M2_1.manifest.json",
+      "manifestSha256": "bb50be201c80a4f9645494495012fca8d2963a3bfaac52099647ecdbc6a673c8",
+      "mime": "image/jpeg",
+      "pixelSha256": "69e98b40ee2d5ef8eeef8437cadbe3120f0530d3b7094b5595136e0835a7ea6f",
+      "profileId": "META_STATIC_FEED_PORTRAIT",
+      "subject": {
+        "cropSelection": "CENTERED_SUBJECT_PRESERVING",
+        "recognizability": "MANUAL_REVIEW_REQUIRED",
+        "sourceDescription": "central sofa/stool"
+      },
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "status": "PASS",
+        "warnings": 0
+      }
+    },
+    "reels": {
+      "artifact": "artifacts/m2-1/manual-review/05-vertical-reels-fullbleed.jpg",
+      "artifactSha256": "a22f7629ec21d2ec1ada11fac4b8a75d1afb2ae9419fb00e48098825febe3bea",
+      "bytes": 464783,
+      "candidateId": "META_GC_VERTICAL_REELS_M2_1",
+      "canvas": {
+        "exact": true,
+        "height": 1920,
+        "width": 1080
+      },
+      "context": "INSTAGRAM_REELS",
+      "crop": {
+        "destinationRatio": 0.5625,
+        "fitMode": "COVER",
+        "normalized": {
+          "height": 1,
+          "width": 0.375,
+          "x": 0.3125,
+          "y": 0
+        },
+        "noStretch": true,
+        "policy": "MANUAL_CROP",
+        "ratioDelta": 0.00013736263736263687,
+        "source": "MANUAL",
+        "sourceCropRatio": 0.5626373626373626
+      },
+      "deterministicInputs": {
+        "planId": "META_GC_VERTICAL_REELS_M2_1",
+        "profileId": "META_STATIC_VERTICAL_FULL",
+        "sourceAssetSha256": "9dd206a7863d4ff6079e1352b54e1d7c1f0b9965e22b39127de244fe345159a5"
+      },
+      "fullBleed": {
+        "bounds": {
+          "height": 1,
+          "width": 1,
+          "x": 0,
+          "y": 0
+        },
+        "edge": {
+          "nearWhiteEdgeFraction": 0,
+          "nearWhiteEdgePixels": 0,
+          "noDominantWhiteBand": true,
+          "sampledEdgePixels": 5996
+        },
+        "letterboxDetected": false
+      },
+      "manifest": "artifacts/m2-1/manual-review/manifests/META_GC_VERTICAL_REELS_M2_1.manifest.json",
+      "manifestSha256": "f54af9214c59e08ecc432d71d4b7864955178c18b3018f3a6fb478d07950cd0b",
+      "mime": "image/jpeg",
+      "pixelSha256": "9a85e5dcc62ecfda25144aeec224310859f132d0e2e7a4fd0139f3d96f5fe33d",
+      "profileId": "META_STATIC_VERTICAL_FULL",
+      "subject": {
+        "cropSelection": "CENTERED_SUBJECT_PRESERVING",
+        "recognizability": "MANUAL_REVIEW_REQUIRED",
+        "sourceDescription": "central sofa/stool"
+      },
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "status": "PASS",
+        "warnings": 0
+      }
+    },
+    "square": {
+      "artifact": "artifacts/m2-1/manual-review/01-feed-square-fullbleed.jpg",
+      "artifactSha256": "7c350824952460267922341e287eeb4a484dbd173426c965c11ae5e8d9db9b5e",
+      "bytes": 301454,
+      "candidateId": "META_GC_FEED_SQUARE_M2_1",
+      "canvas": {
+        "exact": true,
+        "height": 1080,
+        "width": 1080
+      },
+      "context": "FACEBOOK_FEED",
+      "crop": {
+        "destinationRatio": 1,
+        "fitMode": "COVER",
+        "normalized": {
+          "height": 1,
+          "width": 0.66650390625,
+          "x": 0.16650390625,
+          "y": 0
+        },
+        "noStretch": true,
+        "policy": "MANUAL_CROP",
+        "ratioDelta": 0,
+        "source": "MANUAL",
+        "sourceCropRatio": 1
+      },
+      "deterministicInputs": {
+        "planId": "META_GC_FEED_SQUARE_M2_1",
+        "profileId": "META_STATIC_FEED_SQUARE",
+        "sourceAssetSha256": "9dd206a7863d4ff6079e1352b54e1d7c1f0b9965e22b39127de244fe345159a5"
+      },
+      "fullBleed": {
+        "bounds": {
+          "height": 1,
+          "width": 1,
+          "x": 0,
+          "y": 0
+        },
+        "edge": {
+          "nearWhiteEdgeFraction": 0,
+          "nearWhiteEdgePixels": 0,
+          "noDominantWhiteBand": true,
+          "sampledEdgePixels": 4316
+        },
+        "letterboxDetected": false
+      },
+      "manifest": "artifacts/m2-1/manual-review/manifests/META_GC_FEED_SQUARE_M2_1.manifest.json",
+      "manifestSha256": "df896c5ec32c66ba8eb6f19b4e175e0a25e7419333894d5edd0ee9904d7862ec",
+      "mime": "image/jpeg",
+      "pixelSha256": "9f2776f4388eb7412c2a8d6f91ca07e3c45e880f1bc1b1900c5bc360d72f3e24",
+      "profileId": "META_STATIC_FEED_SQUARE",
+      "subject": {
+        "cropSelection": "CENTERED_SUBJECT_PRESERVING",
+        "recognizability": "MANUAL_REVIEW_REQUIRED",
+        "sourceDescription": "central sofa/stool"
+      },
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "status": "PASS",
+        "warnings": 0
+      }
+    },
+    "stories": {
+      "artifact": "artifacts/m2-1/manual-review/03-vertical-stories-fullbleed.jpg",
+      "artifactSha256": "a22f7629ec21d2ec1ada11fac4b8a75d1afb2ae9419fb00e48098825febe3bea",
+      "bytes": 464783,
+      "candidateId": "META_GC_VERTICAL_STORIES_M2_1",
+      "canvas": {
+        "exact": true,
+        "height": 1920,
+        "width": 1080
+      },
+      "context": "INSTAGRAM_STORIES",
+      "crop": {
+        "destinationRatio": 0.5625,
+        "fitMode": "COVER",
+        "normalized": {
+          "height": 1,
+          "width": 0.375,
+          "x": 0.3125,
+          "y": 0
+        },
+        "noStretch": true,
+        "policy": "MANUAL_CROP",
+        "ratioDelta": 0.00013736263736263687,
+        "source": "MANUAL",
+        "sourceCropRatio": 0.5626373626373626
+      },
+      "deterministicInputs": {
+        "planId": "META_GC_VERTICAL_STORIES_M2_1",
+        "profileId": "META_STATIC_VERTICAL_FULL",
+        "sourceAssetSha256": "9dd206a7863d4ff6079e1352b54e1d7c1f0b9965e22b39127de244fe345159a5"
+      },
+      "fullBleed": {
+        "bounds": {
+          "height": 1,
+          "width": 1,
+          "x": 0,
+          "y": 0
+        },
+        "edge": {
+          "nearWhiteEdgeFraction": 0,
+          "nearWhiteEdgePixels": 0,
+          "noDominantWhiteBand": true,
+          "sampledEdgePixels": 5996
+        },
+        "letterboxDetected": false
+      },
+      "manifest": "artifacts/m2-1/manual-review/manifests/META_GC_VERTICAL_STORIES_M2_1.manifest.json",
+      "manifestSha256": "c310acfbf77f2acc5a889bc3d05d90f5a3d839c4b6c3cccbfe3f5382870a34fd",
+      "mime": "image/jpeg",
+      "pixelSha256": "9a85e5dcc62ecfda25144aeec224310859f132d0e2e7a4fd0139f3d96f5fe33d",
+      "profileId": "META_STATIC_VERTICAL_FULL",
+      "subject": {
+        "cropSelection": "CENTERED_SUBJECT_PRESERVING",
+        "recognizability": "MANUAL_REVIEW_REQUIRED",
+        "sourceDescription": "central sofa/stool"
+      },
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "status": "PASS",
+        "warnings": 1
+      }
+    }
+  },
+  "fullBleed": true,
+  "independentPlans": true,
+  "noStretch": true,
+  "phase": "M2_1",
+  "source": {
+    "height": 1365,
+    "originalPath": "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source-original.jpg",
+    "originalSha256": "ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917",
+    "path": "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source__2048x1365.jpg",
+    "ratio": 1.5003663003663004,
+    "sha256": "9dd206a7863d4ff6079e1352b54e1d7c1f0b9965e22b39127de244fe345159a5",
+    "width": 2048
+  },
+  "status": "PASS",
+  "visualApproval": "MANUAL_REVIEW_REQUIRED"
+}

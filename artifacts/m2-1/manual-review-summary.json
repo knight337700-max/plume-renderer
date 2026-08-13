@@ -1,0 +1,14 @@
+{
+  "candidates": [
+    "META_GC_FEED_SQUARE_M2_1",
+    "META_GC_FEED_PORTRAIT_M2_1",
+    "META_GC_VERTICAL_STORIES_M2_1",
+    "META_GC_VERTICAL_REELS_M2_1"
+  ],
+  "contactSheet": false,
+  "finalGoldenFrozen": false,
+  "guide": "artifacts/m2-1/manual-review/04-vertical-stories-guide.png",
+  "package": "artifacts/m2-1/manual-review",
+  "phase": "M2_1",
+  "status": "NOT_REVIEWED"
+}

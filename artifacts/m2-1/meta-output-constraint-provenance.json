@@ -1,0 +1,35 @@
+{
+  "current": {
+    "allowedFormats": [
+      "PNG",
+      "JPEG"
+    ],
+    "classification": "UNKNOWN",
+    "comparator": null,
+    "enforcement": "NOT_MACHINE_ENFORCED",
+    "maximumBytes": null,
+    "photoFirstJpeg": "PROJECT_GUIDANCE_ONLY",
+    "rendererSupport": [
+      "PNG",
+      "JPEG"
+    ],
+    "source": "NO_EXACT_MAX_PINNED"
+  },
+  "nonMetaConstraints": "UNCHANGED",
+  "phase": "M2_1",
+  "previous": {
+    "classification": "INHERITED_OTHER_MEDIA_RULE",
+    "comparator": "LTE",
+    "enforcement": "ERROR",
+    "maximumBytes": 300000,
+    "source": "LEGACY_FREEFORM_DEFAULT",
+    "validOfficialMetaSource": false
+  },
+  "profiles": [
+    "META_STATIC_FEED_SQUARE",
+    "META_STATIC_FEED_PORTRAIT",
+    "META_STATIC_VERTICAL_FULL",
+    "META_STATIC_VERTICAL_FULL"
+  ],
+  "status": "PASS"
+}

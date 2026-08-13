@@ -1,0 +1,36 @@
+{
+  "correctedRule": {
+    "errors": 0,
+    "fileSizeExceededError": false,
+    "maximumBytes": null,
+    "reason": "META profile no longer carries unpinned 300000-byte constraint",
+    "status": "PASS"
+  },
+  "noReplacementMaximumInvented": true,
+  "oldRuleReproduction": {
+    "artifact": "artifacts/m2-1/old-m2-reproduction/center-contain-output.png",
+    "bytes": 1181007,
+    "errors": [
+      {
+        "actual": {
+          "bytes": 1181007
+        },
+        "code": "KBR-FREEFORM-FILE-SIZE-EXCEEDED",
+        "expected": {
+          "comparator": "LTE",
+          "maximumBytes": 300000
+        },
+        "formatProfileId": "META_STATIC_FEED_SQUARE",
+        "messageKey": "freeform.file_size_exceeded",
+        "path": "/output.png",
+        "severity": "ERROR",
+        "stage": "POST_RENDER"
+      }
+    ],
+    "reproducedCode": "KBR-FREEFORM-FILE-SIZE-EXCEEDED",
+    "status": "BLOCKED",
+    "warnings": []
+  },
+  "phase": "M2_1",
+  "status": "PASS"
+}

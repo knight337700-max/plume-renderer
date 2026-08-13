@@ -1,0 +1,36 @@
+{
+  "candidates": {
+    "portrait": {
+      "artifactSha256": "22c38aea588be8b1fccf0d2c092a6709520c1890c91358b1c1396a3cfa956691",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "pixelSha256": "69e98b40ee2d5ef8eeef8437cadbe3120f0530d3b7094b5595136e0835a7ea6f",
+      "runs": 3
+    },
+    "reels": {
+      "artifactSha256": "a22f7629ec21d2ec1ada11fac4b8a75d1afb2ae9419fb00e48098825febe3bea",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "pixelSha256": "9a85e5dcc62ecfda25144aeec224310859f132d0e2e7a4fd0139f3d96f5fe33d",
+      "runs": 3
+    },
+    "square": {
+      "artifactSha256": "7c350824952460267922341e287eeb4a484dbd173426c965c11ae5e8d9db9b5e",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "pixelSha256": "9f2776f4388eb7412c2a8d6f91ca07e3c45e880f1bc1b1900c5bc360d72f3e24",
+      "runs": 3
+    },
+    "stories": {
+      "artifactSha256": "a22f7629ec21d2ec1ada11fac4b8a75d1afb2ae9419fb00e48098825febe3bea",
+      "byteEqual": true,
+      "pixelEqual": true,
+      "pixelSha256": "9a85e5dcc62ecfda25144aeec224310859f132d0e2e7a4fd0139f3d96f5fe33d",
+      "runs": 3
+    }
+  },
+  "format": "JPEG",
+  "phase": "M2_1",
+  "sourceAssetSha256": "9dd206a7863d4ff6079e1352b54e1d7c1f0b9965e22b39127de244fe345159a5",
+  "status": "PASS"
+}

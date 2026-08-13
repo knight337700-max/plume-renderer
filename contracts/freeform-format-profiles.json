@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.3.0",
+  "registryVersion": "1.4.0",
   "layoutMode": "FREEFORM",
   "catalogStatus": "READY",
   "outputFormats": {
@@ -412,7 +412,7 @@
       "officialSizeRule": "MINIMUM_WITH_RATIO",
       "officialRatio": "1:1",
       "allowedOutputFormats": ["PNG", "JPEG"],
-      "outputConstraints": { "allowedFormats": ["PNG", "JPEG"], "maximumBytes": 300000, "maximumBytesComparator": "LTE", "requiresOpaqueOutput": "UNSPECIFIED" },
+      "outputConstraints": { "allowedFormats": ["PNG", "JPEG"], "requiresOpaqueOutput": "UNSPECIFIED" },
       "elementConstraints": { "allowImage": true, "allowText": true, "allowLogo": true, "allowShape": true },
       "safeZonePolicy": { "classification": "PROJECT_GUIDE_ONLY", "normalizedExclusion": { "top": 0, "bottom": 0, "left": 0, "right": 0 }, "storiesNormalizedExclusion": { "top": 0.14, "bottom": 0.20, "left": 0, "right": 0 }, "enforcement": "WARNING_ONLY", "finalOverlay": false, "sourceStatus": "OFFICIAL_RATIO_PROJECT_PIXEL_PRESET" },
       "complianceMetadata": { "ratioStatus": "OFFICIAL_META_PLACEMENT_RATIO", "pixelPresetStatus": "PROJECT_OUTPUT_PRESET_V1", "pixelPresetId": "META_STATIC_FEED_SQUARE_1080X1080", "pixelDimensionsAreMetaMandatory": false, "platformCopyIsMetadataOnly": true, "reelsSafeZoneGeometry": "SOURCE_REQUIRED_INFO_ONLY" },
@@ -434,7 +434,7 @@
       "officialSizeRule": "MINIMUM_WITH_RATIO",
       "officialRatio": "4:5",
       "allowedOutputFormats": ["PNG", "JPEG"],
-      "outputConstraints": { "allowedFormats": ["PNG", "JPEG"], "maximumBytes": 300000, "maximumBytesComparator": "LTE", "requiresOpaqueOutput": "UNSPECIFIED" },
+      "outputConstraints": { "allowedFormats": ["PNG", "JPEG"], "requiresOpaqueOutput": "UNSPECIFIED" },
       "elementConstraints": { "allowImage": true, "allowText": true, "allowLogo": true, "allowShape": true },
       "safeZonePolicy": { "classification": "PROJECT_GUIDE_ONLY", "normalizedExclusion": { "top": 0, "bottom": 0, "left": 0, "right": 0 }, "storiesNormalizedExclusion": { "top": 0.14, "bottom": 0.20, "left": 0, "right": 0 }, "enforcement": "WARNING_ONLY", "finalOverlay": false, "sourceStatus": "OFFICIAL_RATIO_PROJECT_PIXEL_PRESET" },
       "complianceMetadata": { "ratioStatus": "OFFICIAL_META_PLACEMENT_RATIO", "pixelPresetStatus": "PROJECT_OUTPUT_PRESET_V1", "pixelPresetId": "META_STATIC_FEED_PORTRAIT_1080X1350", "pixelDimensionsAreMetaMandatory": false, "platformCopyIsMetadataOnly": true, "reelsSafeZoneGeometry": "SOURCE_REQUIRED_INFO_ONLY" },
@@ -456,7 +456,7 @@
       "officialSizeRule": "MINIMUM_WITH_RATIO",
       "officialRatio": "9:16",
       "allowedOutputFormats": ["PNG", "JPEG"],
-      "outputConstraints": { "allowedFormats": ["PNG", "JPEG"], "maximumBytes": 300000, "maximumBytesComparator": "LTE", "requiresOpaqueOutput": "UNSPECIFIED" },
+      "outputConstraints": { "allowedFormats": ["PNG", "JPEG"], "requiresOpaqueOutput": "UNSPECIFIED" },
       "elementConstraints": { "allowImage": true, "allowText": true, "allowLogo": true, "allowShape": true },
       "safeZonePolicy": { "classification": "PROJECT_GUIDE_ONLY", "normalizedExclusion": { "top": 0, "bottom": 0, "left": 0, "right": 0 }, "storiesNormalizedExclusion": { "top": 0.14, "bottom": 0.20, "left": 0, "right": 0 }, "enforcement": "WARNING_ONLY", "finalOverlay": false, "sourceStatus": "OFFICIAL_RATIO_PROJECT_PIXEL_PRESET" },
       "complianceMetadata": { "ratioStatus": "OFFICIAL_META_PLACEMENT_RATIO", "pixelPresetStatus": "PROJECT_OUTPUT_PRESET_V1", "pixelPresetId": "META_STATIC_VERTICAL_FULL_1080X1920", "pixelDimensionsAreMetaMandatory": false, "platformCopyIsMetadataOnly": true, "reelsSafeZoneGeometry": "SOURCE_REQUIRED_INFO_ONLY" },

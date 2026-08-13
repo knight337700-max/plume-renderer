@@ -1,0 +1,10 @@
+{
+  "genericMaximumBytesValidator": "RETAINED_OPTIONAL_BEHAVIOR",
+  "isolation": "META_PROFILE_ONLY",
+  "kakaoConstraints": "UNCHANGED",
+  "metaFileSizeErrorAfterCorrection": false,
+  "metaMaximumBytesRemoved": true,
+  "naverConstraints": "UNCHANGED",
+  "phase": "M2_1",
+  "status": "PASS"
+}

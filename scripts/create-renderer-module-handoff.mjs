@@ -162,6 +162,14 @@ const m1PackageSmoke = JSON.parse(await readFile(path.join(root, "artifacts/m1/m
 const m2ArtifactAudit = JSON.parse(await readFile(path.join(root, "artifacts/m2/meta-artifact-audit.json"), "utf8"));
 const m2CandidateRegistry = JSON.parse(await readFile(path.join(root, "contracts/audits/meta-golden-candidates-m2.json"), "utf8"));
 const m2Regression = JSON.parse(await readFile(path.join(root, "artifacts/m2/meta-regression.json"), "utf8"));
+const m2_1OutputConstraintProvenance = JSON.parse(await readFile(path.join(root, "artifacts/m2-1/meta-output-constraint-provenance.json"), "utf8"));
+const m2_1ByteAudit = JSON.parse(await readFile(path.join(root, "artifacts/m2-1/meta-300kb-rule-audit.json"), "utf8"));
+const m2_1CropAudit = JSON.parse(await readFile(path.join(root, "artifacts/m2-1/meta-manual-crop-candidate-audit.json"), "utf8"));
+const m2_1FormatAudit = JSON.parse(await readFile(path.join(root, "artifacts/m2-1/meta-output-format-audit.json"), "utf8"));
+const m2_1SourceRefresh = JSON.parse(await readFile(path.join(root, "artifacts/m2-1/meta-official-source-refresh.json"), "utf8"));
+const m2_1Determinism = JSON.parse(await readFile(path.join(root, "artifacts/m2-1/meta-determinism.json"), "utf8"));
+const m2_1Regression = JSON.parse(await readFile(path.join(root, "artifacts/m2-1/meta-regression.json"), "utf8"));
+const m2_1CandidateRegistry = JSON.parse(await readFile(path.join(root, "contracts/audits/meta-golden-candidates-m2-1.json"), "utf8"));
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -176,7 +184,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — M1 META static asset profiles and placement-set handoff
+const readme = `# Renderer Module — M2.1 META visual candidate correction and output-compliance handoff
 
 ## Purpose
 
@@ -184,7 +192,7 @@ This folder is a copy of the standalone local Renderer repository for reproducib
 build, test, and later phase development. The source repository remains unchanged.
 
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
-- M1 META renderer source commit: ${sourceSha}
+- Renderer source commit at handoff generation: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
 - Source verification package: ${packageArtifact?.sourcePath ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256}; generated release intentionally excluded from source handoff)` : ""}
 - Runtime network access: PROHIBITED
@@ -210,6 +218,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER N8: eight placements inventoried and contract-driven in Desktop; representative preview/validator/export evidence covers renderer-composed, platform-composed, and ordered collection outputs. SmartChannel remains frozen; matrix: ${n8DesktopMatrix.status}, parity: ${n8ContractParity.status}, E2E: ${n8E2eSummary.status}
 - META M1: renderer-composed 1080x1080, 1080x1350, and 1080x1920 project presets using the existing FREEFORM Core, platform-copy metadata separation, Stories warning guide, Reels source-required INFO, and deterministic placement-set collection output. Official refresh: ${m1OfficialSourceRefresh.status}, presets: ${m1PixelPresets.status}, Desktop parity: ${m1DesktopParity.status}, placement set: ${m1PlacementSetAudit.status}
 - META M2: artifact audit, independent 1:1/4:5/9:16 candidate outputs, Stories guide separation, Reels SOURCE_REQUIRED INFO, Placement Set determinism, and manual-review evidence. Audit: ${m2ArtifactAudit.status}, candidates: ${m2CandidateRegistry.status}, regression: ${m2Regression.status}, manual acceptance: ${m2CandidateRegistry.manualAcceptanceStatus}
+- META M2.1: full-bleed independent MANUAL_CROP candidates, old 300000-byte rule reproduction/correction, official-source provenance refresh, JPEG/MIME audit, Stories guide separation, Reels SOURCE_REQUIRED, and deterministic manual-review package. Audit: ${m2_1CropAudit.status}, output constraint: ${m2_1OutputConstraintProvenance.status}, source refresh: ${m2_1SourceRefresh.status}, regression: ${m2_1Regression.status}, candidates: ${m2_1CandidateRegistry.status}, manual acceptance: ${m2_1CandidateRegistry.manualAcceptanceStatus}
 - META M0: official-source-only discovery and composition boundary remain preserved as the prior audit baseline (${m0OfficialSourceAudit.status}).
 - Meta unsupported scope: carousel, catalog, dynamic, and video remain out of M1 static runtime scope.
 - Google: not implemented
@@ -250,10 +259,10 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is M2 and the canonical document is v1.22.0. M1 implements the three project output presets,
+The latest phase is M2.1 and the canonical document is v1.23.0. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
-The official Meta pixel-size claims remain separate from project output presets; M2 audits real META artifacts and creates
-non-approved golden candidates; manual acceptance remains NOT_REVIEWED and final golden freeze remains false. N8 remains the
+The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
+historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. Manual acceptance remains NOT_REVIEWED and final golden freeze remains false. N8 remains the
 frozen NAVER channel completion baseline and N7.8 remains
 the immutable SmartChannel freeze baseline. N8 reuses existing capabilities, completes format-level Desktop acceptance,
 and records its inventory, matrix, E2E outputs, regressions, package, and handoff under artifacts/n8/. N7.6 remains
@@ -304,7 +313,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "M2_META_ARTIFACT_AUDIT_MANUAL_ACCEPTANCE_GOLDEN_CANDIDATES",
+  handoffPhase: "M2_1_META_VISUAL_CANDIDATE_CORRECTION_OUTPUT_COMPLIANCE_AUDIT",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -319,16 +328,16 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseM2.rendererCoreVersion,
-    validator: canonicalDocument.canonicalPhaseM2.validatorCurrent,
-    desktop: canonicalDocument.canonicalPhaseM2.desktopCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseM2_1.rendererCoreVersion,
+    validator: canonicalDocument.canonicalPhaseM2_1.validatorCurrent,
+    desktop: canonicalDocument.canonicalPhaseM2_1.desktopCurrent,
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
     platformComposedSourceRegistry: canonicalDocument.platformComposedSourceRegistryVersion,
     capabilityRegistry: canonicalDocument.canonicalPhaseN7.capabilityRegistryVersion,
     desktopErrorRegistry: canonicalDocument.desktopErrorRegistryVersion,
-    freeformFormatProfileRegistry: canonicalDocument.canonicalPhaseM1.freeformFormatProfileRegistryCurrent,
+    freeformFormatProfileRegistry: canonicalDocument.canonicalPhaseM2_1.freeformFormatProfileRegistryCurrent,
     metaStatic: {
       projectPixelPresetStatus: canonicalDocument.canonicalPhaseM1.projectPixelPresetStatus,
       profiles: canonicalDocument.canonicalPhaseM1.placementSetOrder,
@@ -336,10 +345,11 @@ const manifest = {
       platformCopyPixels: canonicalDocument.canonicalPhaseM1.platformCopyPixels,
       storiesSafeZone: canonicalDocument.canonicalPhaseM1.storiesSafeZone,
       reelsSafeZone: canonicalDocument.canonicalPhaseM1.reelsSafeZone,
-      manualAcceptanceStatus: canonicalDocument.canonicalPhaseM2.manualAcceptanceStatus,
+      manualAcceptanceStatus: canonicalDocument.canonicalPhaseM2_1.manualAcceptanceStatus,
       m2ArtifactAuditStatus: canonicalDocument.canonicalPhaseM2.artifactAuditStatus,
-      goldenCandidateStatus: canonicalDocument.canonicalPhaseM2.goldenCandidateStatus,
-      finalGoldenFrozen: canonicalDocument.canonicalPhaseM2.finalGoldenFrozen,
+      m2_1VisualAuditStatus: canonicalDocument.canonicalPhaseM2_1.artifactAuditStatus,
+      goldenCandidateStatus: canonicalDocument.canonicalPhaseM2_1.goldenCandidateStatus,
+      finalGoldenFrozen: canonicalDocument.canonicalPhaseM2_1.finalGoldenFrozen,
       evidence: {
         fontInventory: m1FontInventory.status,
         validatorAudit: m1ValidatorAudit.status,
@@ -348,6 +358,13 @@ const manifest = {
         packageSmoke: m1PackageSmoke.status,
         m2ArtifactAudit: m2ArtifactAudit.status,
         m2Regression: m2Regression.status,
+        m2_1OutputConstraintProvenance: m2_1OutputConstraintProvenance.status,
+        m2_1ByteAudit: m2_1ByteAudit.status,
+        m2_1CropAudit: m2_1CropAudit.status,
+        m2_1FormatAudit: m2_1FormatAudit.status,
+        m2_1SourceRefresh: m2_1SourceRefresh.status,
+        m2_1Determinism: m2_1Determinism.status,
+        m2_1Regression: m2_1Regression.status,
       },
     },
   },
@@ -540,6 +557,20 @@ const manifest = {
     m2GoldenCandidates: "artifacts/m2/golden-candidates",
     m2ImplementationRecord: "docs/implementation/meta-artifact-audit-golden-candidates-m2.md",
     m2Verifier: "scripts/verify-m2-meta-static.mjs",
+    m2_1OutputConstraintProvenance: "artifacts/m2-1/meta-output-constraint-provenance.json",
+    m2_1ByteAudit: "artifacts/m2-1/meta-300kb-rule-audit.json",
+    m2_1CropAudit: "artifacts/m2-1/meta-manual-crop-candidate-audit.json",
+    m2_1FormatAudit: "artifacts/m2-1/meta-output-format-audit.json",
+    m2_1ValidatorIsolation: "artifacts/m2-1/meta-validator-isolation.json",
+    m2_1OfficialSourceRefresh: "artifacts/m2-1/meta-official-source-refresh.json",
+    m2_1Determinism: "artifacts/m2-1/meta-determinism.json",
+    m2_1Regression: "artifacts/m2-1/meta-regression.json",
+    m2_1ManualReviewPackage: "artifacts/m2-1/manual-review",
+    m2_1CandidateRegistry: "contracts/audits/meta-golden-candidates-m2-1.json",
+    m2_1ImplementationRecord: "docs/implementation/meta-visual-candidate-correction-output-compliance-m2-1.md",
+    m2_1Verifier: "scripts/verify-m2-1-meta.mjs",
+    m2_1SourceOriginal: "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source-original.jpg",
+    m2_1SourceDerived: "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source__2048x1365.jpg",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -551,6 +582,23 @@ const manifest = {
     candidateRegistry: "contracts/audits/meta-golden-candidates-m2.json",
     reviewPackage: "artifacts/m2/manual-review",
     regression: m2Regression.status,
+  },
+  m2_1MetaVisualAudit: {
+    status: m2_1CropAudit.status,
+    outputConstraintProvenance: m2_1OutputConstraintProvenance.status,
+    old300KbRuleReproduction: m2_1ByteAudit.oldRuleReproduction?.reproducedCode ?? null,
+    correctedMetaFileSizeError: m2_1ByteAudit.correctedRule?.fileSizeExceededError ?? null,
+    outputFormatAudit: m2_1FormatAudit.status,
+    officialSourceRefresh: m2_1SourceRefresh.status,
+    exactMaximumBytes: m2_1SourceRefresh.exactMaximumBytes,
+    determinism: m2_1Determinism.status,
+    regression: m2_1Regression.status,
+    candidateCount: m2_1CandidateRegistry.candidates.length,
+    candidateStatus: m2_1CandidateRegistry.status,
+    manualAcceptanceStatus: m2_1CandidateRegistry.manualAcceptanceStatus,
+    finalGoldenFrozen: m2_1CandidateRegistry.finalGoldenFrozen,
+    reviewPackage: "artifacts/m2-1/manual-review",
+    candidateRegistry: "contracts/audits/meta-golden-candidates-m2-1.json",
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],
