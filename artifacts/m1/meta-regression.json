@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "m0BaselinePreserved": true,
+  "kakaoPixelsChanged": false,
+  "naverPixelsChanged": false,
+  "m1Tests": 6,
+  "metaDesktopE2E": { "status": "PASS", "tests": 1 },
+  "fullVitest": { "files": 44, "tests": 268 },
+  "fullPlaywright": { "status": "PASS", "tests": 35 },
+  "packagedMetaSmoke": "PASS",
+  "existingVerifiers": "PASS",
+  "runtimeNetworkAccess": "PROHIBITED",
+  "implementationStarted": true
+}

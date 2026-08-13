@@ -629,11 +629,12 @@ export function App() {
       <header className="app-header">
         <div>
           <p className="eyebrow">비공식 내부 제작 도구</p>
-          <h1>{channel === "KAKAO" ? "카카오 비즈보드 로컬 Renderer" : "NAVER Desktop Renderer Lab"}</h1>
-          <p>{channel === "KAKAO" ? (layoutMode === "TEMPLATE_LOCKED" ? `${template} · 1029×258 · CTA 없음` : "FREEFORM · Registry Format Catalog · Core Validator") : "NAVER · Channel → Placement → Capability Editor"} · Runtime network 0</p>
+          <h1>{channel === "KAKAO" ? "카카오 비즈보드 로컬 Renderer" : channel === "META" ? "META Static Renderer Lab" : "NAVER Desktop Renderer Lab"}</h1>
+          <p>{channel === "KAKAO" ? (layoutMode === "TEMPLATE_LOCKED" ? `${template} · 1029×258 · CTA 없음` : "FREEFORM · Registry Format Catalog · Core Validator") : channel === "META" ? "META · Static Image · Renderer-Composed · Project Output Presets" : "NAVER · Channel → Placement → Capability Editor"} · Runtime network 0</p>
           <div className="channel-selector" role="group" aria-label="Channel">
             <button type="button" className={channel === "KAKAO" ? "channel-active" : ""} onClick={() => setChannel("KAKAO")} data-testid="channel-kakao">KAKAO</button>
             <button type="button" className={channel === "NAVER" ? "channel-active" : ""} onClick={() => setChannel("NAVER")} data-testid="channel-naver">NAVER</button>
+            <button type="button" className={channel === "META" ? "channel-active" : ""} onClick={() => { setChannel("META"); setLayoutMode("FREEFORM"); }} data-testid="channel-meta">META</button>
           </div>
           {channel === "KAKAO" ? <div className="mode-selector" role="group" aria-label="Renderer Mode">
             <button type="button" className={layoutMode === "TEMPLATE_LOCKED" ? "mode-active" : ""} onClick={() => setLayoutMode("TEMPLATE_LOCKED")} data-testid="mode-template-locked">Template Locked</button>
@@ -644,7 +645,7 @@ export function App() {
       </header>
 
       <RendererErrorBoundary boundaryKey={channel} onNavigateDefault={() => setChannel("KAKAO")}>
-      {channel === "NAVER" ? <NaverDesktopEditor /> : layoutMode === "FREEFORM" ? <FreeformEditor /> : <section className="workspace">
+      {channel === "NAVER" ? <NaverDesktopEditor /> : (channel === "META" || layoutMode === "FREEFORM") ? <FreeformEditor channel={channel} {...(channel === "META" ? { initialProfileId: "META_STATIC_FEED_SQUARE" } : {})} /> : <section className="workspace">
         <aside className="input-panel" aria-label="입력 패널">
           <div className="section-heading">
             <h2>입력</h2>

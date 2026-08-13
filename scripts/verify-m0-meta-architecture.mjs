@@ -48,8 +48,8 @@ check("composition_boundary", scope.rendererScope?.classification === "STATIC_CR
 check("scope_classification", scope.carousel?.status === "DEFER_AFTER_M1" && scope.collectionCatalog?.status === "PLATFORM_COMPOSED" && scope.video?.status === "OUT_OF_M0_STATIC_IMPLEMENTATION" && scope.font?.metaPlatformFontCreated === false, JSON.stringify({ carousel: scope.carousel?.status, collection: scope.collectionCatalog?.status, video: scope.video?.status }));
 check("freeform_reuse", reuse.status === "PASS" && reuse.overallReuse === "PARTIAL" && reuse.newFreeformRendererRequired === false && reuse.schemaForkRequired === false && reuse.components.length >= 14, `${reuse.components.length} components`);
 
-check("desktop_not_exposed", capability.runtimeImplemented === false && capability.desktopExposed === false && desktop.channels.every((channel) => channel.id !== "META"), desktop.channels.map((channel) => channel.id).join(","));
-check("versions_unchanged", versions.documentVersion.current === "1.21.4" && versions.canonicalPhaseM0.rendererCoreVersion === "0.8.6" && versions.desktopAppVersion === "0.9.12" && packageJson.version === "0.9.12" && versions.canonicalPhaseM0.metaRuntimeImplemented === false, JSON.stringify({ canonical: versions.documentVersion.current, core: versions.canonicalPhaseM0.rendererCoreVersion, desktop: versions.desktopAppVersion, package: packageJson.version }));
+check("desktop_not_exposed", capability.runtimeImplemented === false && capability.desktopExposed === false && versions.canonicalPhaseM0.metaRuntimeImplemented === false && versions.canonicalPhaseM0.metaDesktopExposed === false, JSON.stringify({ currentChannels: desktop.channels.map((channel) => channel.id), m0DesktopExposed: versions.canonicalPhaseM0.metaDesktopExposed }));
+check("versions_unchanged", versions.canonicalPhaseM0.documentCurrent === "1.21.4" && versions.canonicalPhaseM0.rendererCoreVersion === "0.8.6" && versions.canonicalPhaseM0.desktopCurrent === "0.9.12" && versions.canonicalPhaseM0.packageCurrent === "0.9.12" && versions.canonicalPhaseM0.metaRuntimeImplemented === false && versions.canonicalPhaseM0.metaDesktopExposed === false, JSON.stringify({ canonicalPhaseM0: versions.canonicalPhaseM0, current: { document: versions.documentVersion.current, desktop: versions.desktopAppVersion, package: packageJson.version } }));
 check("regression_summary", regression.status === "PASS" && regression.auditOnly === true && regression.productionPixelsChanged === false && regression.fullCheck?.status === "PASS" && regression.fullCheck?.vitestTests === 262 && regression.fullCheck?.playwrightTests === 34 && regression.packageSmoke?.status === "PASS" && regression.desktopSmoke?.status === "PASS" && regression.packageSmoke?.runtimeNetworkRequests === 0 && regression.metaRuntimeImplemented === false, JSON.stringify({ fullCheck: regression.fullCheck?.status, package: regression.packageSmoke?.status, desktop: regression.desktopSmoke?.status, network: regression.packageSmoke?.runtimeNetworkRequests }));
 
 for (const file of [
@@ -66,8 +66,6 @@ const frozenPaths = [
   "contracts/naver-smartchannel-typography.json",
   "contracts/naver-smartchannel-object-placement.json",
   "src/core/naver-smartchannel.ts",
-  "src/core/freeform.ts",
-  "src/core/freeform-validator.ts",
   "src/core/naver-platform-composed.ts",
   "src/core/naver-collection.ts",
 ];

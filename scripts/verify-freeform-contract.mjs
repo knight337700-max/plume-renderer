@@ -91,7 +91,7 @@ if (integrationSchemas.includes("1.8.0")) pass("integration_version_alignment", 
 else fail("integration_version_alignment", "v1.8.0 is absent from Integration schemas");
 
 const versions = await readJson("contracts/contract-versions.json");
-if (versions.documentVersion?.current === "1.21.4" && versions.integrationContract?.current === "1.8.0" && versions.templateContractVersion === "1.9.0" && versions.desktopAppVersion === "0.9.12" && versions.canonicalPhaseN7_4?.desktopCurrent === "0.9.4" && versions.canonicalPhaseN7_4Continuation?.desktopCurrent === "0.9.5" && versions.canonicalPhaseN7_5?.desktopCurrent === "0.9.6" && versions.canonicalPhaseN7_7?.desktopCurrent === "0.9.7" && versions.canonicalPhaseN7_7_4?.desktopCurrent === "0.9.8" && versions.canonicalPhaseN7_7_5?.desktopCurrent === "0.9.9" && versions.canonicalPhaseN7_7_6?.desktopCurrent === "0.9.10" && versions.canonicalPhaseN7_8?.desktopCurrent === "0.9.11" && versions.canonicalPhaseN8?.desktopCurrent === "0.9.12" && versions.freeformFormatProfileRegistryVersion === "1.2.0") pass("version_policy", "Canonical 1.21.4 / Integration 1.8.0 / Template 1.9.0 / FREEFORM Profiles 1.2.0 / Desktop 0.9.12");
+if (versions.documentVersion?.current === "1.22.0" && versions.integrationContract?.current === "1.8.0" && versions.templateContractVersion === "1.9.0" && versions.desktopAppVersion === "0.10.0" && versions.canonicalPhaseN7_4?.desktopCurrent === "0.9.4" && versions.canonicalPhaseN7_4Continuation?.desktopCurrent === "0.9.5" && versions.canonicalPhaseN7_5?.desktopCurrent === "0.9.6" && versions.canonicalPhaseN7_7?.desktopCurrent === "0.9.7" && versions.canonicalPhaseN7_7_4?.desktopCurrent === "0.9.8" && versions.canonicalPhaseN7_7_5?.desktopCurrent === "0.9.9" && versions.canonicalPhaseN7_7_6?.desktopCurrent === "0.9.10" && versions.canonicalPhaseN8?.desktopCurrent === "0.9.12" && versions.freeformFormatProfileRegistryVersion === "1.3.0" && versions.canonicalPhaseM1?.metaRuntimeImplemented === true) pass("version_policy", "Canonical 1.22.0 / Integration 1.8.0 / Template 1.9.0 / FREEFORM Profiles 1.3.0 / Desktop 0.10.0 (M1 additive)");
 else fail("version_policy", JSON.stringify({ document: versions.documentVersion, integration: versions.integrationContract, template: versions.templateContractVersion, profiles: versions.freeformFormatProfileRegistryVersion, desktop: versions.desktopAppVersion }));
 if (versions.creativeLayoutPlan?.schemaVersion === "1.0.0" && versions.creativeLayoutPlan?.implementationStatus === "NOT_IMPLEMENTED") pass("implementation_boundary", "FREEFORM schema remains frozen; raster implementation is additive");
 else fail("implementation_boundary", "FREEFORM implementation status is not NOT_IMPLEMENTED");
@@ -99,7 +99,7 @@ if (versions.canonicalPhaseF1?.freeformRasterImplementationStarted === true && v
 else fail("raster_implementation_status", "F1 FREEFORM Core Raster status is missing");
 
 const formatProfiles = await readJson("contracts/freeform-format-profiles.json");
-if (formatProfiles.registryVersion === "1.2.0" && formatProfiles.catalogStatus === "READY") pass("format_profile_registry_version", "FREEFORM FormatProfile registry is v1.2.0 and catalog READY");
+if (formatProfiles.registryVersion === "1.3.0" && formatProfiles.catalogStatus === "READY") pass("format_profile_registry_version", "FREEFORM FormatProfile registry is v1.3.0 and catalog READY (M1 additive)");
 else fail("format_profile_registry_version", JSON.stringify({ registryVersion: formatProfiles.registryVersion, catalogStatus: formatProfiles.catalogStatus }));
 if (formatProfiles.native1200?.dimensions === null && formatProfiles.native1200?.implementationStatus === "NOT_IMPLEMENTED") pass("format_profile_catalog", "native 1200 remains CATALOG_NOT_READY without inferred dimensions");
 else fail("format_profile_catalog", "native 1200 was inferred or marked implemented");
@@ -108,7 +108,7 @@ else fail("output_format_boundary", "FREEFORM output format status mismatch");
 const testProfile = formatProfiles.profiles?.find((profile) => profile.formatProfileId === "KBR_FREEFORM_CONTRACT_TEST_1029X258");
 if (testProfile?.canvas?.width === 1029 && testProfile?.canvas?.height === 258 && testProfile.layoutMode === "FREEFORM" && JSON.stringify(testProfile.allowedOutputFormats) === JSON.stringify(["PNG"])) pass("format_profile_identity", "internal test FormatProfile owns canvas and PNG capability");
 else fail("format_profile_identity", "internal test FormatProfile mismatch");
-const legacyProfiles = (formatProfiles.profiles ?? []).filter((profile) => profile.channelNamespace !== "NAVER_GFA");
+const legacyProfiles = (formatProfiles.profiles ?? []).filter((profile) => profile.channelNamespace === "KAKAO_MOMENT");
 if (legacyProfiles.every((profile) => profile.channelNamespace === "KAKAO_MOMENT" && profile.compositionMode === "RENDERER_COMPOSED" && profile.artifactCardinality === "SINGLE")) pass("format_profile_composition_mapping", `${legacyProfiles.length} existing Kakao profiles are renderer-composed single artifacts`);
 else fail("format_profile_composition_mapping", "one or more existing Kakao profiles lack the additive N1A semantic mapping");
 const naverProfiles = new Map((formatProfiles.profiles ?? []).filter((profile) => profile.channelNamespace === "NAVER_GFA").map((profile) => [profile.formatProfileId, profile]));

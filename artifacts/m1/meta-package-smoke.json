@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "packageVersion": "0.10.0",
+  "platform": "Windows x64",
+  "metaSelector": "PASS",
+  "uiMarkers": [
+    "channel-meta",
+    "META Static Renderer Lab",
+    "meta-profile-select",
+    "meta-output-mode",
+    "META_STATIC_PLACEMENT_SET_V1",
+    "meta-platform-copy"
+  ],
+  "singleProfiles": [
+    { "profileId": "META_STATIC_FEED_SQUARE", "format": "PNG", "width": 1080, "height": 1080, "sha256": "dba2b67e381d9c7c8af24961af932358f479acdea340f88f94a4317726979866" },
+    { "profileId": "META_STATIC_FEED_PORTRAIT", "format": "JPEG", "width": 1080, "height": 1350, "sha256": "09e50cb0895759cef1480d956c0487c6d8fec18691649b87cdc6fb8a65f5ae1a" },
+    { "profileId": "META_STATIC_VERTICAL_FULL", "format": "PNG", "width": 1080, "height": 1920, "sha256": "aa9271cb9e4e2ec3bfe2c5117a5d9620788fa67dca82f79b13f5015d174cd6aa" }
+  ],
+  "placementSet": {
+    "contract": "META_STATIC_PLACEMENT_SET_V1",
+    "order": ["META_STATIC_FEED_SQUARE", "META_STATIC_FEED_PORTRAIT", "META_STATIC_VERTICAL_FULL"],
+    "artifactCount": 3,
+    "artifactFileNames": ["META_STATIC_FEED_SQUARE.png", "META_STATIC_FEED_PORTRAIT.png", "META_STATIC_VERTICAL_FULL.png"],
+    "manifestFileName": "meta-placement-set-manifest.json",
+    "collectionFingerprint": "244ae67b10098d91d960f931b8aae92e25235fd5bce9e0bc3a4426fd298aa401"
+  },
+  "runtimeNetworkRequests": 0,
+  "executables": [
+    { "path": "release/win-unpacked/Kakao-Bizboard-Local-Renderer.exe", "bytes": 225441792, "sha256": "ace18a41b6096f122d3c896dbcda175d336b2f24dc482343ddf0e28e175a883e" },
+    { "path": "release/Kakao-Bizboard-Local-Renderer-0.10.0-x64.exe", "bytes": 144337587, "sha256": "82fe0afe24cae55c3650a059ad19b762ed8de0c996c76b6b26429032575d35b4" }
+  ]
+}

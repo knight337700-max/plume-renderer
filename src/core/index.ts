@@ -36,6 +36,24 @@ export {
   renderFreeform,
   toFreeformRenderResponse,
 } from "./freeform.js";
+export {
+  isMetaStaticPlacementSetRequest,
+  loadMetaStaticProfiles,
+  renderMetaStatic,
+  renderMetaStaticPreviewArtifact,
+  META_STATIC_PLACEMENT_SET_ID,
+  META_STATIC_PROFILE_ORDER,
+} from "./meta-static.js";
+export type {
+  MetaPlatformCopy,
+  MetaStaticCollectionArtifact,
+  MetaStaticCollectionResult,
+  MetaStaticPlacementContext,
+  MetaStaticPlacementSetRequest,
+  MetaStaticRenderResult,
+  MetaStaticVariant,
+  MetaStaticProfileId,
+} from "./meta-static.js";
 export { applyDefaults, normalizeInput } from "./normalize.js";
 export { canonicalDigest, canonicalJson } from "./canonical.js";
 export { calculateLayout } from "./layout.js";

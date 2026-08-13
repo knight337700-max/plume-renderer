@@ -9,7 +9,7 @@
     "$schema": { "type": "string" },
     "$id": { "type": "string", "minLength": 1 },
     "registryVersion": { "const": "1.0.0" },
-    "channels": { "type": "array", "items": { "enum": ["KAKAO_MOMENT", "NAVER_GFA"] }, "minItems": 2, "uniqueItems": true },
+    "channels": { "type": "array", "items": { "enum": ["KAKAO_MOMENT", "NAVER_GFA", "META"] }, "minItems": 3, "uniqueItems": true },
     "compositionModes": { "type": "array", "items": { "enum": ["RENDERER_COMPOSED", "PLATFORM_COMPOSED"] }, "minItems": 2, "uniqueItems": true },
     "artifactCardinalities": { "type": "array", "items": { "enum": ["SINGLE", "COLLECTION"] }, "minItems": 2, "uniqueItems": true },
     "naverGfaPlacements": { "type": "array", "items": { "enum": ["SMARTCHANNEL", "MOBILE_DA", "IMAGE_BANNER_1_1", "MOBILE_NATIVE", "PC_NATIVE", "SHOPPING_NEWS", "COMMUNICATION_AD", "MOBILE_DA_FEED"] }, "minItems": 8, "uniqueItems": true },
@@ -34,7 +34,7 @@
       "additionalProperties": false,
       "required": ["channel", "placement", "runtimeStatus"],
       "properties": {
-        "channel": { "enum": ["KAKAO_MOMENT", "NAVER_GFA"] },
+        "channel": { "enum": ["KAKAO_MOMENT", "NAVER_GFA", "META"] },
         "placement": { "type": "string", "minLength": 1 },
         "compositionMode": { "enum": ["RENDERER_COMPOSED", "PLATFORM_COMPOSED"] },
         "compositionModes": { "type": "array", "items": { "enum": ["RENDERER_COMPOSED", "PLATFORM_COMPOSED"] }, "minItems": 1, "uniqueItems": true },
@@ -42,7 +42,8 @@
         "layoutModes": { "type": "array", "items": { "enum": ["TEMPLATE_LOCKED", "FREEFORM"] }, "minItems": 1, "uniqueItems": true },
         "artifactCardinality": { "enum": ["SINGLE", "COLLECTION"] },
         "artifactCardinalities": { "type": "array", "items": { "enum": ["SINGLE", "COLLECTION"] }, "minItems": 1, "uniqueItems": true },
-        "runtimeStatus": { "enum": ["IMPLEMENTED", "CONTRACT_ONLY", "DEFERRED"] }
+        "runtimeStatus": { "enum": ["IMPLEMENTED", "CONTRACT_ONLY", "DEFERRED"] },
+        "formatProfileId": { "type": "string", "minLength": 1 }
       }
     }
   }

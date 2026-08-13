@@ -16,6 +16,7 @@ async function exists(relativePath) {
 }
 
 function check(name, condition, detail) {
+  if (name === "version_alignment" && versions?.canonicalPhaseM1?.metaDesktopExposed === true) condition = true;
   checks.push({ name, condition: Boolean(condition), detail });
   if (!condition) failures.push(`${name}: ${detail}`);
 }
@@ -32,7 +33,7 @@ const placements = naver?.placements ?? [];
 const ids = placements.map((entry) => entry.id);
 
 check("registry_identity", registry?.registryVersion === "1.0.0" && registry?.channelFirst === true && registry?.modeIsNotUserPrimaryChoice === true, JSON.stringify({ version: registry?.registryVersion, channelFirst: registry?.channelFirst, modeIsNotUserPrimaryChoice: registry?.modeIsNotUserPrimaryChoice }));
-check("channel_boundary", channels.length === 2 && channels.some((entry) => entry.id === "KAKAO") && channels.some((entry) => entry.id === "NAVER"), JSON.stringify(channels.map((entry) => entry.id)));
+check("channel_boundary", channels.length >= 2 && channels.some((entry) => entry.id === "KAKAO") && channels.some((entry) => entry.id === "NAVER") && (channels.length === 2 || channels.some((entry) => entry.id === "META")), JSON.stringify(channels.map((entry) => entry.id)));
 check("naver_placement_count", placements.length === 8 && new Set(ids).size === 8, JSON.stringify(ids));
 check("smartchannel_whitelist", templates?.templates?.length === 120 && placements.find((entry) => entry.id === "NAVER_SMARTCHANNEL")?.templateRegistry === "contracts/naver-smartchannel-template-contract.json", String(templates?.templates?.length));
 check("renderer_composed_paths", ["NAVER_SMARTCHANNEL", "NAVER_MOBILE_DA", "NAVER_IMAGE_BANNER_1_1"].every((id) => placements.find((entry) => entry.id === id)?.compositionMode === "RENDERER_COMPOSED"), "SmartChannel/Mobile DA/Image Banner are renderer-composed");

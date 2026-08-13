@@ -2,7 +2,7 @@
   "$schema": "https://kbr.local/schema/channel-capabilities-v1.schema.json",
   "$id": "https://kbr.local/contracts/channel-capabilities-v1.json",
   "registryVersion": "1.0.0",
-  "channels": ["KAKAO_MOMENT", "NAVER_GFA"],
+  "channels": ["KAKAO_MOMENT", "NAVER_GFA", "META"],
   "compositionModes": ["RENDERER_COMPOSED", "PLATFORM_COMPOSED"],
   "artifactCardinalities": ["SINGLE", "COLLECTION"],
   "naverGfaPlacements": [
@@ -34,6 +34,9 @@
     { "formatProfileId": "KAKAO_ADVIEW_SCROLL_IMAGE", "channel": "KAKAO_MOMENT", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE" }
   ],
   "capabilities": [
+    { "channel": "META", "placement": "STATIC_FEED_SQUARE", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED", "formatProfileId": "META_STATIC_FEED_SQUARE" },
+    { "channel": "META", "placement": "STATIC_FEED_PORTRAIT", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED", "formatProfileId": "META_STATIC_FEED_PORTRAIT" },
+    { "channel": "META", "placement": "STATIC_VERTICAL_FULL", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED", "formatProfileId": "META_STATIC_VERTICAL_FULL" },
     { "channel": "NAVER_GFA", "placement": "SMARTCHANNEL", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "TEMPLATE_LOCKED", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED" },
     { "channel": "NAVER_GFA", "placement": "MOBILE_DA", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED" },
     { "channel": "NAVER_GFA", "placement": "IMAGE_BANNER_1_1", "compositionMode": "RENDERER_COMPOSED", "layoutMode": "FREEFORM", "artifactCardinality": "SINGLE", "runtimeStatus": "IMPLEMENTED" },

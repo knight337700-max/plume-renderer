@@ -123,6 +123,23 @@
     "requestFingerprint": { "$ref": "#/$defs/sha256" },
     "renderFingerprint": { "$ref": "#/$defs/sha256" },
     "smartChannelReport": { "$ref": "#/$defs/smartChannelReport" },
+    "metaStaticReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["channel", "profileId", "projectPixelPresetId", "canvas", "officialRatio", "placementContext", "safeZonePolicy", "platformCopy", "reelsGeometryStatus", "manualAcceptanceStatus"],
+      "properties": {
+        "channel": { "const": "META" },
+        "profileId": { "type": "string", "minLength": 1 },
+        "projectPixelPresetId": { "type": ["string", "null"] },
+        "canvas": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 } } },
+        "officialRatio": { "type": ["string", "null"] },
+        "placementContext": { "type": ["string", "null"] },
+        "safeZonePolicy": true,
+        "platformCopy": true,
+        "reelsGeometryStatus": { "enum": ["SOURCE_REQUIRED", "NOT_APPLICABLE"] },
+        "manualAcceptanceStatus": { "const": "NOT_REVIEWED" }
+      }
+    },
     "appliedImagePlacements": {
       "type": "array",
       "items": {}
@@ -214,7 +231,7 @@
       "required": ["elementId", "elementType", "normalizedBounds", "destinationPixelRect", "zIndex", "originalArrayIndex", "opacity"],
       "properties": {
         "elementId": { "type": "string", "minLength": 1 },
-        "elementType": { "enum": ["IMAGE", "TEXT", "LOGO"] },
+        "elementType": { "enum": ["IMAGE", "TEXT", "LOGO", "SHAPE"] },
         "normalizedBounds": { "$ref": "#/$defs/normalizedRect" },
         "destinationPixelRect": { "$ref": "#/$defs/pixelRect" },
         "actualRasterBounds": { "$ref": "#/$defs/pixelRect" },
@@ -236,6 +253,7 @@
         "overflowMode": { "enum": ["ERROR", "CLIP"] },
         "overflowDetected": { "type": "boolean" },
         "clipped": { "type": "boolean" }
+        ,"safeZoneImportance": { "enum": ["KEY_CREATIVE", "DECORATIVE", "IGNORE"] }
       }
     },
     "outputEncoding": {

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "formatProfileId": "META_STATIC_VERTICAL_FULL",
+  "layoutMode": "FREEFORM",
+  "output": { "format": "PNG" },
+  "creativeLayoutPlan": {
+    "schemaVersion": "1.0.0",
+    "formatProfileId": "META_STATIC_VERTICAL_FULL",
+    "source": "MANUAL",
+    "background": { "type": "SOLID", "color": "#FFFFFF" },
+    "elements": [
+      { "id": "headline", "type": "TEXT", "text": "Safe story", "fontId": "SPOQA_HAN_SANS_BOLD", "fontSizePx": 72, "color": "#111111", "lineHeightPx": 82, "textAlign": "LEFT", "verticalAlign": "TOP", "wrapMode": "NO_WRAP", "overflowMode": "ERROR", "bounds": { "x": 0.08, "y": 0.35, "width": 0.84, "height": 0.08 }, "zIndex": 1, "role": "HEADLINE", "safeZoneImportance": "KEY_CREATIVE" }
+    ]
+  },
+  "metaStatic": { "mode": "SINGLE", "placementContext": "INSTAGRAM_STORIES" }
+}

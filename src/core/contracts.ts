@@ -26,6 +26,8 @@ export type ContractBundle = {
   manifestSchema: Record<string, unknown>;
   responseSchema: Record<string, unknown>;
   multiArtifactManifestSchema: Record<string, unknown>;
+  metaStaticProfiles: Record<string, unknown>;
+  metaStaticPlacementSetSchema: Record<string, unknown>;
   naverPlatformSourceSchema: Record<string, unknown>;
   naverPlatformSourceProfiles: Record<string, unknown>;
   naverFeedSource: Record<string, unknown>;
@@ -63,6 +65,8 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     manifestSchema,
     responseSchema,
     multiArtifactManifestSchema,
+    metaStaticProfiles,
+    metaStaticPlacementSetSchema,
     naverPlatformSourceSchema,
     naverPlatformSourceProfiles,
     naverFeedSource,
@@ -92,6 +96,8 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     readJson<Record<string, unknown>>(projectRoot, "contracts/render-manifest.schema.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/response-envelope.schema.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/multi-artifact-manifest.schema.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/meta-static-profiles.json"),
+    readJson<Record<string, unknown>>(projectRoot, "contracts/meta-static-placement-set.schema.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-platform-composed-source.schema.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-platform-composed-source-profiles.json"),
     readJson<Record<string, unknown>>(projectRoot, "contracts/naver-feed-source.json"),
@@ -123,6 +129,8 @@ export async function loadContracts(projectRoot: string): Promise<ContractBundle
     manifestSchema,
     responseSchema,
     multiArtifactManifestSchema,
+    metaStaticProfiles,
+    metaStaticPlacementSetSchema,
     naverPlatformSourceSchema,
     naverPlatformSourceProfiles,
     naverFeedSource,

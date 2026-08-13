@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "platform": "Windows 10/11 x64",
+  "runs": 3,
+  "byteEqualTarget": true,
+  "cases": {
+    "square": { "format": "PNG", "sha256": "36a1ef405a1ec7b52b69a16e5cfb866e4582f74f35eff1426630d92d41158f54" },
+    "portrait": { "format": "JPEG", "sha256": "85c5086c6354a1a12898a8cb8412623055e662d8fd3fd24d0cfd46d551bb5e95" },
+    "vertical": { "format": "PNG", "sha256": "18360d965908632d60affb9a3cc0787880eac69649893e2f678b20c501f09e40" },
+    "placementSet": {
+      "collectionFingerprint": "552d152e8fc052a23d6dd33dfd98a1f008739ffb3a08fb9111df2552226c9bc1",
+      "manifestSha256": "701132eabe2103dceaf5916c8049bbfaa5e40cf89fe1ed3ed89cbd60e379bbaa",
+      "artifactSha256": [
+        "6b940ebd662541ad0002dd2d53c539e700ff7c206c66db1aa3f66794b2c52ffa",
+        "d19633b6d7b0d56a4c37260e511818f52c411964c67d7a207c397214d5c423ac",
+        "d39869f9070f6429699a5443dc800af99b889c5aa2cf31ff7dfc081eff050758"
+      ]
+    }
+  },
+  "crossPlatformTolerance": "OUT_OF_SCOPE",
+  "goldensFrozen": false
+}

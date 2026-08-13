@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "layoutMode": "FREEFORM",
+  "output": { "format": "PNG" },
+  "metaStatic": {
+    "mode": "PLACEMENT_SET",
+    "conceptId": "meta-placement-set-basic",
+    "placementContext": "FACEBOOK_FEED",
+    "platformCopy": { "primaryText": "One concept, three independent plans", "headline": "Meta static" },
+    "variants": {
+      "META_STATIC_FEED_SQUARE": { "formatProfileId": "META_STATIC_FEED_SQUARE", "creativeLayoutPlan": { "schemaVersion": "1.0.0", "formatProfileId": "META_STATIC_FEED_SQUARE", "source": "MANUAL", "background": { "type": "SOLID", "color": "#FFFFFF" }, "elements": [] } },
+      "META_STATIC_FEED_PORTRAIT": { "formatProfileId": "META_STATIC_FEED_PORTRAIT", "creativeLayoutPlan": { "schemaVersion": "1.0.0", "formatProfileId": "META_STATIC_FEED_PORTRAIT", "source": "MANUAL", "background": { "type": "SOLID", "color": "#FFFFFF" }, "elements": [] } },
+      "META_STATIC_VERTICAL_FULL": { "formatProfileId": "META_STATIC_VERTICAL_FULL", "creativeLayoutPlan": { "schemaVersion": "1.0.0", "formatProfileId": "META_STATIC_VERTICAL_FULL", "source": "MANUAL", "background": { "type": "SOLID", "color": "#FFFFFF" }, "elements": [] } }
+    }
+  }
+}

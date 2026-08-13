@@ -55,12 +55,17 @@ type RecordValue = Record<string, unknown>;
 
 const REQUEST_KEYS = [
   "schemaVersion",
+  "assetProfileId",
   "formatProfileId",
   "layoutMode",
   "creativeLayoutPlan",
   "assets",
   "output",
   "provenance",
+  "metaStatic",
+  "placementSet",
+  "platformCopy",
+  "placementContext",
 ] as const;
 const ASSET_KEYS = [
   "assetId",
@@ -335,6 +340,7 @@ function validateManagedSafeZones(
   plan: CreativeLayoutPlan,
   profile: FormatProfile,
   contracts: ContractBundle,
+  placementContext?: string,
 ): ValidationIssue[] {
   if (!isRecord(profile.safeZonePolicy)) return [];
   const policy = profile.safeZonePolicy;
@@ -351,6 +357,27 @@ function validateManagedSafeZones(
       formatProfileId: profile.formatProfileId,
     }));
   };
+  const storiesExclusion = isRecord(policy.storiesNormalizedExclusion)
+    ? policy.storiesNormalizedExclusion
+    : null;
+  if (storiesExclusion && (placementContext === "FACEBOOK_STORIES" || placementContext === "INSTAGRAM_STORIES" || placementContext === "STORIES")) {
+    const top = typeof storiesExclusion.top === "number" ? storiesExclusion.top : 0;
+    const bottom = typeof storiesExclusion.bottom === "number" ? storiesExclusion.bottom : 0;
+    const left = typeof storiesExclusion.left === "number" ? storiesExclusion.left : 0;
+    const right = typeof storiesExclusion.right === "number" ? storiesExclusion.right : 0;
+    const margins = { top: canvas.height * top, bottom: canvas.height * bottom, left: canvas.width * left, right: canvas.width * right };
+    const keyRoles = new Set(["HEADLINE", "SUBCOPY", "ADVERTISER", "DISCLAIMER", "CTA", "LOGO"]);
+    for (const { element, index } of plan.elements.map((element, index) => ({ element, index }))) {
+      if (element.safeZoneImportance === "IGNORE" || element.safeZoneImportance === "DECORATIVE") continue;
+      if (element.safeZoneImportance !== "KEY_CREATIVE" && !keyRoles.has(element.role ?? "")) continue;
+      const rect = normalizedRectToPixelRect(element.bounds, canvas);
+      if (!insideMargins(rect, canvas, margins)) emit("KBR-META-STORIES-SAFE-ZONE-WARNING", element, index, rect, {
+        normalizedExclusion: { top, bottom, left, right },
+        pixelExclusion: margins,
+        canvas,
+      });
+    }
+  }
   const checkMargins = (rawMargins: unknown, severityCode: "KBR-FREEFORM-SAFE-ZONE-VIOLATION" | "KBR-FREEFORM-SAFE-ZONE-RECOMMENDED", label: string) => {
     const margins = marginValues(rawMargins);
     if (!margins) return;
@@ -508,7 +535,10 @@ function validateProfileAndPlan(
       });
       if (profile) {
         const typedPlan = request.creativeLayoutPlan as unknown as CreativeLayoutPlan;
-        issues.push(...validateManagedSafeZones(typedPlan, profile, contracts));
+        const placementContext = isRecord(request.metaStatic) && typeof request.metaStatic.placementContext === "string"
+          ? request.metaStatic.placementContext
+          : undefined;
+        issues.push(...validateManagedSafeZones(typedPlan, profile, contracts, placementContext));
         issues.push(...validateMachineTextConstraints(typedPlan, profile, contracts));
       }
     }

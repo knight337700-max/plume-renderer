@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "stories": { "topNormalized": 0.14, "bottomNormalized": 0.2, "severity": "WARNING", "finalOverlay": false },
+  "reels": { "status": "SOURCE_REQUIRED", "severity": "INFO", "guessedGeometry": false },
+  "placementSetMissingVariant": "KBR-META-PLACEMENT-SET-INCOMPLETE",
+  "placementSetChildError": "KBR-META-PLACEMENT-SET-CHILD-BLOCKED",
+  "manualAcceptanceStatus": "NOT_REVIEWED"
+}

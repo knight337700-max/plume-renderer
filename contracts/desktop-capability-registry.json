@@ -131,6 +131,24 @@
           ]
         }
       ]
+    },
+    {
+      "id": "META",
+      "label": "META",
+      "placements": [
+        {
+          "id": "META_STATIC_IMAGE",
+          "label": "Static Image",
+          "compositionMode": "RENDERER_COMPOSED",
+          "layoutMode": "FREEFORM",
+          "artifactCardinality": "SINGLE_OR_COLLECTION",
+          "editorType": "FREEFORM_EDITOR",
+          "renderable": true,
+          "freeformProfileIds": ["META_STATIC_FEED_SQUARE", "META_STATIC_FEED_PORTRAIT", "META_STATIC_VERTICAL_FULL"],
+          "freeformProfileRegistry": "contracts/freeform-format-profiles.json",
+          "platformOwnedFields": ["primaryText", "headline", "description", "callToAction", "destinationUrl"]
+        }
+      ]
     }
   ]
 }

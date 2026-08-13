@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "formatProfileId": "META_STATIC_VERTICAL_FULL",
+  "layoutMode": "FREEFORM",
+  "output": { "format": "PNG" },
+  "creativeLayoutPlan": {
+    "schemaVersion": "1.0.0",
+    "formatProfileId": "META_STATIC_VERTICAL_FULL",
+    "source": "MANUAL",
+    "background": { "type": "SOLID", "color": "#FFFFFF" },
+    "elements": []
+  },
+  "metaStatic": { "mode": "SINGLE", "placementContext": "INSTAGRAM_REELS" }
+}

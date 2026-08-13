@@ -75,6 +75,7 @@ export type FreeformAssetInput = Readonly<{
 
 export type FreeformRenderRequest = Readonly<{
   schemaVersion?: string;
+  assetProfileId?: string;
   formatProfileId: string;
   layoutMode?: "FREEFORM";
   creativeLayoutPlan?: CreativeLayoutPlan;
@@ -87,6 +88,34 @@ export type FreeformRenderRequest = Readonly<{
     baseName?: string;
     overwrite?: boolean;
   }>;
+  metaStatic?: Readonly<{
+    mode?: "SINGLE" | "PLACEMENT_SET";
+    placementContext?: string;
+    conceptId?: string;
+    variantId?: string;
+    projectPixelPresetId?: string;
+    platformCopy?: Readonly<{
+      primaryText?: string;
+      headline?: string;
+      description?: string;
+      callToAction?: string;
+      destinationUrl?: string;
+    }>;
+    variants?: Readonly<Record<string, CreativeLayoutPlan>>;
+  }>;
+  placementSet?: Readonly<{
+    conceptId?: string;
+    sharedLayerIds?: readonly string[];
+    variants: Readonly<Record<string, CreativeLayoutPlan | Readonly<{ creativeLayoutPlan: CreativeLayoutPlan; formatProfileId?: string; placementContext?: string }>>>;
+  }>;
+  platformCopy?: Readonly<{
+    primaryText?: string;
+    headline?: string;
+    description?: string;
+    callToAction?: string;
+    destinationUrl?: string;
+  }>;
+  placementContext?: string;
   provenance?: Readonly<Record<string, unknown>>;
 }>;
 
@@ -122,6 +151,7 @@ export type FreeformRenderResult = Readonly<{
   appliedElements: FreeformAppliedElement[];
   errors: ValidationIssue[];
   warnings: ValidationIssue[];
+  metaStaticReport?: RenderManifest["metaStaticReport"];
 }>;
 
 type PixelRect = { x: number; y: number; width: number; height: number };
@@ -904,6 +934,7 @@ function renderTextElement(
       fontSizePx: element.fontSizePx,
       lineHeightPx: element.lineHeightPx,
       color: element.color,
+      ...(element.safeZoneImportance ? { safeZoneImportance: element.safeZoneImportance } : {}),
       wrapMode: element.wrapMode,
       overflowMode: element.overflowMode,
       overflowDetected,
@@ -912,6 +943,50 @@ function renderTextElement(
     },
     errors,
   };
+}
+
+function renderShapeElement(
+  context: ReturnType<ReturnType<typeof createCanvas>["getContext"]>,
+  element: Extract<CreativeElement, { type: "SHAPE" }>,
+  slot: PixelRect,
+  contracts: ContractBundle,
+  elementIndex: number,
+): { applied?: FreeformAppliedElement; errors: ValidationIssue[] } {
+  try {
+    context.save();
+    context.globalAlpha = element.opacity ?? 1;
+    context.fillStyle = rgbaCss(element.fillColor);
+    if (element.shape === "ELLIPSE") {
+      context.beginPath();
+      context.ellipse(slot.x + slot.width / 2, slot.y + slot.height / 2, slot.width / 2, slot.height / 2, 0, 0, Math.PI * 2);
+      context.fill();
+    } else {
+      context.fillRect(slot.x, slot.y, slot.width, slot.height);
+    }
+    context.restore();
+    return {
+      applied: {
+        elementId: element.id,
+        elementType: "SHAPE",
+        normalizedBounds: element.bounds,
+        destinationPixelRect: slot,
+        actualRasterBounds: slot,
+        zIndex: element.zIndex,
+        originalArrayIndex: elementIndex,
+        opacity: element.opacity ?? 1,
+        ...(element.safeZoneImportance ? { safeZoneImportance: element.safeZoneImportance } : {}),
+      },
+      errors: [],
+    };
+  } catch (error) {
+    return {
+      errors: [issue(contracts, "KBR-SYSTEM-003", `/elements/${elementIndex}`, {
+        elementId: element.id,
+        actual: error instanceof Error ? error.message : "shape rasterization failed",
+        stage: "POST_RENDER",
+      })],
+    };
+  }
 }
 
 function manifestAcceptanceStatus(): RenderManifest["manualAcceptanceStatus"] {
@@ -1029,6 +1104,7 @@ function freeformResponseFromResult(result: FreeformRenderResult): RenderRespons
     artifactPath: result.artifactPath,
     ...(result.outputEncoding ? { outputEncoding: result.outputEncoding } : {}),
     appliedElements: result.appliedElements,
+    ...(result.metaStaticReport ? { metaStaticReport: result.metaStaticReport } : {}),
   };
 }
 
@@ -1061,7 +1137,17 @@ async function renderFreeformInternal(
     ...(profile ? { formatProfile: profile } : {}),
     ...(runtimeResult.runtime ? { fontRegistry: runtimeResult.runtime.fontRegistry } : {}),
   });
-  const initialIssues = sortAndDedupeIssues([...preValidationIssues, ...runtimeResult.issues]);
+  const metaStaticContext = isRecord(rawRequest) && isRecord(rawRequest.metaStatic) && typeof rawRequest.metaStatic.placementContext === "string"
+    ? rawRequest.metaStatic.placementContext
+    : undefined;
+  const metaInfoIssues = profile?.channelNamespace === "META" && (metaStaticContext === "FACEBOOK_REELS" || metaStaticContext === "INSTAGRAM_REELS" || metaStaticContext === "REELS")
+    ? [issue(contracts, "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED", "/metaStatic/placementContext", {
+      actual: metaStaticContext,
+      expected: "source-backed exact Reels safe-zone geometry; no guessed coordinates",
+      formatProfileId,
+    })]
+    : [];
+  const initialIssues = sortAndDedupeIssues([...preValidationIssues, ...runtimeResult.issues, ...metaInfoIssues]);
   const runtimeAssets = runtimeResult.runtime;
   if (initialIssues.some((entry) => entry.severity === "ERROR") || !profile || !runtimeAssets) {
     return emptyResult(initialIssues.length > 0 ? initialIssues : [issue(contracts, "KBR-SYSTEM-001", "/assets")], {
@@ -1104,6 +1190,9 @@ async function renderFreeformInternal(
   const assetDigests: Record<string, string> = { ...runtimeAssets.fontDigests };
   for (const asset of resolvedAssetsResult.assets.values()) assetDigests[asset.assetId] = asset.digest;
   const requestedFormat = requestedFreeformOutputFormat(request);
+  const profilePixelPresetId = profile.complianceMetadata && isRecord(profile.complianceMetadata) && typeof profile.complianceMetadata.pixelPresetId === "string"
+    ? profile.complianceMetadata.pixelPresetId
+    : null;
   const requestProvenance = {
     ...(request.provenance ?? {}),
     outputEncodingRequest: {
@@ -1121,6 +1210,16 @@ async function renderFreeformInternal(
         ...(value.expectedSha256 ? { expectedSha256: value.expectedSha256 } : {}),
       })),
     assetDigests,
+    ...(isRecord(request.metaStatic) ? {
+      metaStatic: {
+        mode: request.metaStatic.mode ?? "SINGLE",
+        placementContext: request.metaStatic.placementContext ?? null,
+        conceptId: request.metaStatic.conceptId ?? null,
+        variantId: request.metaStatic.variantId ?? null,
+        projectPixelPresetId: request.metaStatic.projectPixelPresetId ?? profilePixelPresetId,
+        platformCopy: request.metaStatic.platformCopy ?? null,
+      },
+    } : {}),
   };
   let fingerprints: { pixelFingerprint: string; requestFingerprint: string } | undefined;
   try {
@@ -1147,7 +1246,13 @@ async function renderFreeformInternal(
     const originalArrayIndex = defaults.elements.indexOf(element);
     const slot = normalizedRectToPixelRect(element.bounds, profile.canvas);
     if (element.type === "SHAPE") {
-      renderIssues.push(issue(contracts, "KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED", `/elements/${originalArrayIndex}/type`, { elementId: element.id, actual: "SHAPE" }));
+      if (profile.elementConstraints?.allowShape !== true) {
+        renderIssues.push(issue(contracts, "KBR-FREEFORM-ELEMENT-TYPE-NOT-SUPPORTED", `/elements/${originalArrayIndex}/type`, { elementId: element.id, actual: "SHAPE" }));
+        continue;
+      }
+      const rendered = renderShapeElement(context, element, slot, contracts, originalArrayIndex);
+      renderIssues.push(...rendered.errors);
+      if (rendered.applied) appliedElements.push(rendered.applied);
       continue;
     }
     if (element.type === "IMAGE" || element.type === "LOGO") {
@@ -1160,6 +1265,7 @@ async function renderFreeformInternal(
       renderIssues.push(...rendered.errors);
       if (rendered.applied) {
         rendered.applied.assetDigest = asset.digest;
+        if (element.safeZoneImportance) rendered.applied.safeZoneImportance = element.safeZoneImportance;
         appliedElements.push(rendered.applied);
         assetDigests[asset.assetId] = asset.digest;
       }
@@ -1176,7 +1282,9 @@ async function renderFreeformInternal(
       renderIssues.push(...rendered.errors);
       if (rendered.applied) {
         const fontDigest = runtimeAssets.fontDigests[element.fontId];
-        appliedElements.push(fontDigest ? { ...rendered.applied, fontAssetDigest: fontDigest } : rendered.applied);
+        const applied = fontDigest ? { ...rendered.applied, fontAssetDigest: fontDigest } : rendered.applied;
+        if (element.safeZoneImportance) applied.safeZoneImportance = element.safeZoneImportance;
+        appliedElements.push(applied);
       }
     }
   }
@@ -1270,6 +1378,20 @@ async function renderFreeformInternal(
   const imageAssetDigests = [...resolvedAssetsResult.assets.values()]
     .sort((left, right) => left.assetId.localeCompare(right.assetId, "en"))
     .map((asset) => ({ id: asset.assetId, sha256: asset.digest }));
+  const metaStaticReport: RenderManifest["metaStaticReport"] = profile.channelNamespace === "META"
+    ? {
+      channel: "META",
+      profileId: profile.formatProfileId,
+      projectPixelPresetId: profilePixelPresetId,
+      canvas: profile.canvas,
+      officialRatio: profile.officialRatio ?? null,
+      placementContext: metaStaticContext ?? null,
+      safeZonePolicy: profile.safeZonePolicy ?? null,
+      platformCopy: isRecord(request.metaStatic) ? request.metaStatic.platformCopy ?? null : null,
+      reelsGeometryStatus: metaStaticContext === "FACEBOOK_REELS" || metaStaticContext === "INSTAGRAM_REELS" || metaStaticContext === "REELS" ? "SOURCE_REQUIRED" : "NOT_APPLICABLE",
+      manualAcceptanceStatus: "NOT_REVIEWED",
+    }
+    : undefined;
   const manifest: RenderManifest = {
     schemaVersion: "1.0.0",
     canonicalInputDigest: fingerprints?.requestFingerprint ?? sha256Bytes(Buffer.from(canonicalJson(defaults), "utf8")),
@@ -1298,6 +1420,7 @@ async function renderFreeformInternal(
     appliedElements,
     ...(fingerprints?.pixelFingerprint ? { pixelFingerprint: fingerprints.pixelFingerprint } : {}),
     ...(fingerprints?.requestFingerprint ? { requestFingerprint: fingerprints.requestFingerprint } : {}),
+    ...(metaStaticReport ? { metaStaticReport } : {}),
     manualAcceptanceStatus: manifestAcceptanceStatus(),
   };
   const schemaValidators: SchemaValidators = new SchemaValidators(contracts);
@@ -1344,6 +1467,7 @@ async function renderFreeformInternal(
         appliedElements,
         errors: [],
         warnings: splitIssues(finalIssues).warnings,
+        ...(metaStaticReport ? { metaStaticReport } : {}),
       };
     } catch (error) {
       const code = error instanceof PublishError ? error.code : "KBR-SYSTEM-004";
@@ -1373,6 +1497,7 @@ async function renderFreeformInternal(
     appliedElements,
     errors: [],
     warnings: splitIssues(finalIssues).warnings,
+    ...(metaStaticReport ? { metaStaticReport } : {}),
   };
 }
 

@@ -198,6 +198,109 @@ function smokeToken(): string | null {
   return SMOKE_TOKEN_PATTERN.test(token) ? token : null;
 }
 
+function m1MetaSmokeToken(): string | null {
+  const argument = process.argv.find((value) => value.startsWith("--smoke-m1-meta="));
+  if (!argument) return null;
+  const token = argument.slice("--smoke-m1-meta=".length);
+  return SMOKE_TOKEN_PATTERN.test(token) ? token : null;
+}
+
+async function runM1MetaStaticSmoke(
+  token: string,
+  controller: DesktopController,
+  sessionManager: DesktopSessionManager,
+): Promise<number> {
+  const resultPath = process.env.KBR_M1_META_RESULT ?? path.join(os.tmpdir(), `kbr-m1-meta-${token}.json`);
+  const outputRoot = process.env.KBR_M1_META_OUTPUT ?? path.join(os.tmpdir(), `kbr-m1-meta-output-${token}`);
+  const productPath = path.join(projectRoot(), "fixtures", "valid", "object-right__product__basic__pass.png");
+  const profileIds = ["META_STATIC_FEED_SQUARE", "META_STATIC_FEED_PORTRAIT", "META_STATIC_VERTICAL_FULL"] as const;
+  const planFor = (formatProfileId: string, assetId = "hero") => ({
+    schemaVersion: "1.0.0" as const,
+    formatProfileId,
+    source: "MANUAL" as const,
+    background: { type: "SOLID" as const, color: "#FFFFFF" },
+    elements: [{
+      id: assetId,
+      type: "IMAGE" as const,
+      assetId,
+      bounds: { x: 0.15, y: 0.18, width: 0.7, height: 0.64 },
+      zIndex: 0,
+      placement: { policy: "CENTER_CONTAIN" as const, source: "MANUAL" as const, fitMode: "CONTAIN" as const, anchor: "CENTER" as const, subjectProtection: "NONE" as const },
+    }],
+  });
+  const report: Record<string, unknown> = { status: "FAIL", outputRoot, profiles: [], collection: null, runtimeNetworkRequests: 0 };
+  try {
+    await mkdir(outputRoot, { recursive: true });
+    const selected = await controller.selectProductFromPath(productPath);
+    if (selected.status !== "SELECTED") throw new Error(`META smoke asset selection failed: ${selected.status}`);
+    const output = await controller.registerOutputDirectory(outputRoot);
+    const singleResults: Array<Record<string, unknown>> = [];
+    for (const [index, profileId] of profileIds.entries()) {
+      const request: UiRenderInput = {
+        assetToken: selected.assetToken,
+        advertiser: "META",
+        headline: "META",
+        subcopy: "META",
+        jobName: `m1-meta-${profileId.toLowerCase()}`,
+        requestSequence: index + 1,
+        layoutMode: "FREEFORM",
+        freeform: {
+          formatProfileId: profileId,
+          creativeLayoutPlan: planFor(profileId),
+          assetTokens: { hero: selected.assetToken },
+          outputFormat: index === 1 ? "JPEG" : "PNG",
+          ...(index === 1 ? { outputQuality: 88 } : {}),
+          outputMode: "SINGLE",
+          metaStatic: {
+            placementContext: profileId === "META_STATIC_VERTICAL_FULL" ? "INSTAGRAM_STORIES" : "FACEBOOK_FEED",
+            platformCopy: { headline: "metadata only" },
+          },
+        },
+      };
+      const preview = await controller.requestPreview(request);
+      if (!preview.previewToken || preview.validationStatus === "ERROR" || !preview.eligibility?.previewAllowed) throw new Error(`META ${profileId} preview failed: ${JSON.stringify(preview.errors)}`);
+      const exported = await controller.exportRender({ ...request, previewToken: preview.previewToken, outputDirectoryToken: output.token });
+      if (exported.status !== "EXPORTED") throw new Error(`META ${profileId} export failed: ${exported.code}`);
+      const paths = controller.getExportPaths(exported.exportToken);
+      const metadata = await sharp(paths.pngPath).metadata();
+      singleResults.push({ profileId, format: exported.artifactFormat, digest: exported.artifactDigest, width: metadata.width, height: metadata.height, warnings: preview.warnings.length });
+    }
+    const variants = Object.fromEntries(profileIds.map((profileId) => [profileId, planFor(profileId)]));
+    const collectionRequest: UiRenderInput = {
+      assetToken: selected.assetToken,
+      advertiser: "META",
+      headline: "META",
+      subcopy: "META",
+      jobName: "m1-meta-placement-set",
+      requestSequence: 10,
+      layoutMode: "FREEFORM",
+      freeform: {
+        formatProfileId: "META_STATIC_FEED_SQUARE",
+        creativeLayoutPlan: planFor("META_STATIC_FEED_SQUARE"),
+        assetTokens: { hero: selected.assetToken },
+        outputFormat: "PNG",
+        outputMode: "PLACEMENT_SET",
+        metaStatic: { conceptId: "m1-meta-smoke", platformCopy: { headline: "metadata only" }, variants },
+      },
+    };
+    const collectionPreview = await controller.requestPreview(collectionRequest);
+    if (!collectionPreview.previewToken || collectionPreview.validationStatus === "ERROR") throw new Error(`META placement set preview failed: ${JSON.stringify(collectionPreview.errors)}`);
+    const collectionExport = await controller.exportRender({ ...collectionRequest, previewToken: collectionPreview.previewToken, outputDirectoryToken: output.token });
+    if (collectionExport.status !== "EXPORTED") throw new Error(`META placement set export failed: ${collectionExport.code}`);
+    const collectionPaths = controller.getExportPaths(collectionExport.exportToken);
+    report.status = "PASS";
+    report.profiles = singleResults;
+    report.collection = { order: profileIds, collectionFingerprint: collectionExport.collectionFingerprint ?? null, manifestFileName: collectionExport.collectionManifestFileName ?? null, artifactFileNames: collectionExport.artifactFileNames ?? [], manifestDigest: collectionExport.manifestDigest, artifactCount: collectionExport.artifactFileNames?.length ?? 0, firstArtifactPath: collectionPaths.pngPath };
+    report.runtimeNetworkRequests = blockedNetworkRequestCount;
+  } catch (error) {
+    report.error = error instanceof Error ? error.message : String(error);
+  }
+  await writeFile(resultPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+  await sessionManager.cleanup();
+  cleanupComplete = true;
+  return report.status === "PASS" ? 0 : 1;
+}
+
 function n7_4SmokeToken(): string | null {
   const argument = process.argv.find((value) => value.startsWith("--smoke-n7-4="));
   if (!argument) return null;
@@ -770,6 +873,12 @@ void app.whenReady().then(async () => {
   const token = smokeToken();
   if (token) {
     const exitCode = await runPackagedSmoke(token, controller, desktopSession);
+    app.exit(exitCode);
+    return;
+  }
+  const m1MetaToken = m1MetaSmokeToken();
+  if (m1MetaToken) {
+    const exitCode = await runM1MetaStaticSmoke(m1MetaToken, controller, desktopSession);
     app.exit(exitCode);
     return;
   }

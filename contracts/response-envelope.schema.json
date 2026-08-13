@@ -120,6 +120,23 @@
         "progressive": { "const": false },
         "metadataStripped": { "const": true }
       }
+    },
+    "metaStaticReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["channel", "profileId", "projectPixelPresetId", "canvas", "officialRatio", "placementContext", "safeZonePolicy", "platformCopy", "reelsGeometryStatus", "manualAcceptanceStatus"],
+      "properties": {
+        "channel": { "const": "META" },
+        "profileId": { "type": "string" },
+        "projectPixelPresetId": { "type": ["string", "null"] },
+        "canvas": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } } },
+        "officialRatio": { "type": ["string", "null"] },
+        "placementContext": { "type": ["string", "null"] },
+        "safeZonePolicy": true,
+        "platformCopy": true,
+        "reelsGeometryStatus": { "enum": ["SOURCE_REQUIRED", "NOT_APPLICABLE"] },
+        "manualAcceptanceStatus": { "const": "NOT_REVIEWED" }
+      }
     }
   },
   "allOf": [

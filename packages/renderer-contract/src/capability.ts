@@ -1,7 +1,7 @@
 import type { FormatProfile, LayoutMode } from "./freeform.js";
 
 /** Canonical top-level channel namespaces. Placement identifiers remain scoped to a channel. */
-export const CHANNEL_IDS = ["KAKAO_MOMENT", "NAVER_GFA"] as const;
+export const CHANNEL_IDS = ["KAKAO_MOMENT", "NAVER_GFA", "META"] as const;
 export type ChannelId = (typeof CHANNEL_IDS)[number];
 
 /** Orthogonal answer to “who composes the final ad UI?”. */

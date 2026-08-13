@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "channel": "META",
+  "placement": "META_STATIC_IMAGE",
+  "editorType": "FREEFORM_EDITOR",
+  "profiles": ["META_STATIC_FEED_SQUARE", "META_STATIC_FEED_PORTRAIT", "META_STATIC_VERTICAL_FULL"],
+  "outputModes": ["SINGLE", "PLACEMENT_SET"],
+  "platformCopyPixels": false
+}

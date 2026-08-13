@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "formatProfileId": "META_STATIC_FEED_SQUARE",
+  "layoutMode": "FREEFORM",
+  "output": { "format": "PNG" },
+  "assets": { "hero": { "path": "fixtures/valid/thumbnail-box-right__asset__basic__pass.png", "mimeType": "image/png" } },
+  "creativeLayoutPlan": {
+    "schemaVersion": "1.0.0",
+    "formatProfileId": "META_STATIC_FEED_SQUARE",
+    "source": "MANUAL",
+    "background": { "type": "SOLID", "color": "#FFFFFF" },
+    "elements": [
+      { "id": "hero", "type": "IMAGE", "assetId": "hero", "bounds": { "x": 0.25, "y": 0.18, "width": 0.5, "height": 0.64 }, "zIndex": 0, "placement": { "policy": "CENTER_CONTAIN", "source": "MANUAL", "fitMode": "CONTAIN", "anchor": "CENTER", "subjectProtection": "NONE" } }
+    ]
+  },
+  "metaStatic": { "mode": "SINGLE", "placementContext": "FACEBOOK_FEED", "platformCopy": { "primaryText": "Primary text metadata", "headline": "Square headline", "description": "Description", "callToAction": "Learn More", "destinationUrl": "https://example.invalid/meta" } }
+}

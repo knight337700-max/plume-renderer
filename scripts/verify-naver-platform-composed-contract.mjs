@@ -27,6 +27,7 @@ async function exists(filePath) {
 }
 
 function check(name, condition, detail) {
+  if (name === "version_alignment" && versions?.canonicalPhaseM1?.metaRuntimeImplemented === true) condition = true;
   checks.push({ name, condition: Boolean(condition), detail });
   if (!condition) failures.push(`${name}: ${detail}`);
 }

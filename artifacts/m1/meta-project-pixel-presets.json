@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "classification": "PROJECT_OUTPUT_PRESET_V1",
+  "presets": [
+    { "id": "META_STATIC_FEED_SQUARE", "width": 1080, "height": 1080, "ratio": "1:1" },
+    { "id": "META_STATIC_FEED_PORTRAIT", "width": 1080, "height": 1350, "ratio": "4:5" },
+    { "id": "META_STATIC_VERTICAL_FULL", "width": 1080, "height": 1920, "ratio": "9:16" }
+  ],
+  "metaMandatoryPixelSizeClaim": false
+}

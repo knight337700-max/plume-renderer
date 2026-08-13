@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "contractId": "META_STATIC_PLACEMENT_SET_V1",
+  "compositionMode": "RENDERER_COMPOSED",
+  "artifactCardinality": "COLLECTION",
+  "order": ["META_STATIC_FEED_SQUARE", "META_STATIC_FEED_PORTRAIT", "META_STATIC_VERTICAL_FULL"],
+  "independentPlans": true,
+  "missingVariantBlocks": true,
+  "manualAcceptanceStatus": "NOT_REVIEWED"
+}

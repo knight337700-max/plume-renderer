@@ -74,7 +74,7 @@ check(
 );
 check(
   "error_registry_version",
-  errorRegistry?.registryVersion === "1.8.1",
+  errorRegistry?.registryVersion === "1.9.0",
   `errorRegistry=${errorRegistry?.registryVersion ?? "missing"}`,
 );
 
@@ -441,7 +441,7 @@ const naverEntries = channelEntries.filter(({ channel }) => channel === "NAVER_G
 const existingProfileMappings = channelRegistry?.legacyProfileMappings ?? [];
 check(
   "channel_namespace",
-  JSON.stringify(channelRegistry?.channels) === JSON.stringify(["KAKAO_MOMENT", "NAVER_GFA"]) && channelRegistry?.channels?.includes("KAKAO_MOMENT") && channelRegistry?.channels?.includes("NAVER_GFA"),
+  JSON.stringify(channelRegistry?.channels) === JSON.stringify(["KAKAO_MOMENT", "NAVER_GFA", "META"]) && channelRegistry?.channels?.includes("KAKAO_MOMENT") && channelRegistry?.channels?.includes("NAVER_GFA") && channelRegistry?.channels?.includes("META"),
   `channels=${channelRegistry?.channels?.join(",") ?? "missing"}`,
 );
 check(
@@ -471,7 +471,7 @@ check(
 );
 check(
   "canonical_document_version",
-    versions?.documentVersion?.previous === "1.21.3" && versions?.documentVersion?.current === "1.21.4" && versions?.canonicalPhaseN7_7_5?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_7_6?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.rendererCoreVersion === "0.8.6" && versions?.canonicalPhaseN8?.desktopCurrent === "0.9.12" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
+    versions?.documentVersion?.previous === "1.21.3" && versions?.documentVersion?.current === "1.22.0" && versions?.canonicalPhaseN7_7_5?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_7_6?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.rendererCoreVersion === "0.8.6" && versions?.canonicalPhaseN8?.desktopCurrent === "0.9.12" && versions?.canonicalPhaseM1?.documentPrevious === "1.21.4" && versions?.canonicalPhaseM1?.documentCurrent === "1.22.0" && versions?.canonicalPhaseM1?.rendererCoreVersion === "0.9.0" && versions?.canonicalPhaseM1?.desktopCurrent === "0.10.0" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
     `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

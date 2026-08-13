@@ -6,10 +6,11 @@
   "additionalProperties": false,
   "required": ["id", "type", "assetId", "bounds", "placement", "zIndex"],
   "properties": {
-    "id": { "type": "string", "minLength": 1 }, "type": { "const": "IMAGE" }, "assetId": { "type": "string", "minLength": 1 }, "bounds": { "$ref": "#/$defs/normalizedRect" }, "placement": { "$ref": "https://kbr.local/schema/image-placement-spec-v1.schema.json" }, "zIndex": { "type": "integer" }, "opacity": { "type": "number", "minimum": 0, "maximum": 1, "default": 1 }, "role": { "$ref": "#/$defs/semanticRole" }
+    "id": { "type": "string", "minLength": 1 }, "type": { "const": "IMAGE" }, "assetId": { "type": "string", "minLength": 1 }, "bounds": { "$ref": "#/$defs/normalizedRect" }, "placement": { "$ref": "https://kbr.local/schema/image-placement-spec-v1.schema.json" }, "zIndex": { "type": "integer" }, "opacity": { "type": "number", "minimum": 0, "maximum": 1, "default": 1 }, "role": { "$ref": "#/$defs/semanticRole" }, "safeZoneImportance": { "$ref": "#/$defs/safeZoneImportance" }
   },
   "$defs": {
     "normalizedRect": { "type": "object", "additionalProperties": false, "required": ["x", "y", "width", "height"], "properties": { "x": { "type": "number", "minimum": 0, "maximum": 1 }, "y": { "type": "number", "minimum": 0, "maximum": 1 }, "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }, "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 } } },
-    "semanticRole": { "enum": ["HEADLINE", "SUBCOPY", "ADVERTISER", "DISCLAIMER", "CTA", "LOGO", "PRIMARY_IMAGE", "DECORATION", "OTHER"] }
+    "semanticRole": { "enum": ["HEADLINE", "SUBCOPY", "ADVERTISER", "DISCLAIMER", "CTA", "LOGO", "PRIMARY_IMAGE", "DECORATION", "OTHER"] },
+    "safeZoneImportance": { "enum": ["KEY_CREATIVE", "DECORATIVE", "IGNORE"] }
   }
 }

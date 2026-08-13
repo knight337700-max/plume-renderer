@@ -11,7 +11,7 @@ import type { PreviewArtifact, PreviewEligibility } from "./preview-artifact.js"
 export type UiTemplate = "OBJECT_RIGHT" | "THUMBNAIL_BOX_RIGHT" | "THUMBNAIL_MULTI_RIGHT" | "MASK_SEMICIRCLE_RIGHT";
 export type UiLayoutMode = "TEMPLATE_LOCKED" | "FREEFORM";
 export type UiFreeformOutputFormat = "PNG" | "JPEG";
-export type UiChannel = "KAKAO" | "NAVER";
+export type UiChannel = "KAKAO" | "NAVER" | "META";
 export type NaverPlacement =
   | "SMARTCHANNEL"
   | "MOBILE_DA"
@@ -39,6 +39,7 @@ export type DesktopCapability = Readonly<{
   sourceProfileId?: string;
   sourceProfileIds?: readonly string[];
   freeformProfileId?: string;
+  freeformProfileIds?: readonly string[];
   templateRegistry?: string;
   fontPreflight?: boolean;
   platformOwnedFields?: readonly string[];
@@ -229,6 +230,20 @@ export type UiFreeformRequest = {
   assetTokens: Readonly<Record<string, string>>;
   outputFormat: UiFreeformOutputFormat;
   outputQuality?: number | "AUTO_FIT";
+  outputMode?: "SINGLE" | "PLACEMENT_SET";
+  metaStatic?: {
+    mode?: "SINGLE" | "PLACEMENT_SET";
+    placementContext?: string;
+    conceptId?: string;
+    platformCopy?: {
+      primaryText?: string;
+      headline?: string;
+      description?: string;
+      callToAction?: string;
+      destinationUrl?: string;
+    };
+    variants?: Readonly<Record<string, CreativeLayoutPlan>>;
+  };
 };
 
 export type UiRenderInput = {
@@ -294,6 +309,10 @@ export type PreviewResult = {
   artifactDigest?: string | null;
   outputEncoding?: Readonly<Record<string, unknown>> | null;
   appliedElements?: readonly FreeformAppliedElement[];
+  collectionFingerprint?: string | null;
+  collectionManifestPath?: string | null;
+  collectionArtifactPaths?: readonly string[];
+  collectionArtifactFileNames?: readonly string[];
   previewArtifact?: PreviewArtifact | null;
   eligibility?: PreviewEligibility;
 };
@@ -314,7 +333,7 @@ export type ExportResult =
       exportToken: string;
       jobName: string;
       pngFileName: string;
-      manifestFileName: "render-manifest.json";
+      manifestFileName: string;
       pngDigest: string;
       manifestDigest: string;
       bytes: number;
@@ -322,6 +341,9 @@ export type ExportResult =
       artifactFileName?: string;
       artifactFormat?: UiFreeformOutputFormat;
       artifactDigest?: string;
+      collectionFingerprint?: string;
+      collectionManifestFileName?: string;
+      artifactFileNames?: readonly string[];
     }
   | {
       status: "BLOCKED" | "ERROR";

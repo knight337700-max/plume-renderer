@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "fontRegistry": "contracts/freeform-font-registry.json",
+  "requiredRuntimeFonts": ["SPOQA_HAN_SANS_BOLD", "SPOQA_HAN_SANS_REGULAR"],
+  "fallbackAllowed": false,
+  "fontFilesDownloadedDuringM1": false
+}

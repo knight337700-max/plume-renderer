@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "formatProfileId": "META_STATIC_FEED_PORTRAIT",
+  "layoutMode": "FREEFORM",
+  "output": { "format": "JPEG", "quality": 88 },
+  "assets": { "hero": { "path": "fixtures/valid/thumbnail-box-right__asset__basic__pass.png", "mimeType": "image/png" } },
+  "creativeLayoutPlan": {
+    "schemaVersion": "1.0.0",
+    "formatProfileId": "META_STATIC_FEED_PORTRAIT",
+    "source": "MANUAL",
+    "background": { "type": "SOLID", "color": "#F4F5F7" },
+    "elements": [
+      { "id": "hero", "type": "IMAGE", "assetId": "hero", "bounds": { "x": 0.14, "y": 0.18, "width": 0.72, "height": 0.64 }, "zIndex": 0, "placement": { "policy": "CENTER_CONTAIN", "source": "MANUAL", "fitMode": "CONTAIN", "anchor": "CENTER", "subjectProtection": "NONE" } }
+    ]
+  },
+  "metaStatic": { "mode": "SINGLE", "placementContext": "INSTAGRAM_FEED", "platformCopy": { "headline": "Portrait headline" } }
+}

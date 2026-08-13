@@ -35,8 +35,9 @@ type OutputQuality = number | "AUTO_FIT";
 
 const formatCatalog = formatCatalogJson as unknown as { profiles: readonly FormatProfile[] };
 const fontRegistry = fontRegistryJson as unknown as FreeformFontRegistry;
-const profiles = formatCatalog.profiles.filter((profile) => profile.channelNamespace !== "NAVER_GFA" && profile.implementationStatus === "IMPLEMENTED" && profile.catalogStatus !== "INTERNAL_TEST_ONLY");
-const catalogOnlyProfiles = formatCatalog.profiles.filter((profile) => profile.channelNamespace !== "NAVER_GFA" && (profile.implementationStatus !== "IMPLEMENTED" || profile.catalogStatus === "INTERNAL_TEST_ONLY")).filter((profile) => profile.catalogStatus !== "INTERNAL_TEST_ONLY");
+const profiles = formatCatalog.profiles.filter((profile) => (profile.channelNamespace === "KAKAO_MOMENT" || profile.channelNamespace === undefined) && profile.implementationStatus === "IMPLEMENTED" && profile.catalogStatus !== "INTERNAL_TEST_ONLY");
+const metaProfiles = formatCatalog.profiles.filter((profile) => profile.channelNamespace === "META" && profile.implementationStatus === "IMPLEMENTED");
+const catalogOnlyProfiles = formatCatalog.profiles.filter((profile) => (profile.channelNamespace === "KAKAO_MOMENT" || profile.channelNamespace === undefined) && (profile.implementationStatus !== "IMPLEMENTED" || profile.catalogStatus === "INTERNAL_TEST_ONLY")).filter((profile) => profile.catalogStatus !== "INTERNAL_TEST_ONLY");
 const defaultProfile = profiles[0];
 
 function placementFor(type: "IMAGE" | "LOGO", policy: ImagePlacementSpec["policy"] = type === "LOGO" ? "ALPHA_TRIM_CONTAIN" : "CENTER_CONTAIN"): ImagePlacementSpec {
@@ -90,10 +91,19 @@ function nextAssetId(type: ElementType, id: string, assetTokens: Readonly<Record
   return `${id}-asset`;
 }
 
-function safeZoneInfo(profile: FormatProfile): { classification: "REQUIRED" | "RECOMMENDED" | "UNKNOWN"; insets: { top: number; right: number; bottom: number; left: number } | null } {
+function safeZoneInfo(profile: FormatProfile, placementContext?: string): { classification: "REQUIRED" | "RECOMMENDED" | "UNKNOWN"; insets: { top: number; right: number; bottom: number; left: number } | null } {
   const policy = profile.safeZonePolicy;
   if (!policy || typeof policy !== "object" || Array.isArray(policy)) return { classification: "UNKNOWN", insets: null };
   const record = policy as Record<string, unknown>;
+  if (placementContext === "FACEBOOK_STORIES" || placementContext === "INSTAGRAM_STORIES" || placementContext === "STORIES") {
+    const normalized = record.storiesNormalizedExclusion;
+    if (normalized && typeof normalized === "object" && !Array.isArray(normalized)) {
+      const values = normalized as Record<string, unknown>;
+      if ([values.top, values.right, values.bottom, values.left].every((value) => typeof value === "number" && Number.isFinite(value))) {
+        return { classification: "RECOMMENDED", insets: { top: (values.top as number) * profile.canvas.height, right: (values.right as number) * profile.canvas.width, bottom: (values.bottom as number) * profile.canvas.height, left: (values.left as number) * profile.canvas.width } };
+      }
+    }
+  }
   const classification = record.classification === "REQUIRED" || record.classification === "RECOMMENDED" ? record.classification : "UNKNOWN";
   const candidate = record.required ?? record.avoid ?? record.edgeSafeZone;
   if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return { classification, insets: null };
@@ -155,14 +165,14 @@ function GeometryEditor({ element, onChange }: { element: EditableElement; onCha
   );
 }
 
-export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channel?: "KAKAO" | "NAVER"; initialProfileId?: string } = {}) {
+export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channel?: "KAKAO" | "NAVER" | "META"; initialProfileId?: string } = {}) {
   const availableProfiles = useMemo(
     () => channel === "NAVER"
       ? formatCatalog.profiles.filter((profile) => profile.channelNamespace === "NAVER_GFA" && profile.implementationStatus === "IMPLEMENTED" && profile.catalogStatus !== "INTERNAL_TEST_ONLY")
-      : profiles,
+      : channel === "META" ? metaProfiles : profiles,
     [channel],
   );
-  const availableCatalogOnlyProfiles = channel === "NAVER" ? [] : catalogOnlyProfiles;
+  const availableCatalogOnlyProfiles = channel === "NAVER" || channel === "META" ? [] : catalogOnlyProfiles;
   const initialProfile = channel === "NAVER"
     ? availableProfiles.find((entry) => entry.formatProfileId === initialProfileId)
     : availableProfiles.find((entry) => entry.formatProfileId === initialProfileId) ?? availableProfiles[0] ?? defaultProfile;
@@ -189,11 +199,25 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
   const [safeZoneVisible, setSafeZoneVisible] = useState(true);
   const [planJson, setPlanJson] = useState(() => JSON.stringify(plan, null, 2));
   const [notice, setNotice] = useState("");
+  const [metaOutputMode, setMetaOutputMode] = useState<"SINGLE" | "PLACEMENT_SET">("SINGLE");
+  const [metaPlacementContext, setMetaPlacementContext] = useState("FACEBOOK_FEED");
+  const [metaPlatformCopy, setMetaPlatformCopy] = useState({ primaryText: "", headline: "", description: "", callToAction: "", destinationUrl: "" });
+  const [metaVariantPlans, setMetaVariantPlans] = useState<Record<string, CreativeLayoutPlan>>({});
 
   useEffect(() => { setPlanJson(JSON.stringify(plan, null, 2)); }, [plan]);
+  useEffect(() => {
+    if (channel !== "META" || metaOutputMode !== "PLACEMENT_SET") return;
+    setMetaVariantPlans((current) => {
+      const next = { ...current, [profileId]: plan };
+      for (const entry of metaProfiles) {
+        if (!next[entry.formatProfileId]) next[entry.formatProfileId] = { ...plan, formatProfileId: entry.formatProfileId, elements: plan.elements.map((element) => ({ ...element })) };
+      }
+      return next;
+    });
+  }, [channel, metaOutputMode, profileId, plan]);
 
   const selectedElement = plan.elements.find((element) => element.id === selectedId) ?? null;
-  const safeZone = profile ? safeZoneInfo(profile) : { classification: "UNKNOWN" as const, insets: null };
+  const safeZone = profile ? safeZoneInfo(profile, channel === "META" ? metaPlacementContext : undefined) : { classification: "UNKNOWN" as const, insets: null };
   const allowedFormats = (profile?.allowedOutputFormats ?? ["PNG"]).map((format) => format === "JPG" ? "JPEG" : format).filter((format, index, all) => all.indexOf(format) === index) as Array<"PNG" | "JPEG">;
   const formatSupports = (type: ElementType): boolean => {
     if (type === "IMAGE") return profile?.elementConstraints?.allowImage !== false;
@@ -212,6 +236,25 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
   };
   const updatePlan = (updater: (current: CreativeLayoutPlan) => CreativeLayoutPlan) => {
     setPlan((current) => updater(current));
+    setPreview(null);
+    setExported(null);
+    setRequestSequence((value) => value + 1);
+  };
+  const selectProfile = (value: string) => {
+    if (channel === "META" && metaOutputMode === "PLACEMENT_SET") {
+      setMetaVariantPlans((current) => ({ ...current, [profileId]: plan }));
+      const next = metaVariantPlans[value];
+      setPlan(next ?? { ...plan, formatProfileId: value, elements: plan.elements.map((element) => ({ ...element })) });
+    } else {
+      setPlan((current) => ({ ...current, formatProfileId: value }));
+    }
+    setProfileId(value);
+    setPreview(null);
+    setExported(null);
+    setRequestSequence((value) => value + 1);
+  };
+  const updateMeta = (patch: Partial<typeof metaPlatformCopy>) => {
+    setMetaPlatformCopy((current) => ({ ...current, ...patch }));
     setPreview(null);
     setExported(null);
     setRequestSequence((value) => value + 1);
@@ -279,6 +322,16 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
       assetTokens,
       outputFormat,
       ...(outputQuality !== undefined ? { outputQuality } : {}),
+      ...(channel === "META" ? {
+        outputMode: metaOutputMode,
+        metaStatic: {
+          mode: metaOutputMode,
+          placementContext: metaPlacementContext,
+          conceptId: "meta-static-concept",
+          platformCopy: metaPlatformCopy,
+          ...(metaOutputMode === "PLACEMENT_SET" ? { variants: { ...metaVariantPlans, [profileId]: plan } } : {}),
+        },
+      } : {}),
     } as const;
     return {
       assetToken: firstToken,
@@ -400,7 +453,7 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
     <section className="freeform-lab" data-testid="freeform-editor">
       <aside className="freeform-sidebar" aria-label="FREEFORM editor">
         <div className="section-heading"><div><h2>FREEFORM Format Lab</h2><p className="hint">Registry-driven Thin Client · Core Validator가 Source of Truth</p></div><span className="capability-pill">FREEFORM</span></div>
-        <label className="field-group"><span className="field-label">Format</span><select data-testid="freeform-format-select" value={profileId} onChange={(event) => { const value = event.currentTarget.value; setProfileId(value); updatePlan((current) => ({ ...current, formatProfileId: value })); }}>
+        <label className="field-group"><span className="field-label">Format</span><select data-testid={channel === "META" ? "meta-profile-select" : "freeform-format-select"} value={profileId} onChange={(event) => selectProfile(event.currentTarget.value)}>
           {availableProfiles.map((entry) => <option key={entry.formatProfileId} value={entry.formatProfileId}>{entry.displayName ?? `${entry.formatProfileId} — ${entry.canvas.width}×${entry.canvas.height}`}</option>)}
           {availableCatalogOnlyProfiles.map((entry) => <option key={entry.formatProfileId} value={entry.formatProfileId} disabled data-testid="freeform-scroll-option">{entry.displayName ?? entry.formatProfileId} · 지원 예정</option>)}
         </select></label>
@@ -417,6 +470,16 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
           <span>Collection · {formatCollectionRule(profile)}</span>
           <span>Status · {profile.implementationStatus}</span>
         </div> : null}
+
+        {channel === "META" ? <section className="meta-static-controls" data-testid="meta-static-controls">
+          <div className="section-heading"><h3>META Static</h3><span className="capability-pill">PROJECT_OUTPUT_PRESET_V1</span></div>
+          <label className="field-group"><span className="field-label">Output mode</span><select data-testid="meta-output-mode" value={metaOutputMode} onChange={(event) => { const value = event.currentTarget.value as "SINGLE" | "PLACEMENT_SET"; setMetaOutputMode(value); setPreview(null); setExported(null); setRequestSequence((current) => current + 1); }}><option value="SINGLE">SINGLE</option><option value="PLACEMENT_SET">META_STATIC_PLACEMENT_SET_V1 · COLLECTION</option></select></label>
+          <label className="field-group"><span className="field-label">Placement context</span><select data-testid="meta-placement-context" value={metaPlacementContext} onChange={(event) => { setMetaPlacementContext(event.currentTarget.value); setPreview(null); setRequestSequence((current) => current + 1); }}><option value="FACEBOOK_FEED">Facebook Feed</option><option value="INSTAGRAM_FEED">Instagram Feed</option><option value="FACEBOOK_STORIES">Facebook Stories</option><option value="INSTAGRAM_STORIES">Instagram Stories</option><option value="FACEBOOK_REELS">Facebook Reels · SOURCE_REQUIRED geometry</option><option value="INSTAGRAM_REELS">Instagram Reels · SOURCE_REQUIRED geometry</option></select></label>
+          {metaOutputMode === "PLACEMENT_SET" ? <div className="button-row" role="tablist" aria-label="META placement variants" data-testid="meta-placement-tabs">{metaProfiles.map((entry) => <button type="button" key={entry.formatProfileId} role="tab" className={profileId === entry.formatProfileId ? "primary" : "secondary"} onClick={() => selectProfile(entry.formatProfileId)} data-testid={`meta-placement-tab-${entry.formatProfileId}`}>{entry.officialRatio} · {entry.canvas.width}×{entry.canvas.height}</button>)}</div> : null}
+          <div className="meta-platform-copy" data-testid="meta-platform-copy"><span className="field-label">Platform copy · metadata only (never rasterized)</span>{(["primaryText", "headline", "description", "callToAction", "destinationUrl"] as const).map((field) => <label key={field}><span>{field}</span><input data-testid={`meta-platform-${field}`} value={metaPlatformCopy[field]} onChange={(event) => updateMeta({ [field]: event.currentTarget.value })} /></label>)}</div>
+          {metaPlacementContext.includes("STORIES") ? <p className="hint" data-testid="meta-safe-zone-guide">Stories guide: top 14% / bottom 20% normalized exclusion · WARNING only · final overlay excluded.</p> : null}
+          {metaPlacementContext.includes("REELS") ? <p className="hint" data-testid="meta-reels-source-required">Reels 9:16 project preset · exact platform safe-zone geometry SOURCE_REQUIRED · INFO only.</p> : null}
+        </section> : null}
 
         <div className="field-group"><span className="field-label">Background</span><div className="button-row"><button type="button" className={plan.background.type === "SOLID" ? "primary" : "secondary"} onClick={() => updatePlan((current) => ({ ...current, background: { type: "SOLID", color: current.background.type === "SOLID" ? current.background.color : "#FFFFFF" } }))} data-testid="freeform-background-solid">Solid</button><button type="button" className={plan.background.type === "TRANSPARENT" ? "primary" : "secondary"} onClick={() => updatePlan((current) => ({ ...current, background: { type: "TRANSPARENT" } }))} data-testid="freeform-background-transparent">Transparent</button></div>{plan.background.type === "SOLID" ? <input data-testid="freeform-background-color" value={plan.background.color} onChange={(event) => updatePlan((current) => ({ ...current, background: { type: "SOLID", color: event.currentTarget.value } }))} /> : null}{profile?.outputConstraints?.requiresOpaqueOutput === true && plan.background.type === "TRANSPARENT" ? <small className="hint status-error">Transparent는 Core Validator ERROR를 발생시킵니다. 자동 보정하지 않습니다.</small> : null}</div>
 

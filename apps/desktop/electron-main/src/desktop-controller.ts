@@ -23,12 +23,13 @@ import {
   assertDownloadAllowed,
   createKakaoBizboardRenderer,
   loadContracts,
-  renderFreeform,
   renderThumbnailMultiRight,
   renderThumbnailBoxRight,
   renderMaskSemicircleRight,
   renderNaverFeedCollection,
   renderSmartChannel,
+  renderMetaStatic,
+  renderMetaStaticPreviewArtifact,
   materializePlatformComposedProfile,
   validatePlatformComposedSource,
   type NaverFeedCollectionRenderRequest,
@@ -36,7 +37,6 @@ import {
   type PlatformSourceFieldRule,
   type FreeformRenderRequest,
 } from "../../../../src/core/index.js";
-import { renderFreeformPreviewArtifact } from "../../../../src/core/freeform.js";
 import { verifyRuntimeAssets } from "../../../../src/core/assets.js";
 import { canonicalDigest, canonicalJson } from "../../../../src/core/canonical.js";
 import { sha256Bytes, sha256File } from "../../../../src/core/hash.js";
@@ -1260,7 +1260,16 @@ export class DesktopController {
         checksumSha256: asset.sha256,
       })),
       output,
-      provenance: { source: "DESKTOP_RENDERER_LAB" },
+      provenance: { source: "DESKTOP_RENDERER_LAB", ...(freeform.metaStatic || freeform.outputMode ? { metaStaticMode: freeform.outputMode ?? "SINGLE" } : {}) },
+      ...(freeform.metaStatic || freeform.outputMode ? {
+        metaStatic: {
+          ...(freeform.outputMode ? { mode: freeform.outputMode } : {}),
+          ...(freeform.metaStatic?.placementContext ? { placementContext: freeform.metaStatic.placementContext } : {}),
+          ...(freeform.metaStatic?.conceptId ? { conceptId: freeform.metaStatic.conceptId } : {}),
+          ...(freeform.metaStatic?.platformCopy ? { platformCopy: freeform.metaStatic.platformCopy } : {}),
+          ...(freeform.metaStatic?.variants ? { variants: freeform.metaStatic.variants } : {}),
+        },
+      } : {}),
     };
     return {
       request,
@@ -1320,7 +1329,7 @@ export class DesktopController {
     };
     try {
       const built = await this.#buildFreeformRequest(input);
-      const result = await renderFreeformPreviewArtifact(built.request, {
+      const result = await renderMetaStaticPreviewArtifact(built.request, {
         projectRoot: this.#projectRoot,
         inputRoot: this.#session.inputRoot,
         outputRoot: this.#session.previewRoot,
@@ -1374,6 +1383,12 @@ export class DesktopController {
         outputEncoding: result.outputEncoding,
         appliedElements: result.appliedElements,
         productAssetDigests: assetDigests,
+        ...(("mode" in result && result.mode === "PLACEMENT_SET") ? {
+          collectionFingerprint: result.collectionFingerprint,
+          collectionManifestPath: result.collectionManifestPath,
+          collectionArtifactPaths: result.collectionArtifactPaths,
+          collectionArtifactFileNames: result.collectionArtifacts.map((artifact) => artifact.fileName),
+        } : {}),
         previewArtifact: {
           format: encodingFormat,
           mimeType,
@@ -1409,12 +1424,51 @@ export class DesktopController {
           return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", `${assetId} Asset이 Preview 이후 변경되었습니다.`);
         }
       }
-      const result = await renderFreeform(built.request, {
+      const result = await renderMetaStatic(built.request, {
         projectRoot: this.#projectRoot,
         inputRoot: this.#session.inputRoot,
         outputRoot: output.root,
         publish: true,
       });
+      if ("mode" in result && result.mode === "PLACEMENT_SET") {
+        if (result.status !== "PASS" || !result.downloadAllowed || !result.collectionManifestPath || result.collectionArtifactPaths.length !== 3 || result.errors.length > 0) {
+          return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "META placement set 최종 재검증에 실패하여 Export가 차단되었습니다.", result.errors, result.warnings);
+        }
+        if (result.requestFingerprint !== previewRecord.inputDigest || result.pngDigest !== previewRecord.pngDigest) {
+          await Promise.allSettled([
+            ...result.collectionArtifactPaths.map((filePath) => rm(filePath, { force: true })),
+            rm(result.collectionManifestPath, { force: true }),
+          ]);
+          return desktopFailure("BLOCKED", "DESKTOP-EXPORT-003", "Preview가 현재 META placement set 입력과 일치하지 않습니다.", result.errors, result.warnings);
+        }
+        const artifactStats = await Promise.all(result.collectionArtifactPaths.map(async (filePath) => ({ path: filePath, digest: await sha256File(filePath), bytes: (await stat(filePath)).size })));
+        const manifestDigest = await sha256File(result.collectionManifestPath);
+        const expected = result.collectionArtifacts;
+        const firstArtifact = artifactStats[0];
+        if (!firstArtifact) return desktopFailure("ERROR", "DESKTOP-EXPORT-004", "META placement set 첫 산출물이 없습니다.", result.errors, result.warnings);
+        if (artifactStats.some((item, index) => item.digest !== expected[index]?.sha256) || manifestDigest !== result.manifestDigest) {
+          await Promise.allSettled([...result.collectionArtifactPaths.map((filePath) => rm(filePath, { force: true })), rm(result.collectionManifestPath, { force: true })]);
+          return desktopFailure("ERROR", "DESKTOP-EXPORT-004", "META placement set 저장 digest 검증에 실패했습니다.", result.errors, result.warnings);
+        }
+        const exportToken = this.#session.registerExport(firstArtifact.path, result.collectionManifestPath);
+        return {
+          status: "EXPORTED",
+          exportToken,
+          jobName: request.jobName,
+          pngFileName: path.basename(firstArtifact.path),
+          manifestFileName: path.basename(result.collectionManifestPath),
+          pngDigest: firstArtifact.digest,
+          manifestDigest,
+          bytes: artifactStats.reduce((sum, item) => sum + item.bytes, 0),
+          warnings: result.warnings,
+          artifactFileName: path.basename(firstArtifact.path),
+          artifactFormat: result.artifactFormat ?? "PNG",
+          artifactDigest: firstArtifact.digest,
+          ...(result.collectionFingerprint ? { collectionFingerprint: result.collectionFingerprint } : {}),
+          collectionManifestFileName: path.basename(result.collectionManifestPath),
+          artifactFileNames: artifactStats.map((item) => path.basename(item.path)),
+        };
+      }
       const errors = result.errors;
       const warnings = result.warnings;
       if (result.status !== "PASS" || !result.downloadAllowed || !result.artifactPath || !result.manifestPath || !result.artifactDigest || !result.manifestDigest || errors.length > 0) {

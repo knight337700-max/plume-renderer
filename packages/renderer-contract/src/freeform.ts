@@ -33,6 +33,7 @@ export type CreativeSemanticRole =
   | "PRIMARY_IMAGE"
   | "DECORATION"
   | "OTHER";
+export type SafeZoneImportance = "KEY_CREATIVE" | "DECORATIVE" | "IGNORE";
 export type TextWrapMode = "NO_WRAP" | "EXPLICIT_NEWLINES" | "WORD_WRAP";
 export type TextOverflowMode = "ERROR" | "CLIP";
 /**
@@ -67,6 +68,7 @@ export type CreativeElementBase = Readonly<{
   zIndex: number;
   opacity?: number;
   role?: CreativeSemanticRole;
+  safeZoneImportance?: SafeZoneImportance;
 }>;
 
 export type FreeformImageElement = CreativeElementBase & Readonly<{
@@ -271,7 +273,7 @@ function validatePlacement(value: unknown, path: string, elementId: string): Ren
 function validateElement(element: unknown, path: string, fontRegistry?: FreeformFontRegistry): RendererValidationIssue[] {
   if (!isRecord(element)) return [freeformIssue("KBR-FREEFORM-PLAN-SCHEMA-INVALID", "freeform.element_invalid", { path })];
   const id = typeof element.id === "string" ? element.id : undefined;
-  const common = ["id", "bounds", "zIndex", "opacity", "role", "type"];
+  const common = ["id", "bounds", "zIndex", "opacity", "role", "safeZoneImportance", "type"];
   const errors: RendererValidationIssue[] = [];
   const typeSpecific = element.type === "IMAGE" || element.type === "LOGO"
     ? ["assetId", "placement"]
@@ -286,6 +288,7 @@ function validateElement(element: unknown, path: string, fontRegistry?: Freeform
   if (!isFiniteNumber(element.zIndex) || !Number.isInteger(element.zIndex)) errors.push(freeformIssue("KBR-FREEFORM-ZINDEX-INVALID", "freeform.zindex_invalid", { path: `${path}/zIndex`, elementId: id }));
   if (element.opacity !== undefined && (!isFiniteNumber(element.opacity) || element.opacity < 0 || element.opacity > 1)) errors.push(freeformIssue("KBR-FREEFORM-PLAN-SCHEMA-INVALID", "freeform.opacity_invalid", { path: `${path}/opacity`, elementId: id }));
   if (element.role !== undefined && !["HEADLINE", "SUBCOPY", "ADVERTISER", "DISCLAIMER", "CTA", "LOGO", "PRIMARY_IMAGE", "DECORATION", "OTHER"].includes(element.role as string)) errors.push(freeformIssue("KBR-FREEFORM-PLAN-SCHEMA-INVALID", "freeform.role_invalid", { path: `${path}/role`, elementId: id }));
+  if (element.safeZoneImportance !== undefined && !["KEY_CREATIVE", "DECORATIVE", "IGNORE"].includes(element.safeZoneImportance as string)) errors.push(freeformIssue("KBR-FREEFORM-PLAN-SCHEMA-INVALID", "freeform.safe_zone_importance_invalid", { path: `${path}/safeZoneImportance`, elementId: id }));
   if (element.type === "IMAGE" || element.type === "LOGO") {
     if (typeof element.assetId !== "string" || element.assetId.length === 0) errors.push(freeformIssue("KBR-FREEFORM-IMAGE-ASSET-NOT-FOUND", "freeform.image_asset_missing", { path: `${path}/assetId`, elementId: id }));
     errors.push(...validatePlacement(element.placement, `${path}/placement`, id ?? ""));
@@ -398,7 +401,7 @@ function pixelFingerprintMaterial(plan: CreativeLayoutPlan, assetDigests: Readon
     ...(outputEncoding !== undefined ? { outputEncoding } : {}),
     background,
     elements: stableSortCreativeElements(plan.elements).map((element) => {
-      const base = { id: element.id, type: element.type, bounds: element.bounds, zIndex: element.zIndex, opacity: element.opacity ?? FREEFORM_DEFAULT_OPACITY, role: element.role };
+      const base = { id: element.id, type: element.type, bounds: element.bounds, zIndex: element.zIndex, opacity: element.opacity ?? FREEFORM_DEFAULT_OPACITY, role: element.role, safeZoneImportance: element.safeZoneImportance };
       if (element.type === "TEXT") return { ...base, text: element.text, fontId: element.fontId, fontDigest: assetDigests[element.fontId] ?? "", fontSizePx: element.fontSizePx, color: element.color.toUpperCase(), lineHeightPx: element.lineHeightPx, textAlign: element.textAlign, verticalAlign: element.verticalAlign, wrapMode: element.wrapMode, overflowMode: element.overflowMode, letterSpacingPx: element.letterSpacingPx ?? FREEFORM_DEFAULT_LETTER_SPACING_PX };
       if (element.type === "SHAPE") return { ...base, shape: element.shape, fillColor: element.fillColor.toUpperCase() };
       return { ...base, assetId: element.assetId, assetDigest: assetDigests[element.assetId] ?? "", placement: { policy: element.placement.policy, fitMode: element.placement.fitMode, cropRect: element.placement.cropRect, focalPoint: element.placement.focalPoint, anchor: element.placement.anchor, subjectProtection: element.placement.subjectProtection, cropCandidateId: element.placement.cropCandidateId, protectedSubjects: element.placement.protectedSubjects } };

@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.8.1",
+  "registryVersion": "1.9.0",
   "messageContract": "messageKey is stable; localized or AJV-native prose is not part of the external contract",
   "codes": [
     { "code": "KBR-INPUT-001", "severity": "ERROR", "messageKey": "input.json_parse_failed", "condition": "Raw JSON cannot be parsed" },
@@ -156,6 +156,10 @@
     { "code": "KBR-FREEFORM-FORMAT-NOT-IMPLEMENTED", "severity": "ERROR", "messageKey": "freeform.format_not_implemented", "condition": "The selected FREEFORM catalog entry is catalog-only or blocked by an unsupported canvas contract" },
     { "code": "KBR-COMPOSITION-MODE-NOT-SUPPORTED", "severity": "ERROR", "messageKey": "composition.platform_composed_not_supported", "condition": "A PLATFORM_COMPOSED capability was dispatched to the raster renderer before its platform runtime was implemented" },
     { "code": "KBR-FREEFORM-MANUAL-REVIEW-REQUIRED", "severity": "WARNING", "messageKey": "freeform.manual_review_required", "condition": "A catalog rule requires human review because baked image semantics or an unlocated safe-zone geometry cannot be inferred" },
+    { "code": "KBR-META-STORIES-SAFE-ZONE-WARNING", "severity": "WARNING", "messageKey": "meta.stories_safe_zone_warning", "condition": "A key META creative element intersects the Stories normalized exclusion guide top 14 percent or bottom 20 percent" },
+    { "code": "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED", "severity": "INFO", "messageKey": "meta.reels_safe_zone_source_required", "condition": "A META Reels render uses the 9:16 project preset while exact platform safe-zone geometry remains SOURCE_REQUIRED; no geometry is guessed" },
+    { "code": "KBR-META-PLACEMENT-SET-INCOMPLETE", "severity": "ERROR", "messageKey": "meta.placement_set_incomplete", "condition": "A renderer-composed META_STATIC_PLACEMENT_SET_V1 is missing one of the required square, portrait, or vertical variants" },
+    { "code": "KBR-META-PLACEMENT-SET-CHILD-BLOCKED", "severity": "ERROR", "messageKey": "meta.placement_set_child_blocked", "condition": "A renderer-composed META placement-set child render has an ERROR and the collection cannot publish" },
 
     { "code": "KBR-NAVER-SOURCE-SCHEMA-VERSION", "severity": "ERROR", "messageKey": "naver_source.schema_version", "condition": "A NAVER Platform-Composed SourceSpec does not declare the supported source schema version" },
     { "code": "KBR-NAVER-SOURCE-CHANNEL", "severity": "ERROR", "messageKey": "naver_source.channel", "condition": "A Platform-Composed SourceSpec is not scoped to NAVER_GFA" },

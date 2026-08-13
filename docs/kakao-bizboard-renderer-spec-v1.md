@@ -1,11 +1,11 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.21.4
-- **Status:** Frozen Implementation Contract — Phase N7.7 SmartChannel PSD-exact renderer-owned runtime font correction
+- **Document version:** 1.22.0
+- **Status:** Frozen Implementation Contract — Phase M1 META static asset profiles and renderer-composed placement set
 - **Checked date:** 2026-08-11 (KST)
 - **Owner:** Local Renderer Project
-- **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, and additive `NAVER_GFA` capability namespace
+- **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, and additive `META` static renderer capability namespace
 
 ---
 
@@ -4893,3 +4893,75 @@ Machine-readable audit는
 `docs/implementation/naver-smartchannel-typography-parity-correction-n7-7-5.md`, 재현 자료는
 `artifacts/n7-7-5/`에 둔다. Font/TTC/OTF SHA-256은 N7.7.4 값에서 변경하지 않으며 runtime
 network access는 계속 금지한다. **[PROJECT]**
+
+## 48. Phase M1 — META static asset profiles and renderer-composed placement set [PROJECT]
+
+M1은 기존 FREEFORM plan, crop, text, font registry, deterministic PNG/JPEG encoder와 validator를
+재사용하여 META static creative를 구현한다. 새 raster engine이나 별도 layout language를 도입하지
+않는다. META는 `channelNamespace=META`, `compositionMode=RENDERER_COMPOSED`인 세 개의
+project output preset을 제공한다. **[PROJECT]**
+
+### 48.1 Asset profiles and provenance [PROJECT]
+
+다음 profile ID와 canvas pixel은 프로젝트가 고정한 `PROJECT_OUTPUT_PRESET_V1`이다. 비율은
+공식 Meta placement ratio에 대응하지만 pixel dimension은 Meta의 필수 크기라고 주장하지 않는다.
+
+| Profile | Canvas | Ratio | Pixel classification | Output |
+|---|---:|---:|---|---|
+| `META_STATIC_FEED_SQUARE` | 1080×1080 | 1:1 | `PROJECT_OUTPUT_PRESET_V1` | PNG/JPEG |
+| `META_STATIC_FEED_PORTRAIT` | 1080×1350 | 4:5 | `PROJECT_OUTPUT_PRESET_V1` | PNG/JPEG |
+| `META_STATIC_VERTICAL_FULL` | 1080×1920 | 9:16 | `PROJECT_OUTPUT_PRESET_V1` | PNG/JPEG |
+
+각 profile은 manual FREEFORM layout, normalized bounds, independent crop rect, renderer-owned
+Spoqa Han Sans asset registry와 byte-deterministic export를 사용한다. Platform copy
+`primaryText`, `headline`, `description`, `callToAction`, `destinationUrl`은 metadata로만
+보존하며 pixels에 합성하지 않는다. **[PROJECT]**
+
+### 48.2 Stories and Reels safe-zone semantics [PROJECT] [OFFICIAL]
+
+Stories guide는 normalized top `0.14`, bottom `0.20` exclusion을 사용한다. 해당 영역과 겹치는
+`KEY_CREATIVE` element 또는 key semantic role은 `KBR-META-STORIES-SAFE-ZONE-WARNING` WARNING을
+만들지만 자동 이동·축소하지 않는다. guide는 preview UI에서 표시할 수 있으나 최종 artifact에
+overlay를 합성하지 않는다. `DECORATIVE`와 `IGNORE` element는 이 warning의 managed 대상에서
+제외한다.
+
+9:16 profile을 Reels context로 선택하면 exact platform safe-zone geometry는
+`SOURCE_REQUIRED`로 남기고 `KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED` INFO만 기록한다. 좌표를
+추정하거나 guessed overlay를 만들지 않는다. **[PROJECT]**
+
+### 48.3 Placement-set collection [PROJECT]
+
+`META_STATIC_PLACEMENT_SET_V1`은 renderer-composed `COLLECTION`이며 고정 순서는 square,
+portrait, vertical이다. 세 child plan은 각각 독립적으로 검증·rasterize한다. 하나라도 누락되거나
+ERROR가 있으면 `KBR-META-PLACEMENT-SET-INCOMPLETE` 또는
+`KBR-META-PLACEMENT-SET-CHILD-BLOCKED`로 전체 publish를 차단한다. 성공한 collection manifest는
+`meta-placement-set-manifest.json`이며 self digest를 포함하지 않는다. staging에서 모든 child
+artifact를 flush/close한 뒤 child rename, manifest rename 순으로 동일 volume atomic publish를
+수행한다. **[PROJECT]**
+
+단일 render는 기존 `render-manifest.json`과 response envelope 규칙을 따른다. collection response는
+ordered artifact filenames, per-variant SHA-256, collection fingerprint와 manifest path를
+반환하며 PNG pixels에는 platform copy나 safe-zone guide를 포함하지 않는다. **[PROJECT]**
+
+### 48.4 Scope boundary and unsupported formats [PROJECT]
+
+M1은 static image SINGLE과 위 collection만 지원한다. Carousel, catalog, dynamic creative 및
+video renderer는 구현하지 않는다. Reels는 static 9:16 project preset의 INFO/source-required
+상태만 제공한다. Meta platform의 최종 upload acceptance를 보장하지 않으며 manual acceptance는
+`NOT_REVIEWED`로 유지한다. **[PROJECT]**
+
+### 48.5 Version and evidence [PROJECT]
+
+| Contract | Previous | Current | Reason |
+|---|---:|---:|---|
+| Canonical document | 1.21.4 | 1.22.0 | META static profiles, safe-zone state, platform-copy separation, placement-set contract |
+| Renderer Core | 0.8.6 | 0.9.0 | META profile dispatch, SHAPE gate, metadata report, collection renderer |
+| Validator/Error Registry | 1.8.1 | 1.9.0 | Stories WARNING, Reels INFO, placement-set deterministic errors |
+| FREEFORM Format Profile Registry | 1.2.0 | 1.3.0 | Three META project output presets |
+| Desktop/package | 0.9.12 | 0.10.0 | META channel selector, metadata controls, SINGLE/COLLECTION flow |
+| Template Contract | 1.9.0 | 1.9.0 | Existing Kakao/NAVER coordinates unchanged |
+
+M1 machine-readable contracts are `contracts/meta-static-profiles.json` and
+`contracts/meta-static-placement-set.schema.json`; representative candidate fixtures are under
+`fixtures/meta/`. No official Meta source is copied into pixels, no third-party guide is used, and
+runtime network access remains prohibited. **[PROJECT]**

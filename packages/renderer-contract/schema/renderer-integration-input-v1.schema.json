@@ -21,6 +21,11 @@
     "layoutMode": { "enum": ["TEMPLATE_LOCKED", "FREEFORM"], "default": "TEMPLATE_LOCKED" },
     "creativeLayoutPlan": { "$ref": "https://kbr.local/schema/creative-layout-plan-v1.schema.json" },
     "formatProfileId": { "type": "string", "minLength": 1 },
+    "assetProfileId": { "type": "string", "minLength": 1 },
+    "placementContext": { "type": "string", "minLength": 1 },
+    "platformCopy": { "$ref": "#/$defs/platformCopy" },
+    "metaStatic": { "$ref": "#/$defs/metaStatic" },
+    "placementSet": { "$ref": "#/$defs/placementSet" },
     "templateId": { "type": "string", "minLength": 1 },
     "copy": {
       "type": "object", "additionalProperties": false,
@@ -92,5 +97,41 @@
     "rect": { "type": "object", "additionalProperties": false, "required": ["x", "y", "width", "height"], "properties": { "x": { "type": "number", "minimum": 0, "maximum": 1 }, "y": { "type": "number", "minimum": 0, "maximum": 1 }, "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }, "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 } } },
     "protectedSubject": { "type": "object", "additionalProperties": false, "required": ["subjectId", "subjectType", "bounds"], "properties": { "subjectId": { "type": "string", "minLength": 1 }, "subjectType": { "enum": ["PRODUCT", "PERSON", "FACE", "LOGO", "TEXT", "OTHER"] }, "bounds": { "$ref": "#/$defs/rect" } } },
     "assetAnalysis": { "type": "object", "additionalProperties": false, "properties": { "alphaChannel": { "type": "boolean" }, "alphaBounds": { "$ref": "#/$defs/rect" }, "focalPoint": { "$ref": "#/$defs/point" }, "protectedSubjects": { "type": "array", "items": { "$ref": "#/$defs/protectedSubject" } } } }
+    ,"platformCopy": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "primaryText": { "type": "string" },
+        "headline": { "type": "string" },
+        "description": { "type": "string" },
+        "callToAction": { "type": "string" },
+        "destinationUrl": { "type": "string" }
+      }
+    },
+    "metaStatic": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "mode": { "enum": ["SINGLE", "PLACEMENT_SET"] },
+        "placementContext": { "type": "string", "minLength": 1 },
+        "conceptId": { "type": "string", "minLength": 1 },
+        "variantId": { "type": "string", "minLength": 1 },
+        "projectPixelPresetId": { "type": "string", "minLength": 1 },
+        "platformCopy": { "$ref": "#/$defs/platformCopy" },
+        "variants": { "type": "object", "additionalProperties": { "$ref": "#/$defs/metaVariant" } }
+      }
+    },
+    "metaVariant": {
+      "oneOf": [
+        { "$ref": "https://kbr.local/schema/creative-layout-plan-v1.schema.json" },
+        { "type": "object", "additionalProperties": false, "required": ["creativeLayoutPlan"], "properties": { "formatProfileId": { "type": "string", "minLength": 1 }, "placementContext": { "type": "string", "minLength": 1 }, "creativeLayoutPlan": { "$ref": "https://kbr.local/schema/creative-layout-plan-v1.schema.json" } } }
+      ]
+    },
+    "placementSet": {
+      "type": "object", "additionalProperties": false, "required": ["variants"],
+      "properties": {
+        "conceptId": { "type": "string", "minLength": 1 },
+        "sharedLayerIds": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "variants": { "type": "object", "additionalProperties": { "$ref": "#/$defs/metaVariant" } }
+      }
+    }
   }
 }

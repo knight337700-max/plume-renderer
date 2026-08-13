@@ -1,0 +1,11 @@
+{
+  "phase": "M1",
+  "status": "PASS",
+  "sourceRegistry": "contracts/audits/meta-official-source-registry.json",
+  "officialDomainsOnly": true,
+  "thirdPartySourcesUsed": 0,
+  "runtimeNetworkAccess": "PROHIBITED",
+  "ratioClaims": "SOURCE_REGISTRY_ONLY",
+  "pixelPresets": "PROJECT_OUTPUT_PRESET_V1",
+  "manualAcceptanceStatus": "NOT_REVIEWED"
+}

@@ -31,7 +31,7 @@ export type FreeformValidationIssue = Omit<ValidationIssue, "stage"> & {
 
 export type FreeformAppliedElement = {
   elementId: string;
-  elementType: "IMAGE" | "TEXT" | "LOGO";
+  elementType: "IMAGE" | "TEXT" | "LOGO" | "SHAPE";
   normalizedBounds: {
     x: number;
     y: number;
@@ -64,6 +64,7 @@ export type FreeformAppliedElement = {
   overflowMode?: "ERROR" | "CLIP";
   overflowDetected?: boolean;
   clipped?: boolean;
+  safeZoneImportance?: "KEY_CREATIVE" | "DECORATIVE" | "IGNORE";
 };
 
 export type TextLimitStatus = "PASS" | "WARNING" | "ERROR";
@@ -260,6 +261,18 @@ export type RenderManifest = {
   requestFingerprint?: string;
   renderFingerprint?: string;
   smartChannelReport?: SmartChannelReport;
+  metaStaticReport?: {
+    channel: "META";
+    profileId: string;
+    projectPixelPresetId: string | null;
+    canvas: { width: number; height: number };
+    officialRatio: string | null;
+    placementContext: string | null;
+    safeZonePolicy: unknown;
+    platformCopy: unknown;
+    reelsGeometryStatus: "SOURCE_REQUIRED" | "NOT_APPLICABLE";
+    manualAcceptanceStatus: "NOT_REVIEWED";
+  };
   manualAcceptanceStatus: {
     status: "NOT_REVIEWED";
     items: Array<{
@@ -355,6 +368,7 @@ export type RenderResponse = {
   artifactDigest?: string | null;
   artifactPath?: string | null;
   outputEncoding?: RenderManifest["outputEncoding"];
+  metaStaticReport?: RenderManifest["metaStaticReport"];
 };
 
 /** @internal Desktop preview result. This is not part of the public JSON Input contract. */

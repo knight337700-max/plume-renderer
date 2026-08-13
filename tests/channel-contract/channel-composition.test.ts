@@ -28,10 +28,10 @@ const sha256 = async (file: string): Promise<string> => createHash("sha256").upd
 
 describe("N1A channel namespace and orthogonal capability axes", () => {
   it("accepts canonical namespaces and rejects unknown values", () => {
-    expect(CHANNEL_IDS).toEqual(["KAKAO_MOMENT", "NAVER_GFA"]);
+    expect(CHANNEL_IDS).toEqual(["KAKAO_MOMENT", "NAVER_GFA", "META"]);
     expect(isChannelId("KAKAO_MOMENT")).toBe(true);
     expect(isChannelId("NAVER_GFA")).toBe(true);
-    expect(isChannelId("META")).toBe(false);
+    expect(isChannelId("META")).toBe(true);
     expect(isCompositionMode("RENDERER_COMPOSED")).toBe(true);
     expect(isCompositionMode("PLATFORM_COMPOSED")).toBe(true);
     expect(isCompositionMode("FLATTENED")).toBe(false);
