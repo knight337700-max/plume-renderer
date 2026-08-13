@@ -1,0 +1,135 @@
+{
+  "candidates": [
+    {
+      "actualRasterBounds": {
+        "height": 1080,
+        "width": 1080,
+        "x": 0,
+        "y": 0
+      },
+      "artifact": "artifacts/m2-2/manual-review/01-feed-square-fullbleed.jpg",
+      "artifactSha256": "7c350824952460267922341e287eeb4a484dbd173426c965c11ae5e8d9db9b5e",
+      "bytes": 301454,
+      "candidateId": "META_GC_FEED_SQUARE_M2_2",
+      "canvas": {
+        "height": 1080,
+        "width": 1080
+      },
+      "context": "FACEBOOK_FEED",
+      "edge": {
+        "nearWhiteEdgeFraction": 0,
+        "nearWhiteEdgePixels": 0,
+        "noDominantWhiteBand": true,
+        "sampledEdgePixels": 4316
+      },
+      "fitMode": "COVER",
+      "fullBleed": true,
+      "manifest": "artifacts/m2-2/manual-review/manifests/META_GC_FEED_SQUARE_M2_2.manifest.json",
+      "manifestSha256": "36ec129fffcbd41c50b6883635fbd10bfd2f0f25b762e126eebf2ff38b2e873e",
+      "pixelSha256": "9f2776f4388eb7412c2a8d6f91ca07e3c45e880f1bc1b1900c5bc360d72f3e24",
+      "placementPolicy": "MANUAL_CROP",
+      "profileId": "META_STATIC_FEED_SQUARE",
+      "status": "CANDIDATE_NOT_APPROVED"
+    },
+    {
+      "actualRasterBounds": {
+        "height": 1350,
+        "width": 1080,
+        "x": 0,
+        "y": 0
+      },
+      "artifact": "artifacts/m2-2/manual-review/02-feed-portrait-fullbleed.jpg",
+      "artifactSha256": "22c38aea588be8b1fccf0d2c092a6709520c1890c91358b1c1396a3cfa956691",
+      "bytes": 386225,
+      "candidateId": "META_GC_FEED_PORTRAIT_M2_2",
+      "canvas": {
+        "height": 1350,
+        "width": 1080
+      },
+      "context": "INSTAGRAM_FEED",
+      "edge": {
+        "nearWhiteEdgeFraction": 0,
+        "nearWhiteEdgePixels": 0,
+        "noDominantWhiteBand": true,
+        "sampledEdgePixels": 4856
+      },
+      "fitMode": "COVER",
+      "fullBleed": true,
+      "manifest": "artifacts/m2-2/manual-review/manifests/META_GC_FEED_PORTRAIT_M2_2.manifest.json",
+      "manifestSha256": "52f5968be24f3196aba88207f7c47f4fb24d6ae1ff2d94de27e83bf92e27e6b3",
+      "pixelSha256": "69e98b40ee2d5ef8eeef8437cadbe3120f0530d3b7094b5595136e0835a7ea6f",
+      "placementPolicy": "MANUAL_CROP",
+      "profileId": "META_STATIC_FEED_PORTRAIT",
+      "status": "CANDIDATE_NOT_APPROVED"
+    },
+    {
+      "actualRasterBounds": {
+        "height": 1920,
+        "width": 1080,
+        "x": 0,
+        "y": 0
+      },
+      "artifact": "artifacts/m2-2/manual-review/03-vertical-stories-fullbleed.jpg",
+      "artifactSha256": "a22f7629ec21d2ec1ada11fac4b8a75d1afb2ae9419fb00e48098825febe3bea",
+      "bytes": 464783,
+      "candidateId": "META_GC_VERTICAL_STORIES_M2_2",
+      "canvas": {
+        "height": 1920,
+        "width": 1080
+      },
+      "context": "INSTAGRAM_STORIES",
+      "edge": {
+        "nearWhiteEdgeFraction": 0,
+        "nearWhiteEdgePixels": 0,
+        "noDominantWhiteBand": true,
+        "sampledEdgePixels": 5996
+      },
+      "fitMode": "COVER",
+      "fullBleed": true,
+      "manifest": "artifacts/m2-2/manual-review/manifests/META_GC_VERTICAL_STORIES_M2_2.manifest.json",
+      "manifestSha256": "7243fbfab47f884e46ee0aa91c1f7c1049b86214d99d12741cc74297a1ef0bc8",
+      "pixelSha256": "9a85e5dcc62ecfda25144aeec224310859f132d0e2e7a4fd0139f3d96f5fe33d",
+      "placementPolicy": "MANUAL_CROP",
+      "profileId": "META_STATIC_VERTICAL_FULL",
+      "status": "CANDIDATE_NOT_APPROVED"
+    },
+    {
+      "actualRasterBounds": {
+        "height": 1920,
+        "width": 1080,
+        "x": 0,
+        "y": 0
+      },
+      "artifact": "artifacts/m2-2/manual-review/05-vertical-reels-fullbleed.jpg",
+      "artifactSha256": "a22f7629ec21d2ec1ada11fac4b8a75d1afb2ae9419fb00e48098825febe3bea",
+      "bytes": 464783,
+      "candidateId": "META_GC_VERTICAL_REELS_M2_2",
+      "canvas": {
+        "height": 1920,
+        "width": 1080
+      },
+      "context": "INSTAGRAM_REELS",
+      "edge": {
+        "nearWhiteEdgeFraction": 0,
+        "nearWhiteEdgePixels": 0,
+        "noDominantWhiteBand": true,
+        "sampledEdgePixels": 5996
+      },
+      "fitMode": "COVER",
+      "fullBleed": true,
+      "manifest": "artifacts/m2-2/manual-review/manifests/META_GC_VERTICAL_REELS_M2_2.manifest.json",
+      "manifestSha256": "1643d01d3d8254e514f564a4f15203f7f3fffc6133787c79746e5327ba642177",
+      "pixelSha256": "9a85e5dcc62ecfda25144aeec224310859f132d0e2e7a4fd0139f3d96f5fe33d",
+      "placementPolicy": "MANUAL_CROP",
+      "profileId": "META_STATIC_VERTICAL_FULL",
+      "status": "CANDIDATE_NOT_APPROVED"
+    }
+  ],
+  "finalGoldenFrozen": false,
+  "guidePreview": "artifacts/m2-2/manual-review/04-vertical-stories-guide.png",
+  "manualAcceptanceStatus": "NOT_REVIEWED",
+  "nextPhase": "M2_3_META_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE",
+  "noContactSheet": true,
+  "phase": "M2_2_META_PLACEMENT_CONTEXT_PROPAGATION_PLAN_IMPORT_CONSISTENCY_HOTFIX",
+  "status": "CANDIDATE_NOT_APPROVED"
+}

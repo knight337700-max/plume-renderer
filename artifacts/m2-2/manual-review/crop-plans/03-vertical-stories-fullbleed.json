@@ -1,0 +1,25 @@
+{
+  "candidateId": "META_GC_VERTICAL_STORIES_M2_2",
+  "cropRect": {
+    "height": 1,
+    "width": 0.375,
+    "x": 0.3125,
+    "y": 0
+  },
+  "destination": {
+    "height": 1920,
+    "ratio": 0.5625,
+    "width": 1080
+  },
+  "fitMode": "COVER",
+  "policy": "MANUAL_CROP",
+  "source": "MANUAL",
+  "sourceAsset": "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source__2048x1365.jpg",
+  "sourceAssetSha256": "9dd206a7863d4ff6079e1352b54e1d7c1f0b9965e22b39127de244fe345159a5",
+  "sourceGeometry": {
+    "height": 1365,
+    "width": 2048
+  },
+  "subjectPriority": "central sofa/stool",
+  "visualApproval": "MANUAL_REVIEW_REQUIRED"
+}

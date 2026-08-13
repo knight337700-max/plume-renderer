@@ -268,6 +268,12 @@ export type RenderManifest = {
     canvas: { width: number; height: number };
     officialRatio: string | null;
     placementContext: string | null;
+    placementContextResolution: {
+      requested: string | null;
+      resolved: string | null;
+      source: "EXPLICIT_REQUEST" | "DEFAULT_NONE";
+      path: "/placementContext" | "/metaStatic/placementContext" | null;
+    };
     safeZonePolicy: unknown;
     platformCopy: unknown;
     reelsGeometryStatus: "SOURCE_REQUIRED" | "NOT_APPLICABLE";

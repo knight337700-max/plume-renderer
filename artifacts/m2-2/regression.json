@@ -1,0 +1,11 @@
+{
+  "kakaoGoldensUnchanged": true,
+  "metaM1": "PASS",
+  "metaM2_1": "PASS",
+  "naverRemaining": "PASS",
+  "naverSmartChannel120": "PASS",
+  "naverSmartChannelGoldensUnchanged": true,
+  "phase": "M2_2",
+  "sourceBaseline": "artifacts/m2-1/meta-regression.json",
+  "status": "PASS"
+}

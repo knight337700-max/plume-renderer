@@ -1,0 +1,10 @@
+{
+  "height": 1365,
+  "phase": "M2_2",
+  "runtimeNetworkAccess": "PROHIBITED",
+  "source": "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source__2048x1365.jpg",
+  "sourceOriginal": "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source-original.jpg",
+  "sourceOriginalSha256": "ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917",
+  "sourceSha256": "9dd206a7863d4ff6079e1352b54e1d7c1f0b9965e22b39127de244fe345159a5",
+  "width": 2048
+}

@@ -2,10 +2,10 @@
   "contractFreezePhase": "F0",
   "freezeStatus": "FROZEN",
   "documentVersion": {
-    "previous": "1.22.0",
-    "current": "1.23.0",
-    "bump": "minor",
-    "reason": "M2.1 removes the unsupported inherited META 300000-byte hard error, freezes explicit MANUAL_CROP candidate evidence, and records current official-source provenance without changing renderer geometry"
+    "previous": "1.23.0",
+    "current": "1.23.1",
+    "bump": "patch",
+    "reason": "M2.2 fixes request-level META placement-context propagation, removes vertical FACEBOOK_FEED silent defaulting, and preserves imported MANUAL_CROP plan semantics without changing renderer geometry"
   },
   "templateContractVersion": "1.9.0",
   "smartChannelTemplateContractVersion": "1.10.0",
@@ -1406,6 +1406,40 @@
     "candidateRegistry": "contracts/audits/meta-golden-candidates-m2-1.json",
     "outputConstraintProvenance": "artifacts/m2-1/meta-output-constraint-provenance.json",
     "officialSourceRefresh": "artifacts/m2-1/meta-official-source-refresh.json",
-    "nextPhase": "M2_2_META_MANUAL_ACCEPTANCE_OR_FURTHER_CORRECTION"
+    "nextPhase": "M2_2_META_PLACEMENT_CONTEXT_PROPAGATION_PLAN_IMPORT_CONSISTENCY_HOTFIX"
+  },
+  "canonicalPhaseM2_2": {
+    "phase": "M2_2_META_PLACEMENT_CONTEXT_PROPAGATION_PLAN_IMPORT_CONSISTENCY_HOTFIX",
+    "documentPrevious": "1.23.0",
+    "documentCurrent": "1.23.1",
+    "documentBump": "patch",
+    "documentReason": "Clarify the Render Request ownership of placementContext, explicit Stories/Reels validator routing, neutral vertical defaults, manifest resolution provenance, and imported plan round-trip fidelity",
+    "templateContractVersion": "1.9.0",
+    "templateCoordinatesChanged": false,
+    "rendererCorePrevious": "0.9.0",
+    "rendererCoreVersion": "0.9.0",
+    "rendererCoreBump": "none",
+    "validatorPrevious": "1.9.0",
+    "validatorCurrent": "1.9.0",
+    "validatorBump": "none",
+    "desktopPrevious": "0.10.0",
+    "desktopCurrent": "0.10.0",
+    "desktopBump": "none",
+    "packagePrevious": "0.10.0",
+    "packageCurrent": "0.10.0",
+    "packageBump": "none",
+    "requestPlacementContextOwner": "RENDER_REQUEST",
+    "planPlacementContextAllowed": false,
+    "verticalUnspecifiedResolution": "DEFAULT_NONE",
+    "storiesContextRouting": ["FACEBOOK_STORIES", "INSTAGRAM_STORIES"],
+    "reelsContextRouting": ["FACEBOOK_REELS", "INSTAGRAM_REELS"],
+    "reelsGeometry": "SOURCE_REQUIRED_INFO_ONLY",
+    "manualAcceptanceStatus": "NOT_REVIEWED",
+    "goldenCandidateStatus": "CANDIDATE_NOT_APPROVED",
+    "finalGoldenFrozen": false,
+    "reviewPackage": "artifacts/m2-2/manual-review",
+    "candidateRegistry": "contracts/audits/meta-golden-candidates-m2-2.json",
+    "runtimeNetworkAccess": "PROHIBITED",
+    "nextPhase": "M2_3_META_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE"
   }
 }

@@ -1,0 +1,57 @@
+{
+  "phase": "M2_2",
+  "squareEvidence": {
+    "cropRect": {
+      "height": 1,
+      "width": 0.66650390625,
+      "x": 0.16650390625,
+      "y": 0
+    },
+    "importedPlanWins": true,
+    "requestedFitMode": "COVER",
+    "requestedPolicy": "MANUAL_CROP"
+  },
+  "stages": [
+    {
+      "id": "json_parse",
+      "sourceOfTruth": "imported_plan_json"
+    },
+    {
+      "id": "schema_validation",
+      "sourceOfTruth": "CreativeLayoutPlan_schema"
+    },
+    {
+      "id": "canonical_normalization",
+      "sourceOfTruth": "schema_validated_plan"
+    },
+    {
+      "id": "state_hydration",
+      "sourceOfTruth": "imported_plan_fields"
+    },
+    {
+      "id": "placement_hydration",
+      "sourceOfTruth": "element.placement.policy/fitMode/anchor"
+    },
+    {
+      "id": "cropRect_hydration",
+      "sourceOfTruth": "element.placement.cropRect"
+    },
+    {
+      "id": "form_editor_state",
+      "sourceOfTruth": "hydrated_plan_without_default_overwrite"
+    },
+    {
+      "id": "request_serialization",
+      "sourceOfTruth": "creativeLayoutPlan_plus_request_level_placementContext"
+    },
+    {
+      "id": "core_renderer_input",
+      "sourceOfTruth": "FreeformRenderRequest"
+    },
+    {
+      "id": "manifest_appliedElements",
+      "sourceOfTruth": "renderer_appliedElements"
+    }
+  ],
+  "status": "PASS"
+}

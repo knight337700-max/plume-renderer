@@ -44,6 +44,14 @@ export {
   META_STATIC_PLACEMENT_SET_ID,
   META_STATIC_PROFILE_ORDER,
 } from "./meta-static.js";
+export {
+  META_PLACEMENT_CONTEXTS,
+  isMetaPlacementContext,
+  isStoriesPlacementContext,
+  isReelsPlacementContext,
+  resolveMetaPlacementContext,
+} from "./meta-placement-context.js";
+export type { MetaPlacementContext, MetaPlacementContextResolution, MetaPlacementContextSource } from "./meta-placement-context.js";
 export type {
   MetaPlatformCopy,
   MetaStaticCollectionArtifact,

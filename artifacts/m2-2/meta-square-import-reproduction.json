@@ -1,0 +1,53 @@
+{
+  "appliedElements": [
+    {
+      "actualRasterBounds": {
+        "height": 1080,
+        "width": 1080,
+        "x": 0,
+        "y": 0
+      },
+      "assetDigest": "9dd206a7863d4ff6079e1352b54e1d7c1f0b9965e22b39127de244fe345159a5",
+      "assetId": "hero",
+      "destinationPixelRect": {
+        "height": 1080,
+        "width": 1080,
+        "x": 0,
+        "y": 0
+      },
+      "elementId": "hero",
+      "elementType": "IMAGE",
+      "fitMode": "COVER",
+      "normalizedBounds": {
+        "height": 1,
+        "width": 1,
+        "x": 0,
+        "y": 0
+      },
+      "opacity": 1,
+      "originalArrayIndex": 0,
+      "placementPolicy": "MANUAL_CROP",
+      "requestedCropRect": {
+        "height": 1,
+        "width": 0.66650390625,
+        "x": 0.16650390625,
+        "y": 0
+      },
+      "resolvedSourceCropPixels": {
+        "height": 1365,
+        "width": 1365,
+        "x": 341,
+        "y": 0
+      },
+      "safeZoneImportance": "DECORATIVE",
+      "zIndex": 1
+    }
+  ],
+  "fullBleed": true,
+  "phase": "M2_2",
+  "renderedFitMode": "COVER",
+  "renderedPolicy": "MANUAL_CROP",
+  "requestedFitMode": "COVER",
+  "requestedPolicy": "MANUAL_CROP",
+  "status": "PASS"
+}

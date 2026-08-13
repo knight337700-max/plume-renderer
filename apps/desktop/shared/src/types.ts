@@ -227,6 +227,8 @@ export type NaverExportResult =
 export type UiFreeformRequest = {
   formatProfileId: string;
   creativeLayoutPlan: CreativeLayoutPlan;
+  /** Canonical request-level META context. Nested metaStatic placementContext is legacy-compatible only. */
+  placementContext?: string;
   assetTokens: Readonly<Record<string, string>>;
   outputFormat: UiFreeformOutputFormat;
   outputQuality?: number | "AUTO_FIT";

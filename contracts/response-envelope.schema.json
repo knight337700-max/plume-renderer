@@ -124,7 +124,7 @@
     "metaStaticReport": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["channel", "profileId", "projectPixelPresetId", "canvas", "officialRatio", "placementContext", "safeZonePolicy", "platformCopy", "reelsGeometryStatus", "manualAcceptanceStatus"],
+      "required": ["channel", "profileId", "projectPixelPresetId", "canvas", "officialRatio", "placementContext", "placementContextResolution", "safeZonePolicy", "platformCopy", "reelsGeometryStatus", "manualAcceptanceStatus"],
       "properties": {
         "channel": { "const": "META" },
         "profileId": { "type": "string" },
@@ -132,6 +132,17 @@
         "canvas": { "type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": { "width": { "type": "integer" }, "height": { "type": "integer" } } },
         "officialRatio": { "type": ["string", "null"] },
         "placementContext": { "type": ["string", "null"] },
+        "placementContextResolution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["requested", "resolved", "source", "path"],
+          "properties": {
+            "requested": { "type": ["string", "null"] },
+            "resolved": { "type": ["string", "null"] },
+            "source": { "enum": ["EXPLICIT_REQUEST", "DEFAULT_NONE"] },
+            "path": { "enum": ["/placementContext", "/metaStatic/placementContext", null] }
+          }
+        },
         "safeZonePolicy": true,
         "platformCopy": true,
         "reelsGeometryStatus": { "enum": ["SOURCE_REQUIRED", "NOT_APPLICABLE"] },

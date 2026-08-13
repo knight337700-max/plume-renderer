@@ -1,0 +1,53 @@
+{
+  "contexts": [
+    "FACEBOOK_FEED",
+    "INSTAGRAM_FEED",
+    "FACEBOOK_STORIES",
+    "INSTAGRAM_STORIES",
+    "FACEBOOK_REELS",
+    "INSTAGRAM_REELS"
+  ],
+  "entries": [
+    {
+      "classification": "PRESENT_AND_CORRECT",
+      "path": "packages/renderer-contract/schema/renderer-integration-input-v1.schema.json#/properties/placementContext"
+    },
+    {
+      "classification": "PRESENT_AND_CORRECT",
+      "path": "src/core/freeform.ts#FreeformRenderRequest.placementContext"
+    },
+    {
+      "classification": "PRESENT_BUT_NOT_PROPAGATED",
+      "corrected": true,
+      "path": "apps/desktop/electron-main/src/desktop-controller.ts#buildFreeformRequest"
+    },
+    {
+      "classification": "PRESENT_WITH_WRONG_DEFAULT",
+      "corrected": true,
+      "path": "apps/desktop/renderer-ui/src/features/freeform/FreeformEditor.tsx#metaPlacementContext"
+    },
+    {
+      "classification": "PRESENT_BUT_NOT_PROPAGATED",
+      "corrected": true,
+      "path": "src/core/freeform-validator.ts#validateManagedSafeZones"
+    },
+    {
+      "classification": "PRESENT_BUT_NOT_PROPAGATED",
+      "corrected": true,
+      "path": "src/core/types.ts#RenderManifest.metaStaticReport"
+    },
+    {
+      "classification": "MISSING_BY_DESIGN",
+      "path": "packages/renderer-contract/src/freeform.ts#CreativeLayoutPlan",
+      "placementContextAllowed": false
+    }
+  ],
+  "owner": "RENDER_REQUEST",
+  "phase": "M2_2",
+  "status": "PASS",
+  "verticalNoContext": {
+    "resolved": null,
+    "silentFeedDefault": false,
+    "source": "DEFAULT_NONE"
+  }
+}

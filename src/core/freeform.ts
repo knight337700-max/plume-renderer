@@ -24,6 +24,10 @@ import { loadContracts } from "./contracts.js";
 import { canonicalJson } from "./canonical.js";
 import { createIssue, sortAndDedupeIssues, splitIssues } from "./errors.js";
 import { sha256Bytes, sha256File } from "./hash.js";
+import {
+  isReelsPlacementContext,
+  resolveMetaPlacementContext,
+} from "./meta-placement-context.js";
 import { ImageInputError, inspectImageBytes } from "./image-input.js";
 import {
   PathSecurityError,
@@ -1137,11 +1141,10 @@ async function renderFreeformInternal(
     ...(profile ? { formatProfile: profile } : {}),
     ...(runtimeResult.runtime ? { fontRegistry: runtimeResult.runtime.fontRegistry } : {}),
   });
-  const metaStaticContext = isRecord(rawRequest) && isRecord(rawRequest.metaStatic) && typeof rawRequest.metaStatic.placementContext === "string"
-    ? rawRequest.metaStatic.placementContext
-    : undefined;
-  const metaInfoIssues = profile?.channelNamespace === "META" && (metaStaticContext === "FACEBOOK_REELS" || metaStaticContext === "INSTAGRAM_REELS" || metaStaticContext === "REELS")
-    ? [issue(contracts, "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED", "/metaStatic/placementContext", {
+  const metaPlacementContext = resolveMetaPlacementContext(rawRequest);
+  const metaStaticContext = metaPlacementContext.resolved ?? undefined;
+  const metaInfoIssues = profile?.channelNamespace === "META" && isReelsPlacementContext(metaStaticContext)
+    ? [issue(contracts, "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED", metaPlacementContext.path ?? "/placementContext", {
       actual: metaStaticContext,
       expected: "source-backed exact Reels safe-zone geometry; no guessed coordinates",
       formatProfileId,
@@ -1210,14 +1213,20 @@ async function renderFreeformInternal(
         ...(value.expectedSha256 ? { expectedSha256: value.expectedSha256 } : {}),
       })),
     assetDigests,
-    ...(isRecord(request.metaStatic) ? {
+    ...(profile.channelNamespace === "META" ? {
       metaStatic: {
-        mode: request.metaStatic.mode ?? "SINGLE",
-        placementContext: request.metaStatic.placementContext ?? null,
-        conceptId: request.metaStatic.conceptId ?? null,
-        variantId: request.metaStatic.variantId ?? null,
-        projectPixelPresetId: request.metaStatic.projectPixelPresetId ?? profilePixelPresetId,
-        platformCopy: request.metaStatic.platformCopy ?? null,
+        mode: isRecord(request.metaStatic) && request.metaStatic.mode === "PLACEMENT_SET" ? "PLACEMENT_SET" : "SINGLE",
+        placementContext: metaPlacementContext.resolved,
+        placementContextResolution: {
+          requested: metaPlacementContext.requested,
+          resolved: metaPlacementContext.resolved,
+          source: metaPlacementContext.source,
+          path: metaPlacementContext.path,
+        },
+        conceptId: isRecord(request.metaStatic) && typeof request.metaStatic.conceptId === "string" ? request.metaStatic.conceptId : null,
+        variantId: isRecord(request.metaStatic) && typeof request.metaStatic.variantId === "string" ? request.metaStatic.variantId : null,
+        projectPixelPresetId: isRecord(request.metaStatic) && typeof request.metaStatic.projectPixelPresetId === "string" ? request.metaStatic.projectPixelPresetId : profilePixelPresetId,
+        platformCopy: isRecord(request.metaStatic) ? request.metaStatic.platformCopy ?? null : null,
       },
     } : {}),
   };
@@ -1386,9 +1395,15 @@ async function renderFreeformInternal(
       canvas: profile.canvas,
       officialRatio: profile.officialRatio ?? null,
       placementContext: metaStaticContext ?? null,
+      placementContextResolution: {
+        requested: metaPlacementContext.requested,
+        resolved: metaPlacementContext.resolved,
+        source: metaPlacementContext.source,
+        path: metaPlacementContext.path,
+      },
       safeZonePolicy: profile.safeZonePolicy ?? null,
       platformCopy: isRecord(request.metaStatic) ? request.metaStatic.platformCopy ?? null : null,
-      reelsGeometryStatus: metaStaticContext === "FACEBOOK_REELS" || metaStaticContext === "INSTAGRAM_REELS" || metaStaticContext === "REELS" ? "SOURCE_REQUIRED" : "NOT_APPLICABLE",
+      reelsGeometryStatus: isReelsPlacementContext(metaStaticContext) ? "SOURCE_REQUIRED" : "NOT_APPLICABLE",
       manualAcceptanceStatus: "NOT_REVIEWED",
     }
     : undefined;

@@ -28,6 +28,17 @@ function single(profileId = "META_STATIC_FEED_SQUARE", extra: Record<string, unk
   };
 }
 
+function contextRequest(context: string | undefined, profileId = "META_STATIC_VERTICAL_FULL", plan = basePlan(profileId)) {
+  return {
+    formatProfileId: profileId,
+    layoutMode: "FREEFORM" as const,
+    creativeLayoutPlan: plan,
+    output: { format: "PNG" as const },
+    ...(context ? { placementContext: context } : {}),
+    metaStatic: { mode: "SINGLE" as const },
+  };
+}
+
 async function render(request: Parameters<typeof renderMetaStatic>[0]) {
   return renderMetaStatic(request, { projectRoot, inputRoot: projectRoot, outputRoot: projectRoot, publish: false });
 }
@@ -108,5 +119,82 @@ describe("META static M1 renderer", () => {
     expect(result.status).toBe("PASS");
     if (!("mode" in result)) throw new Error("placement set alias returned single result");
     expect(result.collectionArtifacts.map((artifact) => artifact.profileId)).toEqual([...META_STATIC_PROFILE_ORDER]);
+  });
+
+  it("keeps placementContext at Render Request level and resolves explicit Stories", async () => {
+    const result = await render(contextRequest("INSTAGRAM_STORIES"));
+    expect(result.status).toBe("PASS");
+    if ("mode" in result) throw new Error("single render returned collection");
+    expect(result.metaStaticReport?.placementContext).toBe("INSTAGRAM_STORIES");
+    expect(result.metaStaticReport?.placementContextResolution).toEqual({
+      requested: "INSTAGRAM_STORIES",
+      resolved: "INSTAGRAM_STORIES",
+      source: "EXPLICIT_REQUEST",
+      path: "/placementContext",
+    });
+  });
+
+  it("keeps Stories and Reels validation routing independent of the same plan", async () => {
+    const stories = await render(contextRequest("INSTAGRAM_STORIES"));
+    const reels = await render(contextRequest("INSTAGRAM_REELS"));
+    expect(stories.status).toBe("PASS");
+    expect(reels.status).toBe("PASS");
+    expect(stories.requestFingerprint).not.toBe(reels.requestFingerprint);
+    expect(stories.pixelFingerprint).toBe(reels.pixelFingerprint);
+    expect(stories.pngDigest).toBe(reels.pngDigest);
+    expect(stories.warnings).toHaveLength(0);
+    expect(reels.warnings).toHaveLength(0);
+    if ("mode" in reels) throw new Error("single render returned collection");
+    expect(reels.metaStaticReport?.reelsGeometryStatus).toBe("SOURCE_REQUIRED");
+    const boundary = await render(contextRequest("INSTAGRAM_STORIES", "META_STATIC_VERTICAL_FULL", basePlan("META_STATIC_VERTICAL_FULL", 0.02)));
+    expect(boundary.warnings.some((issue) => issue.code === "KBR-META-STORIES-SAFE-ZONE-WARNING")).toBe(true);
+  });
+
+  it("does not silently default a generic vertical request to Facebook Feed", async () => {
+    const result = await render(contextRequest(undefined));
+    expect(result.status).toBe("PASS");
+    if ("mode" in result) throw new Error("single render returned collection");
+    expect(result.metaStaticReport?.placementContext).toBeNull();
+    expect(result.metaStaticReport?.placementContextResolution).toEqual({
+      requested: null,
+      resolved: null,
+      source: "DEFAULT_NONE",
+      path: null,
+    });
+    expect(result.warnings).toHaveLength(0);
+  });
+
+  it("fails closed for an unknown request context and rejects a plan-root context", async () => {
+    const unknown = await render(contextRequest("NOT_A_META_CONTEXT"));
+    expect(unknown.status).toBe("BLOCKED");
+    expect(unknown.errors.some((issue) => issue.code === "KBR-INPUT-002" && issue.path === "/placementContext")).toBe(true);
+    const invalidPlan = await render({
+      ...contextRequest(undefined),
+      creativeLayoutPlan: { ...basePlan("META_STATIC_VERTICAL_FULL"), placementContext: "INSTAGRAM_REELS" },
+    } as never);
+    expect(invalidPlan.status).toBe("BLOCKED");
+    expect(invalidPlan.errors.some((issue) => issue.code === "KBR-FREEFORM-PLAN-SCHEMA-INVALID")).toBe(true);
+  });
+
+  it("preserves imported Square and Portrait MANUAL_CROP + COVER semantics", async () => {
+    const assetPath = "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source__2048x1365.jpg";
+    const makeRequest = (profileId: string, crop: { x: number; y: number; width: number; height: number }) => ({
+      ...contextRequest("FACEBOOK_FEED", profileId),
+      assets: [{ assetId: "hero", path: assetPath, mimeType: "image/jpeg" as const }],
+      creativeLayoutPlan: {
+        ...basePlan(profileId),
+        elements: [{ id: "hero", type: "IMAGE" as const, assetId: "hero", bounds: { x: 0, y: 0, width: 1, height: 1 }, zIndex: 0, role: "PRIMARY_IMAGE" as const, safeZoneImportance: "DECORATIVE" as const, placement: { policy: "MANUAL_CROP" as const, source: "MANUAL" as const, fitMode: "COVER" as const, cropRect: crop, anchor: "CENTER" as const, subjectProtection: "PREFERRED" as const } }],
+      },
+    });
+    const square = await render(makeRequest("META_STATIC_FEED_SQUARE", { x: 341 / 2048, y: 0, width: 1365 / 2048, height: 1 }));
+    const portrait = await render(makeRequest("META_STATIC_FEED_PORTRAIT", { x: 478 / 2048, y: 0, width: 1092 / 2048, height: 1 }));
+    expect(square.status).toBe("PASS");
+    expect(portrait.status).toBe("PASS");
+    expect(square.appliedElements[0]?.placementPolicy).toBe("MANUAL_CROP");
+    expect(square.appliedElements[0]?.fitMode).toBe("COVER");
+    expect(square.appliedElements[0]?.actualRasterBounds).toEqual({ x: 0, y: 0, width: 1080, height: 1080 });
+    expect(portrait.appliedElements[0]?.placementPolicy).toBe("MANUAL_CROP");
+    expect(portrait.appliedElements[0]?.fitMode).toBe("COVER");
+    expect(portrait.appliedElements[0]?.actualRasterBounds).toEqual({ x: 0, y: 0, width: 1080, height: 1350 });
   });
 });

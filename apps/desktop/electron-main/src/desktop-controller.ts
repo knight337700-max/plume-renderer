@@ -1249,10 +1249,12 @@ export class DesktopController {
       ...(freeform.outputQuality !== undefined ? { quality: freeform.outputQuality } : {}),
       ...(options.publish ? { directory: ".", baseName: input.jobName, overwrite: false } : {}),
     };
+    const placementContext = freeform.placementContext ?? freeform.metaStatic?.placementContext;
     const request: FreeformRenderRequest = {
       layoutMode: "FREEFORM",
       formatProfileId: freeform.formatProfileId,
       creativeLayoutPlan: freeform.creativeLayoutPlan,
+      ...(placementContext ? { placementContext } : {}),
       assets: [...assets.entries()].map(([assetId, asset]) => ({
         assetId,
         path: asset.relativePath,
@@ -1264,7 +1266,7 @@ export class DesktopController {
       ...(freeform.metaStatic || freeform.outputMode ? {
         metaStatic: {
           ...(freeform.outputMode ? { mode: freeform.outputMode } : {}),
-          ...(freeform.metaStatic?.placementContext ? { placementContext: freeform.metaStatic.placementContext } : {}),
+          ...(placementContext ? { placementContext } : {}),
           ...(freeform.metaStatic?.conceptId ? { conceptId: freeform.metaStatic.conceptId } : {}),
           ...(freeform.metaStatic?.platformCopy ? { platformCopy: freeform.metaStatic.platformCopy } : {}),
           ...(freeform.metaStatic?.variants ? { variants: freeform.metaStatic.variants } : {}),

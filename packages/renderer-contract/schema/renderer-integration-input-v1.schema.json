@@ -22,7 +22,7 @@
     "creativeLayoutPlan": { "$ref": "https://kbr.local/schema/creative-layout-plan-v1.schema.json" },
     "formatProfileId": { "type": "string", "minLength": 1 },
     "assetProfileId": { "type": "string", "minLength": 1 },
-    "placementContext": { "type": "string", "minLength": 1 },
+    "placementContext": { "$ref": "#/$defs/placementContext" },
     "platformCopy": { "$ref": "#/$defs/platformCopy" },
     "metaStatic": { "$ref": "#/$defs/metaStatic" },
     "placementSet": { "$ref": "#/$defs/placementSet" },
@@ -111,7 +111,7 @@
       "type": "object", "additionalProperties": false,
       "properties": {
         "mode": { "enum": ["SINGLE", "PLACEMENT_SET"] },
-        "placementContext": { "type": "string", "minLength": 1 },
+        "placementContext": { "$ref": "#/$defs/placementContext" },
         "conceptId": { "type": "string", "minLength": 1 },
         "variantId": { "type": "string", "minLength": 1 },
         "projectPixelPresetId": { "type": "string", "minLength": 1 },
@@ -122,9 +122,10 @@
     "metaVariant": {
       "oneOf": [
         { "$ref": "https://kbr.local/schema/creative-layout-plan-v1.schema.json" },
-        { "type": "object", "additionalProperties": false, "required": ["creativeLayoutPlan"], "properties": { "formatProfileId": { "type": "string", "minLength": 1 }, "placementContext": { "type": "string", "minLength": 1 }, "creativeLayoutPlan": { "$ref": "https://kbr.local/schema/creative-layout-plan-v1.schema.json" } } }
+        { "type": "object", "additionalProperties": false, "required": ["creativeLayoutPlan"], "properties": { "formatProfileId": { "type": "string", "minLength": 1 }, "placementContext": { "$ref": "#/$defs/placementContext" }, "creativeLayoutPlan": { "$ref": "https://kbr.local/schema/creative-layout-plan-v1.schema.json" } } }
       ]
     },
+    "placementContext": { "enum": ["FACEBOOK_FEED", "INSTAGRAM_FEED", "FACEBOOK_STORIES", "INSTAGRAM_STORIES", "FACEBOOK_REELS", "INSTAGRAM_REELS", "INSTAGRAM_EXPLORE", "FEED", "STORIES", "REELS"] },
     "placementSet": {
       "type": "object", "additionalProperties": false, "required": ["variants"],
       "properties": {

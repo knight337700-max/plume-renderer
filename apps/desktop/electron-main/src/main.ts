@@ -246,13 +246,13 @@ async function runM1MetaStaticSmoke(
         layoutMode: "FREEFORM",
         freeform: {
           formatProfileId: profileId,
+          placementContext: profileId === "META_STATIC_VERTICAL_FULL" ? "INSTAGRAM_STORIES" : "FACEBOOK_FEED",
           creativeLayoutPlan: planFor(profileId),
           assetTokens: { hero: selected.assetToken },
           outputFormat: index === 1 ? "JPEG" : "PNG",
           ...(index === 1 ? { outputQuality: 88 } : {}),
           outputMode: "SINGLE",
           metaStatic: {
-            placementContext: profileId === "META_STATIC_VERTICAL_FULL" ? "INSTAGRAM_STORIES" : "FACEBOOK_FEED",
             platformCopy: { headline: "metadata only" },
           },
         },

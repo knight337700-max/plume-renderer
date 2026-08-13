@@ -1,0 +1,16 @@
+{
+  "cleanHeroWarningFree": true,
+  "phase": "M2_2",
+  "reelsValidatorRan": false,
+  "requestedContext": "INSTAGRAM_STORIES",
+  "resolution": {
+    "path": "/placementContext",
+    "requested": "INSTAGRAM_STORIES",
+    "resolved": "INSTAGRAM_STORIES",
+    "source": "EXPLICIT_REQUEST"
+  },
+  "resolvedContext": "INSTAGRAM_STORIES",
+  "status": "PASS",
+  "storiesValidatorRan": true,
+  "warningCount": 0
+}

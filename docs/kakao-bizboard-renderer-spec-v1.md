@@ -5115,3 +5115,56 @@ The machine-readable audit is `contracts/audits/meta-output-constraint-provenanc
 implementation report is `docs/implementation/meta-visual-candidate-correction-output-compliance-m2-1.md`,
 and verification uses `scripts/verify-m2-1-meta.mjs`. Runtime network access remains prohibited;
 official-source refresh is documentation/evidence only. **[PROJECT]**
+
+## 51. Phase M2.2 — META placement context propagation and imported-plan fidelity [PROJECT]
+
+M2.2 is a compatibility hotfix. It does not change the frozen template coordinates, the `1.9.0`
+template contract, or the META pixel presets. The Canonical document advances by a patch from
+`1.23.0` to `1.23.1` because the clarification makes existing request fields and runtime routing
+semantics explicit; input/output, Core, Validator, Desktop, and package versions remain unchanged.
+**[PROJECT]**
+
+### 51.1 Request context boundary [PROJECT] [DERIVED]
+
+`placementContext` belongs to the Render Request and is not a `CreativeLayoutPlan` property. A plan
+root field named `placementContext` therefore remains a deterministic
+`KBR-FREEFORM-PLAN-SCHEMA-INVALID`; callers must place the field beside `formatProfileId` and
+`creativeLayoutPlan`. The six placement-specific values are `FACEBOOK_FEED`, `INSTAGRAM_FEED`,
+`FACEBOOK_STORIES`, `INSTAGRAM_STORIES`, `FACEBOOK_REELS`, and `INSTAGRAM_REELS`; existing aliases
+(`INSTAGRAM_EXPLORE`, `FEED`, `STORIES`, `REELS`) remain accepted for compatibility. Unknown values
+fail closed as `KBR-INPUT-002`. A legacy nested `metaStatic.placementContext` read path is retained
+only for compatibility and must agree with the canonical top-level field when both are present.
+The stored `metaStaticReport.placementContextResolution` records `requested`, `resolved`, `source`,
+and the request path. **[PROJECT] [DERIVED]**
+
+### 51.2 Neutral vertical defaults and validator routing [PROJECT]
+
+`META_STATIC_VERTICAL_FULL` without an explicit request context resolves to `null` with source
+`DEFAULT_NONE`; it never silently becomes `FACEBOOK_FEED`, Stories, or Reels. Stories exclusions
+run only for explicit `FACEBOOK_STORIES` or `INSTAGRAM_STORIES` (the existing `STORIES` alias is
+compatibility-only). Reels exact safe-zone geometry remains `SOURCE_REQUIRED` INFO only for explicit
+`FACEBOOK_REELS` or `INSTAGRAM_REELS`. Generic vertical output receives neither placement-specific
+issue. A full-bleed photo is not a Stories obstruction merely because it occupies the canvas; a
+managed text/logo overlay or an element explicitly marked `KEY_CREATIVE` may produce the advisory
+warning. **[PROJECT] [DERIVED]**
+
+### 51.3 Imported plan source of truth [PROJECT]
+
+After JSON parsing and plan-schema validation, imported plan fields remain authoritative through
+state hydration, request serialization, rasterization, and manifest evidence. In particular,
+`placement.policy`, `fitMode`, `cropRect`, bounds, anchor, z-index, and opacity cannot be replaced by
+editor defaults. Placement-set collection context is not copied into a vertical child unless that
+child explicitly declares a context. Plan import/export round-trip tests compare render-affecting
+semantics after normalization; non-semantic JSON whitespace and object ordering are ignored.
+**[PROJECT]**
+
+### 51.4 Fingerprints, candidates, and review status [PROJECT]
+
+Changing only Stories versus Reels context changes the request fingerprint and validation metadata,
+while pixel and artifact digests may remain equal for the same plan/source/output. M2.2 regenerates
+four manual-review JPEG candidates under `artifacts/m2-2/manual-review/` using the existing
+independent normalized `MANUAL_CROP + COVER` plans. The Square and Portrait candidates must retain
+full-bleed raster bounds; Stories and Reels use explicit request contexts. No stale META 300000-byte
+limit is reintroduced. Manual acceptance remains `NOT_REVIEWED`, candidate status remains
+`CANDIDATE_NOT_APPROVED`, and `finalGoldenFrozen=false`; no upload approval is implied. Evidence and
+the verifier are `artifacts/m2-2/` and `scripts/verify-m2-2-meta.mjs`. **[PROJECT]**

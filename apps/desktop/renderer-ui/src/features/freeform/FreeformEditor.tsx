@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type KeyboardEvent, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactElement } from "react";
 
 import type {
   CreativeElement,
@@ -200,11 +200,15 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
   const [planJson, setPlanJson] = useState(() => JSON.stringify(plan, null, 2));
   const [notice, setNotice] = useState("");
   const [metaOutputMode, setMetaOutputMode] = useState<"SINGLE" | "PLACEMENT_SET">("SINGLE");
-  const [metaPlacementContext, setMetaPlacementContext] = useState("FACEBOOK_FEED");
+  const [metaPlacementContext, setMetaPlacementContext] = useState<string>(() => initialProfile?.formatProfileId === "META_STATIC_VERTICAL_FULL" ? "" : "FACEBOOK_FEED");
   const [metaPlatformCopy, setMetaPlatformCopy] = useState({ primaryText: "", headline: "", description: "", callToAction: "", destinationUrl: "" });
   const [metaVariantPlans, setMetaVariantPlans] = useState<Record<string, CreativeLayoutPlan>>({});
+  const metaVariantPlansRef = useRef<Record<string, CreativeLayoutPlan>>({});
 
   useEffect(() => { setPlanJson(JSON.stringify(plan, null, 2)); }, [plan]);
+  useEffect(() => {
+    metaVariantPlansRef.current = metaVariantPlans;
+  }, [metaVariantPlans]);
   useEffect(() => {
     if (channel !== "META" || metaOutputMode !== "PLACEMENT_SET") return;
     setMetaVariantPlans((current) => {
@@ -242,11 +246,19 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
   };
   const selectProfile = (value: string) => {
     if (channel === "META" && metaOutputMode === "PLACEMENT_SET") {
-      setMetaVariantPlans((current) => ({ ...current, [profileId]: plan }));
-      const next = metaVariantPlans[value];
+      const current = metaVariantPlansRef.current;
+      const updated = { ...current, [profileId]: plan };
+      metaVariantPlansRef.current = updated;
+      setMetaVariantPlans(updated);
+      const next = updated[value];
       setPlan(next ?? { ...plan, formatProfileId: value, elements: plan.elements.map((element) => ({ ...element })) });
     } else {
       setPlan((current) => ({ ...current, formatProfileId: value }));
+    }
+    if (channel === "META") {
+      setMetaPlacementContext((current) => value === "META_STATIC_VERTICAL_FULL"
+        ? current === "FACEBOOK_FEED" ? "" : current
+        : current || "FACEBOOK_FEED");
     }
     setProfileId(value);
     setPreview(null);
@@ -324,9 +336,10 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
       ...(outputQuality !== undefined ? { outputQuality } : {}),
       ...(channel === "META" ? {
         outputMode: metaOutputMode,
+        ...(metaPlacementContext ? { placementContext: metaPlacementContext } : {}),
         metaStatic: {
           mode: metaOutputMode,
-          placementContext: metaPlacementContext,
+          ...(metaPlacementContext ? { placementContext: metaPlacementContext } : {}),
           conceptId: "meta-static-concept",
           platformCopy: metaPlatformCopy,
           ...(metaOutputMode === "PLACEMENT_SET" ? { variants: { ...metaVariantPlans, [profileId]: plan } } : {}),
@@ -393,6 +406,16 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
       const parsed = JSON.parse(planJson) as CreativeLayoutPlan;
       setPlan(parsed);
       setProfileId(parsed.formatProfileId);
+      if (channel === "META") {
+        setMetaPlacementContext((current) => parsed.formatProfileId === "META_STATIC_VERTICAL_FULL"
+          ? current === "FACEBOOK_FEED" ? "" : current
+          : current || "FACEBOOK_FEED");
+      }
+      if (channel === "META" && metaOutputMode === "PLACEMENT_SET") {
+        const updated = { ...metaVariantPlansRef.current, [parsed.formatProfileId]: parsed };
+        metaVariantPlansRef.current = updated;
+        setMetaVariantPlans(updated);
+      }
       setSelectedId(parsed.elements[0]?.id ?? null);
       setPreview(null);
       setExported(null);
@@ -474,7 +497,7 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
         {channel === "META" ? <section className="meta-static-controls" data-testid="meta-static-controls">
           <div className="section-heading"><h3>META Static</h3><span className="capability-pill">PROJECT_OUTPUT_PRESET_V1</span></div>
           <label className="field-group"><span className="field-label">Output mode</span><select data-testid="meta-output-mode" value={metaOutputMode} onChange={(event) => { const value = event.currentTarget.value as "SINGLE" | "PLACEMENT_SET"; setMetaOutputMode(value); setPreview(null); setExported(null); setRequestSequence((current) => current + 1); }}><option value="SINGLE">SINGLE</option><option value="PLACEMENT_SET">META_STATIC_PLACEMENT_SET_V1 · COLLECTION</option></select></label>
-          <label className="field-group"><span className="field-label">Placement context</span><select data-testid="meta-placement-context" value={metaPlacementContext} onChange={(event) => { setMetaPlacementContext(event.currentTarget.value); setPreview(null); setRequestSequence((current) => current + 1); }}><option value="FACEBOOK_FEED">Facebook Feed</option><option value="INSTAGRAM_FEED">Instagram Feed</option><option value="FACEBOOK_STORIES">Facebook Stories</option><option value="INSTAGRAM_STORIES">Instagram Stories</option><option value="FACEBOOK_REELS">Facebook Reels · SOURCE_REQUIRED geometry</option><option value="INSTAGRAM_REELS">Instagram Reels · SOURCE_REQUIRED geometry</option></select></label>
+          <label className="field-group"><span className="field-label">Placement context</span><select data-testid="meta-placement-context" value={metaPlacementContext} onChange={(event) => { setMetaPlacementContext(event.currentTarget.value); setPreview(null); setRequestSequence((current) => current + 1); }}><option value="">Unspecified · generic vertical</option><option value="FACEBOOK_FEED">Facebook Feed</option><option value="INSTAGRAM_FEED">Instagram Feed</option><option value="FACEBOOK_STORIES">Facebook Stories</option><option value="INSTAGRAM_STORIES">Instagram Stories</option><option value="FACEBOOK_REELS">Facebook Reels · SOURCE_REQUIRED geometry</option><option value="INSTAGRAM_REELS">Instagram Reels · SOURCE_REQUIRED geometry</option></select></label>
           {metaOutputMode === "PLACEMENT_SET" ? <div className="button-row" role="tablist" aria-label="META placement variants" data-testid="meta-placement-tabs">{metaProfiles.map((entry) => <button type="button" key={entry.formatProfileId} role="tab" className={profileId === entry.formatProfileId ? "primary" : "secondary"} onClick={() => selectProfile(entry.formatProfileId)} data-testid={`meta-placement-tab-${entry.formatProfileId}`}>{entry.officialRatio} · {entry.canvas.width}×{entry.canvas.height}</button>)}</div> : null}
           <div className="meta-platform-copy" data-testid="meta-platform-copy"><span className="field-label">Platform copy · metadata only (never rasterized)</span>{(["primaryText", "headline", "description", "callToAction", "destinationUrl"] as const).map((field) => <label key={field}><span>{field}</span><input data-testid={`meta-platform-${field}`} value={metaPlatformCopy[field]} onChange={(event) => updateMeta({ [field]: event.currentTarget.value })} /></label>)}</div>
           {metaPlacementContext.includes("STORIES") ? <p className="hint" data-testid="meta-safe-zone-guide">Stories guide: top 14% / bottom 20% normalized exclusion · WARNING only · final overlay excluded.</p> : null}

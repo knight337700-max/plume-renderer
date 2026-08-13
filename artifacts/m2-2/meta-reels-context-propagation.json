@@ -1,0 +1,15 @@
+{
+  "guessedGeometry": false,
+  "phase": "M2_2",
+  "requestedContext": "INSTAGRAM_REELS",
+  "resolution": {
+    "path": "/placementContext",
+    "requested": "INSTAGRAM_REELS",
+    "resolved": "INSTAGRAM_REELS",
+    "source": "EXPLICIT_REQUEST"
+  },
+  "resolvedContext": "INSTAGRAM_REELS",
+  "sourceRequiredInfo": 1,
+  "status": "PASS",
+  "storiesValidatorRan": false
+}

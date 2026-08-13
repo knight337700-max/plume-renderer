@@ -28,6 +28,7 @@ const metaStaticSchema = z.strictObject({
 const freeformRequestSchema = z.strictObject({
   formatProfileId: z.string().min(1).max(200),
   creativeLayoutPlan: z.unknown(),
+  placementContext: boundedText.optional(),
   assetTokens: z.record(z.string().min(1).max(200), token),
   outputFormat: z.enum(["PNG", "JPEG"]),
   outputQuality: z.union([z.number().finite().min(1).max(100), z.literal("AUTO_FIT")]).optional(),

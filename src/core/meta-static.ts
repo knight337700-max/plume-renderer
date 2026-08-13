@@ -59,6 +59,7 @@ export type MetaStaticPlacementSetRequest = Readonly<{
   layoutMode?: "FREEFORM";
   assets?: FreeformAssetInput[] | Readonly<Record<string, unknown>>;
   output?: FreeformRenderRequest["output"];
+  placementContext?: MetaStaticPlacementContext | string;
   provenance?: Readonly<Record<string, unknown>>;
   metaStatic: Readonly<{
     mode: "PLACEMENT_SET";
@@ -213,17 +214,23 @@ function childRequest(
   variant: MetaStaticVariant,
 ): FreeformRenderRequest {
   const meta = request.metaStatic;
+  // A placement-set collection describes geometry variants.  A vertical
+  // child stays neutral unless that child explicitly names Stories/Reels;
+  // collection-level feed context must not silently route it to FACEBOOK_FEED.
+  const requestedContext = variant.placementContext
+    ?? (profileId === "META_STATIC_VERTICAL_FULL" ? undefined : request.placementContext ?? meta.placementContext);
   return {
     ...(request.schemaVersion ? { schemaVersion: request.schemaVersion } : {}),
     formatProfileId: variant.formatProfileId ?? profileId,
     layoutMode: "FREEFORM",
     creativeLayoutPlan: variant.creativeLayoutPlan,
+    ...(requestedContext ? { placementContext: requestedContext } : {}),
     ...(request.assets !== undefined ? { assets: request.assets as NonNullable<FreeformRenderRequest["assets"]> } : {}),
     ...(request.output ? { output: request.output } : {}),
     ...(request.provenance ? { provenance: request.provenance } : {}),
     metaStatic: {
       mode: "SINGLE",
-      ...(variant.placementContext ?? meta.placementContext ? { placementContext: variant.placementContext ?? meta.placementContext } : {}),
+      ...(requestedContext ? { placementContext: requestedContext } : {}),
       ...(meta.conceptId ? { conceptId: meta.conceptId } : {}),
       variantId: profileId,
       ...(meta.platformCopy ? { platformCopy: meta.platformCopy } : {}),

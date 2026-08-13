@@ -67,3 +67,20 @@ test("META selector renders a project preset and exports the ordered placement s
     await close(launched);
   }
 });
+
+test("vertical META profile starts neutral and propagates explicit Stories context", async () => {
+  const launched = await launch();
+  try {
+    await launched.page.getByTestId("channel-meta").click();
+    await launched.page.getByTestId("meta-profile-select").selectOption("META_STATIC_VERTICAL_FULL");
+    await expect(launched.page.getByTestId("meta-placement-context")).toHaveValue("");
+    await expect(launched.page.getByTestId("meta-safe-zone-guide")).toHaveCount(0);
+    await launched.page.getByTestId("meta-placement-context").selectOption("INSTAGRAM_STORIES");
+    await expect(launched.page.getByTestId("meta-safe-zone-guide")).toBeVisible();
+    await launched.page.getByTestId("freeform-render-preview").click();
+    await expect(launched.page.getByTestId("freeform-preview-image")).toBeVisible();
+    await expect(launched.page.getByTestId("freeform-status")).toHaveText(/PASS|WARNING/u);
+  } finally {
+    await close(launched);
+  }
+});

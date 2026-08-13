@@ -1,0 +1,17 @@
+{
+  "backgroundPhotoOccupancy": "NO_WARNING",
+  "cleanHero": {
+    "safeZoneImportance": "DECORATIVE",
+    "warningCount": 0
+  },
+  "explicitKeyCreative": {
+    "safeZoneImportance": "KEY_CREATIVE",
+    "warningCodes": [
+      "KBR-META-STORIES-SAFE-ZONE-WARNING"
+    ],
+    "warningProduced": true
+  },
+  "phase": "M2_2",
+  "ruleTarget": "TEXT_LOGO_OR_EXPLICIT_KEY_CREATIVE",
+  "status": "PASS"
+}

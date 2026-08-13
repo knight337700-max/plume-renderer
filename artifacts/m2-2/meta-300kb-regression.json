@@ -1,0 +1,13 @@
+{
+  "candidateFileSizeErrors": {
+    "portrait": false,
+    "reels": false,
+    "square": false,
+    "stories": false
+  },
+  "metaProfilesMaximumBytes": null,
+  "noReplacementMaximumInvented": true,
+  "phase": "M2_2",
+  "stale300000RulePresent": false,
+  "status": "PASS"
+}

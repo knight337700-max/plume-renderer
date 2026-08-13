@@ -11,6 +11,11 @@ import {
 import type { ContractBundle } from "./contracts.js";
 import { createIssue, sortAndDedupeIssues } from "./errors.js";
 import { sha256Bytes } from "./hash.js";
+import {
+  isMetaPlacementContext,
+  resolveMetaPlacementContext,
+  META_PLACEMENT_CONTEXTS,
+} from "./meta-placement-context.js";
 import { inspectPngIhdr, inspectRenderedArtifact } from "./raster.js";
 import type {
   FreeformAppliedElement,
@@ -80,6 +85,7 @@ const ASSET_KEYS = [
 ] as const;
 const ASSET_REF_KEYS = ["type", "value"] as const;
 const OUTPUT_KEYS = ["mimeType", "format", "quality", "directory", "baseName", "overwrite"] as const;
+const META_STATIC_KEYS = ["mode", "placementContext", "conceptId", "variantId", "projectPixelPresetId", "platformCopy", "variants"] as const;
 
 function isRecord(value: unknown): value is RecordValue {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -162,6 +168,35 @@ function validateRequestShape(request: unknown, contracts: ContractBundle): Vali
   }
   if (request.creativeLayoutPlan === undefined) {
     issues.push(issue(contracts, "KBR-FREEFORM-PLAN-MISSING", "/creativeLayoutPlan"));
+  }
+  if (request.placementContext !== undefined && typeof request.placementContext !== "string") {
+    issues.push(issue(contracts, "KBR-INPUT-002", "/placementContext", { actual: typeof request.placementContext }));
+  }
+
+  const context = resolveMetaPlacementContext(request);
+  if (context.conflict) {
+    issues.push(issue(contracts, "KBR-INPUT-002", "/placementContext", {
+      actual: { placementContext: request.placementContext, metaStaticPlacementContext: context.legacyNestedValue },
+      expected: "one canonical request-level placementContext; nested legacy value must match",
+    }));
+  }
+  if (context.requested !== null && !isMetaPlacementContext(context.requested)) {
+    issues.push(issue(contracts, "KBR-INPUT-002", context.path ?? "/placementContext", {
+      actual: context.requested,
+      expected: META_PLACEMENT_CONTEXTS,
+    }));
+  }
+
+  if (request.metaStatic !== undefined) {
+    if (!isRecord(request.metaStatic)) {
+      issues.push(issue(contracts, "KBR-INPUT-002", "/metaStatic", { actual: typeof request.metaStatic }));
+    } else {
+      const unknownMetaKeys = hasUnknownKeys(request.metaStatic, META_STATIC_KEYS);
+      if (unknownMetaKeys.length > 0) issues.push(issue(contracts, "KBR-INPUT-002", "/metaStatic", { actual: unknownMetaKeys, expected: META_STATIC_KEYS }));
+      if (request.metaStatic.placementContext !== undefined && typeof request.metaStatic.placementContext !== "string") {
+        issues.push(issue(contracts, "KBR-INPUT-002", "/metaStatic/placementContext", { actual: typeof request.metaStatic.placementContext }));
+      }
+    }
   }
 
   if (request.output !== undefined) {
@@ -367,7 +402,13 @@ function validateManagedSafeZones(
     const right = typeof storiesExclusion.right === "number" ? storiesExclusion.right : 0;
     const margins = { top: canvas.height * top, bottom: canvas.height * bottom, left: canvas.width * left, right: canvas.width * right };
     const keyRoles = new Set(["HEADLINE", "SUBCOPY", "ADVERTISER", "DISCLAIMER", "CTA", "LOGO"]);
-    for (const { element, index } of plan.elements.map((element, index) => ({ element, index }))) {
+    // Stories exclusion is a managed-overlay rule.  A full-bleed photo can
+    // occupy the entire canvas without being an obstruction; only text/logo
+    // overlays (or an explicitly KEY_CREATIVE element) are assessed.
+    const storiesTargets = plan.elements
+      .map((element, index) => ({ element, index }))
+      .filter(({ element }) => (element.type === "TEXT" || element.type === "LOGO") || element.safeZoneImportance === "KEY_CREATIVE");
+    for (const { element, index } of storiesTargets) {
       if (element.safeZoneImportance === "IGNORE" || element.safeZoneImportance === "DECORATIVE") continue;
       if (element.safeZoneImportance !== "KEY_CREATIVE" && !keyRoles.has(element.role ?? "")) continue;
       const rect = normalizedRectToPixelRect(element.bounds, canvas);
@@ -535,9 +576,7 @@ function validateProfileAndPlan(
       });
       if (profile) {
         const typedPlan = request.creativeLayoutPlan as unknown as CreativeLayoutPlan;
-        const placementContext = isRecord(request.metaStatic) && typeof request.metaStatic.placementContext === "string"
-          ? request.metaStatic.placementContext
-          : undefined;
+        const placementContext = resolveMetaPlacementContext(request).resolved ?? undefined;
         issues.push(...validateManagedSafeZones(typedPlan, profile, contracts, placementContext));
         issues.push(...validateMachineTextConstraints(typedPlan, profile, contracts));
       }

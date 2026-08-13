@@ -1,0 +1,19 @@
+{
+  "comparedFields": [
+    "formatProfileId",
+    "background",
+    "element IDs",
+    "bounds",
+    "placement.policy",
+    "fitMode",
+    "cropRect",
+    "anchor",
+    "zIndex",
+    "opacity"
+  ],
+  "importedPlanRemainsSourceOfTruth": true,
+  "nonSemanticFormattingIgnored": true,
+  "phase": "M2_2",
+  "semanticEquality": true,
+  "status": "PASS"
+}
