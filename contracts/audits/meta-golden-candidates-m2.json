@@ -1,0 +1,74 @@
+{
+  "candidates": [
+    {
+      "artifact": "artifacts/m2/golden-candidates/META_GC_FEED_SQUARE_V1.png",
+      "artifactSha": "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba",
+      "fixture": "M2_SHARED_CONCEPT_SQUARE",
+      "id": "META_GC_FEED_SQUARE_V1",
+      "manifest": "artifacts/m2/golden-candidates/META_GC_FEED_SQUARE_V1.manifest.json",
+      "manifestSha": "9d81ae3b570598a6d496f32edf3ca5b8a2e108c11c2701377df9d27ac80949ae",
+      "pixelSha": "0baca229b1a04f1f490d4b8d1ab91b76406c993296dfa832a97a4c77ef003943",
+      "profile": "META_STATIC_FEED_SQUARE",
+      "status": "CANDIDATE_NOT_APPROVED"
+    },
+    {
+      "artifact": "artifacts/m2/golden-candidates/META_GC_FEED_PORTRAIT_V1.png",
+      "artifactSha": "f5c1d4676591efe5c9dd79015bee8aa770ab5152268c8a6b69a1cf9a7c887eb3",
+      "fixture": "M2_SHARED_CONCEPT_PORTRAIT",
+      "id": "META_GC_FEED_PORTRAIT_V1",
+      "manifest": "artifacts/m2/golden-candidates/META_GC_FEED_PORTRAIT_V1.manifest.json",
+      "manifestSha": "ea9afa435a7d7c4ff8685c7ca5045b7cf8bb85b58385ada487f7a8d5ae535353",
+      "pixelSha": "5e12883d817ac4c4ca4ba7ec8c2ac19dfa922dc37ab33ebc62fc182000d7ef42",
+      "profile": "META_STATIC_FEED_PORTRAIT",
+      "status": "CANDIDATE_NOT_APPROVED"
+    },
+    {
+      "artifact": "artifacts/m2/golden-candidates/META_GC_VERTICAL_STORIES_V1.png",
+      "artifactSha": "7cf8008730915ad74c24c598356fa1a5965a0c4918dbd43f102a3efe992e03d3",
+      "fixture": "M2_SHARED_CONCEPT_STORIES_SAFE",
+      "id": "META_GC_VERTICAL_STORIES_V1",
+      "manifest": "artifacts/m2/golden-candidates/META_GC_VERTICAL_STORIES_V1.manifest.json",
+      "manifestSha": "d8ffda00da9321d50c1f1c94e85b31a4d3b2ffdd147d433f28641b925a7c1195",
+      "pixelSha": "f7669884d38c2a2a760d28729d3ac5cd9f37341e91d07acaa3619cb8ca25523a",
+      "profile": "META_STATIC_VERTICAL_FULL",
+      "status": "CANDIDATE_NOT_APPROVED"
+    },
+    {
+      "artifact": "artifacts/m2/golden-candidates/META_GC_VERTICAL_REELS_V1.png",
+      "artifactSha": "dd9e63f5210e00a1e2f5ca83a83961ac8a3e8d891888c42599829ee66e836cd4",
+      "fixture": "M2_SHARED_CONCEPT_REELS",
+      "id": "META_GC_VERTICAL_REELS_V1",
+      "manifest": "artifacts/m2/golden-candidates/META_GC_VERTICAL_REELS_V1.manifest.json",
+      "manifestSha": "8d2d1da873bf5e5397109951d334e09e7146a6af3d86b09092ae624da91f4046",
+      "pixelSha": "fc9f8deda0aa451b357257088d16ebdba83478b4722bd6c52d7669d30263adf1",
+      "profile": "META_STATIC_VERTICAL_FULL",
+      "status": "CANDIDATE_NOT_APPROVED"
+    },
+    {
+      "artifact": "artifacts/m2/golden-candidates",
+      "artifactCount": 3,
+      "artifactSha": null,
+      "artifactShas": [
+        "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba",
+        "f5c1d4676591efe5c9dd79015bee8aa770ab5152268c8a6b69a1cf9a7c887eb3",
+        "7cf8008730915ad74c24c598356fa1a5965a0c4918dbd43f102a3efe992e03d3"
+      ],
+      "fixture": "M2_SHARED_CONCEPT_PLACEMENT_SET",
+      "id": "META_GC_PLACEMENT_SET_V1",
+      "manifest": "artifacts/m2/golden-candidates/META_GC_PLACEMENT_SET_V1.manifest.json",
+      "manifestSha": "2d7ea4a914a3e902cfe682f8ef55a8571646a6b132f1d5dcbce1670b0d53196e",
+      "order": [
+        "META_STATIC_FEED_SQUARE",
+        "META_STATIC_FEED_PORTRAIT",
+        "META_STATIC_VERTICAL_FULL"
+      ],
+      "pixelSha": null,
+      "profile": "META_STATIC_PLACEMENT_SET_V1",
+      "status": "CANDIDATE_NOT_APPROVED"
+    }
+  ],
+  "finalGoldenFrozen": false,
+  "manualAcceptanceStatus": "NOT_REVIEWED",
+  "phase": "M2_META_ARTIFACT_AUDIT_MANUAL_ACCEPTANCE_GOLDEN_CANDIDATES",
+  "status": "CANDIDATE_NOT_APPROVED"
+}

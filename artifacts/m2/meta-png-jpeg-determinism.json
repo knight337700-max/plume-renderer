@@ -1,0 +1,37 @@
+{
+  "jpeg": {
+    "artifactDigests": [
+      "d14ac98a0860c1e263a857cbe3bf8e4543045b4f4c23e22b4e46cbf71b77cc20",
+      "d14ac98a0860c1e263a857cbe3bf8e4543045b4f4c23e22b4e46cbf71b77cc20",
+      "d14ac98a0860c1e263a857cbe3bf8e4543045b4f4c23e22b4e46cbf71b77cc20"
+    ],
+    "byteEqual": true,
+    "dimensions": "1080x1350",
+    "pixelEqual": true,
+    "pixelFingerprints": [
+      "dd2011428697fbd7e4e015862a1369d8b9ffa00a7fa44f292194617a1a0a45b0",
+      "dd2011428697fbd7e4e015862a1369d8b9ffa00a7fa44f292194617a1a0a45b0",
+      "dd2011428697fbd7e4e015862a1369d8b9ffa00a7fa44f292194617a1a0a45b0"
+    ],
+    "runs": 3
+  },
+  "placementSet": {
+    "deterministic": true,
+    "fingerprint": "5851c7bcd268a62e9d49d316a0eadcd11b107e0b90475345e4136c52ca870022"
+  },
+  "png": {
+    "artifactDigests": [
+      "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba",
+      "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba",
+      "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba"
+    ],
+    "byteEqual": true,
+    "pixelEqual": true,
+    "pixelFingerprints": [
+      "2d6f26c559b4ed55559858669689957014b3dcf9c1b1cf2d2777c8e2ccfb72f1",
+      "2d6f26c559b4ed55559858669689957014b3dcf9c1b1cf2d2777c8e2ccfb72f1",
+      "2d6f26c559b4ed55559858669689957014b3dcf9c1b1cf2d2777c8e2ccfb72f1"
+    ],
+    "runs": 3
+  }
+}

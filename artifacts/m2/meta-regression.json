@@ -1,0 +1,25 @@
+{
+  "gates": {
+    "desktopBuild": "PASS",
+    "fullCheck": "PASS",
+    "lint": "PASS",
+    "m1Verifier": "PASS",
+    "m2Verifier": "PASS",
+    "playwright": {
+      "status": "PASS",
+      "tests": 35
+    },
+    "typecheck": "PASS",
+    "vitest": {
+      "files": 44,
+      "status": "PASS",
+      "tests": 268
+    }
+  },
+  "kakaoPixelsChanged": false,
+  "m1BaselinePreserved": true,
+  "manualAcceptanceStatus": "NOT_REVIEWED",
+  "naverPixelsChanged": false,
+  "runtimeNetworkAccess": "PROHIBITED",
+  "status": "PASS"
+}

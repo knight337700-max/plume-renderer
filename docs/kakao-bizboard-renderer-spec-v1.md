@@ -4965,3 +4965,74 @@ M1 machine-readable contracts are `contracts/meta-static-profiles.json` and
 `contracts/meta-static-placement-set.schema.json`; representative candidate fixtures are under
 `fixtures/meta/`. No official Meta source is copied into pixels, no third-party guide is used, and
 runtime network access remains prohibited. **[PROJECT]**
+
+## 49. Phase M2 — META artifact audit, manual acceptance, and golden candidates [PROJECT]
+
+M2 validates real outputs produced by the frozen M1 META runtime. It does not alter the renderer,
+Desktop UI, format profiles, placement-set order, or existing Kakao/NAVER/FREEFORM contracts. The
+audit is evidence-only and keeps manual acceptance at `NOT_REVIEWED`. The generated files live under
+`artifacts/m2/`; the machine-readable candidate registry is
+`contracts/audits/meta-golden-candidates-m2.json`. **[PROJECT]**
+
+### 49.1 Independent candidate plans and outputs [PROJECT]
+
+The shared concept is rendered through four independently authored layout plans: Feed Square `1:1`,
+Feed Portrait `4:5`, Stories `9:16`, and Reels `9:16`. Each plan contains a solid background, product
+image, alpha-preserving logo, headline, subcopy, and a decorative shape. The Placement Set renders
+the three M1 profiles independently and publishes them in this fixed order:
+
+1. `META_STATIC_FEED_SQUARE`
+2. `META_STATIC_FEED_PORTRAIT`
+3. `META_STATIC_VERTICAL_FULL`
+
+The five registry records are candidates only:
+`META_GC_FEED_SQUARE_V1`, `META_GC_FEED_PORTRAIT_V1`, `META_GC_VERTICAL_STORIES_V1`,
+`META_GC_VERTICAL_REELS_V1`, and `META_GC_PLACEMENT_SET_V1`. Their status is
+`CANDIDATE_NOT_APPROVED`; no production golden is frozen. **[PROJECT]**
+
+### 49.2 Artifact and platform-copy audit [PROJECT]
+
+Every candidate is checked for exact canvas, ratio, RGBA PNG-32 encoding, decimal byte limit,
+artifact SHA-256, raw-pixel SHA-256, manifest SHA-256, clipping, alpha behavior, and absence of
+guide overlay, platform chrome, CTA rasterization, timestamp metadata, or machine-path metadata.
+Platform copy is `PLATFORM_COMPOSED` metadata only: changing it changes the request fingerprint but
+preserves artifact bytes and raw-pixel fingerprint. Changing embedded creative text changes both.
+Manual crop is recorded with its normalized crop rectangle, resolved source crop, final placement, and
+three-run deterministic comparison. **[PROJECT]**
+
+### 49.3 Stories and Reels semantics [PROJECT] [OFFICIAL]
+
+Stories uses the existing normalized top `0.14` and bottom `0.20` advisory exclusions. The safe
+candidate has WARNING `0`; a separate boundary fixture produces a deterministic WARNING without
+moving or resizing the element. A guide preview is stored separately and is never composited into the
+final artifact. **[PROJECT]**
+
+Reels uses the M1 static `9:16` project preset. Exact platform safe-zone geometry remains
+`SOURCE_REQUIRED`; guessed geometry is `false`. Rendering and export pass, while the manifest records
+`KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED` as INFO. The missing geometry does not block artifact
+generation. **[PROJECT]**
+
+### 49.4 Determinism, regression, and review package [PROJECT]
+
+PNG and JPEG each run three times and must be byte- and pixel-deterministic. The Placement Set
+collection fingerprint is deterministic, and missing required variants remain an explicit
+`KBR-META-PLACEMENT-SET-INCOMPLETE` publish block. The M1 fixture inventory is regenerated and
+recorded as a baseline; Kakao, NAVER, FREEFORM, and platform-composed regression status remains
+unchanged. Runtime network access, system-font dependency, and absolute-path fingerprint dependency
+are all `0` in the audit.
+
+The manual-review package contains the five required previews, a separate Stories guide preview,
+contact sheet, per-candidate manifests, and a README with the review checklist. These files are
+review evidence, not an upload approval or final golden. **[PROJECT]**
+
+### 49.5 Version and evidence [PROJECT]
+
+No runtime contract version changes in M2: document `1.22.0`, renderer Core `0.9.0`, Validator/Error
+Registry `1.9.0`, Desktop/package `0.10.0`, and the existing template contract remain unchanged;
+coordinates are unchanged. **[PROJECT]**
+
+The audit verifier is `scripts/verify-m2-meta-static.mjs`; the reproducible generator is
+`scripts/generate-m2-meta-audit.mjs`. The implementation report is
+`docs/implementation/meta-artifact-audit-golden-candidates-m2.md`, and the complete evidence set is
+under `artifacts/m2/`. Manual acceptance remains `NOT_REVIEWED`; the next phase is user visual
+acceptance and correction. **[PROJECT]**

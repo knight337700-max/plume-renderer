@@ -1,0 +1,1141 @@
+{
+  "alphaProduct": {
+    "alphaBbox": {
+      "height": 125,
+      "width": 236,
+      "x": 12,
+      "y": 20
+    },
+    "alphaPreserved": true,
+    "haloDetected": false,
+    "height": 160,
+    "opaquePixels": 27848,
+    "partialAlphaPixels": 1540,
+    "path": "fixtures/valid/object-right__product__basic__pass.png",
+    "transparentNonBlackPixels": 0,
+    "unexpectedMatte": false,
+    "width": 260
+  },
+  "artifactPolicy": {
+    "ctaAutoRasterization": false,
+    "guideOverlayContamination": false,
+    "machinePathMetadata": false,
+    "outOfCanvasLayerCount": 0,
+    "platformChrome": false,
+    "timestampMetadata": false,
+    "unexpectedClipping": false
+  },
+  "candidates": {
+    "portrait": {
+      "appliedElements": [
+        {
+          "actualRasterBounds": {
+            "height": 613,
+            "width": 851,
+            "x": 143,
+            "y": 253
+          },
+          "assetDigest": "fd5d6e48ebbf443f10f40af1b70091649b208bc7118f64dc3a990434915fc2fe",
+          "assetId": "hero",
+          "destinationPixelRect": {
+            "height": 662,
+            "width": 908,
+            "x": 86,
+            "y": 216
+          },
+          "elementId": "hero",
+          "elementType": "IMAGE",
+          "fitMode": "COVER",
+          "normalizedBounds": {
+            "height": 0.49,
+            "width": 0.84,
+            "x": 0.08,
+            "y": 0.16
+          },
+          "opacity": 1,
+          "originalArrayIndex": 2,
+          "placementPolicy": "MANUAL_CROP",
+          "requestedCropRect": {
+            "height": 0.84,
+            "width": 1,
+            "x": 0,
+            "y": 0.08
+          },
+          "resolvedSourceCropPixels": {
+            "height": 136,
+            "width": 260,
+            "x": 0,
+            "y": 12
+          },
+          "safeZoneImportance": "KEY_CREATIVE",
+          "zIndex": 1
+        },
+        {
+          "actualRasterBounds": {
+            "height": 69,
+            "width": 195,
+            "x": 799,
+            "y": 87
+          },
+          "destinationPixelRect": {
+            "height": 69,
+            "width": 195,
+            "x": 799,
+            "y": 87
+          },
+          "elementId": "accent-badge",
+          "elementType": "SHAPE",
+          "normalizedBounds": {
+            "height": 0.05,
+            "width": 0.18,
+            "x": 0.74,
+            "y": 0.065
+          },
+          "opacity": 1,
+          "originalArrayIndex": 1,
+          "safeZoneImportance": "DECORATIVE",
+          "zIndex": 3
+        },
+        {
+          "actualRasterBounds": {
+            "height": 50,
+            "width": 260,
+            "x": 86,
+            "y": 116
+          },
+          "assetDigest": "9f4a782a84b1e841f2c8fd86221dd9b3fc2cb82a30d01fd2720dec0ad7823237",
+          "assetId": "logo",
+          "destinationPixelRect": {
+            "height": 50,
+            "width": 260,
+            "x": 86,
+            "y": 116
+          },
+          "elementId": "brand-logo",
+          "elementType": "LOGO",
+          "fitMode": "CONTAIN",
+          "normalizedBounds": {
+            "height": 0.08,
+            "width": 0.24,
+            "x": 0.08,
+            "y": 0.065
+          },
+          "opacity": 1,
+          "originalArrayIndex": 0,
+          "placementPolicy": "ALPHA_TRIM_CONTAIN",
+          "resolvedSourceCropPixels": {
+            "height": 24,
+            "width": 124,
+            "x": 38,
+            "y": 18
+          },
+          "safeZoneImportance": "KEY_CREATIVE",
+          "zIndex": 4
+        },
+        {
+          "actualRasterBounds": {
+            "height": 51,
+            "width": 478,
+            "x": 101,
+            "y": 973
+          },
+          "clipped": false,
+          "color": "#20262D",
+          "destinationPixelRect": {
+            "height": 109,
+            "width": 886,
+            "x": 97,
+            "y": 965
+          },
+          "elementId": "headline",
+          "elementType": "TEXT",
+          "fontAssetDigest": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef",
+          "fontId": "SPOQA_HAN_SANS_BOLD",
+          "fontSizePx": 54,
+          "lineHeightPx": 64,
+          "normalizedBounds": {
+            "height": 0.08,
+            "width": 0.82,
+            "x": 0.09,
+            "y": 0.715
+          },
+          "opacity": 1,
+          "originalArrayIndex": 3,
+          "overflowDetected": false,
+          "overflowMode": "ERROR",
+          "safeZoneImportance": "KEY_CREATIVE",
+          "wrapMode": "NO_WRAP",
+          "zIndex": 5
+        },
+        {
+          "actualRasterBounds": {
+            "height": 64,
+            "width": 359,
+            "x": 98,
+            "y": 1104
+          },
+          "clipped": false,
+          "color": "#20262D",
+          "destinationPixelRect": {
+            "height": 136,
+            "width": 886,
+            "x": 97,
+            "y": 1100
+          },
+          "elementId": "subcopy",
+          "elementType": "TEXT",
+          "fontAssetDigest": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1",
+          "fontId": "SPOQA_HAN_SANS_REGULAR",
+          "fontSizePx": 28,
+          "lineHeightPx": 38,
+          "normalizedBounds": {
+            "height": 0.1,
+            "width": 0.82,
+            "x": 0.09,
+            "y": 0.815
+          },
+          "opacity": 1,
+          "originalArrayIndex": 4,
+          "overflowDetected": false,
+          "overflowMode": "ERROR",
+          "safeZoneImportance": "KEY_CREATIVE",
+          "wrapMode": "EXPLICIT_NEWLINES",
+          "zIndex": 5
+        }
+      ],
+      "artifactSha": "f5c1d4676591efe5c9dd79015bee8aa770ab5152268c8a6b69a1cf9a7c887eb3",
+      "bytes": 30805,
+      "canvas": {
+        "exact": true,
+        "expected": "1080x1350",
+        "height": 1350,
+        "width": 1080
+      },
+      "clipping": {
+        "outOfCanvasLayerCount": 0,
+        "unexpected": false
+      },
+      "colorModel": {
+        "bitDepth": "uchar",
+        "channels": 4,
+        "format": "png",
+        "hasAlpha": true,
+        "space": "srgb"
+      },
+      "contamination": {
+        "ctaAutoRasterized": false,
+        "guideOverlay": false,
+        "machinePathMetadata": false,
+        "platformChrome": false,
+        "platformCopyRasterized": false,
+        "timestampMetadata": false
+      },
+      "finalPath": "artifacts/m2/golden-candidates/META_GC_FEED_PORTRAIT_V1.png",
+      "fixture": "M2_SHARED_CONCEPT_PORTRAIT",
+      "manifestPath": "artifacts/m2/runtime/META_GC_FEED_PORTRAIT_V1/render-manifest.json",
+      "manifestSha": "ea9afa435a7d7c4ff8685c7ca5045b7cf8bb85b58385ada487f7a8d5ae535353",
+      "outputMime": "image/png",
+      "outputPath": "artifacts/m2/golden-candidates/META_GC_FEED_PORTRAIT_V1.png",
+      "pixelSha": "5e12883d817ac4c4ca4ba7ec8c2ac19dfa922dc37ab33ebc62fc182000d7ef42",
+      "profile": "META_STATIC_FEED_PORTRAIT",
+      "ratio": "4:5",
+      "rawPixels": {
+        "channels": 4,
+        "height": 1350,
+        "width": 1080
+      },
+      "rendererPixelFingerprint": "5af2498bb83158c630176d75e8acdce23bcf46dd60371a9cd689316d29d104b1",
+      "rendererRequestFingerprint": "9a0cf8dd8f48e22094e3a531c4a9064be2b3f075d924765e9968a8fd744ef0ec",
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "status": "PASS",
+        "warnings": 0
+      }
+    },
+    "reels": {
+      "appliedElements": [
+        {
+          "actualRasterBounds": {
+            "height": 391,
+            "width": 864,
+            "x": 108,
+            "y": 1165
+          },
+          "assetDigest": "fd5d6e48ebbf443f10f40af1b70091649b208bc7118f64dc3a990434915fc2fe",
+          "assetId": "hero",
+          "destinationPixelRect": {
+            "height": 481,
+            "width": 864,
+            "x": 108,
+            "y": 1075
+          },
+          "elementId": "hero",
+          "elementType": "IMAGE",
+          "fitMode": "COVER",
+          "normalizedBounds": {
+            "height": 0.25,
+            "width": 0.8,
+            "x": 0.1,
+            "y": 0.56
+          },
+          "opacity": 1,
+          "originalArrayIndex": 4,
+          "placementPolicy": "MANUAL_CROP",
+          "requestedCropRect": {
+            "height": 1,
+            "width": 0.72,
+            "x": 0.14,
+            "y": 0
+          },
+          "resolvedSourceCropPixels": {
+            "height": 160,
+            "width": 188,
+            "x": 36,
+            "y": 0
+          },
+          "safeZoneImportance": "KEY_CREATIVE",
+          "zIndex": 1
+        },
+        {
+          "actualRasterBounds": {
+            "height": 87,
+            "width": 195,
+            "x": 799,
+            "y": 384
+          },
+          "destinationPixelRect": {
+            "height": 87,
+            "width": 195,
+            "x": 799,
+            "y": 384
+          },
+          "elementId": "accent-badge",
+          "elementType": "SHAPE",
+          "normalizedBounds": {
+            "height": 0.045,
+            "width": 0.18,
+            "x": 0.74,
+            "y": 0.2
+          },
+          "opacity": 1,
+          "originalArrayIndex": 1,
+          "safeZoneImportance": "DECORATIVE",
+          "zIndex": 3
+        },
+        {
+          "actualRasterBounds": {
+            "height": 57,
+            "width": 293,
+            "x": 86,
+            "y": 427
+          },
+          "assetDigest": "9f4a782a84b1e841f2c8fd86221dd9b3fc2cb82a30d01fd2720dec0ad7823237",
+          "assetId": "logo",
+          "destinationPixelRect": {
+            "height": 57,
+            "width": 293,
+            "x": 86,
+            "y": 427
+          },
+          "elementId": "brand-logo",
+          "elementType": "LOGO",
+          "fitMode": "CONTAIN",
+          "normalizedBounds": {
+            "height": 0.075,
+            "width": 0.27,
+            "x": 0.08,
+            "y": 0.2
+          },
+          "opacity": 1,
+          "originalArrayIndex": 0,
+          "placementPolicy": "ALPHA_TRIM_CONTAIN",
+          "resolvedSourceCropPixels": {
+            "height": 24,
+            "width": 124,
+            "x": 38,
+            "y": 18
+          },
+          "safeZoneImportance": "KEY_CREATIVE",
+          "zIndex": 4
+        },
+        {
+          "actualRasterBounds": {
+            "height": 136,
+            "width": 496,
+            "x": 88,
+            "y": 586
+          },
+          "clipped": false,
+          "color": "#20262D",
+          "destinationPixelRect": {
+            "height": 250,
+            "width": 908,
+            "x": 86,
+            "y": 576
+          },
+          "elementId": "headline",
+          "elementType": "TEXT",
+          "fontAssetDigest": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef",
+          "fontId": "SPOQA_HAN_SANS_BOLD",
+          "fontSizePx": 64,
+          "lineHeightPx": 76,
+          "normalizedBounds": {
+            "height": 0.13,
+            "width": 0.84,
+            "x": 0.08,
+            "y": 0.3
+          },
+          "opacity": 1,
+          "originalArrayIndex": 2,
+          "overflowDetected": false,
+          "overflowMode": "ERROR",
+          "safeZoneImportance": "KEY_CREATIVE",
+          "wrapMode": "EXPLICIT_NEWLINES",
+          "zIndex": 5
+        },
+        {
+          "actualRasterBounds": {
+            "height": 27,
+            "width": 326,
+            "x": 87,
+            "y": 888
+          },
+          "clipped": false,
+          "color": "#20262D",
+          "destinationPixelRect": {
+            "height": 116,
+            "width": 908,
+            "x": 86,
+            "y": 883
+          },
+          "elementId": "subcopy",
+          "elementType": "TEXT",
+          "fontAssetDigest": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1",
+          "fontId": "SPOQA_HAN_SANS_REGULAR",
+          "fontSizePx": 30,
+          "lineHeightPx": 40,
+          "normalizedBounds": {
+            "height": 0.06,
+            "width": 0.84,
+            "x": 0.08,
+            "y": 0.46
+          },
+          "opacity": 1,
+          "originalArrayIndex": 3,
+          "overflowDetected": false,
+          "overflowMode": "ERROR",
+          "safeZoneImportance": "KEY_CREATIVE",
+          "wrapMode": "NO_WRAP",
+          "zIndex": 5
+        }
+      ],
+      "artifactSha": "dd9e63f5210e00a1e2f5ca83a83961ac8a3e8d891888c42599829ee66e836cd4",
+      "bytes": 37340,
+      "canvas": {
+        "exact": true,
+        "expected": "1080x1920",
+        "height": 1920,
+        "width": 1080
+      },
+      "clipping": {
+        "outOfCanvasLayerCount": 0,
+        "unexpected": false
+      },
+      "colorModel": {
+        "bitDepth": "uchar",
+        "channels": 4,
+        "format": "png",
+        "hasAlpha": true,
+        "space": "srgb"
+      },
+      "contamination": {
+        "ctaAutoRasterized": false,
+        "guideOverlay": false,
+        "machinePathMetadata": false,
+        "platformChrome": false,
+        "platformCopyRasterized": false,
+        "timestampMetadata": false
+      },
+      "finalPath": "artifacts/m2/golden-candidates/META_GC_VERTICAL_REELS_V1.png",
+      "fixture": "M2_SHARED_CONCEPT_REELS",
+      "manifestPath": "artifacts/m2/runtime/META_GC_VERTICAL_REELS_V1/render-manifest.json",
+      "manifestSha": "8d2d1da873bf5e5397109951d334e09e7146a6af3d86b09092ae624da91f4046",
+      "outputMime": "image/png",
+      "outputPath": "artifacts/m2/golden-candidates/META_GC_VERTICAL_REELS_V1.png",
+      "pixelSha": "fc9f8deda0aa451b357257088d16ebdba83478b4722bd6c52d7669d30263adf1",
+      "profile": "META_STATIC_VERTICAL_FULL",
+      "ratio": "9:16",
+      "rawPixels": {
+        "channels": 4,
+        "height": 1920,
+        "width": 1080
+      },
+      "rendererPixelFingerprint": "277220d2d40d7824dcc8c46e0bcc0966b8241608b45202a8b989879369521129",
+      "rendererRequestFingerprint": "9bfeff8d831872ae3398e7b9d9404a21c7a4d400fa74fe47343d020a08096d6b",
+      "validator": {
+        "errors": 0,
+        "info": 1,
+        "status": "PASS",
+        "warnings": 0
+      }
+    },
+    "square": {
+      "appliedElements": [
+        {
+          "actualRasterBounds": {
+            "height": 421,
+            "width": 864,
+            "x": 108,
+            "y": 271
+          },
+          "assetDigest": "fd5d6e48ebbf443f10f40af1b70091649b208bc7118f64dc3a990434915fc2fe",
+          "assetId": "hero",
+          "destinationPixelRect": {
+            "height": 498,
+            "width": 864,
+            "x": 108,
+            "y": 194
+          },
+          "elementId": "hero",
+          "elementType": "IMAGE",
+          "fitMode": "COVER",
+          "normalizedBounds": {
+            "height": 0.46,
+            "width": 0.8,
+            "x": 0.1,
+            "y": 0.18
+          },
+          "opacity": 1,
+          "originalArrayIndex": 0,
+          "placementPolicy": "MANUAL_CROP",
+          "requestedCropRect": {
+            "height": 1,
+            "width": 0.84,
+            "x": 0.08,
+            "y": 0
+          },
+          "resolvedSourceCropPixels": {
+            "height": 160,
+            "width": 220,
+            "x": 20,
+            "y": 0
+          },
+          "safeZoneImportance": "KEY_CREATIVE",
+          "zIndex": 1
+        },
+        {
+          "actualRasterBounds": {
+            "height": 60,
+            "width": 217,
+            "x": 777,
+            "y": 70
+          },
+          "destinationPixelRect": {
+            "height": 60,
+            "width": 217,
+            "x": 777,
+            "y": 70
+          },
+          "elementId": "accent-badge",
+          "elementType": "SHAPE",
+          "normalizedBounds": {
+            "height": 0.055,
+            "width": 0.2,
+            "x": 0.72,
+            "y": 0.065
+          },
+          "opacity": 1,
+          "originalArrayIndex": 1,
+          "safeZoneImportance": "DECORATIVE",
+          "zIndex": 3
+        },
+        {
+          "actualRasterBounds": {
+            "height": 52,
+            "width": 271,
+            "x": 70,
+            "y": 87
+          },
+          "assetDigest": "9f4a782a84b1e841f2c8fd86221dd9b3fc2cb82a30d01fd2720dec0ad7823237",
+          "assetId": "logo",
+          "destinationPixelRect": {
+            "height": 52,
+            "width": 271,
+            "x": 70,
+            "y": 87
+          },
+          "elementId": "brand-logo",
+          "elementType": "LOGO",
+          "fitMode": "CONTAIN",
+          "normalizedBounds": {
+            "height": 0.1,
+            "width": 0.25,
+            "x": 0.065,
+            "y": 0.055
+          },
+          "opacity": 1,
+          "originalArrayIndex": 2,
+          "placementPolicy": "ALPHA_TRIM_CONTAIN",
+          "resolvedSourceCropPixels": {
+            "height": 24,
+            "width": 124,
+            "x": 38,
+            "y": 18
+          },
+          "safeZoneImportance": "KEY_CREATIVE",
+          "zIndex": 4
+        },
+        {
+          "actualRasterBounds": {
+            "height": 45,
+            "width": 513,
+            "x": 88,
+            "y": 763
+          },
+          "clipped": false,
+          "color": "#20262D",
+          "destinationPixelRect": {
+            "height": 92,
+            "width": 908,
+            "x": 86,
+            "y": 756
+          },
+          "elementId": "headline",
+          "elementType": "TEXT",
+          "fontAssetDigest": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef",
+          "fontId": "SPOQA_HAN_SANS_BOLD",
+          "fontSizePx": 48,
+          "lineHeightPx": 58,
+          "normalizedBounds": {
+            "height": 0.085,
+            "width": 0.84,
+            "x": 0.08,
+            "y": 0.7
+          },
+          "opacity": 1,
+          "originalArrayIndex": 3,
+          "overflowDetected": false,
+          "overflowMode": "ERROR",
+          "safeZoneImportance": "KEY_CREATIVE",
+          "wrapMode": "NO_WRAP",
+          "zIndex": 5
+        },
+        {
+          "actualRasterBounds": {
+            "height": 24,
+            "width": 303,
+            "x": 87,
+            "y": 884
+          },
+          "clipped": false,
+          "color": "#20262D",
+          "destinationPixelRect": {
+            "height": 76,
+            "width": 908,
+            "x": 86,
+            "y": 880
+          },
+          "elementId": "subcopy",
+          "elementType": "TEXT",
+          "fontAssetDigest": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1",
+          "fontId": "SPOQA_HAN_SANS_REGULAR",
+          "fontSizePx": 26,
+          "lineHeightPx": 34,
+          "normalizedBounds": {
+            "height": 0.07,
+            "width": 0.84,
+            "x": 0.08,
+            "y": 0.815
+          },
+          "opacity": 1,
+          "originalArrayIndex": 4,
+          "overflowDetected": false,
+          "overflowMode": "ERROR",
+          "safeZoneImportance": "KEY_CREATIVE",
+          "wrapMode": "NO_WRAP",
+          "zIndex": 5
+        }
+      ],
+      "artifactSha": "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba",
+      "bytes": 22466,
+      "canvas": {
+        "exact": true,
+        "expected": "1080x1080",
+        "height": 1080,
+        "width": 1080
+      },
+      "clipping": {
+        "outOfCanvasLayerCount": 0,
+        "unexpected": false
+      },
+      "colorModel": {
+        "bitDepth": "uchar",
+        "channels": 4,
+        "format": "png",
+        "hasAlpha": true,
+        "space": "srgb"
+      },
+      "contamination": {
+        "ctaAutoRasterized": false,
+        "guideOverlay": false,
+        "machinePathMetadata": false,
+        "platformChrome": false,
+        "platformCopyRasterized": false,
+        "timestampMetadata": false
+      },
+      "finalPath": "artifacts/m2/golden-candidates/META_GC_FEED_SQUARE_V1.png",
+      "fixture": "M2_SHARED_CONCEPT_SQUARE",
+      "manifestPath": "artifacts/m2/runtime/META_GC_FEED_SQUARE_V1/render-manifest.json",
+      "manifestSha": "9d81ae3b570598a6d496f32edf3ca5b8a2e108c11c2701377df9d27ac80949ae",
+      "outputMime": "image/png",
+      "outputPath": "artifacts/m2/golden-candidates/META_GC_FEED_SQUARE_V1.png",
+      "pixelSha": "0baca229b1a04f1f490d4b8d1ab91b76406c993296dfa832a97a4c77ef003943",
+      "profile": "META_STATIC_FEED_SQUARE",
+      "ratio": "1:1",
+      "rawPixels": {
+        "channels": 4,
+        "height": 1080,
+        "width": 1080
+      },
+      "rendererPixelFingerprint": "2d6f26c559b4ed55559858669689957014b3dcf9c1b1cf2d2777c8e2ccfb72f1",
+      "rendererRequestFingerprint": "230aaf39a99d93c1df4d1366c32894bb4868bebe2e6650fd2add7cacf3747a6d",
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "status": "PASS",
+        "warnings": 0
+      }
+    },
+    "stories": {
+      "appliedElements": [
+        {
+          "actualRasterBounds": {
+            "height": 352,
+            "width": 864,
+            "x": 108,
+            "y": 1088
+          },
+          "assetDigest": "fd5d6e48ebbf443f10f40af1b70091649b208bc7118f64dc3a990434915fc2fe",
+          "assetId": "hero",
+          "destinationPixelRect": {
+            "height": 442,
+            "width": 864,
+            "x": 108,
+            "y": 998
+          },
+          "elementId": "hero",
+          "elementType": "IMAGE",
+          "fitMode": "COVER",
+          "normalizedBounds": {
+            "height": 0.23,
+            "width": 0.8,
+            "x": 0.1,
+            "y": 0.52
+          },
+          "opacity": 1,
+          "originalArrayIndex": 4,
+          "placementPolicy": "MANUAL_CROP",
+          "requestedCropRect": {
+            "height": 1,
+            "width": 0.72,
+            "x": 0.14,
+            "y": 0
+          },
+          "resolvedSourceCropPixels": {
+            "height": 160,
+            "width": 188,
+            "x": 36,
+            "y": 0
+          },
+          "safeZoneImportance": "KEY_CREATIVE",
+          "zIndex": 1
+        },
+        {
+          "actualRasterBounds": {
+            "height": 87,
+            "width": 195,
+            "x": 799,
+            "y": 384
+          },
+          "destinationPixelRect": {
+            "height": 87,
+            "width": 195,
+            "x": 799,
+            "y": 384
+          },
+          "elementId": "accent-badge",
+          "elementType": "SHAPE",
+          "normalizedBounds": {
+            "height": 0.045,
+            "width": 0.18,
+            "x": 0.74,
+            "y": 0.2
+          },
+          "opacity": 1,
+          "originalArrayIndex": 1,
+          "safeZoneImportance": "DECORATIVE",
+          "zIndex": 3
+        },
+        {
+          "actualRasterBounds": {
+            "height": 57,
+            "width": 293,
+            "x": 86,
+            "y": 427
+          },
+          "assetDigest": "9f4a782a84b1e841f2c8fd86221dd9b3fc2cb82a30d01fd2720dec0ad7823237",
+          "assetId": "logo",
+          "destinationPixelRect": {
+            "height": 57,
+            "width": 293,
+            "x": 86,
+            "y": 427
+          },
+          "elementId": "brand-logo",
+          "elementType": "LOGO",
+          "fitMode": "CONTAIN",
+          "normalizedBounds": {
+            "height": 0.075,
+            "width": 0.27,
+            "x": 0.08,
+            "y": 0.2
+          },
+          "opacity": 1,
+          "originalArrayIndex": 0,
+          "placementPolicy": "ALPHA_TRIM_CONTAIN",
+          "resolvedSourceCropPixels": {
+            "height": 24,
+            "width": 124,
+            "x": 38,
+            "y": 18
+          },
+          "safeZoneImportance": "KEY_CREATIVE",
+          "zIndex": 4
+        },
+        {
+          "actualRasterBounds": {
+            "height": 136,
+            "width": 496,
+            "x": 88,
+            "y": 586
+          },
+          "clipped": false,
+          "color": "#20262D",
+          "destinationPixelRect": {
+            "height": 250,
+            "width": 908,
+            "x": 86,
+            "y": 576
+          },
+          "elementId": "headline",
+          "elementType": "TEXT",
+          "fontAssetDigest": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef",
+          "fontId": "SPOQA_HAN_SANS_BOLD",
+          "fontSizePx": 64,
+          "lineHeightPx": 76,
+          "normalizedBounds": {
+            "height": 0.13,
+            "width": 0.84,
+            "x": 0.08,
+            "y": 0.3
+          },
+          "opacity": 1,
+          "originalArrayIndex": 2,
+          "overflowDetected": false,
+          "overflowMode": "ERROR",
+          "safeZoneImportance": "KEY_CREATIVE",
+          "wrapMode": "EXPLICIT_NEWLINES",
+          "zIndex": 5
+        },
+        {
+          "actualRasterBounds": {
+            "height": 27,
+            "width": 326,
+            "x": 87,
+            "y": 888
+          },
+          "clipped": false,
+          "color": "#20262D",
+          "destinationPixelRect": {
+            "height": 116,
+            "width": 908,
+            "x": 86,
+            "y": 883
+          },
+          "elementId": "subcopy",
+          "elementType": "TEXT",
+          "fontAssetDigest": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1",
+          "fontId": "SPOQA_HAN_SANS_REGULAR",
+          "fontSizePx": 30,
+          "lineHeightPx": 40,
+          "normalizedBounds": {
+            "height": 0.06,
+            "width": 0.84,
+            "x": 0.08,
+            "y": 0.46
+          },
+          "opacity": 1,
+          "originalArrayIndex": 3,
+          "overflowDetected": false,
+          "overflowMode": "ERROR",
+          "safeZoneImportance": "KEY_CREATIVE",
+          "wrapMode": "NO_WRAP",
+          "zIndex": 5
+        }
+      ],
+      "artifactSha": "7cf8008730915ad74c24c598356fa1a5965a0c4918dbd43f102a3efe992e03d3",
+      "bytes": 37340,
+      "canvas": {
+        "exact": true,
+        "expected": "1080x1920",
+        "height": 1920,
+        "width": 1080
+      },
+      "clipping": {
+        "outOfCanvasLayerCount": 0,
+        "unexpected": false
+      },
+      "colorModel": {
+        "bitDepth": "uchar",
+        "channels": 4,
+        "format": "png",
+        "hasAlpha": true,
+        "space": "srgb"
+      },
+      "contamination": {
+        "ctaAutoRasterized": false,
+        "guideOverlay": false,
+        "machinePathMetadata": false,
+        "platformChrome": false,
+        "platformCopyRasterized": false,
+        "timestampMetadata": false
+      },
+      "finalPath": "artifacts/m2/golden-candidates/META_GC_VERTICAL_STORIES_V1.png",
+      "fixture": "M2_SHARED_CONCEPT_STORIES_SAFE",
+      "manifestPath": "artifacts/m2/runtime/META_GC_VERTICAL_STORIES_V1/render-manifest.json",
+      "manifestSha": "d8ffda00da9321d50c1f1c94e85b31a4d3b2ffdd147d433f28641b925a7c1195",
+      "outputMime": "image/png",
+      "outputPath": "artifacts/m2/golden-candidates/META_GC_VERTICAL_STORIES_V1.png",
+      "pixelSha": "f7669884d38c2a2a760d28729d3ac5cd9f37341e91d07acaa3619cb8ca25523a",
+      "profile": "META_STATIC_VERTICAL_FULL",
+      "ratio": "9:16",
+      "rawPixels": {
+        "channels": 4,
+        "height": 1920,
+        "width": 1080
+      },
+      "rendererPixelFingerprint": "e283a9b71b56c7033ad9810fbcdcf3b8e7020d965ebff7027a42f499035a611e",
+      "rendererRequestFingerprint": "e5b2e7f689edf7c17bbb292b5696fd40242c64e1931d5feb93cd6f1af2db7655",
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "status": "PASS",
+        "warnings": 0
+      }
+    }
+  },
+  "desktop": {
+    "e2e": "covered by tests/e2e/meta-static.spec.ts",
+    "placementSet": "META_STATIC_PLACEMENT_SET_V1",
+    "selector": "META",
+    "singleProfiles": [
+      "META_STATIC_FEED_SQUARE",
+      "META_STATIC_FEED_PORTRAIT",
+      "META_STATIC_VERTICAL_FULL"
+    ],
+    "stateSwitching": "covered by existing renderer state and M2 E2E contract"
+  },
+  "determinism": {
+    "jpeg": {
+      "artifactDigests": [
+        "d14ac98a0860c1e263a857cbe3bf8e4543045b4f4c23e22b4e46cbf71b77cc20",
+        "d14ac98a0860c1e263a857cbe3bf8e4543045b4f4c23e22b4e46cbf71b77cc20",
+        "d14ac98a0860c1e263a857cbe3bf8e4543045b4f4c23e22b4e46cbf71b77cc20"
+      ],
+      "byteEqual": true,
+      "dimensions": "1080x1350",
+      "pixelEqual": true,
+      "pixelFingerprints": [
+        "dd2011428697fbd7e4e015862a1369d8b9ffa00a7fa44f292194617a1a0a45b0",
+        "dd2011428697fbd7e4e015862a1369d8b9ffa00a7fa44f292194617a1a0a45b0",
+        "dd2011428697fbd7e4e015862a1369d8b9ffa00a7fa44f292194617a1a0a45b0"
+      ],
+      "runs": 3
+    },
+    "placementSet": {
+      "deterministic": true,
+      "fingerprint": "5851c7bcd268a62e9d49d316a0eadcd11b107e0b90475345e4136c52ca870022"
+    },
+    "png": {
+      "artifactDigests": [
+        "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba",
+        "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba",
+        "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba"
+      ],
+      "byteEqual": true,
+      "pixelEqual": true,
+      "pixelFingerprints": [
+        "2d6f26c559b4ed55559858669689957014b3dcf9c1b1cf2d2777c8e2ccfb72f1",
+        "2d6f26c559b4ed55559858669689957014b3dcf9c1b1cf2d2777c8e2ccfb72f1",
+        "2d6f26c559b4ed55559858669689957014b3dcf9c1b1cf2d2777c8e2ccfb72f1"
+      ],
+      "runs": 3
+    }
+  },
+  "m1Baseline": {
+    "kakaoPixelsChanged": false,
+    "naverPixelsChanged": false,
+    "preserved": true
+  },
+  "manualAcceptanceStatus": "NOT_REVIEWED",
+  "manualCrop": {
+    "accidentalStretch": false,
+    "applied": {
+      "actualRasterBounds": {
+        "height": 421,
+        "width": 864,
+        "x": 108,
+        "y": 271
+      },
+      "assetDigest": "fd5d6e48ebbf443f10f40af1b70091649b208bc7118f64dc3a990434915fc2fe",
+      "assetId": "hero",
+      "destinationPixelRect": {
+        "height": 498,
+        "width": 864,
+        "x": 108,
+        "y": 194
+      },
+      "elementId": "hero",
+      "elementType": "IMAGE",
+      "fitMode": "COVER",
+      "normalizedBounds": {
+        "height": 0.46,
+        "width": 0.8,
+        "x": 0.1,
+        "y": 0.18
+      },
+      "opacity": 1,
+      "originalArrayIndex": 0,
+      "placementPolicy": "MANUAL_CROP",
+      "requestedCropRect": {
+        "height": 1,
+        "width": 0.84,
+        "x": 0.08,
+        "y": 0
+      },
+      "resolvedSourceCropPixels": {
+        "height": 160,
+        "width": 220,
+        "x": 20,
+        "y": 0
+      },
+      "safeZoneImportance": "KEY_CREATIVE",
+      "zIndex": 1
+    },
+    "cropRect": {
+      "height": 1,
+      "width": 0.84,
+      "x": 0.08,
+      "y": 0
+    },
+    "deterministic": true,
+    "result": true,
+    "source": {
+      "height": 160,
+      "path": "fixtures/valid/object-right__product__basic__pass.png",
+      "width": 260
+    }
+  },
+  "missingVariant": {
+    "errors": [
+      {
+        "actual": [
+          "META_STATIC_VERTICAL_FULL"
+        ],
+        "code": "KBR-META-PLACEMENT-SET-INCOMPLETE",
+        "path": "/metaStatic/variants"
+      }
+    ],
+    "explicitMissingProfile": true,
+    "finalExportBlocked": true,
+    "status": "BLOCKED"
+  },
+  "phase": "M2_META_ARTIFACT_AUDIT_MANUAL_ACCEPTANCE_GOLDEN_CANDIDATES",
+  "placementSet": {
+    "artifactCount": 3,
+    "artifactSha": [
+      "95575b887784b27eb054bce0873e3a99fc41b692299aa827f6689604df4243ba",
+      "f5c1d4676591efe5c9dd79015bee8aa770ab5152268c8a6b69a1cf9a7c887eb3",
+      "7cf8008730915ad74c24c598356fa1a5965a0c4918dbd43f102a3efe992e03d3"
+    ],
+    "collectionFingerprint": "5851c7bcd268a62e9d49d316a0eadcd11b107e0b90475345e4136c52ca870022",
+    "deterministic": true,
+    "id": "META_STATIC_PLACEMENT_SET_V1",
+    "independentPlans": true,
+    "manifestPath": "artifacts/m2/runtime/META_GC_PLACEMENT_SET_V1/meta-placement-set-manifest.json",
+    "manifestSha": "2d7ea4a914a3e902cfe682f8ef55a8571646a6b132f1d5dcbce1670b0d53196e",
+    "order": [
+      "META_STATIC_FEED_SQUARE",
+      "META_STATIC_FEED_PORTRAIT",
+      "META_STATIC_VERTICAL_FULL"
+    ]
+  },
+  "platformCopySeparation": {
+    "embeddedTextChangeChangesPixels": true,
+    "metadataOnlyChangePreservesArtifactBytes": true,
+    "metadataOnlyChangePreservesPixelFingerprint": true,
+    "requestFingerprintChanged": true,
+    "result": "PASS"
+  },
+  "reels": {
+    "exactSafeZoneStatus": "SOURCE_REQUIRED",
+    "guessedGeometryUsed": false,
+    "render": {
+      "errors": 0,
+      "info": 1,
+      "warnings": 0
+    },
+    "result": "PASS"
+  },
+  "runtime": {
+    "absolutePathFingerprintDependency": 0,
+    "networkRequests": 0,
+    "systemFontDependency": 0
+  },
+  "sourceAssets": {
+    "logo": "fixtures/valid/mask-semicircle-right__logo__colored__pass.png",
+    "product": "fixtures/valid/object-right__product__basic__pass.png",
+    "sharedConcept": true
+  },
+  "status": "PASS",
+  "stories": {
+    "bottomExclusion": 0.2,
+    "finalArtifactClean": true,
+    "guidePath": "artifacts/m2/manual-review/04-vertical-stories-guide.png",
+    "guidePreview": "PASS",
+    "safe": {
+      "errors": 0,
+      "result": true,
+      "warnings": 0
+    },
+    "topExclusion": 0.14,
+    "warning": {
+      "errors": 0,
+      "result": true,
+      "warnings": 1
+    }
+  },
+  "typography": {
+    "clippingErrors": 0,
+    "fallbackUsed": false,
+    "fontDigests": [],
+    "fontIds": [
+      "SPOQA_HAN_SANS_BOLD",
+      "SPOQA_HAN_SANS_REGULAR"
+    ],
+    "mixedLanguageFixture": "오늘의 공간 / Today’s space",
+    "multilineFixture": true,
+    "rendererOwnedFontsOnly": true
+  }
+}

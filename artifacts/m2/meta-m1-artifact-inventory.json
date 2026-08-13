@@ -1,0 +1,90 @@
+{
+  "fixtures": {
+    "feed_portrait": {
+      "artifactSha": "85c5086c6354a1a12898a8cb8412623055e662d8fd3fd24d0cfd46d551bb5e95",
+      "fixture": "fixtures/meta/feed-portrait/meta-feed-portrait-basic.json",
+      "manifest": "artifacts/m2/runtime/m1/feed_portrait/feed_portrait/render-manifest.json",
+      "manifestSha": "266e307b070480bc1360c708dbd62827906ef342b53c916dd08019a63052e357",
+      "output": "artifacts/m2/runtime/m1/feed_portrait/feed_portrait/output.jpg",
+      "pixelFingerprint": "8403413c0ec0fafef2c748300419124c334e12139f60776e235a08fe7d46d091",
+      "status": "PASS",
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "warnings": 0
+      }
+    },
+    "feed_square": {
+      "artifactSha": "36a1ef405a1ec7b52b69a16e5cfb866e4582f74f35eff1426630d92d41158f54",
+      "fixture": "fixtures/meta/feed-square/meta-feed-square-basic.json",
+      "manifest": "artifacts/m2/runtime/m1/feed_square/feed_square/render-manifest.json",
+      "manifestSha": "de1b37c57ece95ba7ca1c7072792a3d4b26ed7ba97be0710c230f009d68ea596",
+      "output": "artifacts/m2/runtime/m1/feed_square/feed_square/output.png",
+      "pixelFingerprint": "f7993c7268bf81ecf7896cc2eb52991c5db9f911aa01976a22d7f906a1a2a65b",
+      "status": "PASS",
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "warnings": 0
+      }
+    },
+    "placement_set": {
+      "artifactSha": "6b940ebd662541ad0002dd2d53c539e700ff7c206c66db1aa3f66794b2c52ffa",
+      "fixture": "fixtures/meta/placement-set/meta-placement-set-basic.json",
+      "manifest": "artifacts/m2/runtime/m1/placement_set/placement_set/meta-placement-set-manifest.json",
+      "manifestSha": "f182778cbea8a2797ac68ed7362e0678b6bfa981d9eaf1a672b269eeb289101e",
+      "output": "artifacts/m2/runtime/m1/placement_set/placement_set/META_STATIC_FEED_SQUARE.png",
+      "pixelFingerprint": "b6a90a36af22344872403ce1c648450d120b02e3ef60d80eeba2f73eecbfccd7",
+      "status": "PASS",
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "warnings": 0
+      }
+    },
+    "vertical_reels": {
+      "artifactSha": "d39869f9070f6429699a5443dc800af99b889c5aa2cf31ff7dfc081eff050758",
+      "fixture": "fixtures/meta/vertical/meta-vertical-reels.json",
+      "manifest": "artifacts/m2/runtime/m1/vertical_reels/vertical_reels/render-manifest.json",
+      "manifestSha": "45db55469097882d21d1281d6627b0d717e717e91a86d4dc2e42318062d668de",
+      "output": "artifacts/m2/runtime/m1/vertical_reels/vertical_reels/output.png",
+      "pixelFingerprint": "f7e9909c3f7bc7a9620ead87b023364cebd0ec8560e8bf028c6ef8088f4aab5b",
+      "status": "PASS",
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "warnings": 0
+      }
+    },
+    "vertical_stories_safe": {
+      "artifactSha": "18360d965908632d60affb9a3cc0787880eac69649893e2f678b20c501f09e40",
+      "fixture": "fixtures/meta/vertical/meta-vertical-stories-safe.json",
+      "manifest": "artifacts/m2/runtime/m1/vertical_stories_safe/vertical_stories_safe/render-manifest.json",
+      "manifestSha": "63cd036e2f4a0c971d58764bd451ffb5f32b27db13c0cbc5e4bcf463034edf96",
+      "output": "artifacts/m2/runtime/m1/vertical_stories_safe/vertical_stories_safe/output.png",
+      "pixelFingerprint": "85c5e9ab83d054193822770c9817a831126ffa1dbc2b36e899a4b1de644a4442",
+      "status": "PASS",
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "warnings": 0
+      }
+    },
+    "vertical_stories_warning": {
+      "artifactSha": "618dbb56b3dc786bc26f4ee093df9daceac086dba13ff1ad5045f5ca3f988adb",
+      "fixture": "fixtures/meta/vertical/meta-vertical-stories-warning.json",
+      "manifest": "artifacts/m2/runtime/m1/vertical_stories_warning/vertical_stories_warning/render-manifest.json",
+      "manifestSha": "49a0a096c85852252bd0bf4d0246aa351c35edd4b577b890796706fdfb1ce344",
+      "output": "artifacts/m2/runtime/m1/vertical_stories_warning/vertical_stories_warning/output.png",
+      "pixelFingerprint": "dff859e807643cf7d8dd16aca0ee22b6efcd635df424dec731928dfc85444e5f",
+      "status": "PASS",
+      "validator": {
+        "errors": 0,
+        "info": 0,
+        "warnings": 1
+      }
+    }
+  },
+  "phase": "M2_META_ARTIFACT_AUDIT_MANUAL_ACCEPTANCE_GOLDEN_CANDIDATES",
+  "status": "PASS"
+}

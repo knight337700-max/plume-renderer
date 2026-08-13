@@ -1,0 +1,58 @@
+{
+  "accidentalStretch": false,
+  "applied": {
+    "actualRasterBounds": {
+      "height": 421,
+      "width": 864,
+      "x": 108,
+      "y": 271
+    },
+    "assetDigest": "fd5d6e48ebbf443f10f40af1b70091649b208bc7118f64dc3a990434915fc2fe",
+    "assetId": "hero",
+    "destinationPixelRect": {
+      "height": 498,
+      "width": 864,
+      "x": 108,
+      "y": 194
+    },
+    "elementId": "hero",
+    "elementType": "IMAGE",
+    "fitMode": "COVER",
+    "normalizedBounds": {
+      "height": 0.46,
+      "width": 0.8,
+      "x": 0.1,
+      "y": 0.18
+    },
+    "opacity": 1,
+    "originalArrayIndex": 0,
+    "placementPolicy": "MANUAL_CROP",
+    "requestedCropRect": {
+      "height": 1,
+      "width": 0.84,
+      "x": 0.08,
+      "y": 0
+    },
+    "resolvedSourceCropPixels": {
+      "height": 160,
+      "width": 220,
+      "x": 20,
+      "y": 0
+    },
+    "safeZoneImportance": "KEY_CREATIVE",
+    "zIndex": 1
+  },
+  "cropRect": {
+    "height": 1,
+    "width": 0.84,
+    "x": 0.08,
+    "y": 0
+  },
+  "deterministic": true,
+  "result": true,
+  "source": {
+    "height": 160,
+    "path": "fixtures/valid/object-right__product__basic__pass.png",
+    "width": 260
+  }
+}

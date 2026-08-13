@@ -1,0 +1,11 @@
+{
+  "e2e": "covered by tests/e2e/meta-static.spec.ts",
+  "placementSet": "META_STATIC_PLACEMENT_SET_V1",
+  "selector": "META",
+  "singleProfiles": [
+    "META_STATIC_FEED_SQUARE",
+    "META_STATIC_FEED_PORTRAIT",
+    "META_STATIC_VERTICAL_FULL"
+  ],
+  "stateSwitching": "covered by existing renderer state and M2 E2E contract"
+}

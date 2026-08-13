@@ -1,0 +1,10 @@
+{
+  "exactSafeZoneStatus": "SOURCE_REQUIRED",
+  "guessedGeometryUsed": false,
+  "render": {
+    "errors": 0,
+    "info": 1,
+    "warnings": 0
+  },
+  "result": "PASS"
+}

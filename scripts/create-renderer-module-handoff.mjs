@@ -159,6 +159,9 @@ const m1Determinism = JSON.parse(await readFile(path.join(root, "artifacts/m1/me
 const m1PlacementSetAudit = JSON.parse(await readFile(path.join(root, "artifacts/m1/meta-placement-set-audit.json"), "utf8"));
 const m1Regression = JSON.parse(await readFile(path.join(root, "artifacts/m1/meta-regression.json"), "utf8"));
 const m1PackageSmoke = JSON.parse(await readFile(path.join(root, "artifacts/m1/meta-package-smoke.json"), "utf8"));
+const m2ArtifactAudit = JSON.parse(await readFile(path.join(root, "artifacts/m2/meta-artifact-audit.json"), "utf8"));
+const m2CandidateRegistry = JSON.parse(await readFile(path.join(root, "contracts/audits/meta-golden-candidates-m2.json"), "utf8"));
+const m2Regression = JSON.parse(await readFile(path.join(root, "artifacts/m2/meta-regression.json"), "utf8"));
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -206,6 +209,7 @@ build, test, and later phase development. The source repository remains unchange
 - NAVER SmartChannel N7.8: six representative Goldens rebased from the corrected production runtime, 120-template three-run validation, intentional text-only diff scope, non-SmartChannel freeze, and final package QA; result: ${finalBaselineAudit.phase.status}
 - NAVER N8: eight placements inventoried and contract-driven in Desktop; representative preview/validator/export evidence covers renderer-composed, platform-composed, and ordered collection outputs. SmartChannel remains frozen; matrix: ${n8DesktopMatrix.status}, parity: ${n8ContractParity.status}, E2E: ${n8E2eSummary.status}
 - META M1: renderer-composed 1080x1080, 1080x1350, and 1080x1920 project presets using the existing FREEFORM Core, platform-copy metadata separation, Stories warning guide, Reels source-required INFO, and deterministic placement-set collection output. Official refresh: ${m1OfficialSourceRefresh.status}, presets: ${m1PixelPresets.status}, Desktop parity: ${m1DesktopParity.status}, placement set: ${m1PlacementSetAudit.status}
+- META M2: artifact audit, independent 1:1/4:5/9:16 candidate outputs, Stories guide separation, Reels SOURCE_REQUIRED INFO, Placement Set determinism, and manual-review evidence. Audit: ${m2ArtifactAudit.status}, candidates: ${m2CandidateRegistry.status}, regression: ${m2Regression.status}, manual acceptance: ${m2CandidateRegistry.manualAcceptanceStatus}
 - META M0: official-source-only discovery and composition boundary remain preserved as the prior audit baseline (${m0OfficialSourceAudit.status}).
 - Meta unsupported scope: carousel, catalog, dynamic, and video remain out of M1 static runtime scope.
 - Google: not implemented
@@ -246,9 +250,10 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is M1 and the canonical document is v1.22.0. M1 implements the three project output presets,
+The latest phase is M2 and the canonical document is v1.22.0. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
-The official Meta pixel-size claims remain separate from project output presets; manual acceptance remains NOT_REVIEWED. N8 remains the
+The official Meta pixel-size claims remain separate from project output presets; M2 audits real META artifacts and creates
+non-approved golden candidates; manual acceptance remains NOT_REVIEWED and final golden freeze remains false. N8 remains the
 frozen NAVER channel completion baseline and N7.8 remains
 the immutable SmartChannel freeze baseline. N8 reuses existing capabilities, completes format-level Desktop acceptance,
 and records its inventory, matrix, E2E outputs, regressions, package, and handoff under artifacts/n8/. N7.6 remains
@@ -299,7 +304,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "M1_META_STATIC_ASSET_PROFILES_PLACEMENT_SET_RENDERER",
+  handoffPhase: "M2_META_ARTIFACT_AUDIT_MANUAL_ACCEPTANCE_GOLDEN_CANDIDATES",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -314,9 +319,9 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseM1.rendererCoreVersion,
-    validator: canonicalDocument.canonicalPhaseM1.validatorCurrent,
-    desktop: canonicalDocument.canonicalPhaseM1.desktopCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseM2.rendererCoreVersion,
+    validator: canonicalDocument.canonicalPhaseM2.validatorCurrent,
+    desktop: canonicalDocument.canonicalPhaseM2.desktopCurrent,
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
@@ -331,13 +336,18 @@ const manifest = {
       platformCopyPixels: canonicalDocument.canonicalPhaseM1.platformCopyPixels,
       storiesSafeZone: canonicalDocument.canonicalPhaseM1.storiesSafeZone,
       reelsSafeZone: canonicalDocument.canonicalPhaseM1.reelsSafeZone,
-      manualAcceptanceStatus: canonicalDocument.canonicalPhaseM1.manualAcceptanceStatus,
+      manualAcceptanceStatus: canonicalDocument.canonicalPhaseM2.manualAcceptanceStatus,
+      m2ArtifactAuditStatus: canonicalDocument.canonicalPhaseM2.artifactAuditStatus,
+      goldenCandidateStatus: canonicalDocument.canonicalPhaseM2.goldenCandidateStatus,
+      finalGoldenFrozen: canonicalDocument.canonicalPhaseM2.finalGoldenFrozen,
       evidence: {
         fontInventory: m1FontInventory.status,
         validatorAudit: m1ValidatorAudit.status,
         determinism: m1Determinism.status,
         regression: m1Regression.status,
         packageSmoke: m1PackageSmoke.status,
+        m2ArtifactAudit: m2ArtifactAudit.status,
+        m2Regression: m2Regression.status,
       },
     },
   },
@@ -523,6 +533,24 @@ const manifest = {
     m1PackageSmoke: "artifacts/m1/meta-package-smoke.json",
     m1ImplementationRecord: "docs/implementation/meta-static-asset-profiles-placement-set-renderer-m1.md",
     m1Verifier: "scripts/verify-m1-meta-static.mjs",
+    m2ArtifactAudit: "artifacts/m2/meta-artifact-audit.json",
+    m2ArtifactInventory: "artifacts/m2/meta-m1-artifact-inventory.json",
+    m2CandidateRegistry: "contracts/audits/meta-golden-candidates-m2.json",
+    m2ManualReviewPackage: "artifacts/m2/manual-review",
+    m2GoldenCandidates: "artifacts/m2/golden-candidates",
+    m2ImplementationRecord: "docs/implementation/meta-artifact-audit-golden-candidates-m2.md",
+    m2Verifier: "scripts/verify-m2-meta-static.mjs",
+  },
+  m2MetaArtifactAudit: {
+    status: m2ArtifactAudit.status,
+    manualAcceptanceStatus: m2CandidateRegistry.manualAcceptanceStatus,
+    goldenCandidateStatus: m2CandidateRegistry.status,
+    finalGoldenFrozen: m2CandidateRegistry.finalGoldenFrozen,
+    candidateCount: m2CandidateRegistry.candidates.length,
+    artifactAudit: "artifacts/m2/meta-artifact-audit.json",
+    candidateRegistry: "contracts/audits/meta-golden-candidates-m2.json",
+    reviewPackage: "artifacts/m2/manual-review",
+    regression: m2Regression.status,
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

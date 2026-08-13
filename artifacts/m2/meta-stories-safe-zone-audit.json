@@ -1,0 +1,17 @@
+{
+  "bottomExclusion": 0.2,
+  "finalArtifactClean": true,
+  "guidePath": "artifacts/m2/manual-review/04-vertical-stories-guide.png",
+  "guidePreview": "PASS",
+  "safe": {
+    "errors": 0,
+    "result": true,
+    "warnings": 0
+  },
+  "topExclusion": 0.14,
+  "warning": {
+    "errors": 0,
+    "result": true,
+    "warnings": 1
+  }
+}
