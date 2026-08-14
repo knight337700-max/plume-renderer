@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "0.1.0",
+  "registryVersion": "0.1.0",
+  "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
+  "status": "PROPOSED_NOT_RUNTIME",
+  "contracts": [
+    {
+      "capabilityId": "GOOGLE_RDA_ASSET_SET",
+      "compositionMode": "PLATFORM_COMPOSED",
+      "lifecycle": "TRANSITIONAL",
+      "marketingImageCombinedMaximum": 15,
+      "logoCombinedMaximum": 5,
+      "roles": [
+        { "role": "LANDSCAPE_MARKETING_IMAGE", "required": true, "min": 1, "max": 15, "profileId": "GOOGLE_MARKETING_LANDSCAPE_1_91" },
+        { "role": "SQUARE_MARKETING_IMAGE", "required": true, "min": 1, "max": 15, "profileId": "GOOGLE_MARKETING_SQUARE_1_1" },
+        { "role": "VERTICAL_MARKETING_IMAGE", "required": false, "min": 0, "max": 15, "profileId": "GOOGLE_RDA_VERTICAL_9_16", "sourceStatus": "SOURCE_DISCREPANCY" },
+        { "role": "SQUARE_LOGO", "required": false, "min": 0, "max": 5, "profileId": "GOOGLE_LOGO_SQUARE_1_1" },
+        { "role": "LANDSCAPE_LOGO", "required": false, "min": 0, "max": 5, "profileId": "GOOGLE_LOGO_LANDSCAPE_4_1" }
+      ],
+      "platformFields": [
+        { "field": "SHORT_HEADLINE", "min": 1, "max": 5, "maxCharacters": 30 },
+        { "field": "LONG_HEADLINE", "min": 1, "max": 1, "maxCharacters": 90 },
+        { "field": "DESCRIPTION", "min": 1, "max": 5, "maxCharacters": 90 },
+        { "field": "BUSINESS_NAME", "min": 1, "max": 1, "maxCharacters": 25 },
+        { "field": "CTA", "ownership": "GOOGLE_PLATFORM" },
+        { "field": "FINAL_URL", "ownership": "GOOGLE_PLATFORM" }
+      ],
+      "sourceRuleIds": ["GGL-RDA-001", "GGL-RDA-002", "GGL-RDA-003"]
+    },
+    {
+      "capabilityId": "GOOGLE_PMAX_ASSET_GROUP_STATIC",
+      "compositionMode": "PLATFORM_COMPOSED",
+      "lifecycle": "ACTIVE",
+      "roles": [
+        { "role": "HEADLINE", "required": true, "min": 3, "max": 15, "maxCharacters": 30 },
+        { "role": "LONG_HEADLINE", "required": true, "min": 1, "max": 5, "maxCharacters": 90 },
+        { "role": "DESCRIPTION", "required": true, "min": 2, "max": 5, "maxCharacters": 90 },
+        { "role": "MARKETING_IMAGE", "required": true, "min": 1, "max": 20, "profileId": "GOOGLE_MARKETING_LANDSCAPE_1_91" },
+        { "role": "SQUARE_MARKETING_IMAGE", "required": true, "min": 1, "max": 20, "profileId": "GOOGLE_MARKETING_SQUARE_1_1" },
+        { "role": "PORTRAIT_MARKETING_IMAGE", "required": false, "min": 0, "max": 20, "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5" },
+        { "role": "CALL_TO_ACTION_SELECTION", "required": false, "min": 0, "max": 1 }
+      ],
+      "brandAssociationModes": [
+        {
+          "brandGuidelinesEnabled": true,
+          "associationLevel": "CampaignAsset",
+          "businessName": { "min": 1, "max": 1 },
+          "logo": { "min": 1, "max": 5, "profileId": "GOOGLE_LOGO_SQUARE_1_1" }
+        },
+        {
+          "brandGuidelinesEnabled": false,
+          "associationLevel": "AssetGroupAsset",
+          "businessName": { "min": 1, "max": 1 },
+          "logo": { "min": 1, "max": 5, "profileId": "GOOGLE_LOGO_SQUARE_1_1" },
+          "landscapeLogoOptional": true
+        }
+      ],
+      "conservativeLogoMaximum": 5,
+      "sourceRuleIds": ["GGL-PMAX-001", "GGL-PMAX-002", "GGL-PMAX-003", "GGL-PMAX-004"]
+    },
+    {
+      "capabilityId": "GOOGLE_DEMAND_GEN_SINGLE_IMAGE",
+      "compositionMode": "PLATFORM_COMPOSED",
+      "lifecycle": "ACTIVE_EVOLVING",
+      "roles": [
+        { "role": "HORIZONTAL_IMAGE", "required": true, "min": 1, "max": 20, "profileId": "GOOGLE_MARKETING_LANDSCAPE_1_91" },
+        { "role": "SQUARE_IMAGE", "required": true, "min": 1, "max": 20, "profileId": "GOOGLE_MARKETING_SQUARE_1_1" },
+        { "role": "PORTRAIT_IMAGE", "required": false, "min": 0, "max": 20, "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5" },
+        { "role": "TALL_PORTRAIT_IMAGE", "required": false, "min": 0, "max": 20, "profileId": "GOOGLE_DEMAND_GEN_VERTICAL_9_16" },
+        { "role": "SQUARE_LOGO", "required": true, "min": 1, "max": 5, "profileId": "GOOGLE_LOGO_SQUARE_1_1", "minimumSourceDiscrepancy": [128, 144] }
+      ],
+      "platformFields": ["HEADLINE", "DESCRIPTION", "BUSINESS_NAME", "CTA", "FINAL_URL"],
+      "safeZone": { "status": "SOURCE_REQUIRED", "blocking": false },
+      "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"]
+    },
+    {
+      "capabilityId": "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC",
+      "compositionMode": "RENDERER_COMPOSED",
+      "lifecycle": "ACTIVE_EVOLVING",
+      "roles": [
+        { "role": "UPLOADED_DISPLAY_STATIC", "required": true, "min": 1, "max": 20, "presetSource": "contracts/google/asset-geometry.g0.json" }
+      ],
+      "mime": ["image/png", "image/jpeg"],
+      "gif": { "acceptedByPlatform": true, "rendererEmission": false, "animated": false },
+      "projectMaxBytes": 150000,
+      "platformFields": ["FINAL_URL"],
+      "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"]
+    },
+    {
+      "capabilityId": "GOOGLE_LEGACY_UPLOADED_DISPLAY_STATIC",
+      "compositionMode": "RENDERER_COMPOSED",
+      "lifecycle": "TRANSITIONAL",
+      "roles": [
+        { "role": "UPLOADED_DISPLAY_STATIC", "required": true, "min": 1, "max": 20, "canvasSource": "legacyDisplaySupportedCanvases" }
+      ],
+      "mime": ["image/png", "image/jpeg"],
+      "projectMaxBytes": 150000,
+      "platformFields": ["FINAL_URL"],
+      "sourceRuleIds": ["GGL-UPLOAD-001", "GGL-LIFECYCLE-001"]
+    }
+  ],
+  "deferredContracts": [
+    { "capabilityId": "GOOGLE_DEMAND_GEN_CAROUSEL", "reason": "carousel assembly and interaction UI are platform-owned" },
+    { "capabilityId": "GOOGLE_SEARCH_IMAGE_ASSET", "reason": "G1 discovery-only scope" }
+  ],
+  "validationLayers": {
+    "artifact": { "blocking": true, "diagnostics": ["KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", "KBR-GOOGLE-ASSET-CANVAS-MISMATCH", "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED", "KBR-GOOGLE-ASSET-BYTES-EXCEEDED"] },
+    "deliverySet": { "blocking": true, "diagnostics": ["KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING", "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED", "KBR-GOOGLE-TEXT-LIMIT-EXCEEDED", "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH"] },
+    "platformIntegration": { "blocking": false, "owner": "GOOGLE_PLATFORM" }
+  }
+}

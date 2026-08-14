@@ -205,6 +205,14 @@ const m2_3EvidenceFiles = [
 ];
 const m2_3Evidence = Object.fromEntries(await Promise.all(m2_3EvidenceFiles.map(async (fileName) => [fileName, JSON.parse(await readFile(path.join(root, "artifacts/m2-3", fileName), "utf8"))])));
 const m2_3VerificationStatus = m2_3GoldenRegistry.status === "APPROVED_FROZEN" && m2_3GoldenRegistry.manualAcceptance?.status === "APPROVED" && m2_3GoldenRegistry.finalGoldenFrozen === true && m2_3GoldenRegistry.entries?.length === 4 && m2_3EvidenceFiles.every((fileName) => m2_3Evidence[fileName].status === "PASS") ? "PASS" : "FAIL";
+const g0GoogleArchitecture = JSON.parse(await readFile(path.join(root, "contracts/google/architecture.g0.json"), "utf8"));
+const g0GoogleCapabilities = JSON.parse(await readFile(path.join(root, "contracts/google/capabilities.g0.json"), "utf8"));
+const g0GoogleAssetGeometry = JSON.parse(await readFile(path.join(root, "contracts/google/asset-geometry.g0.json"), "utf8"));
+const g0GoogleDeliveryContracts = JSON.parse(await readFile(path.join(root, "contracts/google/delivery-contracts.g0.json"), "utf8"));
+const g0GoogleProvenance = JSON.parse(await readFile(path.join(root, "contracts/google/provenance.g0.json"), "utf8"));
+const g0GoogleDiagnostics = JSON.parse(await readFile(path.join(root, "contracts/google/diagnostics.g0.json"), "utf8"));
+const g0GoogleVerification = JSON.parse(await readFile(path.join(root, "artifacts/g0/google-static-discovery-verification.json"), "utf8"));
+const g0GoogleVerificationStatus = g0GoogleArchitecture.status === "FREEZE_CANDIDATE" && g0GoogleArchitecture.repositoryApplication === "APPLIED_ARCHITECTURE_ONLY" && g0GoogleVerification.status === "PASS" && g0GoogleCapabilities.runtimeEnabled === false && g0GoogleDiagnostics.activeRuntimeRegistration === false ? "PASS" : "FAIL";
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -219,7 +227,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — M2.3 META user visual acceptance and Golden freeze handoff
+const readme = `# Renderer Module — G0 Google Ads static discovery architecture handoff
 
 ## Purpose
 
@@ -260,7 +268,7 @@ build, test, and later phase development. The source repository remains unchange
 - META M2.3: user visual acceptance and final Golden freeze for the current META static image scope. Registry: ${m2_3VerificationStatus}, approved entries: ${m2_3GoldenRegistry.entries.length}, manual acceptance: ${m2_3GoldenRegistry.manualAcceptance.status}, finalGoldenFrozen: ${m2_3GoldenRegistry.finalGoldenFrozen}, Stories safe-zone guide and Reels SOURCE_REQUIRED semantics preserved.
 - META M0: official-source-only discovery and composition boundary remain preserved as the prior audit baseline (${m0OfficialSourceAudit.status}).
 - Meta unsupported scope: carousel, catalog, dynamic, and video remain out of M1 static runtime scope.
-- Google: not implemented
+- Google G0: architecture-only capability boundary; official-source provenance: ${g0GoogleProvenance.status}, architecture: ${g0GoogleArchitecture.status}, verification: ${g0GoogleVerificationStatus}. Runtime profiles: ${g0GoogleArchitecture.implementation.runtimeProfilesAdded}, renderer code: ${g0GoogleArchitecture.implementation.rendererCodeAdded}, Validator runtime: ${g0GoogleArchitecture.implementation.validatorRuntimeAdded}, Goldens: ${g0GoogleArchitecture.implementation.goldensAdded}, Desktop UI: ${g0GoogleArchitecture.implementation.desktopUiAdded}, upload integration: ${g0GoogleArchitecture.implementation.uploadIntegrationAdded}. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; uploaded Display static remains RENDERER_COMPOSED; every image is SINGLE and delivery sets are separate COLLECTION manifests.
 
 ## Directories
 
@@ -298,7 +306,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is M2.3 and the canonical document is v1.23.1. M1 implements the three project output presets,
+The latest phase is G0 Google Ads static discovery and architecture and the canonical document is v1.23.1. G0 is architecture-only: it adds no Google runtime profile, renderer code, Validator behavior, Desktop UI, Golden, or upload integration. The six machine-readable Google records under contracts/google/, the G0 verification evidence, implementation record, and ADR are the source of the next G1 gate. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
@@ -344,7 +352,7 @@ scripts/verify-n7-7-6-smartchannel-text-input-fields.mjs, and artifacts/n7-7-6/.
 contracts/audits/naver-smartchannel-final-baseline-n7-8.json,
 docs/implementation/naver-smartchannel-final-baseline-n7-8.md,
 scripts/verify-n7-8-smartchannel-final-baseline.mjs, and artifacts/n7-8/. The corrected SmartChannel
-runtime is frozen and ready as the baseline for the next channel work.
+runtime is frozen and ready as the baseline for the next channel work. G1 is the next Google phase and must preserve the composition boundary, source provenance, unresolved-rule fail-closed behavior, zero runtime network access, and KAKAO/NAVER/META frozen outputs.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
 const readmeEntry = files.find((entry) => entry.path === "README.md");
@@ -352,7 +360,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "M2_3_META_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE",
+  handoffPhase: "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -371,6 +379,23 @@ const manifest = {
     validator: canonicalDocument.canonicalPhaseM2_3.validatorCurrent,
     desktop: canonicalDocument.canonicalPhaseM2_3.desktopCurrent,
     package: canonicalDocument.canonicalPhaseM2_3.packageCurrent,
+    googleStatic: {
+      architectureVersion: canonicalDocument.canonicalPhaseG0Google.googleArchitectureVersion,
+      capabilityRegistry: canonicalDocument.canonicalPhaseG0Google.googleCapabilityRegistry,
+      assetGeometry: canonicalDocument.canonicalPhaseG0Google.googleAssetGeometryRegistry,
+      deliveryContracts: canonicalDocument.canonicalPhaseG0Google.googleDeliveryContracts,
+      provenance: canonicalDocument.canonicalPhaseG0Google.googleProvenance,
+      diagnostics: canonicalDocument.canonicalPhaseG0Google.googleDiagnostics,
+      runtimeProfilesAdded: canonicalDocument.canonicalPhaseG0Google.runtimeProfilesAdded,
+      rendererCodeAdded: canonicalDocument.canonicalPhaseG0Google.rendererCodeAdded,
+      validatorRuntimeAdded: canonicalDocument.canonicalPhaseG0Google.validatorRuntimeAdded,
+      goldensAdded: canonicalDocument.canonicalPhaseG0Google.goldensAdded,
+      desktopUiAdded: canonicalDocument.canonicalPhaseG0Google.desktopUiAdded,
+      uploadIntegrationAdded: canonicalDocument.canonicalPhaseG0Google.uploadIntegrationAdded,
+      status: g0GoogleVerificationStatus,
+      architectureStatus: g0GoogleArchitecture.status,
+      repositoryApplication: g0GoogleArchitecture.repositoryApplication,
+    },
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
@@ -678,6 +703,17 @@ const manifest = {
     m2_3ImplementationRecord: "docs/implementation/meta-user-visual-acceptance-golden-freeze-m2-3.md",
     m2_3Verifier: "scripts/verify-m2-3-meta-goldens.mjs",
     m2_3Generator: "scripts/generate-m2-3-meta-goldens.mjs",
+    g0GoogleArchitecture: "contracts/google/architecture.g0.json",
+    g0GoogleCapabilities: "contracts/google/capabilities.g0.json",
+    g0GoogleAssetGeometry: "contracts/google/asset-geometry.g0.json",
+    g0GoogleDeliveryContracts: "contracts/google/delivery-contracts.g0.json",
+    g0GoogleProvenance: "contracts/google/provenance.g0.json",
+    g0GoogleDiagnostics: "contracts/google/diagnostics.g0.json",
+    g0GoogleEvidenceDirectory: "artifacts/g0",
+    g0GoogleVerification: "artifacts/g0/google-static-discovery-verification.json",
+    g0GoogleImplementationRecord: "docs/implementation/google-ads-static-discovery-architecture-g0.md",
+    g0GoogleAdr: "docs/adr/ADR-0058-google-static-capability-boundary-g0.md",
+    g0GoogleVerifier: "scripts/verify-g0-google-static.mjs",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -762,6 +798,41 @@ const manifest = {
     evidenceDirectory: "artifacts/m2-3",
     implementationRecord: "docs/implementation/meta-user-visual-acceptance-golden-freeze-m2-3.md",
     verifier: "scripts/verify-m2-3-meta-goldens.mjs",
+  },
+  g0GoogleStaticDiscovery: {
+    phase: g0GoogleArchitecture.phase,
+    status: g0GoogleVerificationStatus,
+    architectureStatus: g0GoogleArchitecture.status,
+    repositoryApplication: g0GoogleArchitecture.repositoryApplication,
+    baselineCommit: g0GoogleArchitecture.baseline.sourceCommitSha,
+    sourcePolicy: g0GoogleProvenance.sourcePolicy,
+    sourceCount: g0GoogleProvenance.sources.length,
+    unresolvedRuleCount: g0GoogleProvenance.unresolvedRules.length,
+    capabilityCount: g0GoogleCapabilities.capabilities.length,
+    artifactCardinality: "SINGLE",
+    deliveryCardinality: "COLLECTION",
+    demandGenUploadedPresetCount: g0GoogleAssetGeometry.uploadedDisplayPresets.demandGenRecommendedSubset.length,
+    legacyDisplayCanvasCount: g0GoogleAssetGeometry.uploadedDisplayPresets.legacyDisplaySupportedCanvases.length,
+    diagnosticsStatus: g0GoogleDiagnostics.status,
+    diagnosticsActive: g0GoogleDiagnostics.activeRuntimeRegistration,
+    runtimeProfilesAdded: g0GoogleArchitecture.implementation.runtimeProfilesAdded,
+    rendererCodeAdded: g0GoogleArchitecture.implementation.rendererCodeAdded,
+    validatorRuntimeAdded: g0GoogleArchitecture.implementation.validatorRuntimeAdded,
+    goldensAdded: g0GoogleArchitecture.implementation.goldensAdded,
+    desktopUiAdded: g0GoogleArchitecture.implementation.desktopUiAdded,
+    uploadIntegrationAdded: g0GoogleArchitecture.implementation.uploadIntegrationAdded,
+    runtimeNetworkAccess: g0GoogleArchitecture.implementation.runtimeNetworkAccess,
+    plumeDependencies: g0GoogleArchitecture.implementation.plumeDependencies,
+    architectureRecord: "contracts/google/architecture.g0.json",
+    capabilityRegistry: "contracts/google/capabilities.g0.json",
+    assetGeometryRegistry: "contracts/google/asset-geometry.g0.json",
+    deliveryContracts: "contracts/google/delivery-contracts.g0.json",
+    provenance: "contracts/google/provenance.g0.json",
+    diagnostics: "contracts/google/diagnostics.g0.json",
+    evidence: "artifacts/g0/google-static-discovery-verification.json",
+    implementationRecord: "docs/implementation/google-ads-static-discovery-architecture-g0.md",
+    adr: "docs/adr/ADR-0058-google-static-capability-boundary-g0.md",
+    nextPhase: "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION",
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "0.1.0",
+  "registryVersion": "0.1.0",
+  "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
+  "status": "PROPOSED_NOT_RUNTIME",
+  "projectPresetPolicy": "Project output presets are explicit Renderer decisions and are not mandatory Google pixel-size claims.",
+  "rendererOutputMime": ["image/png", "image/jpeg"],
+  "profiles": [
+    {
+      "profileId": "GOOGLE_MARKETING_LANDSCAPE_1_91",
+      "role": "MARKETING_IMAGE",
+      "officialRatio": { "width": 1.91, "height": 1 },
+      "officialMinimumPixels": { "width": 600, "height": 314 },
+      "officialRecommendedPixels": { "width": 1200, "height": 628 },
+      "projectOutputPreset": { "width": 1200, "height": 628 },
+      "projectMaxBytesByTarget": { "RDA": 5120000, "PMAX": 5120000, "DEMAND_GEN": 5000000 },
+      "sourceRuleIds": ["GGL-RDA-001", "GGL-RDA-002", "GGL-PMAX-001", "GGL-DG-001"],
+      "status": "PROPOSED_NOT_RUNTIME"
+    },
+    {
+      "profileId": "GOOGLE_MARKETING_SQUARE_1_1",
+      "role": "SQUARE_MARKETING_IMAGE",
+      "officialRatio": { "width": 1, "height": 1 },
+      "officialMinimumPixels": { "width": 300, "height": 300 },
+      "officialRecommendedPixels": { "width": 1200, "height": 1200 },
+      "projectOutputPreset": { "width": 1200, "height": 1200 },
+      "projectMaxBytesByTarget": { "RDA": 5120000, "PMAX": 5120000, "DEMAND_GEN": 5000000 },
+      "sourceRuleIds": ["GGL-RDA-001", "GGL-RDA-002", "GGL-PMAX-001", "GGL-DG-001"],
+      "sourceDiscrepancy": "One RDA table says 600x600 while other guidance recommends 1200x1200.",
+      "status": "PROPOSED_NOT_RUNTIME"
+    },
+    {
+      "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5",
+      "role": "PORTRAIT_MARKETING_IMAGE",
+      "officialRatio": { "width": 4, "height": 5 },
+      "officialMinimumPixels": { "width": 480, "height": 600 },
+      "officialRecommendedPixels": { "width": 960, "height": 1200 },
+      "projectOutputPreset": { "width": 960, "height": 1200 },
+      "projectMaxBytesByTarget": { "PMAX": 5120000, "DEMAND_GEN": 5000000 },
+      "sourceRuleIds": ["GGL-PMAX-001", "GGL-DG-001"],
+      "status": "PROPOSED_NOT_RUNTIME"
+    },
+    {
+      "profileId": "GOOGLE_RDA_VERTICAL_9_16",
+      "role": "TALL_PORTRAIT_MARKETING_IMAGE",
+      "officialRatio": { "width": 9, "height": 16 },
+      "officialMinimumPixels": { "width": 600, "height": 1067 },
+      "officialRecommendedPixels": { "width": 900, "height": 1600 },
+      "projectOutputPreset": { "width": 900, "height": 1600 },
+      "projectMaxBytesByTarget": { "RDA": 5120000 },
+      "sourceRuleIds": ["GGL-RDA-002"],
+      "sourceStatus": "SOURCE_DISCREPANCY",
+      "g1Required": false,
+      "status": "PROPOSED_NOT_RUNTIME"
+    },
+    {
+      "profileId": "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+      "role": "TALL_PORTRAIT_MARKETING_IMAGE",
+      "officialRatio": { "width": 9, "height": 16 },
+      "officialMinimumPixels": { "width": 600, "height": 1067 },
+      "officialRecommendedPixels": { "width": 1080, "height": 1920 },
+      "projectOutputPreset": { "width": 1080, "height": 1920 },
+      "projectMaxBytesByTarget": { "DEMAND_GEN": 5000000 },
+      "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"],
+      "safeZoneStatus": "SOURCE_REQUIRED",
+      "status": "PROPOSED_NOT_RUNTIME"
+    },
+    {
+      "profileId": "GOOGLE_LOGO_SQUARE_1_1",
+      "role": "LOGO",
+      "officialRatio": { "width": 1, "height": 1 },
+      "officialMinimumPixels": { "width": 128, "height": 128 },
+      "officialRecommendedPixels": { "width": 1200, "height": 1200 },
+      "projectOutputPreset": { "width": 1200, "height": 1200 },
+      "projectMaxBytesByTarget": { "RDA": 5120000, "PMAX": 5120000, "DEMAND_GEN": 150000 },
+      "sourceRuleIds": ["GGL-RDA-003", "GGL-PMAX-001", "GGL-DG-001"],
+      "sourceDiscrepancy": "Demand Gen current sections show both 128x128 and 144x144 minimum labels.",
+      "status": "PROPOSED_NOT_RUNTIME"
+    },
+    {
+      "profileId": "GOOGLE_LOGO_LANDSCAPE_4_1",
+      "role": "LANDSCAPE_LOGO",
+      "officialRatio": { "width": 4, "height": 1 },
+      "officialMinimumPixels": { "width": 512, "height": 128 },
+      "officialRecommendedPixels": { "width": 1200, "height": 300 },
+      "projectOutputPreset": { "width": 1200, "height": 300 },
+      "projectMaxBytesByTarget": { "RDA": 5120000, "PMAX": 5120000 },
+      "sourceRuleIds": ["GGL-RDA-003", "GGL-PMAX-001", "GGL-PMAX-002"],
+      "status": "PROPOSED_NOT_RUNTIME"
+    }
+  ],
+  "uploadedDisplayPresets": {
+    "demandGenRecommendedSubset": [
+      { "profileId": "GOOGLE_DG_UPLOAD_300X250", "width": 300, "height": 250, "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"] },
+      { "profileId": "GOOGLE_DG_UPLOAD_336X280", "width": 336, "height": 280, "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"] },
+      { "profileId": "GOOGLE_DG_UPLOAD_728X90", "width": 728, "height": 90, "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"] },
+      { "profileId": "GOOGLE_DG_UPLOAD_970X90", "width": 970, "height": 90, "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"] },
+      { "profileId": "GOOGLE_DG_UPLOAD_160X600", "width": 160, "height": 600, "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"] },
+      { "profileId": "GOOGLE_DG_UPLOAD_300X600", "width": 300, "height": 600, "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"] },
+      { "profileId": "GOOGLE_DG_UPLOAD_320X50", "width": 320, "height": 50, "sourceRuleIds": ["GGL-DG-001", "GGL-DG-002"] }
+    ],
+    "legacyDisplaySupportedCanvases": [
+      { "width": 200, "height": 200 }, { "width": 240, "height": 400 }, { "width": 250, "height": 250 },
+      { "width": 250, "height": 360 }, { "width": 300, "height": 250 }, { "width": 336, "height": 280 },
+      { "width": 580, "height": 400 }, { "width": 120, "height": 600 }, { "width": 160, "height": 600 },
+      { "width": 300, "height": 600 }, { "width": 300, "height": 1050 }, { "width": 468, "height": 60 },
+      { "width": 728, "height": 90 }, { "width": 930, "height": 180 }, { "width": 970, "height": 90 },
+      { "width": 970, "height": 250 }, { "width": 980, "height": 120 }, { "width": 300, "height": 50 },
+      { "width": 320, "height": 50 }, { "width": 320, "height": 100 }
+    ],
+    "regionallyAvailableExcluded": true,
+    "status": "PROPOSED_NOT_RUNTIME"
+  },
+  "sizePolicy": {
+    "unit": "decimal-byte",
+    "rdaBytes": 5120000,
+    "pmaxBytes": 5120000,
+    "demandGenMarketingBytes": 5000000,
+    "demandGenLogoBytes": 150000,
+    "uploadedDisplayStaticBytes": 150000,
+    "officialByteSemanticsPinned": false
+  },
+  "mimePolicy": {
+    "rendererOutput": ["image/png", "image/jpeg"],
+    "gifEmission": false,
+    "gifAcceptance": "PLATFORM_GUIDANCE_ONLY"
+  }
+}

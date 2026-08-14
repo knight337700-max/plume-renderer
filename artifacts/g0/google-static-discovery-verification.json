@@ -1,0 +1,70 @@
+{
+  "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
+  "status": "PASS",
+  "sourcePromptStatus": "PASS",
+  "repositoryApplication": "APPLIED_ARCHITECTURE_ONLY",
+  "baseline": {
+    "sourceCommitSha": "be0c4198e5f1d4b433f9654409021db34710e29c",
+    "workingTreeAtBaseline": "CLEAN",
+    "frozenChannels": ["KAKAO", "NAVER", "META_STATIC"],
+    "frozenOutputChanges": 0
+  },
+  "sourcePolicy": {
+    "status": "PASS",
+    "allowedDomains": ["support.google.com", "developers.google.com"],
+    "thirdPartyRulesUsed": 0,
+    "unresolvedRuleCount": 9
+  },
+  "architecture": {
+    "status": "PASS",
+    "capabilityCount": 7,
+    "artifactCardinality": "SINGLE",
+    "deliveryCardinality": "COLLECTION",
+    "platformComposedCapabilities": [
+      "GOOGLE_RDA_ASSET_SET",
+      "GOOGLE_PMAX_ASSET_GROUP_STATIC",
+      "GOOGLE_DEMAND_GEN_SINGLE_IMAGE",
+      "GOOGLE_DEMAND_GEN_CAROUSEL",
+      "GOOGLE_SEARCH_IMAGE_ASSET"
+    ],
+    "rendererComposedCapabilities": [
+      "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC",
+      "GOOGLE_LEGACY_UPLOADED_DISPLAY_STATIC"
+    ],
+    "demandGenUploadedPresetCount": 7,
+    "legacyDisplayCanvasCount": 20
+  },
+  "implementationBoundary": {
+    "runtimeProfilesAdded": false,
+    "rendererCodeAdded": false,
+    "validatorRuntimeAdded": false,
+    "goldensAdded": false,
+    "desktopUiAdded": false,
+    "uploadIntegrationAdded": false,
+    "runtimeNetworkAccess": "PROHIBITED",
+    "plumeDependencies": []
+  },
+  "diagnostics": {
+    "status": "PROPOSED_NOT_ACTIVE",
+    "count": 11,
+    "activeRuntimeRegistration": false
+  },
+  "projectPolicy": {
+    "rendererOutputMime": ["image/png", "image/jpeg"],
+    "gifEmission": false,
+    "rdaBytes": 5120000,
+    "pmaxBytes": 5120000,
+    "demandGenMarketingBytes": 5000000,
+    "demandGenLogoBytes": 150000,
+    "uploadedDisplayStaticBytes": 150000,
+    "frozenChannelsUnchanged": true
+  },
+  "verification": {
+    "jsonContractsParsed": true,
+    "officialDomainsOnly": true,
+    "activeGoogleRuntimeAbsent": true,
+    "objectRightFixtureUnchanged": true,
+    "templateCoordinatesUnchanged": true
+  },
+  "nextPhase": "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION"
+}

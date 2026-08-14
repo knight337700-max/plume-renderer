@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "0.1.0",
+  "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
+  "sourcePolicy": "GOOGLE_OFFICIAL_ONLY",
+  "checkedAt": "2026-08-14",
+  "status": "PASS",
+  "sources": [
+    {
+      "ruleId": "GGL-LIFECYCLE-001",
+      "classification": "OFFICIAL_TRANSITION",
+      "claim": "Display campaigns began phased migration to Demand Gen GDN in June 2026; later dates remain unspecified",
+      "url": "https://support.google.com/google-ads/answer/17051545?hl=en-GB",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["lifecycle"]
+    },
+    {
+      "ruleId": "GGL-RDA-001",
+      "classification": "OFFICIAL_REQUIRED",
+      "claim": "RDA platform-composed text fields and 1.91:1/1:1 asset quantities",
+      "url": "https://support.google.com/google-ads/answer/17090561?hl=en",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["rda", "asset-roles", "platform-fields"]
+    },
+    {
+      "ruleId": "GGL-RDA-002",
+      "classification": "OFFICIAL_GUIDANCE",
+      "claim": "RDA 9:16 asset, min/recommended size, 5120 KB and up to 15",
+      "url": "https://support.google.com/google-ads/answer/9823397?hl=en-GB",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["rda", "source-discrepancy"]
+    },
+    {
+      "ruleId": "GGL-RDA-003",
+      "classification": "OFFICIAL_REQUIRED",
+      "claim": "RDA logo sizes and platform-composed fields",
+      "url": "https://support.google.com/google-ads/answer/7005917?hl=en",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["rda", "logos", "platform-fields"]
+    },
+    {
+      "ruleId": "GGL-PMAX-001",
+      "classification": "OFFICIAL_REQUIRED",
+      "claim": "PMax minimum and maximum asset counts, dimensions, formats and association rules",
+      "url": "https://developers.google.com/google-ads/api/performance-max/asset-requirements",
+      "sourceDomain": "developers.google.com",
+      "usedFor": ["pmax", "asset-roles", "cardinality"]
+    },
+    {
+      "ruleId": "GGL-PMAX-002",
+      "classification": "OFFICIAL_REQUIRED",
+      "claim": "Brand-guideline campaign-level business name/logo requirements",
+      "url": "https://developers.google.com/google-ads/api/performance-max/create-campaign",
+      "sourceDomain": "developers.google.com",
+      "usedFor": ["pmax", "brand-association"]
+    },
+    {
+      "ruleId": "GGL-PMAX-003",
+      "classification": "OFFICIAL_GUIDANCE",
+      "claim": "PMax recommended asset counts and JPG/PNG guidance",
+      "url": "https://support.google.com/google-ads/answer/14530211",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["pmax", "recommendations"]
+    },
+    {
+      "ruleId": "GGL-PMAX-004",
+      "classification": "OFFICIAL_REQUIRED",
+      "claim": "PMax text counts, character counting and CTA/final URL behavior",
+      "url": "https://support.google.com/google-ads/answer/14528373",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["pmax", "platform-fields"]
+    },
+    {
+      "ruleId": "GGL-DG-001",
+      "classification": "OFFICIAL_REQUIRED_GUIDANCE",
+      "claim": "Demand Gen image/logo ratios, MIME/file labels and uploaded static subset",
+      "url": "https://support.google.com/google-ads/answer/13704860?hl=en",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["demand-gen", "mime", "bytes"]
+    },
+    {
+      "ruleId": "GGL-DG-002",
+      "classification": "OFFICIAL_REQUIRED_GUIDANCE",
+      "claim": "Single-image, carousel and uploaded display format semantics",
+      "url": "https://support.google.com/google-ads/answer/17140672?hl=en",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["demand-gen", "composition", "scope"]
+    },
+    {
+      "ruleId": "GGL-UPLOAD-001",
+      "classification": "OFFICIAL_REQUIRED",
+      "claim": "Legacy uploaded display sizes, MIME and 150 KB label",
+      "url": "https://support.google.com/google-ads/answer/1722096?hl=en",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["legacy-display", "uploaded-static"]
+    },
+    {
+      "ruleId": "GGL-SEARCH-001",
+      "classification": "DISCOVERY_REFERENCE",
+      "claim": "Search image assets share some ratios but have distinct platform semantics",
+      "url": "https://support.google.com/google-ads/answer/9566341?hl=en",
+      "sourceDomain": "support.google.com",
+      "usedFor": ["discovery-only"]
+    }
+  ],
+  "sourceDomainPolicy": {
+    "allowedDomains": ["support.google.com", "developers.google.com"],
+    "thirdPartyRulesUsed": 0,
+    "longSourceExcerptsStored": false
+  },
+  "unresolvedRules": [
+    {
+      "id": "U-GGL-001",
+      "issue": "RDA dedicated specs omit 9:16 while current best-practice pages include it",
+      "g1Behavior": "optional INFO; never required"
+    },
+    {
+      "id": "U-GGL-002",
+      "issue": "RDA square recommendation differs between current official sections",
+      "g1Behavior": "project preset 1200x1200; never presented as a mandatory Google pixel size"
+    },
+    {
+      "id": "U-GGL-003",
+      "issue": "PMax Help lists JPG/PNG while Ads API lists GIF/JPG/PNG",
+      "g1Behavior": "emit PNG/JPEG only"
+    },
+    {
+      "id": "U-GGL-004",
+      "issue": "PMax landscape-logo maximum differs by association mode/source",
+      "g1Behavior": "conservative project maximum of five total logos"
+    },
+    {
+      "id": "U-GGL-005",
+      "issue": "Exact byte interpretation of 150 KB is not pinned",
+      "g1Behavior": "conservative project cap of 150000 bytes"
+    },
+    {
+      "id": "U-GGL-006",
+      "issue": "Demand Gen uploaded-display seven sizes are recommended, not exhaustive",
+      "g1Behavior": "implement only explicit project presets; do not claim exhaustive platform support"
+    },
+    {
+      "id": "U-GGL-007",
+      "issue": "Demand Gen/RDA 9:16 safe-zone geometry is not pinned to an authoritative machine-readable source",
+      "g1Behavior": "no blocking crop geometry; INFO source-required"
+    },
+    {
+      "id": "U-GGL-008",
+      "issue": "Display-to-Demand-Gen final mandatory migration dates remain unspecified",
+      "g1Behavior": "lifecycle remains TRANSITIONAL; no invented sunset date"
+    },
+    {
+      "id": "U-GGL-009",
+      "issue": "Demand Gen logo minimum appears as both 128x128 and 144x144",
+      "g1Behavior": "project preset 1200x1200; no universal minimum claim"
+    }
+  ]
+}

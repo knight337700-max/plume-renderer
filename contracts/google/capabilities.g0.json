@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "0.1.0",
+  "registryVersion": "0.1.0",
+  "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
+  "status": "FREEZE_CANDIDATE",
+  "implementationStatus": "ARCHITECTURE_ONLY",
+  "runtimeEnabled": false,
+  "capabilities": [
+    {
+      "capabilityId": "GOOGLE_RDA_ASSET_SET",
+      "googleMeaning": "transitional responsive display ad",
+      "lifecycle": "TRANSITIONAL",
+      "layoutMode": "FREEFORM",
+      "compositionMode": "PLATFORM_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "deliveryCardinality": "COLLECTION",
+      "assetSlots": [
+        { "role": "MARKETING_IMAGE", "required": true, "min": 1, "max": 15, "profileIds": ["GOOGLE_MARKETING_LANDSCAPE_1_91", "GOOGLE_MARKETING_SQUARE_1_1"] },
+        { "role": "VERTICAL_MARKETING_IMAGE", "required": false, "min": 0, "max": 15, "profileIds": ["GOOGLE_RDA_VERTICAL_9_16"], "sourceStatus": "SOURCE_DISCREPANCY" },
+        { "role": "LOGO", "required": false, "min": 0, "max": 5, "profileIds": ["GOOGLE_LOGO_SQUARE_1_1", "GOOGLE_LOGO_LANDSCAPE_4_1"] }
+      ],
+      "platformFields": ["SHORT_HEADLINE", "LONG_HEADLINE", "DESCRIPTION", "BUSINESS_NAME", "CTA", "FINAL_URL"],
+      "rendererOwnedPixels": ["marketing image", "logo"],
+      "googleOwnedComposition": ["text", "CTA", "URL", "layout", "preview chrome", "asset combinations"],
+      "g1Status": "CANDIDATE_LIFECYCLE_GATED",
+      "provenanceRefs": ["GGL-RDA-001", "GGL-RDA-002", "GGL-RDA-003"]
+    },
+    {
+      "capabilityId": "GOOGLE_PMAX_ASSET_GROUP_STATIC",
+      "googleMeaning": "Performance Max non-retail static AssetGroup portion",
+      "lifecycle": "ACTIVE",
+      "layoutMode": "FREEFORM",
+      "compositionMode": "PLATFORM_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "deliveryCardinality": "COLLECTION",
+      "assetSlots": [
+        { "role": "MARKETING_IMAGE", "required": true, "min": 1, "max": 20, "profileIds": ["GOOGLE_MARKETING_LANDSCAPE_1_91"] },
+        { "role": "SQUARE_MARKETING_IMAGE", "required": true, "min": 1, "max": 20, "profileIds": ["GOOGLE_MARKETING_SQUARE_1_1"] },
+        { "role": "PORTRAIT_MARKETING_IMAGE", "required": false, "min": 0, "max": 20, "profileIds": ["GOOGLE_MARKETING_PORTRAIT_4_5"] },
+        { "role": "LOGO", "required": false, "min": 0, "max": 5, "profileIds": ["GOOGLE_LOGO_SQUARE_1_1", "GOOGLE_LOGO_LANDSCAPE_4_1"] }
+      ],
+      "platformFields": ["HEADLINE", "LONG_HEADLINE", "DESCRIPTION", "BUSINESS_NAME", "CALL_TO_ACTION_SELECTION"],
+      "rendererOwnedPixels": ["marketing image", "logo"],
+      "googleOwnedComposition": ["AssetGroup assembly", "text", "CTA", "URL", "inventory UI"],
+      "g1Status": "CANDIDATE_NON_RETAIL_ONLY",
+      "provenanceRefs": ["GGL-PMAX-001", "GGL-PMAX-002", "GGL-PMAX-003", "GGL-PMAX-004"]
+    },
+    {
+      "capabilityId": "GOOGLE_DEMAND_GEN_SINGLE_IMAGE",
+      "googleMeaning": "Demand Gen single-image ad",
+      "lifecycle": "ACTIVE_EVOLVING",
+      "layoutMode": "FREEFORM",
+      "compositionMode": "PLATFORM_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "deliveryCardinality": "COLLECTION",
+      "assetSlots": [
+        { "role": "SQUARE_MARKETING_IMAGE", "required": true, "min": 1, "max": 20, "profileIds": ["GOOGLE_MARKETING_SQUARE_1_1"] },
+        { "role": "MARKETING_IMAGE", "required": true, "min": 1, "max": 20, "profileIds": ["GOOGLE_MARKETING_LANDSCAPE_1_91"] },
+        { "role": "PORTRAIT_MARKETING_IMAGE", "required": false, "min": 0, "max": 20, "profileIds": ["GOOGLE_MARKETING_PORTRAIT_4_5"] },
+        { "role": "TALL_PORTRAIT_MARKETING_IMAGE", "required": false, "min": 0, "max": 20, "profileIds": ["GOOGLE_DEMAND_GEN_VERTICAL_9_16"] },
+        { "role": "LOGO", "required": true, "min": 1, "max": 5, "profileIds": ["GOOGLE_LOGO_SQUARE_1_1"] }
+      ],
+      "platformFields": ["HEADLINE", "DESCRIPTION", "BUSINESS_NAME", "CTA", "FINAL_URL"],
+      "rendererOwnedPixels": ["image", "logo"],
+      "googleOwnedComposition": ["headline", "description", "CTA", "business name", "layout", "UI"],
+      "g1Status": "CANDIDATE_ACTIVE_EVOLVING",
+      "provenanceRefs": ["GGL-DG-001", "GGL-DG-002"]
+    },
+    {
+      "capabilityId": "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC",
+      "googleMeaning": "Demand Gen GDN uploaded static image",
+      "lifecycle": "ACTIVE_EVOLVING",
+      "layoutMode": "FREEFORM",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "deliveryCardinality": "COLLECTION",
+      "assetSlots": [
+        { "role": "UPLOADED_DISPLAY_STATIC", "required": true, "min": 1, "max": 20, "profileIds": ["GOOGLE_DG_UPLOAD_300X250", "GOOGLE_DG_UPLOAD_336X280", "GOOGLE_DG_UPLOAD_728X90", "GOOGLE_DG_UPLOAD_970X90", "GOOGLE_DG_UPLOAD_160X600", "GOOGLE_DG_UPLOAD_300X600", "GOOGLE_DG_UPLOAD_320X50"] }
+      ],
+      "platformFields": ["FINAL_URL"],
+      "rendererOwnedPixels": ["entire creative pixel canvas"],
+      "googleOwnedComposition": ["serving container", "click behavior"],
+      "g1Status": "CANDIDATE_EXACT_SLOT_PRESETS",
+      "provenanceRefs": ["GGL-DG-001", "GGL-DG-002"]
+    },
+    {
+      "capabilityId": "GOOGLE_LEGACY_UPLOADED_DISPLAY_STATIC",
+      "googleMeaning": "legacy Display uploaded image ad",
+      "lifecycle": "TRANSITIONAL",
+      "layoutMode": "FREEFORM",
+      "compositionMode": "RENDERER_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "deliveryCardinality": "COLLECTION",
+      "assetSlots": [
+        { "role": "UPLOADED_DISPLAY_STATIC", "required": true, "min": 1, "max": 20, "profileIds": ["GOOGLE_LEGACY_DISPLAY_SLOT_SET"] }
+      ],
+      "platformFields": ["FINAL_URL"],
+      "rendererOwnedPixels": ["entire creative pixel canvas"],
+      "googleOwnedComposition": ["serving container", "click behavior"],
+      "g1Status": "CANDIDATE_TRANSITIONAL",
+      "provenanceRefs": ["GGL-UPLOAD-001", "GGL-LIFECYCLE-001"]
+    },
+    {
+      "capabilityId": "GOOGLE_DEMAND_GEN_CAROUSEL",
+      "googleMeaning": "ordered 2-10 image cards",
+      "lifecycle": "ACTIVE_EVOLVING",
+      "layoutMode": "FREEFORM",
+      "compositionMode": "PLATFORM_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "deliveryCardinality": "COLLECTION",
+      "assetSlots": [{ "role": "CAROUSEL_CARD", "required": true, "min": 2, "max": 10, "profileIds": ["GOOGLE_MARKETING_LANDSCAPE_1_91", "GOOGLE_MARKETING_SQUARE_1_1"] }],
+      "platformFields": ["CARD_TEXT", "CARD_URL", "CTA"],
+      "rendererOwnedPixels": ["card image pixels"],
+      "googleOwnedComposition": ["carousel UI", "card text", "card URL behavior"],
+      "g1Status": "DEFERRED",
+      "provenanceRefs": ["GGL-DG-002"]
+    },
+    {
+      "capabilityId": "GOOGLE_SEARCH_IMAGE_ASSET",
+      "googleMeaning": "Search ad image asset",
+      "lifecycle": "ACTIVE",
+      "layoutMode": "FREEFORM",
+      "compositionMode": "PLATFORM_COMPOSED",
+      "artifactCardinality": "SINGLE",
+      "deliveryCardinality": "COLLECTION",
+      "assetSlots": [{ "role": "SEARCH_IMAGE", "required": false, "min": 0, "max": 20, "profileIds": ["GOOGLE_MARKETING_LANDSCAPE_1_91", "GOOGLE_MARKETING_SQUARE_1_1"] }],
+      "platformFields": ["SEARCH_TEXT", "FINAL_URL"],
+      "rendererOwnedPixels": ["image pixels"],
+      "googleOwnedComposition": ["Search ad text", "layout", "UI"],
+      "g1Status": "DISCOVERY_ONLY",
+      "provenanceRefs": ["GGL-SEARCH-001"]
+    }
+  ],
+  "invariants": [
+    "GOOGLE_STATIC is not a single merged profile",
+    "every delivered image remains a SINGLE artifact",
+    "RDA/PMax/Demand Gen delivery sets are separate COLLECTION manifests",
+    "platform-composed fields are never rasterized by the Renderer",
+    "G1 exact project presets are not claims of exhaustive Google acceptance"
+  ]
+}

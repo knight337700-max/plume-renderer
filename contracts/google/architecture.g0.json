@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "0.1.0",
+  "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
+  "status": "FREEZE_CANDIDATE",
+  "repositoryApplication": "APPLIED_ARCHITECTURE_ONLY",
+  "baseline": {
+    "sourceCommitSha": "be0c4198e5f1d4b433f9654409021db34710e29c",
+    "workingTreeAtBaseline": "CLEAN",
+    "frozenChannels": ["KAKAO", "NAVER", "META_STATIC"],
+    "frozenOutputChanges": 0
+  },
+  "implementation": {
+    "runtimeProfilesAdded": false,
+    "rendererCodeAdded": false,
+    "validatorRuntimeAdded": false,
+    "goldensAdded": false,
+    "desktopUiAdded": false,
+    "uploadIntegrationAdded": false,
+    "runtimeNetworkAccess": "PROHIBITED",
+    "plumeDependencies": []
+  },
+  "ownership": {
+    "rendererOwned": [
+      "marketing image pixels",
+      "logo asset pixels",
+      "uploaded display static full creative pixels"
+    ],
+    "googleOwned": [
+      "headline and long headline text",
+      "description and business name",
+      "CTA and final URL",
+      "asset selection and serving crop/resize",
+      "platform composition and preview chrome",
+      "campaign, policy and upload lifecycle"
+    ],
+    "forbiddenRendererBehavior": [
+      "rasterize Google text/CTA/business fields into asset plans",
+      "capture a Google-composed preview as a publishable artifact",
+      "claim upload approval or policy eligibility",
+      "infer unresolved safe-zone geometry"
+    ]
+  },
+  "compositionBoundary": {
+    "platformComposed": [
+      "GOOGLE_RDA_ASSET_SET",
+      "GOOGLE_PMAX_ASSET_GROUP_STATIC",
+      "GOOGLE_DEMAND_GEN_SINGLE_IMAGE",
+      "GOOGLE_DEMAND_GEN_CAROUSEL",
+      "GOOGLE_SEARCH_IMAGE_ASSET"
+    ],
+    "rendererComposed": [
+      "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC",
+      "GOOGLE_LEGACY_UPLOADED_DISPLAY_STATIC"
+    ],
+    "singleArtifact": true,
+    "deliveryCollectionSeparate": true,
+    "displayAndPmaxProfilesMerged": false
+  },
+  "lifecycle": {
+    "legacyDisplay": "TRANSITIONAL",
+    "demandGenGdn": "ACTIVE_EVOLVING",
+    "performanceMax": "ACTIVE",
+    "futureDatesInvented": false
+  },
+  "validationLayers": [
+    {
+      "id": "ARTIFACT",
+      "responsibility": "deterministic pixels/bytes, exact project canvas, MIME and project byte cap",
+      "localPublishBlocking": true
+    },
+    {
+      "id": "DELIVERY_SET",
+      "responsibility": "role cardinality, required platform fields, character limits and association mode",
+      "localPublishBlocking": true
+    },
+    {
+      "id": "PLATFORM_INTEGRATION",
+      "responsibility": "account eligibility, policy review, campaign creation and upload/link API behavior",
+      "localPublishBlocking": false,
+      "owner": "GOOGLE_PLATFORM"
+    }
+  ],
+  "freeformReuse": {
+    "marketingImage": {
+      "allowed": ["CENTER_CONTAIN", "MANUAL_CROP", "SEMANTIC_CROP_COVER"],
+      "disallowed": ["ALPHA_TRIM_CONTAIN"],
+      "default": "EXPLICIT_PLAN_REQUIRED"
+    },
+    "logo": {
+      "allowed": ["CENTER_CONTAIN", "ALPHA_TRIM_CONTAIN"],
+      "disallowed": ["MANUAL_CROP", "SEMANTIC_CROP_COVER"],
+      "default": "ALPHA_TRIM_CONTAIN"
+    },
+    "uploadedDisplayStatic": {
+      "policy": "ELEMENT_LEVEL_ONLY",
+      "globalPlacementPolicy": false
+    }
+  },
+  "scope": {
+    "excluded": [
+      "PLUME_AGENT_QUEUE_RAILWAY_DATABASE_CLOUD_STORAGE",
+      "Google upload/publish API",
+      "video and YouTube assets",
+      "auto-generated video",
+      "dynamic remarketing and business data feeds",
+      "Merchant Center product assembly",
+      "Demand Gen carousel assembly/UI",
+      "HTML5/AMPHTML/media bundles",
+      "GIF animation",
+      "Google preview screenshots as final artifacts",
+      "Search image assets in G1",
+      "exact 9:16 safe-zone enforcement before source pinning"
+    ],
+    "futureG1Candidates": [
+      "GOOGLE_RDA_ASSET_SET",
+      "GOOGLE_PMAX_ASSET_GROUP_STATIC",
+      "GOOGLE_DEMAND_GEN_SINGLE_IMAGE",
+      "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC",
+      "GOOGLE_LEGACY_UPLOADED_DISPLAY_STATIC"
+    ]
+  }
+}

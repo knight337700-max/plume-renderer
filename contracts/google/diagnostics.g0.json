@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "0.1.0",
+  "registryVersion": "0.1.0",
+  "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
+  "status": "PROPOSED_NOT_ACTIVE",
+  "activeRuntimeRegistration": false,
+  "codes": [
+    { "code": "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", "severity": "ERROR", "layer": "ARTIFACT", "blocking": true },
+    { "code": "KBR-GOOGLE-ASSET-CANVAS-MISMATCH", "severity": "ERROR", "layer": "ARTIFACT", "blocking": true },
+    { "code": "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED", "severity": "ERROR", "layer": "ARTIFACT", "blocking": true },
+    { "code": "KBR-GOOGLE-ASSET-BYTES-EXCEEDED", "severity": "ERROR", "layer": "ARTIFACT", "blocking": true },
+    { "code": "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING", "severity": "ERROR", "layer": "DELIVERY_SET", "blocking": true },
+    { "code": "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED", "severity": "ERROR", "layer": "DELIVERY_SET", "blocking": true },
+    { "code": "KBR-GOOGLE-TEXT-LIMIT-EXCEEDED", "severity": "ERROR", "layer": "DELIVERY_SET", "blocking": true },
+    { "code": "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH", "severity": "ERROR", "layer": "DELIVERY_SET", "blocking": true },
+    { "code": "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY", "severity": "INFO", "layer": "DELIVERY_SET", "blocking": false },
+    { "code": "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED", "severity": "INFO", "layer": "DELIVERY_SET", "blocking": false },
+    { "code": "KBR-GOOGLE-LIFECYCLE-TRANSITIONAL", "severity": "INFO", "layer": "DELIVERY_SET", "blocking": false }
+  ],
+  "externalPolicyBoundary": {
+    "platformEligibility": "GOOGLE_PLATFORM_RESULT",
+    "uploadApproval": "GOOGLE_PLATFORM_RESULT",
+    "localPublishBlockedOnlyBy": ["ARTIFACT", "DELIVERY_SET"]
+  }
+}

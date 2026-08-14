@@ -2,8 +2,8 @@
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
 - **Document version:** 1.23.1
-- **Status:** Frozen Implementation Contract — Phase M2.3 META user visual acceptance and Golden freeze
-- **Checked date:** 2026-08-11 (KST)
+- **Status:** Frozen Implementation Contract — Phase G0 Google Ads static capability discovery and architecture (runtime-freeze candidate)
+- **Checked date:** 2026-08-14 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, and additive `META` static renderer capability namespace
 
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **52. Phase M2.3 META user visual acceptance and Golden freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **53. Phase G0 Google Ads static capability discovery and renderer architecture**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records are architecture-only and do not activate runtime profiles. **[PROJECT]**
 
 ---
 
@@ -5213,3 +5213,75 @@ M2.3 evidence is under `artifacts/m2-3/`, frozen fixtures are under `fixtures/go
 verification uses `scripts/verify-m2-3-meta-goldens.mjs`. Existing Kakao, NAVER, FREEFORM, M1,
 M2.1, M2.2, and M2.2a runtime behavior remains unchanged. Runtime network access remains
 prohibited and no Plume or remote service is introduced. **[PROJECT]**
+
+## 53. Phase G0 — Google Ads static capability discovery and renderer architecture [PROJECT]
+
+G0 records a Google Ads static capability boundary without activating Google runtime profiles,
+Renderer code, Validator behavior, Desktop UI, Goldens, or upload/API integration. The repository
+was available at the requested baseline `be0c4198e5f1d4b433f9654409021db34710e29c` with a clean
+working tree, so the source prompt's unavailable-repository placeholder is resolved as
+`APPLIED_ARCHITECTURE_ONLY`. KAKAO, NAVER, and META static remain the frozen channels and frozen
+output changes are zero. Runtime network access remains prohibited and no Plume dependency is
+introduced. **[PROJECT]**
+
+### 53.1 Separate capabilities and composition ownership [PROJECT] [OFFICIAL]
+
+Google Ads is not represented by one `GOOGLE_STATIC` profile. G0 keeps separate capability and
+asset-profile records for Responsive Display Ads (`GOOGLE_RDA_ASSET_SET`, `TRANSITIONAL`),
+Performance Max static AssetGroup assets (`GOOGLE_PMAX_ASSET_GROUP_STATIC`, `ACTIVE`), Demand Gen
+single-image (`GOOGLE_DEMAND_GEN_SINGLE_IMAGE`, `ACTIVE_EVOLVING`), Demand Gen uploaded display
+static (`GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC`, `ACTIVE_EVOLVING`), and legacy uploaded
+Display static (`GOOGLE_LEGACY_UPLOADED_DISPLAY_STATIC`, `TRANSITIONAL`). Demand Gen carousel is
+deferred and Search image assets remain discovery-only. **[PROJECT]**
+
+RDA, Performance Max static assets, and Demand Gen single-image are `PLATFORM_COMPOSED`: the
+Renderer owns image and logo pixels, while Google owns text, CTA, final URL, asset selection,
+serving layout, and preview UI. Uploaded display static is `RENDERER_COMPOSED`: the Renderer owns
+the complete single-image canvas, while Google owns its serving container and click behavior.
+Platform text, CTA, URL, and Google preview screenshots are never rasterized as local publishable
+artifacts. **[PROJECT] [OFFICIAL]**
+
+Every image remains one `SINGLE` artifact. RDA, Performance Max, and Demand Gen delivery sets are
+separate `COLLECTION` manifests; a collection is not a raster artifact. Account eligibility,
+policy review, campaign creation, and upload acceptance remain Google-platform outcomes and are
+not claimed by local rendering. **[PROJECT]**
+
+### 53.2 Geometry, presets, and lifecycle [PROJECT] [OFFICIAL] [INFERRED]
+
+Official ratios, minimums, and recommendations are recorded separately from explicit project
+output presets. G0 records 1.91:1, 1:1, 4:5, RDA 9:16, Demand Gen 9:16, square-logo, and
+landscape-logo geometry. Project presets are 1200×628, 1200×1200, 960×1200, RDA 900×1600,
+Demand Gen 1080×1920, square-logo 1200×1200, and landscape-logo 1200×300. These are project
+decisions, not exhaustive or mandatory Google pixel-size claims. **[PROJECT] [OFFICIAL]**
+
+The Demand Gen uploaded-display recommended subset is seven canvases: 300×250, 336×280, 728×90,
+970×90, 160×600, 300×600, and 320×50. The legacy uploaded Display supported list is recorded
+separately with twenty canvases, including regional-availability caveats. No future migration date
+is invented: legacy Display is `TRANSITIONAL`, Demand Gen is `ACTIVE_EVOLVING`, and Performance
+Max is `ACTIVE`. **[OFFICIAL] [PROJECT]**
+
+Renderer/project output is PNG or JPEG only; the Renderer emits no GIF. Decimal-byte project caps
+are 5,120,000 for RDA/Performance Max marketing assets, 5,000,000 for Demand Gen marketing
+assets, and 150,000 for Demand Gen logos and uploaded display static. Where Google source labels
+use “KB” or disagree, the project value is explicitly conservative and unresolved rather than
+presented as a universal platform rule. **[PROJECT] [INFERRED]**
+
+### 53.3 Validation, provenance, and unresolved rules [PROJECT]
+
+G0 separates `ARTIFACT`, `DELIVERY_SET`, and `PLATFORM_INTEGRATION` validation layers. Artifact
+and delivery-set diagnostics are proposed local publish blockers; platform integration remains
+Google-owned and is not locally asserted. Eleven proposed Google diagnostic codes remain
+`PROPOSED_NOT_ACTIVE` and are not added to the active Error Registry or Validator runtime.
+
+All discovery records use Google official domains only. Nine unresolved rules fail closed: RDA
+vertical-source and square-size discrepancies, PMax MIME/logo differences, exact byte semantics,
+non-exhaustive Demand Gen uploaded sizes, unpinned 9:16 safe-zone geometry, unspecified migration
+dates, and conflicting Demand Gen logo minimums. They do not justify guessed coordinates,
+mandatory values, upload approval, or runtime behavior. **[OFFICIAL] [PROJECT] [INFERRED]**
+
+The machine-readable G0 records are under `contracts/google/`; the implementation record is
+`docs/implementation/google-ads-static-discovery-architecture-g0.md`; the architecture ADR is
+`docs/adr/ADR-0058-google-static-capability-boundary-g0.md`; and the deterministic contract
+verifier is `scripts/verify-g0-google-static.mjs`. G1 may add provenance-backed Google contracts
+and profiles only after this boundary is accepted; KAKAO, NAVER, and META frozen behavior remains
+unchanged. **[PROJECT]**
