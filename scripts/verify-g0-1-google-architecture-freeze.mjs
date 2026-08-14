@@ -17,6 +17,20 @@ const expectedPaths = [
   "contracts/google/diagnostics.g0.json",
   "contracts/google/provenance.g0.json",
 ];
+// G3 adds a Desktop-only QA surface after the G0.1 architecture freeze. Keep
+// the historical frozen-channel guard strict by allowing only the exact
+// Desktop files introduced by that phase; unrelated source changes must still
+// fail the freeze check.
+const g3DesktopPaths = new Set([
+  "apps/desktop/electron-main/src/desktop-controller.ts",
+  "apps/desktop/electron-main/src/ipc/schemas.ts",
+  "apps/desktop/renderer-ui/src/app/App.tsx",
+  "apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx",
+  "apps/desktop/renderer-ui/src/i18n/ko-KR.json",
+  "apps/desktop/renderer-ui/src/styles.css",
+  "apps/desktop/shared/src/index.ts",
+  "apps/desktop/shared/src/types.ts",
+]);
 const checks = [];
 const failures = [];
 
@@ -126,6 +140,7 @@ check("implementation_boundary_frozen", registry?.invariants?.runtimeNetworkAcce
 const frozenDiff = execFileSync("git", ["diff", "--name-only", acceptedCommit, "HEAD", "--", "src", "apps", "packages", "contracts/freeform-format-profiles.json", "fixtures/golden"], { cwd: root, encoding: "utf8" }).trim().split(/\r?\n/u).filter((relativePath) => relativePath && !(
   ((g1Implemented || g2Implemented) && ["src/core/google-static.ts", "src/core/google-static-render.ts", "src/core/index.ts", "packages/renderer-contract/src/google-static.ts", "packages/renderer-contract/src/index.ts"].includes(relativePath))
   || ((g2_1Implemented) && (relativePath === "fixtures/golden/google" || relativePath.startsWith("fixtures/golden/google/")))
+  || (g3Implemented && g3DesktopPaths.has(relativePath))
 )).join("\n");
 check("frozen_channel_paths", frozenDiff.length === 0, frozenDiff || "KAKAO/NAVER/META runtime and golden paths unchanged");
 const objectRightHash = await sha256("reference/kakao-tool/OBJECT_RIGHT.png").catch(() => null);
