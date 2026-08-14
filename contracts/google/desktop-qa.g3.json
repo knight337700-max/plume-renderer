@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/google/desktop-qa.g3.schema.json",
+  "schemaVersion": "1.0.0",
+  "registryVersion": "1.0.0",
+  "phase": "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT",
+  "googleArchitectureVersion": "1.0.0",
+  "profileRegistry": "contracts/google/static-asset-profiles.g1.json",
+  "goldenRegistry": "contracts/google/goldens.g2.1.json",
+  "diagnosticRegistry": "contracts/google/diagnostics.g1.json",
+  "groups": [
+    {
+      "id": "GEOMETRY",
+      "label": "Geometry",
+      "placementId": "GOOGLE_STATIC_GEOMETRY",
+      "profileIds": [
+        "GOOGLE_MARKETING_LANDSCAPE_1_91",
+        "GOOGLE_MARKETING_SQUARE_1_1",
+        "GOOGLE_MARKETING_PORTRAIT_4_5",
+        "GOOGLE_RDA_VERTICAL_9_16",
+        "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+        "GOOGLE_LOGO_SQUARE_1_1",
+        "GOOGLE_LOGO_LANDSCAPE_4_1"
+      ]
+    },
+    {
+      "id": "UPLOADED_DISPLAY_STATIC",
+      "label": "Uploaded Display Static",
+      "placementId": "GOOGLE_STATIC_UPLOADED_DISPLAY",
+      "profileIds": [
+        "GOOGLE_DG_UPLOAD_300X250",
+        "GOOGLE_DG_UPLOAD_336X280",
+        "GOOGLE_DG_UPLOAD_728X90",
+        "GOOGLE_DG_UPLOAD_970X90",
+        "GOOGLE_DG_UPLOAD_160X600",
+        "GOOGLE_DG_UPLOAD_300X600",
+        "GOOGLE_DG_UPLOAD_320X50"
+      ]
+    }
+  ],
+  "profilePresentation": {
+    "labelsSource": "PROJECT_PRESET",
+    "summaryFields": ["profileId", "role", "projectOutputPreset", "rendererOutputMime", "maxBytes", "placementPolicy"],
+    "platformFieldsAreMetadataOnly": true
+  },
+  "artifactCardinality": "SINGLE",
+  "deliveryCardinality": "COLLECTION",
+  "fitToView": true,
+  "actualPixelView": true,
+  "passOnlyExport": true,
+  "runtimeNetworkAccess": "PROHIBITED",
+  "googleUploadApi": false,
+  "oauth": false,
+  "plumeDependencies": [],
+  "frozenGoldenCount": 14,
+  "legacyDisplayRuntimeProfiles": 0,
+  "activeDiagnosticCodes": [
+    "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN",
+    "KBR-GOOGLE-ASSET-CANVAS-MISMATCH",
+    "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED",
+    "KBR-GOOGLE-ASSET-BYTES-EXCEEDED",
+    "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING",
+    "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED",
+    "KBR-GOOGLE-TEXT-LIMIT-EXCEEDED",
+    "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH",
+    "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY",
+    "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED",
+    "KBR-GOOGLE-LIFECYCLE-TRANSITIONAL"
+  ]
+}

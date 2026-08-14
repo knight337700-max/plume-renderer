@@ -165,10 +165,12 @@ async function main() {
   check("frozen_artifact_count", (frozen?.entries ?? []).length === 14 && byteEqualCount === 14 && metadataCount === 14 && renderEqualCount === 14 && validatorPassCount === 14, JSON.stringify({ entries: frozen?.entries?.length, byteEqualCount, metadataCount, renderEqualCount, validatorPassCount }));
   check("expected_vertical_info", frozen?.entries?.find((entry) => entry.profileId === "GOOGLE_RDA_VERTICAL_9_16")?.expectedInfoDiagnostics?.includes("KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY") === true && frozen?.entries?.find((entry) => entry.profileId === "GOOGLE_DEMAND_GEN_VERTICAL_9_16")?.expectedInfoDiagnostics?.includes("KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED") === true, "RDA and Demand Gen vertical INFO diagnostics remain explicit");
 
+  const versions = await readJson("contracts/contract-versions.json");
   const packageJson = await readJson("package.json");
   const renderSource = await readFile(path.join(root, "src/core/google-static-render.ts"), "utf8").catch(() => "");
   check("google_upload_absent", !(await exists("src/core/google-upload")) && !(await exists("apps/desktop/electron-main/google-upload")) && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("googleapis"), "Google upload/API integration absent");
-  check("desktop_google_ui_absent", !(await exists("apps/desktop/renderer-ui/src/google")), "Google Desktop UI absent");
+  const g3Implemented = versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT";
+  check("desktop_google_ui_absent", g3Implemented ? await exists("apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx") : !(await exists("apps/desktop/renderer-ui/src/google")), g3Implemented ? "G3 Google Desktop UI is present at the additive feature path" : "Google Desktop UI absent");
   check("runtime_network_and_plume_absent", !JSON.stringify(packageJson ?? {}).toLowerCase().includes("plume") && !renderSource.toLowerCase().includes("plume") && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("axios"), "no Plume or remote runtime dependency");
   check("legacy_display_runtime_zero", !(candidates?.candidates ?? []).some((entry) => entry.profileId.includes("LEGACY")), "legacy Display runtime profile absent");
   check("object_right_sha256", await sha256("reference/kakao-tool/OBJECT_RIGHT.png") === expectedObjectRightSha256, expectedObjectRightSha256);
@@ -179,8 +181,9 @@ async function main() {
   } catch { frozenDiff = "ERROR"; }
   check("frozen_kakao_naver_meta_outputs", frozenDiff === "", frozenDiff || "KAKAO/NAVER/META frozen output paths unchanged");
 
-  const versions = await readJson("contracts/contract-versions.json");
-  check("canonical_version_1_27", versions?.canonicalPhaseG2_1Google?.documentCurrent === "1.27.0" && versions?.canonicalPhaseG2_1Google?.documentPrevious === "1.26.0" && versions?.canonicalPhaseG2_1Google?.googleStaticGoldenStatus === "FROZEN", JSON.stringify(versions?.canonicalPhaseG2_1Google));
+  check("canonical_version_1_27", (g3Implemented
+    ? versions?.documentVersion?.current === "1.28.0" && versions?.documentVersion?.previous === "1.27.0" && versions?.canonicalPhaseG3Google?.templateCoordinatesChanged === false
+    : versions?.canonicalPhaseG2_1Google?.documentCurrent === "1.27.0" && versions?.canonicalPhaseG2_1Google?.documentPrevious === "1.26.0" && versions?.canonicalPhaseG2_1Google?.googleStaticGoldenStatus === "FROZEN"), JSON.stringify(g3Implemented ? versions?.canonicalPhaseG3Google : versions?.canonicalPhaseG2_1Google));
   const canonicalText = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");
   check("canonical_g2_1_section", canonicalText.includes("Phase G2.1") && canonicalText.includes(expectedAcceptanceStatement) && canonicalText.includes("ALL_14"), "canonical G2.1 freeze section present");
   check("next_phase_handoff", frozen?.nextPhase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" || versions?.canonicalPhaseG2_1Google?.nextPhase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT", "next phase is G3 Google Desktop QA enablement");

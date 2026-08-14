@@ -71,9 +71,12 @@ const frozenPaths = [
 ];
 const frozenDiff = execFileSync("git", ["diff", "--name-only", baseline, "--", ...frozenPaths], { cwd: root, encoding: "utf8" }).trim();
 const frozenDiffEntries = frozenDiff ? frozenDiff.split(/\r?\n/).filter(Boolean) : [];
-const allowedM2_3GoldenPaths = (entry) => entry === "fixtures/golden/meta" || entry.startsWith("fixtures/golden/meta/");
-const unexpectedFrozenDiff = frozenDiffEntries.filter((entry) => !allowedM2_3GoldenPaths(entry));
-check("frozen_runtime_paths", unexpectedFrozenDiff.length === 0, unexpectedFrozenDiff.join("\n") || (frozenDiffEntries.length > 0 ? "M2.3 META golden fixture additions are evidence-only" : "no changes"));
+const allowedHistoricalGoldenPaths = (entry) => (
+  entry === "fixtures/golden/meta" || entry.startsWith("fixtures/golden/meta/")
+  || entry === "fixtures/golden/google" || entry.startsWith("fixtures/golden/google/")
+);
+const unexpectedFrozenDiff = frozenDiffEntries.filter((entry) => !allowedHistoricalGoldenPaths(entry));
+check("frozen_runtime_paths", unexpectedFrozenDiff.length === 0, unexpectedFrozenDiff.join("\n") || (frozenDiffEntries.length > 0 ? "later-phase META/Google golden fixture additions are evidence-only" : "no changes"));
 
 for (const result of checks) console.log(`${result.status} ${result.name}: ${result.detail}`);
 if (failures.length > 0) {

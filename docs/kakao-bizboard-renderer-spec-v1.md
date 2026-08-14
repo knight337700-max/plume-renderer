@@ -5536,3 +5536,48 @@ Evidence is `artifacts/g2-1/google-static-visual-acceptance.json` (SHA-256
 
 `nextPhase`: `G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT`. Desktop review, upload/API integration,
 and platform approval remain separate future contracts. **[PROJECT]**
+
+## 58. Phase G3 — Google Static Desktop QA enablement [PROJECT]
+
+G3 adds an additive Desktop QA workflow for the fourteen frozen Google Static profiles. The
+workflow exposes two grouped profile families—Geometry (seven profiles) and Uploaded Display
+Static (seven profiles)—from the existing Desktop channel selector. It reuses the frozen G1
+profile registry, G2.1 Golden registry, and the executable Google Static Core renderer and
+Validator; it does not alter those contracts. **[PROJECT]**
+
+The Desktop flow is one deterministic local path: select a local asset, select a profile, edit or
+accept an explicit placement plan, run Core Preview and Validator, inspect the artifact in Fit or
+100% actual-pixel view, and publish one local artifact plus one manifest only when ERROR count is
+zero. A warning or INFO diagnostic is non-blocking. Platform-owned delivery fields are displayed
+as metadata and participate only in request identity; they are never rasterized. Artifact
+cardinality is `SINGLE`, delivery cardinality is `COLLECTION`, and legacy Display runtime
+profiles remain absent. **[PROJECT]**
+
+The eleven frozen Google diagnostic definitions from
+`contracts/google/diagnostics.g1.json` are now active in the global Error Registry and have
+stable Korean message keys. Their semantic fields are unchanged. Unknown or invalid profile,
+canvas, MIME, byte-cap, role, text, and PMax mode conditions block Preview/Export; the two
+vertical source notes and lifecycle note remain INFO-only. **[PROJECT]**
+
+G3 deliberately excludes Google Ads upload/API, OAuth, telemetry, update checks, remote fonts,
+platform screenshot chrome, and runtime network access. It also excludes any Plume dependency.
+The Desktop Main/Core trusted-root boundary remains the security authority, and existing KAKAO,
+NAVER, and META flows are unchanged. **[PROJECT]**
+
+### 58.1 Version and evidence record [PROJECT]
+
+The Canonical document advances from `1.27.0` to `1.28.0` (minor). The Desktop/package version
+advances from `0.10.1` to `0.11.0` (minor) for the new channel workflow. The global Error Registry
+advances from `1.9.0` to `1.10.0` (minor) because the eleven frozen Google diagnostic records are
+activated. Google architecture remains `1.0.0`; Google profile/Golden registries remain `1.0.0`;
+Renderer Core remains `0.11.0`; Validator remains `1.11.0`; template `1.9.0`; Input `1.2.0`;
+Output `2.0.0`; manifest `1.0.0`; and response envelope `1.0.0`. Coordinates are unchanged.
+**[PROJECT]**
+
+Machine-readable Desktop QA scope is `contracts/google/desktop-qa.g3.json`. The implementation
+record is `docs/implementation/google-static-desktop-qa-enablement-g3.md`; the ADR is
+`docs/adr/ADR-0063-google-static-desktop-qa-enablement-g3.md`; and the deterministic verifier is
+`scripts/verify-g3-google-static-desktop-qa.mjs`. Frozen G2.1 bytes and registry are evidence-only
+inputs and are not regenerated or rewritten. **[PROJECT]**
+
+`nextPhase`: `G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE`. **[PROJECT]**

@@ -32,6 +32,15 @@ import {
   renderMetaStaticPreviewArtifact,
   materializePlatformComposedProfile,
   validatePlatformComposedSource,
+  loadGoogleStaticContracts,
+  resolveGoogleCapability,
+  resolveGoogleStaticProfile,
+  renderGoogleStaticCandidate,
+  validateGoogleStaticArtifact,
+  type GoogleStaticCandidateRenderPlan,
+  type GoogleStaticContracts,
+  type GoogleStaticAssetProfile,
+  type GoogleValidationIssue,
   type NaverFeedCollectionRenderRequest,
   type PlatformComposedSourceSpec,
   type PlatformSourceFieldRule,
@@ -61,6 +70,7 @@ import type {
   NaverSourceProfile,
   PreviewResult,
   ProductSelectionResult,
+  GoogleStaticUiRequest,
   UiRenderInput,
 } from "../../shared/src/index.js";
 import { deriveNaverSmartChannelTextInputFields } from "../../shared/src/index.js";
@@ -222,6 +232,49 @@ function mapIntegrationIssues(
     ...(entry.slotRole !== undefined ? { slotRole: entry.slotRole } : {}),
     ...(entry.assetId !== undefined ? { assetId: entry.assetId } : {}),
   }));
+}
+
+function mapGoogleIssues(issues: readonly GoogleValidationIssue[]): ValidationIssue[] {
+  return issues.map((entry) => ({
+    code: entry.code,
+    severity: entry.severity,
+    messageKey: entry.messageKey,
+    path: entry.path,
+    ...(entry.expected === undefined ? {} : { expected: entry.expected }),
+    ...(entry.actual === undefined ? {} : { actual: entry.actual }),
+  }));
+}
+
+function googleTargetForCapability(profile: GoogleStaticAssetProfile, capabilityId?: string): string | undefined {
+  if (capabilityId === "GOOGLE_RDA_ASSET_SET") return "RDA";
+  if (capabilityId === "GOOGLE_PMAX_ASSET_GROUP_STATIC") return "PMAX";
+  if (capabilityId === "GOOGLE_DEMAND_GEN_SINGLE_IMAGE") return "DEMAND_GEN";
+  if (capabilityId === "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC") return "DEMAND_GEN_UPLOADED_DISPLAY_STATIC";
+  return profile.targetIds[0];
+}
+
+function googleInfoDiagnostics(profile: GoogleStaticAssetProfile): GoogleValidationIssue[] {
+  if (profile.profileId === "GOOGLE_RDA_VERTICAL_9_16") {
+    return [{ code: "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY", severity: "INFO", messageKey: "google.rda_vertical_source_discrepancy", path: "/assetProfileId", profileId: profile.profileId }];
+  }
+  if (profile.profileId === "GOOGLE_DEMAND_GEN_VERTICAL_9_16") {
+    return [{ code: "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED", severity: "INFO", messageKey: "google.demandgen_safe_zone_source_required", path: "/assetProfileId", profileId: profile.profileId }];
+  }
+  return [];
+}
+
+function googlePlanFromRequest(request: GoogleStaticUiRequest): GoogleStaticCandidateRenderPlan {
+  return {
+    profileId: request.profileId,
+    placementPolicy: request.placementPolicy,
+    ...(request.sourceRect ? { sourceRect: request.sourceRect } : {}),
+    destinationRect: request.destinationRect,
+    background: request.background,
+    ...(request.explicitElementPlan === undefined ? {} : { explicitElementPlan: request.explicitElementPlan }),
+    ...(request.semanticPlan === undefined ? {} : { semanticPlan: request.semanticPlan }),
+    outputFormat: request.outputFormat,
+    ...(request.jpegQuality === undefined ? {} : { jpegQuality: request.jpegQuality }),
+  };
 }
 
 function mapNaverSourceIssues(
@@ -1409,6 +1462,166 @@ export class DesktopController {
     }
   }
 
+  async #renderGoogleStatic(
+    input: UiRenderInput | ExportRequest,
+    asset: SessionAsset,
+  ): Promise<{
+    contracts: GoogleStaticContracts;
+    profile: GoogleStaticAssetProfile | null;
+    plan: GoogleStaticCandidateRenderPlan | null;
+    rendered: Awaited<ReturnType<typeof renderGoogleStaticCandidate>> | null;
+    requestFingerprint: string | null;
+    errors: ValidationIssue[];
+    warnings: ValidationIssue[];
+    info: ValidationIssue[];
+  }> {
+    const request = input.googleStatic;
+    const contracts = await loadGoogleStaticContracts(this.#projectRoot);
+    if (!request) {
+      return { contracts, profile: null, plan: null, rendered: null, requestFingerprint: null, errors: [{ code: "KBR-INPUT-002", severity: "ERROR", messageKey: "input.schema_mismatch", path: "/googleStatic" }], warnings: [], info: [] };
+    }
+    const profile = resolveGoogleStaticProfile(request.profileId, contracts) ?? null;
+    const profileIssue = profile
+      ? []
+      : [{ code: "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", severity: "ERROR" as const, messageKey: "google.asset_profile_unknown", path: "/googleStatic/profileId", expected: contracts.profiles.geometryProfiles.concat(contracts.profiles.uploadedDisplayStaticProfiles).map((entry) => entry.profileId), actual: request.profileId }];
+    if (!profile) return { contracts, profile: null, plan: null, rendered: null, requestFingerprint: null, errors: profileIssue, warnings: [], info: [] };
+    if (request.capabilityId && !resolveGoogleCapability(request.capabilityId, contracts)) {
+      return { contracts, profile, plan: null, rendered: null, requestFingerprint: null, errors: [{ code: "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", severity: "ERROR", messageKey: "google.asset_profile_unknown", path: "/googleStatic/capabilityId", actual: request.capabilityId, expected: contracts.mapping.capabilities.map((entry) => entry.capabilityId) }], warnings: [], info: [] };
+    }
+    const plan = googlePlanFromRequest(request);
+    try {
+      const sourceBytes = await readFile(asset.absolutePath);
+      const rendered = await renderGoogleStaticCandidate(sourceBytes, plan, contracts);
+      const target = googleTargetForCapability(profile, request.capabilityId);
+      const artifact = {
+        artifactId: `DESKTOP_GOOGLE_${profile.profileId}`,
+        assetProfileId: profile.profileId,
+        role: profile.role,
+        ordinal: 0,
+        width: rendered.width,
+        height: rendered.height,
+        mime: rendered.mime,
+        bytes: rendered.encodedBytes,
+        hasAlpha: request.outputFormat === "PNG",
+        animation: false,
+        ...(profile.allowedPlacementPolicies.length > 0 ? { placementPolicy: request.placementPolicy } : {}),
+      };
+      const artifactIssues = validateGoogleStaticArtifact(artifact, contracts, target ? { target: target as never } : {});
+      const allIssues = [...artifactIssues, ...googleInfoDiagnostics(profile)];
+      const errors = allIssues.filter((entry) => entry.severity === "ERROR");
+      const warnings = allIssues.filter((entry) => entry.severity === "WARNING");
+      const info = allIssues.filter((entry) => entry.severity === "INFO");
+      const requestFingerprint = canonicalDigest({
+        channel: "GOOGLE_STATIC",
+        profileId: profile.profileId,
+        capabilityId: request.capabilityId ?? null,
+        assetSha256: asset.sha256,
+        plan,
+        deliveryMetadata: request.deliveryMetadata ?? null,
+      });
+      return { contracts, profile, plan, rendered, requestFingerprint, errors: mapGoogleIssues(errors), warnings: mapGoogleIssues(warnings), info: mapGoogleIssues(info) };
+    } catch (error) {
+      const code = error instanceof Error && "code" in error && typeof (error as { code?: unknown }).code === "string"
+        ? String((error as { code: string }).code)
+        : "KBR-OUTPUT-INVALID";
+      return {
+        contracts,
+        profile,
+        plan,
+        rendered: null,
+        requestFingerprint: null,
+        errors: [{ code, severity: "ERROR", messageKey: code.startsWith("KBR-GOOGLE-") ? "google.asset_profile_unknown" : "output.invalid", path: "/googleStatic", actual: error instanceof Error ? error.message : String(error) }],
+        warnings: [],
+        info: [],
+      };
+    }
+  }
+
+  async #googlePreview(input: UiRenderInput, asset: SessionAsset): Promise<PreviewResult> {
+    const generatedAt = new Date().toISOString();
+    try {
+      const built = await this.#renderGoogleStatic(input, asset);
+      const rendered = built.rendered;
+      const previewAllowed = Boolean(rendered) && built.errors.length === 0;
+      if (!rendered || !previewAllowed || !built.requestFingerprint || !built.profile) {
+        await this.#session.invalidatePreview();
+        return {
+          requestSequence: input.requestSequence,
+          previewToken: null,
+          previewUrl: null,
+          canonicalInputDigest: built.requestFingerprint,
+          productAssetDigest: asset.sha256,
+          previewPngDigest: null,
+          pngMetadata: null,
+          measurements: null,
+          validationStatus: "ERROR",
+          errors: built.errors,
+          warnings: built.warnings,
+          info: built.info,
+          generatedAt,
+          formatProfileId: built.profile?.profileId ?? null,
+          artifactFormat: input.googleStatic?.outputFormat ?? null,
+          artifactDigest: null,
+          googleStatic: built.profile ? { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(input.googleStatic?.placementPolicy ? { placementPolicy: input.googleStatic.placementPolicy } : {}), deliveryCardinality: "COLLECTION", renderFingerprint: null } : null,
+        };
+      }
+      const stored = await this.#session.storePreview(
+        rendered.bytes,
+        built.requestFingerprint,
+        asset.sha256,
+        sha256Bytes(rendered.bytes),
+        { GOOGLE_STATIC_PRIMARY: asset.sha256 },
+        { format: input.googleStatic?.outputFormat ?? "PNG", publishAllowed: true },
+      );
+      return {
+        requestSequence: input.requestSequence,
+        previewToken: stored.token,
+        previewUrl: `kbr-preview://preview/${stored.token}`,
+        canonicalInputDigest: built.requestFingerprint,
+        productAssetDigest: asset.sha256,
+        previewPngDigest: sha256Bytes(rendered.bytes),
+        pngMetadata: {
+          format: input.googleStatic?.outputFormat ?? "PNG",
+          colorType: input.googleStatic?.outputFormat === "JPEG" ? "RGB" : "RGBA",
+          bitDepth: 8,
+          hasAlpha: input.googleStatic?.outputFormat !== "JPEG",
+          width: rendered.width,
+          height: rendered.height,
+          bytes: rendered.encodedBytes,
+        },
+        measurements: null,
+        validationStatus: built.warnings.length > 0 ? "WARNING" : "PASS",
+        errors: built.errors,
+        warnings: built.warnings,
+        info: built.info,
+        generatedAt,
+        formatProfileId: built.profile.profileId,
+        artifactFormat: input.googleStatic?.outputFormat ?? "PNG",
+        artifactDigest: sha256Bytes(rendered.bytes),
+        outputEncoding: { format: input.googleStatic?.outputFormat ?? "PNG", mime: rendered.mime },
+        googleStatic: { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(input.googleStatic?.placementPolicy ? { placementPolicy: input.googleStatic.placementPolicy } : {}), deliveryCardinality: "COLLECTION", renderFingerprint: rendered.renderFingerprint },
+        eligibility: resolvePreviewEligibility([], true),
+      };
+    } catch (error) {
+      await this.#session.invalidatePreview();
+      return {
+        requestSequence: input.requestSequence,
+        previewToken: null,
+        previewUrl: null,
+        canonicalInputDigest: null,
+        productAssetDigest: asset.sha256,
+        previewPngDigest: null,
+        pngMetadata: null,
+        measurements: null,
+        validationStatus: "ERROR",
+        errors: [{ code: error instanceof DesktopSecurityError ? error.code : "DESKTOP-GOOGLE-999", severity: "ERROR", messageKey: "output.invalid", path: "/googleStatic", actual: error instanceof Error ? error.message : String(error) }],
+        warnings: [],
+        info: [],
+        generatedAt,
+      };
+    }
+  }
+
   async #exportFreeform(
     request: ExportRequest,
     previewRecord: Awaited<ReturnType<DesktopSessionManager["getPreview"]>>,
@@ -1528,6 +1741,10 @@ export class DesktopController {
   async requestPreview(input: UiRenderInput): Promise<PreviewResult> {
     const generatedAt = new Date().toISOString();
     try {
+      if (input.googleStatic) {
+        const asset = this.#session.getAsset(input.assetToken);
+        return this.#googlePreview(input, asset);
+      }
       if (input.layoutMode === "FREEFORM" || input.freeform) return this.#freeformPreview(input);
       const asset = this.#session.getAsset(input.assetToken);
       if (input.template === "THUMBNAIL_BOX_RIGHT") return this.#thumbnailPreview(input, asset);
@@ -1834,6 +2051,75 @@ export class DesktopController {
     }
   }
 
+  async #exportGoogle(
+    request: ExportRequest,
+    asset: SessionAsset,
+    previewRecord: Awaited<ReturnType<DesktopSessionManager["getPreview"]>>,
+    output: Awaited<ReturnType<DesktopSessionManager["getOutputDirectory"]>>,
+  ): Promise<ExportResult> {
+    let artifactPath: string | null = null;
+    let manifestPath: string | null = null;
+    try {
+      if (!previewRecord.publishAllowed) return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "Google Static Preview가 검증을 통과하지 않아 Export가 차단되었습니다.");
+      const currentAssetDigest = await sha256File(asset.absolutePath);
+      if (currentAssetDigest !== asset.sha256 || currentAssetDigest !== previewRecord.assetDigest) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-002", "Google Static Asset이 Preview 이후 변경되었습니다.");
+      const built = await this.#renderGoogleStatic(request, asset);
+      if (!built.rendered || !built.requestFingerprint || built.errors.length > 0 || !built.profile) {
+        return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "Google Static 최종 검증에 실패하여 Export가 차단되었습니다.", built.errors, built.warnings);
+      }
+      const artifactDigest = sha256Bytes(built.rendered.bytes);
+      if (built.requestFingerprint !== previewRecord.inputDigest || artifactDigest !== previewRecord.pngDigest) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-003", "Google Static Preview가 현재 입력과 일치하지 않습니다.");
+      const contracts = built.contracts;
+      const validatorIssues = [...built.errors, ...built.warnings, ...built.info];
+      const manifest = {
+        schemaVersion: "1.0.0",
+        canonicalInputDigest: built.requestFingerprint,
+        normalizedInputDigest: built.requestFingerprint,
+        outputPngDigest: artifactDigest,
+        outputArtifactDigest: artifactDigest,
+        outputFileName: `output.${request.googleStatic?.outputFormat === "JPEG" ? "jpg" : "png"}`,
+        outputEncoding: { format: request.googleStatic?.outputFormat ?? "PNG", mime: built.rendered.mime },
+        templateContractVersion: "1.9.0",
+        inputSchemaVersion: "1.2.0",
+        outputSchemaVersion: "2.0.0",
+        formatProfileId: built.profile.profileId,
+        renderFingerprint: built.rendered.renderFingerprint,
+        validatorResult: { errorCount: built.errors.length, warningCount: built.warnings.length, infoCount: built.info.length, issues: validatorIssues },
+        assetDigests: {
+          product: { id: "GOOGLE_STATIC_PRIMARY", sha256: asset.sha256 },
+          fonts: [],
+          approvedIcons: [],
+          referenceFixture: { id: "GOOGLE_STATIC_DESKTOP_QA", sha256: canonicalDigest(contracts.profiles) },
+        },
+        manualAcceptanceStatus: { status: "NOT_REVIEWED", items: [] },
+        googleStatic: {
+          profileId: built.profile.profileId,
+          capabilityId: request.googleStatic?.capabilityId ?? null,
+          placementPolicy: request.googleStatic?.placementPolicy,
+          deliveryCardinality: "COLLECTION",
+          platformFieldsRasterized: false,
+        },
+      };
+      const manifestText = canonicalJson(manifest);
+      const manifestDigest = sha256Bytes(Buffer.from(manifestText, "utf8"));
+      const jobDirectory = await resolveTrustedJobDirectory(output.root, ".", request.jobName);
+      const artifactFileName = request.googleStatic?.outputFormat === "JPEG" ? "output.jpg" : "output.png";
+      const published = await publishArtifacts({ outputRoot: output.root, jobDirectory, artifact: built.rendered.bytes, artifactFileName, manifest: manifestText, overwrite: false });
+      artifactPath = published.artifactPath;
+      manifestPath = published.manifestPath;
+      const [actualArtifactDigest, actualManifestDigest, artifactStat] = await Promise.all([sha256File(artifactPath), sha256File(manifestPath), stat(artifactPath)]);
+      if (actualArtifactDigest !== artifactDigest || actualManifestDigest !== manifestDigest) {
+        await Promise.allSettled([rm(artifactPath, { force: true }), rm(manifestPath, { force: true })]);
+        return desktopFailure("ERROR", "DESKTOP-EXPORT-004", "Google Static 저장 digest 검증에 실패했습니다.");
+      }
+      const exportToken = this.#session.registerExport(artifactPath, manifestPath);
+      return { status: "EXPORTED", exportToken, jobName: request.jobName, pngFileName: artifactFileName, manifestFileName: "render-manifest.json", pngDigest: actualArtifactDigest, manifestDigest: actualManifestDigest, bytes: artifactStat.size, warnings: built.warnings, artifactFileName, artifactFormat: request.googleStatic?.outputFormat ?? "PNG", artifactDigest: actualArtifactDigest };
+    } catch (error) {
+      if (artifactPath || manifestPath) await Promise.allSettled([artifactPath ? rm(artifactPath, { force: true }) : Promise.resolve(), manifestPath ? rm(manifestPath, { force: true }) : Promise.resolve()]);
+      return desktopFailure("ERROR", error instanceof DesktopSecurityError ? error.code : "DESKTOP-EXPORT-999", error instanceof Error ? error.message : "Google Static Export 중 내부 오류가 발생했습니다.");
+    }
+  }
+
   async registerOutputDirectory(rootPath: string): Promise<{ token: string; displayName: string }> {
     return this.#session.registerOutputDirectory(rootPath);
   }
@@ -1842,6 +2128,12 @@ export class DesktopController {
     let publishedPng: string | null = null;
     let publishedManifest: string | null = null;
     try {
+      if (request.googleStatic) {
+        const asset = this.#session.getAsset(request.assetToken);
+        const previewRecord = this.#session.getPreview(request.previewToken);
+        const output = this.#session.getOutputDirectory(request.outputDirectoryToken);
+        return this.#exportGoogle(request, asset, previewRecord, output);
+      }
       if (request.layoutMode === "FREEFORM" || request.freeform) {
         const previewRecord = this.#session.getPreview(request.previewToken);
         const output = this.#session.getOutputDirectory(request.outputDirectoryToken);

@@ -11,7 +11,7 @@ import type { PreviewArtifact, PreviewEligibility } from "./preview-artifact.js"
 export type UiTemplate = "OBJECT_RIGHT" | "THUMBNAIL_BOX_RIGHT" | "THUMBNAIL_MULTI_RIGHT" | "MASK_SEMICIRCLE_RIGHT";
 export type UiLayoutMode = "TEMPLATE_LOCKED" | "FREEFORM";
 export type UiFreeformOutputFormat = "PNG" | "JPEG";
-export type UiChannel = "KAKAO" | "NAVER" | "META";
+export type UiChannel = "KAKAO" | "NAVER" | "META" | "GOOGLE";
 export type NaverPlacement =
   | "SMARTCHANNEL"
   | "MOBILE_DA"
@@ -25,7 +25,8 @@ export type NaverEditorKind =
   | "TEMPLATE_LOCKED_EDITOR"
   | "FREEFORM_EDITOR"
   | "PLATFORM_SOURCE_EDITOR"
-  | "COLLECTION_SOURCE_EDITOR";
+  | "COLLECTION_SOURCE_EDITOR"
+  | "GOOGLE_STATIC_EDITOR";
 export type NaverFeedSubtype = "IMAGE" | "COLLECTION" | "VIDEO";
 
 export type DesktopCapability = Readonly<{
@@ -43,6 +44,10 @@ export type DesktopCapability = Readonly<{
   templateRegistry?: string;
   fontPreflight?: boolean;
   platformOwnedFields?: readonly string[];
+  sourceProfileRegistry?: string;
+  capabilityRegistry?: string;
+  diagnosticRegistry?: string;
+  deliveryCardinality?: "COLLECTION";
   feedSubtypes?: readonly Readonly<{
     id: NaverFeedSubtype;
     enabled: boolean;
@@ -248,6 +253,24 @@ export type UiFreeformRequest = {
   };
 };
 
+export type GoogleStaticPlacementPolicy = "NONE" | "CENTER_CONTAIN" | "MANUAL_CROP" | "SEMANTIC_CROP_COVER" | "ALPHA_TRIM_CONTAIN";
+export type GoogleStaticPixelRect = Readonly<{ x: number; y: number; width: number; height: number }>;
+export type GoogleStaticRgbaColor = Readonly<{ r: number; g: number; b: number; alpha: number }>;
+export type GoogleStaticUiRequest = Readonly<{
+  profileId: string;
+  capabilityId?: string;
+  placementPolicy: GoogleStaticPlacementPolicy;
+  sourceRect?: GoogleStaticPixelRect;
+  destinationRect: GoogleStaticPixelRect;
+  background: GoogleStaticRgbaColor;
+  explicitElementPlan?: boolean;
+  semanticPlan?: boolean;
+  outputFormat: "PNG" | "JPEG";
+  jpegQuality?: number;
+  /** Platform-owned delivery fields are metadata only and never enter rasterization. */
+  deliveryMetadata?: Readonly<Record<string, unknown>>;
+}>;
+
 export type UiRenderInput = {
   assetToken: string;
   secondaryAssetToken?: string;
@@ -263,6 +286,7 @@ export type UiRenderInput = {
   placementPlan?: ImagePlacementPlan;
   placementPlans?: readonly ImagePlacementPlan[];
   cropCandidates?: readonly CropCandidate[];
+  googleStatic?: GoogleStaticUiRequest;
 };
 
 export type ProductSelectionResult =
@@ -301,6 +325,7 @@ export type PreviewResult = {
   validationStatus: "PASS" | "WARNING" | "ERROR";
   errors: ValidationIssue[];
   warnings: ValidationIssue[];
+  info?: ValidationIssue[];
   generatedAt: string;
   template?: UiTemplate;
   appliedImagePlacement?: AppliedImagePlacement | null;
@@ -319,6 +344,15 @@ export type PreviewResult = {
   eligibility?: PreviewEligibility;
   /** In-memory Core manifest exposed only to the Desktop QA harness. */
   manifest?: Readonly<Record<string, unknown>> | null;
+  googleStatic?: Readonly<{
+    profileId: string;
+    capabilityId?: string | null;
+    assetRole?: string;
+    canvas?: { width: number; height: number };
+    placementPolicy?: GoogleStaticPlacementPolicy;
+    deliveryCardinality?: "COLLECTION";
+    renderFingerprint?: string | null;
+  }> | null;
 };
 
 export type OutputDirectoryResult =

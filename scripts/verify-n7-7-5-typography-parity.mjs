@@ -28,7 +28,8 @@ const manifest = readJson("artifacts/n7-7-5/representative-after-current-fixes.m
 
 check("phase", audit.phase.id === "N7_7_5_SMARTCHANNEL_TYPOGRAPHY_PARITY_CORRECTION" && audit.phase.status === "PASS", JSON.stringify(audit.phase));
 const m1MetaRuntime = versions.canonicalPhaseM1?.metaRuntimeImplemented === true;
-check("versions", (m1MetaRuntime || (versions.documentVersion.current === "1.21.4" && versions.desktopAppVersion === "0.9.12" && packageJson.version === "0.9.12")) && versions.canonicalPhaseN7_7_5.rendererCoreVersion === "0.8.6" && versions.canonicalPhaseN8.rendererCoreVersion === "0.8.6" && errors.registryVersion === (m1MetaRuntime ? "1.9.0" : "1.8.1") && typography.registryVersion === "1.6.0", JSON.stringify({ document: versions.documentVersion, historical: versions.canonicalPhaseN7_7_5, current: versions.canonicalPhaseN8, m1: versions.canonicalPhaseM1, package: packageJson.version }));
+const g3GoogleDesktop = versions.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT";
+check("versions", (g3GoogleDesktop || m1MetaRuntime || (versions.documentVersion.current === "1.21.4" && versions.desktopAppVersion === "0.9.12" && packageJson.version === "0.9.12")) && versions.canonicalPhaseN7_7_5.rendererCoreVersion === "0.8.6" && versions.canonicalPhaseN8.rendererCoreVersion === "0.8.6" && errors.registryVersion === (g3GoogleDesktop ? "1.10.0" : m1MetaRuntime ? "1.9.0" : "1.8.1") && typography.registryVersion === "1.6.0", JSON.stringify({ document: versions.documentVersion, historical: versions.canonicalPhaseN7_7_5, current: versions.canonicalPhaseN8, m1: versions.canonicalPhaseM1, package: packageJson.version }));
 check("template_geometry_frozen", versions.templateContractVersion === "1.9.0" && versions.smartChannelTemplateContractVersion === "1.10.0" && versions.canonicalPhaseN7_7_5.templateCoordinatesChanged === false, JSON.stringify(versions.canonicalPhaseN7_7_5));
 
 const expectedArtifacts = [

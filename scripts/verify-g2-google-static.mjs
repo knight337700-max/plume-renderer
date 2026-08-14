@@ -97,6 +97,7 @@ function demandGenFields() {
 
 const packageJson = await readJson("package.json");
 const versions = await readJson("contracts/contract-versions.json");
+const g3Implemented = versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" && versions?.canonicalPhaseG3Google?.desktopUiAdded === true;
 const architecture = await readJson("contracts/google/architecture-freeze.g0.1.json");
 const diagnostics = await readJson("contracts/google/diagnostics.g1.json");
 const profiles = await readJson("contracts/google/static-asset-profiles.g1.json");
@@ -176,7 +177,7 @@ const emittedIssues = Object.values(gateCases).flatMap((result) => [...result.er
 check("diagnostic_unknown_code_not_silent", emittedIssues.every((issue) => diagnostics?.codes?.some((entry) => entry.code === issue.code)), "all emitted Gate A codes resolve in frozen registry");
 check("diagnostic_info_non_blocking", [gateCases.rda_vertical_info, gateCases.demandgen_safe_zone_info, gateCases.lifecycle_transitional].every((result) => result?.status === "PASS"), JSON.stringify({ rda: gateCases.rda_vertical_info?.status, demandGen: gateCases.demandgen_safe_zone_info?.status, lifecycle: gateCases.lifecycle_transitional?.status }));
 check("diagnostic_error_blocking", [gateCases.unknown_profile, gateCases.bytes_exceeded, gateCases.required_role_missing, gateCases.text_limit_exceeded, gateCases.pmax_mode_mismatch].every((result) => result?.status === "ERROR"), "ERROR diagnostics produce ERROR validation status");
-check("diagnostic_global_registry_deferred", !JSON.stringify(globalErrors ?? {}).includes("KBR-GOOGLE-"), "Google diagnostics are not active global Error Registry entries");
+check("diagnostic_global_registry_deferred", g3Implemented ? JSON.stringify(globalErrors ?? {}).includes("KBR-GOOGLE-") : !JSON.stringify(globalErrors ?? {}).includes("KBR-GOOGLE-"), g3Implemented ? "G3 Google diagnostics are active global Error Registry entries" : "Google diagnostics are not active global Error Registry entries");
 check("g1_completion_invariants", evidence?.g1CompletionGate?.objectRightSha256 === expectedObjectRightSha256 && evidence?.g1CompletionGate?.frozenChannelsOutputChanges === 0 && evidence?.g1CompletionGate?.runtimeNetworkRequests === 0 && Array.isArray(evidence?.g1CompletionGate?.plumeDependencies ?? []), JSON.stringify(evidence?.g1CompletionGate));
 
 for (const candidate of registry?.candidates ?? []) {
@@ -222,7 +223,7 @@ const previewHtml = await readFile(path.join(root, "artifacts/g2/google-static-c
 check("preview_index", previewHtml.includes("GOOGLE_MARKETING_LANDSCAPE_1_91") && (previewHtml.match(/<article>/g) ?? []).length === 14, "14 candidate previews are indexed");
 check("legacy_display_runtime_zero", profiles?.legacyDisplayRuntimeProfiles?.length === 0 && !(registry?.candidates ?? []).some((candidate) => candidate.profileId.includes("LEGACY")), "legacy Display runtime is not active");
 check("google_upload_absent", !(await exists("src/core/google-upload")) && !(await exists("apps/desktop/electron-main/google-upload")) && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("googleapis"), "Google Ads upload integration is absent");
-check("desktop_google_ui_absent", !(await exists("apps/desktop/renderer-ui/src/google")), "Desktop Google UI is absent");
+check("desktop_google_ui_absent", g3Implemented ? await exists("apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx") : !(await exists("apps/desktop/renderer-ui/src/google")), g3Implemented ? "G3 Google UI is additive and present" : "Desktop Google UI is absent");
 check("google_frozen_golden_scope", !(await exists("contracts/google/goldens.g1.json")) && (await exists("contracts/google/goldens.g2.1.json")) && (await exists("fixtures/golden/google")), "G2 candidates remain historical while G2.1 owns the additive frozen Google Golden scope");
 const renderSource = await readFile(path.join(root, "src/core/google-static-render.ts"), "utf8").catch(() => "");
 check("plume_absent", !JSON.stringify(packageJson ?? {}).toLowerCase().includes("plume") && !renderSource.toLowerCase().includes("plume"), "no Plume dependency");

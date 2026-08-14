@@ -36,6 +36,34 @@ const freeformRequestSchema = z.strictObject({
   metaStatic: metaStaticSchema.optional(),
 });
 
+const googleStaticRectSchema = z.strictObject({
+  x: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+  y: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+  width: z.number().int().min(1).max(Number.MAX_SAFE_INTEGER),
+  height: z.number().int().min(1).max(Number.MAX_SAFE_INTEGER),
+});
+
+const googleStaticBackgroundSchema = z.strictObject({
+  r: z.number().int().min(0).max(255),
+  g: z.number().int().min(0).max(255),
+  b: z.number().int().min(0).max(255),
+  alpha: z.number().int().min(0).max(255),
+});
+
+const googleStaticRequestSchema = z.strictObject({
+  profileId: z.string().min(1).max(200),
+  capabilityId: z.string().min(1).max(200).optional(),
+  placementPolicy: z.enum(["NONE", "CENTER_CONTAIN", "MANUAL_CROP", "SEMANTIC_CROP_COVER", "ALPHA_TRIM_CONTAIN"]),
+  sourceRect: googleStaticRectSchema.optional(),
+  destinationRect: googleStaticRectSchema,
+  background: googleStaticBackgroundSchema,
+  explicitElementPlan: z.boolean().optional(),
+  semanticPlan: z.boolean().optional(),
+  outputFormat: z.enum(["PNG", "JPEG"]),
+  jpegQuality: z.number().int().min(1).max(100).optional(),
+  deliveryMetadata: z.record(z.string().min(1).max(200), z.unknown()).optional(),
+});
+
 const naverSmartChannelRequestSchema = z.strictObject({
   kind: z.literal("SMARTCHANNEL"),
   templateId: z.string().min(1).max(240),
@@ -99,6 +127,7 @@ export const previewRequestSchema = z.strictObject({
   placementPlan: z.unknown().optional(),
   placementPlans: z.array(z.unknown()).optional(),
   cropCandidates: z.array(z.unknown()).optional(),
+  googleStatic: googleStaticRequestSchema.optional(),
 });
 
 export const exportRequestSchema = z.strictObject({
@@ -117,6 +146,7 @@ export const exportRequestSchema = z.strictObject({
   placementPlan: z.unknown().optional(),
   placementPlans: z.array(z.unknown()).optional(),
   cropCandidates: z.array(z.unknown()).optional(),
+  googleStatic: googleStaticRequestSchema.optional(),
 });
 
 export const revealRequestSchema = token;
@@ -124,7 +154,7 @@ export const revealRequestSchema = token;
 export const rendererDiagnosticSchema = z.strictObject({
   kind: z.enum(["window_error", "unhandled_rejection", "react_error_boundary", "console_error", "renderer_crash", "renderer_unresponsive"]),
   timestamp: z.string().datetime().optional(),
-  channel: z.enum(["KAKAO", "NAVER"]).optional(),
+  channel: z.enum(["KAKAO", "NAVER", "META", "GOOGLE"]).optional(),
   placement: z.string().max(200).optional(),
   subtype: z.string().max(100).optional(),
   templateId: z.string().max(240).optional(),

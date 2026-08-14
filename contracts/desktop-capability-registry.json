@@ -149,6 +149,56 @@
           "platformOwnedFields": ["primaryText", "headline", "description", "callToAction", "destinationUrl"]
         }
       ]
+    },
+    {
+      "id": "GOOGLE",
+      "label": "GOOGLE ADS STATIC",
+      "placements": [
+        {
+          "id": "GOOGLE_STATIC_GEOMETRY",
+          "label": "Geometry",
+          "compositionMode": "PLATFORM_COMPOSED",
+          "layoutMode": "FREEFORM",
+          "artifactCardinality": "SINGLE",
+          "deliveryCardinality": "COLLECTION",
+          "editorType": "GOOGLE_STATIC_EDITOR",
+          "renderable": true,
+          "sourceProfileIds": [
+            "GOOGLE_MARKETING_LANDSCAPE_1_91",
+            "GOOGLE_MARKETING_SQUARE_1_1",
+            "GOOGLE_MARKETING_PORTRAIT_4_5",
+            "GOOGLE_RDA_VERTICAL_9_16",
+            "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+            "GOOGLE_LOGO_SQUARE_1_1",
+            "GOOGLE_LOGO_LANDSCAPE_4_1"
+          ],
+          "sourceProfileRegistry": "contracts/google/static-asset-profiles.g1.json",
+          "capabilityRegistry": "contracts/google/capability-asset-role-mapping.g1.json",
+          "diagnosticRegistry": "contracts/google/diagnostics.g1.json"
+        },
+        {
+          "id": "GOOGLE_STATIC_UPLOADED_DISPLAY",
+          "label": "Uploaded Display Static",
+          "compositionMode": "RENDERER_COMPOSED",
+          "layoutMode": "FREEFORM",
+          "artifactCardinality": "SINGLE",
+          "deliveryCardinality": "COLLECTION",
+          "editorType": "GOOGLE_STATIC_EDITOR",
+          "renderable": true,
+          "sourceProfileIds": [
+            "GOOGLE_DG_UPLOAD_300X250",
+            "GOOGLE_DG_UPLOAD_336X280",
+            "GOOGLE_DG_UPLOAD_728X90",
+            "GOOGLE_DG_UPLOAD_970X90",
+            "GOOGLE_DG_UPLOAD_160X600",
+            "GOOGLE_DG_UPLOAD_300X600",
+            "GOOGLE_DG_UPLOAD_320X50"
+          ],
+          "sourceProfileRegistry": "contracts/google/static-asset-profiles.g1.json",
+          "capabilityRegistry": "contracts/google/capability-asset-role-mapping.g1.json",
+          "diagnosticRegistry": "contracts/google/diagnostics.g1.json"
+        }
+      ]
     }
   ]
 }

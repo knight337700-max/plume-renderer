@@ -55,6 +55,28 @@ async function fillValidForm(page: Page, jobName: string): Promise<void> {
   await page.getByTestId("input-jobName").fill(jobName);
 }
 
+test("Google Static Desktop QA exposes the frozen profile groups and pixel-view controls", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "valid", "object-right__product__basic__pass.png"),
+  );
+  try {
+    await launched.page.getByTestId("channel-google").click();
+    await expect(launched.page.getByTestId("google-static-editor")).toBeVisible();
+    const profileSelect = launched.page.getByTestId("google-profile-select");
+    await expect(profileSelect.locator("option")).toHaveCount(14);
+    await expect(profileSelect.locator('optgroup[label="Geometry"] option')).toHaveCount(7);
+    await expect(profileSelect.locator('optgroup[label="Uploaded Display Static"] option')).toHaveCount(7);
+    await profileSelect.selectOption("GOOGLE_DG_UPLOAD_300X250");
+    await expect(launched.page.getByTestId("google-profile-summary")).toContainText("300×250");
+    await launched.page.getByTestId("google-fit-view").click();
+    await launched.page.getByTestId("google-actual-view").click();
+    await expect(launched.page.getByTestId("google-preview-canvas")).toHaveClass(/actual/);
+    await expect(launched.page.getByTestId("google-download")).toBeDisabled();
+  } finally {
+    await close(launched);
+  }
+});
+
 test("valid Desktop workflow renders Preview and atomically exports the Golden PNG", async () => {
   const launched = await launch(
     path.join(projectRoot, "fixtures", "valid", "object-right__product__basic__pass.png"),

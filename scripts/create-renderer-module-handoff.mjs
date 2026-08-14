@@ -234,6 +234,29 @@ const g2_1GoogleAcceptance = JSON.parse(await readFile(path.join(root, "artifact
 const g2_1GoogleReviewManifest = JSON.parse(await readFile(path.join(root, "artifacts/g2-1/google-static-review-manifest.json"), "utf8"));
 const g2_1GoogleVersion = canonicalDocument.canonicalPhaseG2_1Google;
 const g2_1GoogleVerificationStatus = g2_1GoogleRegistry.status === "FROZEN" && g2_1GoogleRegistry.visualAcceptance === "ACCEPTED" && g2_1GoogleRegistry.frozen === true && g2_1GoogleRegistry.entries?.length === 14 && g2_1GoogleAcceptance.status === "ACCEPTED" && g2_1GoogleAcceptance.userAcceptanceStatement === "ACCEPT_ALL_GOOGLE_G2_CANDIDATES" ? "PASS" : "FAIL";
+const g3GoogleQa = JSON.parse(await readFile(path.join(root, "contracts/google/desktop-qa.g3.json"), "utf8"));
+const g3GoogleVersion = canonicalDocument.canonicalPhaseG3Google;
+const g3GoogleVerificationStatus = g3GoogleQa.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT"
+  && g3GoogleQa.registryVersion === "1.0.0"
+  && g3GoogleQa.groups?.length === 2
+  && g3GoogleQa.groups?.every((group) => group.profileIds?.length === 7)
+  && g3GoogleQa.frozenGoldenCount === 14
+  && g3GoogleQa.legacyDisplayRuntimeProfiles === 0
+  && g3GoogleQa.activeDiagnosticCodes?.length === 11
+  && g3GoogleQa.fitToView === true
+  && g3GoogleQa.actualPixelView === true
+  && g3GoogleQa.passOnlyExport === true
+  && g3GoogleQa.runtimeNetworkAccess === "PROHIBITED"
+  && g3GoogleQa.googleUploadApi === false
+  && g3GoogleQa.oauth === false
+  && Array.isArray(g3GoogleQa.plumeDependencies)
+  && g3GoogleQa.plumeDependencies.length === 0
+  && g3GoogleVersion.desktopUiAdded === true
+  && g3GoogleVersion.profileCount === 14
+  && g3GoogleVersion.geometryProfileCount === 7
+  && g3GoogleVersion.uploadedDisplayStaticProfileCount === 7
+  && g3GoogleVersion.activeGoogleDiagnostics === 11
+  ? "PASS" : "FAIL";
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -248,7 +271,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — G2 Google Ads static rendering validation handoff
+const readme = `# Renderer Module — G3 Google Static Desktop QA handoff
 
 ## Purpose
 
@@ -293,7 +316,8 @@ build, test, and later phase development. The source repository remains unchange
 - Google G0.1 (historical freeze): architecture acceptance and freeze: ${g0_1GoogleVerificationStatus}, architecture version ${g0_1GoogleVersion.googleArchitectureVersion}, registry status ${g0_1GoogleFreezeRegistry.status}. Counts are fixed at capabilities ${g0_1GoogleFreezeRegistry.counts.capabilities}, Demand Gen uploaded presets ${g0_1GoogleFreezeRegistry.counts.demandGenUploadedPresets}, legacy Display canvases ${g0_1GoogleFreezeRegistry.counts.legacyDisplayCanvases}, unresolved rules ${g0_1GoogleFreezeRegistry.counts.unresolvedRules}, and proposed diagnostics ${g0_1GoogleFreezeRegistry.counts.proposedDiagnostics}.
 - Google G1 (historical): static contracts/profile implementation: ${g1GoogleVerificationStatus}, architecture version ${g1GoogleVersion.googleArchitectureVersion}, profile registry ${g1GoogleProfiles.profileCount} (${g1GoogleProfiles.geometryProfileCount} geometry + ${g1GoogleProfiles.uploadedDisplayStaticProfileCount} uploaded static), capability mapping ${g1GoogleMapping.capabilityCount}, legacy runtime profiles ${g1GoogleMapping.compositionBoundary.legacyRuntimeProfiles}, diagnostics ${g1GoogleDiagnostics.count}, and target constraints ${g1GoogleConstraints.byteUnit}. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; Demand Gen uploaded static is RENDERER_COMPOSED; every artifact is SINGLE and delivery sets are COLLECTION manifests. No Google upload/API, Desktop UI, Golden, carousel, Search image, or runtime network integration was added.
 - Google G2 (historical): deterministic static rendering validation: ${g2GoogleVerificationStatus}, architecture version ${g2GoogleVersion.googleArchitectureVersion}, ${g2GoogleRegistry.geometryCandidateCount} geometry candidates + ${g2GoogleRegistry.demandGenUploadedStaticCandidateCount} uploaded-display-static candidates (${g2GoogleRegistry.candidates?.length} total), registry status ${g2GoogleRegistry.status}. Repeat-render byte equality, exact canvas/MIME, decimal-byte caps, placement policies, thirty delivery scenarios, and five negative placement cases are verified.
-- Google G2.1 (current): user visual acceptance and Golden freeze: ${g2_1GoogleVerificationStatus}, exact statement ${g2_1GoogleAcceptance.userAcceptanceStatement}, ${g2_1GoogleRegistry.geometryGoldenCount} geometry + ${g2_1GoogleRegistry.demandGenUploadedDisplayStaticGoldenCount} uploaded-display-static Goldens (${g2_1GoogleRegistry.artifactCount} total), registry ${g2_1GoogleRegistry.status}, byte-identical promotion ${g2_1GoogleRegistry.entries?.every((entry) => entry.candidateToFrozenByteEquality) === true}. No Google upload/API, Desktop UI, platform-field rasterization, or runtime network integration was added. G3 is the next phase.
+- Google G2.1 (historical freeze): user visual acceptance and Golden freeze: ${g2_1GoogleVerificationStatus}, exact statement ${g2_1GoogleAcceptance.userAcceptanceStatement}, ${g2_1GoogleRegistry.geometryGoldenCount} geometry + ${g2_1GoogleRegistry.demandGenUploadedDisplayStaticGoldenCount} uploaded-display-static Goldens (${g2_1GoogleRegistry.artifactCount} total), registry ${g2_1GoogleRegistry.status}, byte-identical promotion ${g2_1GoogleRegistry.entries?.every((entry) => entry.candidateToFrozenByteEquality) === true}. The fourteen Goldens remain frozen and unchanged.
+- Google G3 (current): Desktop Static QA enablement: ${g3GoogleVerificationStatus}, two profile groups (7 Geometry + 7 Uploaded Display Static), fourteen profile selectors sourced from the G1 registry, deterministic local preview, validator diagnostics, Fit/Actual pixel view, and pass-only local export. Platform fields remain metadata-only; no Google upload/API, OAuth, runtime network access, or Plume dependency is present. Next phase: ${g3GoogleVersion.nextPhase}.
 
 ## Directories
 
@@ -331,7 +355,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
- The latest phase is G2.1 Google Static user visual acceptance and Golden freeze and the canonical document is v1.27.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen historical candidate artifacts; G2.1 freezes the fourteen explicitly accepted byte-identical Google Goldens. M1 implements the three project output presets,
+  The latest phase is G3 Google Static Desktop QA enablement and the canonical document is v1.28.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen historical candidate artifacts; G2.1 freezes the fourteen explicitly accepted byte-identical Google Goldens. G3 exposes those frozen profiles in the additive Desktop QA workflow with deterministic preview, diagnostics, Fit/Actual view, and pass-only local export. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
@@ -377,7 +401,7 @@ scripts/verify-n7-7-6-smartchannel-text-input-fields.mjs, and artifacts/n7-7-6/.
 contracts/audits/naver-smartchannel-final-baseline-n7-8.json,
 docs/implementation/naver-smartchannel-final-baseline-n7-8.md,
 scripts/verify-n7-8-smartchannel-final-baseline.mjs, and artifacts/n7-8/. The corrected SmartChannel
-runtime is frozen and ready as the baseline for the next channel work. G1 is the next Google phase and must preserve the composition boundary, source provenance, unresolved-rule fail-closed behavior, zero runtime network access, and KAKAO/NAVER/META frozen outputs.
+ runtime is frozen and ready as the baseline for the next channel work. G3 is additive and must preserve the composition boundary, source provenance, unresolved-rule fail-closed behavior, zero runtime network access, and KAKAO/NAVER/META/Google frozen outputs. G3.1 is the next Google phase and covers user visual QA and final Desktop acceptance; it must not introduce upload/API integration or alter the frozen Golden registry.
 `;
 await writeFile(path.join(target, "README.md"), readme, "utf8");
 const readmeEntry = files.find((entry) => entry.path === "README.md");
@@ -385,7 +409,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: g2_1GoogleVerificationStatus === "PASS" ? "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" : "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES",
+  handoffPhase: g3GoogleVerificationStatus === "PASS" ? "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" : (g2_1GoogleVerificationStatus === "PASS" ? "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" : "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES"),
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -400,10 +424,10 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseG2Google.rendererCoreVersion,
-    validator: canonicalDocument.canonicalPhaseG2Google.validatorCurrent,
-    desktop: canonicalDocument.canonicalPhaseG2Google.desktopCurrent,
-    package: canonicalDocument.canonicalPhaseG2Google.packageCurrent,
+    rendererCore: g3GoogleVersion.rendererCoreVersion,
+    validator: g3GoogleVersion.validatorCurrent,
+    desktop: g3GoogleVersion.desktopCurrent,
+    package: g3GoogleVersion.packageCurrent,
     googleStatic: {
       architectureVersion: g0_1GoogleVersion.googleArchitectureVersion,
       architectureVersionPrevious: g0_1GoogleVersion.googleArchitecturePrevious,
@@ -461,7 +485,28 @@ const manifest = {
       g2_1AcceptanceEvidence: g2_1GoogleVersion.acceptanceEvidence,
       g2_1ReviewManifest: "artifacts/g2-1/google-static-review-manifest.json",
       g2_1Verification: g2_1GoogleVersion.verifier,
-    },
+      g3DesktopQaRegistry: g3GoogleVersion.desktopQaRegistry,
+      g3DesktopQaRegistryVersion: g3GoogleQa.registryVersion,
+      g3DesktopQaStatus: g3GoogleVerificationStatus,
+      g3ProfileCount: g3GoogleVersion.profileCount,
+      g3GeometryProfileCount: g3GoogleVersion.geometryProfileCount,
+      g3UploadedDisplayStaticProfileCount: g3GoogleVersion.uploadedDisplayStaticProfileCount,
+      g3FrozenGoldenCount: g3GoogleQa.frozenGoldenCount,
+      g3LegacyDisplayRuntimeProfiles: g3GoogleVersion.legacyDisplayRuntimeProfiles,
+      g3ActiveDiagnostics: g3GoogleVersion.activeGoogleDiagnostics,
+      g3DesktopUiAdded: g3GoogleVersion.desktopUiAdded,
+      g3PlatformFieldsRasterized: g3GoogleVersion.platformFieldsRasterized,
+      g3FitToView: g3GoogleQa.fitToView,
+      g3ActualPixelView: g3GoogleQa.actualPixelView,
+      g3PassOnlyExport: g3GoogleQa.passOnlyExport,
+      g3RuntimeNetworkAccess: g3GoogleQa.runtimeNetworkAccess,
+      g3GoogleUploadApi: g3GoogleQa.googleUploadApi,
+      g3OAuth: g3GoogleQa.oauth,
+      g3PlumeDependencies: g3GoogleQa.plumeDependencies,
+      g3ImplementationRecord: g3GoogleVersion.implementationDocument,
+      g3Adr: g3GoogleVersion.adr,
+      g3Verifier: g3GoogleVersion.verifier,
+     },
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
@@ -633,7 +678,17 @@ const manifest = {
     KAKAO_MOMENT: { templateLocked: "IMPLEMENTED", freeform: "IMPLEMENTED" },
     NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", desktopIntegration: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED", video: "DISABLED_OUT_OF_STATIC_SCOPE" },
     META: { staticProfiles: "IMPLEMENTED", placementSet: "IMPLEMENTED", platformCopy: "METADATA_ONLY", unsupported: canonicalDocument.canonicalPhaseM1.unsupportedRuntime },
-    GOOGLE: "NOT_IMPLEMENTED",
+    GOOGLE: {
+      staticQa: g3GoogleVerificationStatus === "PASS" ? "IMPLEMENTED" : "NOT_IMPLEMENTED",
+      profileGroups: g3GoogleQa.groups?.map((group) => ({ id: group.id, label: group.label, profileCount: group.profileIds.length })) ?? [],
+      profileCount: g3GoogleVersion.profileCount,
+      frozenGoldenCount: g3GoogleQa.frozenGoldenCount,
+      diagnostics: g3GoogleVersion.activeGoogleDiagnostics,
+      platformFieldsRasterized: g3GoogleVersion.platformFieldsRasterized,
+      uploadApi: g3GoogleVersion.googleUploadApiAdded,
+      runtimeNetworkAccess: g3GoogleVersion.runtimeNetworkAccess,
+      plumeDependencies: g3GoogleVersion.plumeDependencies,
+    },
   },
   files,
   sourceProvenance: {
@@ -814,6 +869,13 @@ const manifest = {
     g2_1GoogleAdr: "docs/adr/ADR-0062-google-static-golden-freeze-g2-1.md",
     g2_1GoogleVerifier: "scripts/verify-g2-1-google-static.mjs",
     g2_1GooglePromotionScript: "scripts/promote-g2-1-google-goldens.mjs",
+    g3GoogleDesktopQaRegistry: "contracts/google/desktop-qa.g3.json",
+    g3GoogleImplementationRecord: "docs/implementation/google-static-desktop-qa-enablement-g3.md",
+    g3GoogleAdr: "docs/adr/ADR-0063-google-static-desktop-qa-enablement-g3.md",
+    g3GoogleVerifier: "scripts/verify-g3-google-static-desktop-qa.mjs",
+    g3GoogleDesktopEditor: "apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx",
+    g3GoogleIntegrationTest: "tests/desktop/integration/google-static-session-controller.test.ts",
+    g3GoogleE2eTest: "tests/e2e/desktop.spec.ts",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -1039,6 +1101,34 @@ const manifest = {
     desktopUiAdded: false,
     uploadIntegrationAdded: false,
     nextPhase: g2_1GoogleVersion.nextPhase,
+  },
+  g3GoogleStaticDesktopQa: {
+    phase: g3GoogleVersion.phase,
+    status: g3GoogleVerificationStatus,
+    registryVersion: g3GoogleQa.registryVersion,
+    registry: g3GoogleVersion.desktopQaRegistry,
+    profileCount: g3GoogleVersion.profileCount,
+    geometryProfileCount: g3GoogleVersion.geometryProfileCount,
+    uploadedDisplayStaticProfileCount: g3GoogleVersion.uploadedDisplayStaticProfileCount,
+    profileGroups: g3GoogleQa.groups?.map((group) => ({ id: group.id, label: group.label, profileCount: group.profileIds.length })) ?? [],
+    goldenRegistry: g3GoogleQa.goldenRegistry,
+    goldenRegistrySha256: g3GoogleVersion.googleStaticGoldenRegistrySha256,
+    frozenGoldenCount: g3GoogleQa.frozenGoldenCount,
+    legacyDisplayRuntimeProfiles: g3GoogleVersion.legacyDisplayRuntimeProfiles,
+    activeDiagnostics: g3GoogleVersion.activeGoogleDiagnostics,
+    platformFieldsRasterized: g3GoogleVersion.platformFieldsRasterized,
+    fitToView: g3GoogleQa.fitToView,
+    actualPixelView: g3GoogleQa.actualPixelView,
+    passOnlyExport: g3GoogleQa.passOnlyExport,
+    desktopUiAdded: g3GoogleVersion.desktopUiAdded,
+    runtimeNetworkAccess: g3GoogleVersion.runtimeNetworkAccess,
+    googleUploadApi: g3GoogleVersion.googleUploadApiAdded,
+    oauth: g3GoogleQa.oauth,
+    plumeDependencies: g3GoogleVersion.plumeDependencies,
+    implementationRecord: g3GoogleVersion.implementationDocument,
+    adr: g3GoogleVersion.adr,
+    verifier: g3GoogleVersion.verifier,
+    nextPhase: g3GoogleVersion.nextPhase,
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

@@ -1,5 +1,5 @@
 {
-  "registryVersion": "1.9.0",
+  "registryVersion": "1.10.0",
   "messageContract": "messageKey is stable; localized or AJV-native prose is not part of the external contract",
   "codes": [
     { "code": "KBR-INPUT-001", "severity": "ERROR", "messageKey": "input.json_parse_failed", "condition": "Raw JSON cannot be parsed" },
@@ -113,6 +113,18 @@
     { "code": "KBR-ASSET-REF-UNRESOLVED", "severity": "ERROR", "messageKey": "asset.ref_unresolved", "condition": "Runtime Asset Resolver cannot resolve the serializable asset reference" },
 
     { "code": "KBR-DOWNLOAD-001", "severity": "ERROR", "messageKey": "download.blocked", "condition": "Download or publish is attempted while downloadAllowed is false", "behavior": "Core and IPC must both deny file return and publish" },
+
+    { "code": "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", "severity": "ERROR", "messageKey": "google.asset_profile_unknown", "condition": "A Google static asset references an unknown or target-incompatible asset profile" },
+    { "code": "KBR-GOOGLE-ASSET-CANVAS-MISMATCH", "severity": "ERROR", "messageKey": "google.asset_canvas_mismatch", "condition": "A Google static asset canvas differs from the selected profile project output preset" },
+    { "code": "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED", "severity": "ERROR", "messageKey": "google.asset_mime_unsupported", "condition": "A Google static asset has an unsupported MIME type or animation" },
+    { "code": "KBR-GOOGLE-ASSET-BYTES-EXCEEDED", "severity": "ERROR", "messageKey": "google.asset_bytes_exceeded", "condition": "A Google static asset exceeds the selected target decimal-byte limit" },
+    { "code": "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING", "severity": "ERROR", "messageKey": "google.required_role_missing", "condition": "A Google delivery set is missing a required role or text value" },
+    { "code": "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED", "severity": "ERROR", "messageKey": "google.role_cardinality_exceeded", "condition": "A Google delivery set exceeds a contracted role cardinality" },
+    { "code": "KBR-GOOGLE-TEXT-LIMIT-EXCEEDED", "severity": "ERROR", "messageKey": "google.text_limit_exceeded", "condition": "A Google delivery text value exceeds its contracted character limit" },
+    { "code": "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH", "severity": "ERROR", "messageKey": "google.pmax_brand_association_mode_mismatch", "condition": "Performance Max brand association fields do not match the selected mode" },
+    { "code": "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY", "severity": "INFO", "messageKey": "google.rda_vertical_source_discrepancy", "condition": "An RDA vertical source discrepancy is present for informational review" },
+    { "code": "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED", "severity": "INFO", "messageKey": "google.demandgen_safe_zone_source_required", "condition": "A Demand Gen tall portrait source requires a safe-zone source note" },
+    { "code": "KBR-GOOGLE-LIFECYCLE-TRANSITIONAL", "severity": "INFO", "messageKey": "google.lifecycle_transitional", "condition": "A Google capability is marked transitional by its source contract" },
 
     { "code": "KBR-FREEFORM-PLAN-MISSING", "severity": "ERROR", "messageKey": "freeform.plan_missing", "condition": "layoutMode is FREEFORM but creativeLayoutPlan is absent" },
     { "code": "KBR-FREEFORM-PLAN-SCHEMA-INVALID", "severity": "ERROR", "messageKey": "freeform.plan_schema_invalid", "condition": "CreativeLayoutPlan or an element violates the frozen FREEFORM schema" },

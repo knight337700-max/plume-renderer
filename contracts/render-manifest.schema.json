@@ -123,6 +123,18 @@
     "requestFingerprint": { "$ref": "#/$defs/sha256" },
     "renderFingerprint": { "$ref": "#/$defs/sha256" },
     "smartChannelReport": { "$ref": "#/$defs/smartChannelReport" },
+    "googleStatic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileId", "capabilityId", "deliveryCardinality", "platformFieldsRasterized"],
+      "properties": {
+        "profileId": { "type": "string", "minLength": 1 },
+        "capabilityId": { "type": ["string", "null"] },
+        "placementPolicy": { "enum": ["NONE", "CENTER_CONTAIN", "ALPHA_TRIM_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"] },
+        "deliveryCardinality": { "const": "COLLECTION" },
+        "platformFieldsRasterized": { "const": false }
+      }
+    },
     "metaStaticReport": {
       "type": "object",
       "additionalProperties": false,
@@ -277,7 +289,8 @@
         "qualityResolved": { "type": "integer", "minimum": 0, "maximum": 100 },
         "chromaSubsampling": { "const": "4:2:0" },
         "progressive": { "const": false },
-        "metadataStripped": { "const": true }
+        "metadataStripped": { "const": true },
+        "mime": { "enum": ["image/png", "image/jpeg"] }
       }
     },
     "normalizedRect": {
