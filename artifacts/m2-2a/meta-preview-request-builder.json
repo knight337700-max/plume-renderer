@@ -1,0 +1,15 @@
+{
+  "phase": "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX",
+  "status": "PASS",
+  "builder": "apps/desktop/renderer-ui/src/features/freeform/FreeformEditor.tsx#inputForRender",
+  "ipcBridge": "apps/desktop/electron-main/src/desktop-controller.ts##buildFreeformRequest",
+  "requestShape": {
+    "formatProfileId": "SELECTED_PROFILE",
+    "placementContext": "SELECTED_CONTEXT_OR_NULL",
+    "creativeLayoutPlan": "IMPORTED_OR_EDITED_PLAN",
+    "output": "PREVIEW_OUTPUT_OPTIONS"
+  },
+  "planRootPlacementContextInserted": false,
+  "manifestReturnedToQaHarness": true,
+  "requestLevelContextForwardedToCore": true
+}

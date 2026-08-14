@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -46,9 +46,11 @@
     "verify:m2-meta": "node scripts/verify-m2-meta-static.mjs",
     "verify:m2-1-meta": "node scripts/verify-m2-1-meta.mjs",
     "verify:m2-2-meta": "node scripts/verify-m2-2-meta.mjs",
+    "verify:m2-2a-meta": "node scripts/verify-m2-2a-meta.mjs",
     "evidence:m2-meta": "pnpm build && node scripts/generate-m2-meta-audit.mjs",
     "evidence:m2-1-meta": "pnpm build && node scripts/generate-m2-1-meta-candidates.mjs",
     "evidence:m2-2-meta": "pnpm build && node scripts/generate-m2-2-meta-candidates.mjs",
+    "evidence:m2-2a-meta": "node scripts/generate-m2-2a-meta-evidence.mjs",
     "evidence:n8": "node scripts/generate-n8-evidence.mjs",
     "evidence:n7-7-4-ttc": "pnpm build && node scripts/generate-n7-7-4-evidence.mjs",
     "evidence:n7-7-5-typography": "pnpm build && node scripts/generate-n7-7-5-evidence.mjs",
@@ -86,7 +88,7 @@
     "smoke:desktop": "node scripts/smoke-naver-desktop.mjs",
     "smoke:naver-fixed-components": "node scripts/smoke-naver-smartchannel-fixed-components.mjs",
     "evidence:package": "node scripts/capture-packaged-evidence.mjs",
-    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-actual-asset && pnpm verify:naver-inventory && pnpm verify:naver-fixed-components && pnpm verify:n7-7-5-typography && pnpm verify:n7-7-6-ui-fields && pnpm verify:naver-desktop && pnpm verify:n8-channel && pnpm verify:m0-meta && pnpm verify:m1-meta && pnpm verify:m2-meta && pnpm verify:m2-1-meta && pnpm verify:m2-2-meta && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && pnpm exec vitest run && pnpm build:desktop && pnpm exec playwright test",
+    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-actual-asset && pnpm verify:naver-inventory && pnpm verify:naver-fixed-components && pnpm verify:n7-7-5-typography && pnpm verify:n7-7-6-ui-fields && pnpm verify:naver-desktop && pnpm verify:n8-channel && pnpm verify:m0-meta && pnpm verify:m1-meta && pnpm verify:m2-meta && pnpm verify:m2-1-meta && pnpm verify:m2-2-meta && pnpm verify:m2-2a-meta && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && pnpm exec vitest run && pnpm build:desktop && pnpm exec playwright test",
     "render": "node dist/cli/index.js"
   },
   "dependencies": {

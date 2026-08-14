@@ -1,0 +1,32 @@
+{
+  "phase": "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX",
+  "status": "PASS",
+  "sequence": [
+    [
+      "META_STATIC_FEED_SQUARE",
+      "INSTAGRAM_FEED"
+    ],
+    [
+      "META_STATIC_FEED_PORTRAIT",
+      "INSTAGRAM_FEED"
+    ],
+    [
+      "META_STATIC_VERTICAL_FULL",
+      "INSTAGRAM_STORIES"
+    ],
+    [
+      "META_STATIC_VERTICAL_FULL",
+      "INSTAGRAM_REELS"
+    ],
+    [
+      "META_STATIC_FEED_SQUARE",
+      "FACEBOOK_FEED"
+    ]
+  ],
+  "contextCrossWireCount": 0,
+  "cropStateCorruptionCount": 0,
+  "staleSafeZoneUiCount": 0,
+  "previewSilentNoOpCount": 0,
+  "profileMismatchBehavior": "EXPLICIT_CONTEXT_RESOLUTION_AND_VISIBLE_STATE",
+  "e2eCoverage": "tests/e2e/meta-static.spec.ts"
+}

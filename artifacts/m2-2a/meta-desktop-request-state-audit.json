@@ -1,0 +1,53 @@
+{
+  "phase": "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX",
+  "status": "PASS",
+  "stateOwner": "DESKTOP_QA_HARNESS",
+  "requestLevel": [
+    "formatProfileId",
+    "placementContext",
+    "creativeLayoutPlan",
+    "output"
+  ],
+  "planLevel": [
+    "schemaVersion",
+    "formatProfileId",
+    "background",
+    "elements",
+    "placement",
+    "cropRect",
+    "bounds",
+    "zIndex",
+    "opacity"
+  ],
+  "planPlacementContextAllowed": false,
+  "contextSourceOfTruth": "src/core/meta-placement-context.ts",
+  "contexts": [
+    "FACEBOOK_FEED",
+    "INSTAGRAM_FEED",
+    "FACEBOOK_STORIES",
+    "INSTAGRAM_STORIES",
+    "FACEBOOK_REELS",
+    "INSTAGRAM_REELS",
+    null
+  ],
+  "compatibility": {
+    "META_STATIC_FEED_SQUARE": [
+      "FACEBOOK_FEED",
+      "INSTAGRAM_FEED",
+      null
+    ],
+    "META_STATIC_FEED_PORTRAIT": [
+      "FACEBOOK_FEED",
+      "INSTAGRAM_FEED",
+      null
+    ],
+    "META_STATIC_VERTICAL_FULL": [
+      "FACEBOOK_STORIES",
+      "INSTAGRAM_STORIES",
+      "FACEBOOK_REELS",
+      "INSTAGRAM_REELS",
+      null
+    ]
+  },
+  "profileMismatch": "FAIL_CLOSED_WITH_VISIBLE_VALIDATION_BLOCK"
+}

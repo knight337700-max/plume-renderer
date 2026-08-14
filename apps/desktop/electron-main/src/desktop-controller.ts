@@ -1326,6 +1326,7 @@ export class DesktopController {
         outputEncoding: null,
         appliedElements: [],
         previewArtifact: null,
+        manifest: null,
         eligibility: resolvePreviewEligibility(errors, false),
       };
     };
@@ -1385,6 +1386,7 @@ export class DesktopController {
         outputEncoding: result.outputEncoding,
         appliedElements: result.appliedElements,
         productAssetDigests: assetDigests,
+        manifest: result.manifest ?? ("manifest" in result ? result.manifest : null),
         ...(("mode" in result && result.mode === "PLACEMENT_SET") ? {
           collectionFingerprint: result.collectionFingerprint,
           collectionManifestPath: result.collectionManifestPath,

@@ -182,6 +182,17 @@ const m2_2Determinism = JSON.parse(await readFile(path.join(root, "artifacts/m2-
 const m2_2Regression = JSON.parse(await readFile(path.join(root, "artifacts/m2-2/regression.json"), "utf8"));
 const m2_2CandidateRegistry = JSON.parse(await readFile(path.join(root, "contracts/audits/meta-golden-candidates-m2-2.json"), "utf8"));
 const m2_2VerificationStatus = m2_2CandidateRegistry.status === "CANDIDATE_NOT_APPROVED" && m2_2Inventory.status === "PASS" && m2_2Pipeline.status === "PASS" && m2_2Roundtrip.status === "PASS" && m2_2Square.status === "PASS" && m2_2Stories.status === "PASS" && m2_2Reels.status === "PASS" && m2_2SafeZone.status === "PASS" && m2_2ByteAudit.status === "PASS" && m2_2Determinism.status === "PASS" && m2_2Regression.status === "PASS" ? "PASS" : "FAIL";
+const m2_2aEvidenceFiles = [
+  "meta-desktop-request-state-audit.json",
+  "meta-preview-request-builder.json",
+  "meta-safe-zone-ui-matrix.json",
+  "meta-preview-error-handling.json",
+  "meta-plan-vs-manifest-viewer.json",
+  "meta-desktop-state-switching.json",
+  "regression.json",
+];
+const m2_2aEvidence = Object.fromEntries(await Promise.all(m2_2aEvidenceFiles.map(async (fileName) => [fileName, JSON.parse(await readFile(path.join(root, "artifacts/m2-2a", fileName), "utf8"))])));
+const m2_2aVerificationStatus = m2_2aEvidenceFiles.every((fileName) => m2_2aEvidence[fileName].status === "PASS") && m2_2aEvidence["regression.json"].m2_2Core === "PASS" ? "PASS" : "FAIL";
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -196,7 +207,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — M2.2 META placement context and plan import handoff
+const readme = `# Renderer Module — M2.2a META Desktop QA request/context bridge handoff
 
 ## Purpose
 
@@ -206,6 +217,7 @@ build, test, and later phase development. The source repository remains unchange
 - Source repository: C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package
 - Renderer source commit at handoff generation: ${sourceSha}
 - Canonical document: docs/kakao-bizboard-renderer-spec-v1.md v${canonicalDocument.documentVersion.current}
+- Desktop/package QA bridge version: ${packageJson.version}
 - Source verification package: ${packageArtifact?.sourcePath ?? "not built"}${packageArtifact ? ` (${packageArtifact.bytes} bytes, ${packageArtifact.sha256}; generated release intentionally excluded from source handoff)` : ""}
 - Runtime network access: PROHIBITED
 
@@ -232,6 +244,7 @@ build, test, and later phase development. The source repository remains unchange
 - META M2: artifact audit, independent 1:1/4:5/9:16 candidate outputs, Stories guide separation, Reels SOURCE_REQUIRED INFO, Placement Set determinism, and manual-review evidence. Audit: ${m2ArtifactAudit.status}, candidates: ${m2CandidateRegistry.status}, regression: ${m2Regression.status}, manual acceptance: ${m2CandidateRegistry.manualAcceptanceStatus}
 - META M2.1: full-bleed independent MANUAL_CROP candidates, old 300000-byte rule reproduction/correction, official-source provenance refresh, JPEG/MIME audit, Stories guide separation, Reels SOURCE_REQUIRED, and deterministic manual-review package. Audit: ${m2_1CropAudit.status}, output constraint: ${m2_1OutputConstraintProvenance.status}, source refresh: ${m2_1SourceRefresh.status}, regression: ${m2_1Regression.status}, candidates: ${m2_1CandidateRegistry.status}, manual acceptance: ${m2_1CandidateRegistry.manualAcceptanceStatus}
 - META M2.2: request-level placement context propagation, neutral generic vertical default, explicit Stories/Reels routing, imported MANUAL_CROP plan fidelity, four corrected candidates, and deterministic evidence. Inventory: ${m2_2Inventory.status}, round-trip: ${m2_2Roundtrip.status}, square: ${m2_2Square.status}, Stories: ${m2_2Stories.status}, Reels: ${m2_2Reels.status}, regression: ${m2_2Regression.status}, candidates: ${m2_2CandidateRegistry.status}, manual acceptance: ${m2_2CandidateRegistry.manualAcceptanceStatus}
+- META M2.2a: Desktop QA request-level profile/context bridge, Feed Safe Zone capability gating, visible Preview outcomes/error boundary, imported Plan versus manifest separation, and state-switching regression. Evidence: ${m2_2aVerificationStatus}, Preview silent no-op count: ${m2_2aEvidence["meta-preview-error-handling.json"].silentNoOpCount}, manual acceptance: ${canonicalDocument.canonicalPhaseM2_2a.manualAcceptanceStatus}
 - META M0: official-source-only discovery and composition boundary remain preserved as the prior audit baseline (${m0OfficialSourceAudit.status}).
 - Meta unsupported scope: carousel, catalog, dynamic, and video remain out of M1 static runtime scope.
 - Google: not implemented
@@ -272,7 +285,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is M2.2 and the canonical document is v1.23.1. M1 implements the three project output presets,
+The latest phase is M2.2a and the canonical document is v1.23.1. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, preserves imported placement/crop semantics, and keeps manual acceptance NOT_REVIEWED with final golden freeze false. N8 remains the
@@ -326,7 +339,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "M2_2_META_PLACEMENT_CONTEXT_PROPAGATION_PLAN_IMPORT_CONSISTENCY_HOTFIX",
+  handoffPhase: "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -341,9 +354,10 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseM2_2.rendererCoreVersion,
-    validator: canonicalDocument.canonicalPhaseM2_2.validatorCurrent,
-    desktop: canonicalDocument.canonicalPhaseM2_2.desktopCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseM2_2a.rendererCoreVersion,
+    validator: canonicalDocument.canonicalPhaseM2_2a.validatorCurrent,
+    desktop: canonicalDocument.canonicalPhaseM2_2a.desktopCurrent,
+    package: canonicalDocument.canonicalPhaseM2_2a.packageCurrent,
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
@@ -389,6 +403,13 @@ const manifest = {
         m2_2ByteAudit: m2_2ByteAudit.status,
         m2_2Determinism: m2_2Determinism.status,
         m2_2Regression: m2_2Regression.status,
+        m2_2aRequestState: m2_2aEvidence["meta-desktop-request-state-audit.json"].status,
+        m2_2aPreviewBuilder: m2_2aEvidence["meta-preview-request-builder.json"].status,
+        m2_2aSafeZoneUi: m2_2aEvidence["meta-safe-zone-ui-matrix.json"].status,
+        m2_2aPreviewErrors: m2_2aEvidence["meta-preview-error-handling.json"].status,
+        m2_2aPlanManifestViewer: m2_2aEvidence["meta-plan-vs-manifest-viewer.json"].status,
+        m2_2aStateSwitching: m2_2aEvidence["meta-desktop-state-switching.json"].status,
+        m2_2aRegression: m2_2aEvidence["regression.json"].status,
       },
     },
   },
@@ -610,6 +631,17 @@ const manifest = {
     m2_2ImplementationRecord: "docs/implementation/meta-placement-context-plan-import-consistency-m2-2.md",
     m2_2Generator: "scripts/generate-m2-2-meta-candidates.mjs",
     m2_2Verifier: "scripts/verify-m2-2-meta.mjs",
+    m2_2aEvidenceDirectory: "artifacts/m2-2a",
+    m2_2aRequestStateAudit: "artifacts/m2-2a/meta-desktop-request-state-audit.json",
+    m2_2aPreviewRequestBuilder: "artifacts/m2-2a/meta-preview-request-builder.json",
+    m2_2aSafeZoneUiMatrix: "artifacts/m2-2a/meta-safe-zone-ui-matrix.json",
+    m2_2aPreviewErrorHandling: "artifacts/m2-2a/meta-preview-error-handling.json",
+    m2_2aPlanManifestViewer: "artifacts/m2-2a/meta-plan-vs-manifest-viewer.json",
+    m2_2aStateSwitching: "artifacts/m2-2a/meta-desktop-state-switching.json",
+    m2_2aRegression: "artifacts/m2-2a/regression.json",
+    m2_2aImplementationRecord: "docs/implementation/meta-desktop-qa-request-context-preview-bridge-m2-2a.md",
+    m2_2aVerifier: "scripts/verify-m2-2a-meta.mjs",
+    m2_2aGenerator: "scripts/generate-m2-2a-meta-evidence.mjs",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -661,6 +693,23 @@ const manifest = {
     candidateRegistry: "contracts/audits/meta-golden-candidates-m2-2.json",
     implementationRecord: "docs/implementation/meta-placement-context-plan-import-consistency-m2-2.md",
     verifier: "scripts/verify-m2-2-meta.mjs",
+  },
+  m2_2aMetaDesktopQa: {
+    status: m2_2aVerificationStatus,
+    requestState: m2_2aEvidence["meta-desktop-request-state-audit.json"].status,
+    previewRequestBuilder: m2_2aEvidence["meta-preview-request-builder.json"].status,
+    safeZoneUiMatrix: m2_2aEvidence["meta-safe-zone-ui-matrix.json"].status,
+    previewErrorHandling: m2_2aEvidence["meta-preview-error-handling.json"].status,
+    planManifestViewer: m2_2aEvidence["meta-plan-vs-manifest-viewer.json"].status,
+    stateSwitching: m2_2aEvidence["meta-desktop-state-switching.json"].status,
+    regression: m2_2aEvidence["regression.json"].status,
+    silentNoOpCount: m2_2aEvidence["meta-preview-error-handling.json"].silentNoOpCount,
+    manualAcceptanceStatus: canonicalDocument.canonicalPhaseM2_2a.manualAcceptanceStatus,
+    goldenCandidateStatus: canonicalDocument.canonicalPhaseM2_2a.goldenCandidateStatus,
+    finalGoldenFrozen: canonicalDocument.canonicalPhaseM2_2a.finalGoldenFrozen,
+    evidenceDirectory: "artifacts/m2-2a",
+    implementationRecord: "docs/implementation/meta-desktop-qa-request-context-preview-bridge-m2-2a.md",
+    verifier: "scripts/verify-m2-2a-meta.mjs",
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

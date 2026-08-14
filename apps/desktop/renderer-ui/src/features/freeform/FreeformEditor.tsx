@@ -7,6 +7,12 @@ import type {
   FreeformFontRegistry,
   ImagePlacementSpec,
 } from "../../../../../../packages/renderer-contract/src/index.js";
+import {
+  META_PLACEMENT_CONTEXTS,
+  isReelsPlacementContext,
+  isStoriesPlacementContext,
+  type MetaPlacementContext,
+} from "../../../../../../src/core/meta-placement-context.js";
 import { CROP_KEYBOARD_STEPS } from "../placement/crop-rect.js";
 import type {
   ExportRequest,
@@ -39,6 +45,32 @@ const profiles = formatCatalog.profiles.filter((profile) => (profile.channelName
 const metaProfiles = formatCatalog.profiles.filter((profile) => profile.channelNamespace === "META" && profile.implementationStatus === "IMPLEMENTED");
 const catalogOnlyProfiles = formatCatalog.profiles.filter((profile) => (profile.channelNamespace === "KAKAO_MOMENT" || profile.channelNamespace === undefined) && (profile.implementationStatus !== "IMPLEMENTED" || profile.catalogStatus === "INTERNAL_TEST_ONLY")).filter((profile) => profile.catalogStatus !== "INTERNAL_TEST_ONLY");
 const defaultProfile = profiles[0];
+const META_QA_CONTEXTS = META_PLACEMENT_CONTEXTS.filter((context) => [
+  "FACEBOOK_FEED",
+  "INSTAGRAM_FEED",
+  "FACEBOOK_STORIES",
+  "INSTAGRAM_STORIES",
+  "FACEBOOK_REELS",
+  "INSTAGRAM_REELS",
+].includes(context));
+
+type MetaQaContext = MetaPlacementContext | "";
+
+function isMetaFeedContext(context: string): boolean {
+  return context === "FACEBOOK_FEED" || context === "INSTAGRAM_FEED";
+}
+
+function isMetaContextCompatible(profileId: string, context: MetaQaContext): boolean {
+  if (context === "") return true;
+  if (profileId === "META_STATIC_VERTICAL_FULL") return isStoriesPlacementContext(context) || isReelsPlacementContext(context);
+  if (profileId === "META_STATIC_FEED_SQUARE" || profileId === "META_STATIC_FEED_PORTRAIT") return isMetaFeedContext(context);
+  return false;
+}
+
+function resolveMetaContextForProfile(profileId: string, context: MetaQaContext): MetaQaContext {
+  if (isMetaContextCompatible(profileId, context)) return context;
+  return profileId === "META_STATIC_VERTICAL_FULL" ? "" : "FACEBOOK_FEED";
+}
 
 function placementFor(type: "IMAGE" | "LOGO", policy: ImagePlacementSpec["policy"] = type === "LOGO" ? "ALPHA_TRIM_CONTAIN" : "CENTER_CONTAIN"): ImagePlacementSpec {
   const cover = policy === "MANUAL_CROP" || policy === "SEMANTIC_CROP_COVER";
@@ -193,6 +225,7 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
   const [jobName, setJobName] = useState("freeform-render");
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [requestSequence, setRequestSequence] = useState(0);
+  const requestSequenceRef = useRef(0);
   const [validating, setValidating] = useState(false);
   const [output, setOutput] = useState<{ outputDirectoryToken: string; displayName: string } | null>(null);
   const [exported, setExported] = useState<Extract<ExportResult, { status: "EXPORTED" }> | null>(null);
@@ -200,10 +233,18 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
   const [planJson, setPlanJson] = useState(() => JSON.stringify(plan, null, 2));
   const [notice, setNotice] = useState("");
   const [metaOutputMode, setMetaOutputMode] = useState<"SINGLE" | "PLACEMENT_SET">("SINGLE");
-  const [metaPlacementContext, setMetaPlacementContext] = useState<string>(() => initialProfile?.formatProfileId === "META_STATIC_VERTICAL_FULL" ? "" : "FACEBOOK_FEED");
+  const [metaPlacementContext, setMetaPlacementContext] = useState<MetaQaContext>(() => initialProfile?.formatProfileId === "META_STATIC_VERTICAL_FULL" ? "" : "FACEBOOK_FEED");
   const [metaPlatformCopy, setMetaPlatformCopy] = useState({ primaryText: "", headline: "", description: "", callToAction: "", destinationUrl: "" });
   const [metaVariantPlans, setMetaVariantPlans] = useState<Record<string, CreativeLayoutPlan>>({});
   const metaVariantPlansRef = useRef<Record<string, CreativeLayoutPlan>>({});
+  const [previewFailure, setPreviewFailure] = useState<{ kind: "VALIDATION_BLOCKED" | "RUNTIME_ERROR"; code: string; message: string } | null>(null);
+
+  const bumpRequestSequence = () => {
+    const next = requestSequenceRef.current + 1;
+    requestSequenceRef.current = next;
+    setRequestSequence(next);
+    return next;
+  };
 
   useEffect(() => { setPlanJson(JSON.stringify(plan, null, 2)); }, [plan]);
   useEffect(() => {
@@ -222,6 +263,10 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
 
   const selectedElement = plan.elements.find((element) => element.id === selectedId) ?? null;
   const safeZone = profile ? safeZoneInfo(profile, channel === "META" ? metaPlacementContext : undefined) : { classification: "UNKNOWN" as const, insets: null };
+  const metaStoriesContext = channel === "META" && profileId === "META_STATIC_VERTICAL_FULL" && isStoriesPlacementContext(metaPlacementContext);
+  const metaReelsContext = channel === "META" && profileId === "META_STATIC_VERTICAL_FULL" && isReelsPlacementContext(metaPlacementContext);
+  const safeZoneGuideEnabled = channel === "META" ? metaStoriesContext : true;
+  const safeZoneOverlayVisible = safeZoneVisible && safeZoneGuideEnabled;
   const allowedFormats = (profile?.allowedOutputFormats ?? ["PNG"]).map((format) => format === "JPG" ? "JPEG" : format).filter((format, index, all) => all.indexOf(format) === index) as Array<"PNG" | "JPEG">;
   const formatSupports = (type: ElementType): boolean => {
     if (type === "IMAGE") return profile?.elementConstraints?.allowImage !== false;
@@ -232,17 +277,21 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
   const previewAvailable = Boolean(previewCurrent && preview?.previewUrl && (preview.eligibility?.previewAllowed ?? true));
   const previewFresh = Boolean(previewCurrent && (preview?.eligibility?.downloadAllowed ?? (preview?.validationStatus !== "ERROR" && preview?.errors.length === 0)));
   const issues = [...(preview?.errors ?? []), ...(preview?.warnings ?? [])];
+  const previewOutcome = previewFailure?.kind
+    ?? (previewCurrent ? (previewAvailable ? "PREVIEW_RENDERED" : "VALIDATION_BLOCKED") : "IDLE");
   const formatChanged = (next: "PNG" | "JPEG") => {
     setOutputFormat(next);
     setPreview(null);
+    setPreviewFailure(null);
     setExported(null);
-    setRequestSequence((value) => value + 1);
+    bumpRequestSequence();
   };
   const updatePlan = (updater: (current: CreativeLayoutPlan) => CreativeLayoutPlan) => {
     setPlan((current) => updater(current));
     setPreview(null);
+    setPreviewFailure(null);
     setExported(null);
-    setRequestSequence((value) => value + 1);
+    bumpRequestSequence();
   };
   const selectProfile = (value: string) => {
     if (channel === "META" && metaOutputMode === "PLACEMENT_SET") {
@@ -256,20 +305,20 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
       setPlan((current) => ({ ...current, formatProfileId: value }));
     }
     if (channel === "META") {
-      setMetaPlacementContext((current) => value === "META_STATIC_VERTICAL_FULL"
-        ? current === "FACEBOOK_FEED" ? "" : current
-        : current || "FACEBOOK_FEED");
+      setMetaPlacementContext((current) => resolveMetaContextForProfile(value, current));
     }
     setProfileId(value);
     setPreview(null);
+    setPreviewFailure(null);
     setExported(null);
-    setRequestSequence((value) => value + 1);
+    bumpRequestSequence();
   };
   const updateMeta = (patch: Partial<typeof metaPlatformCopy>) => {
     setMetaPlatformCopy((current) => ({ ...current, ...patch }));
     setPreview(null);
+    setPreviewFailure(null);
     setExported(null);
-    setRequestSequence((value) => value + 1);
+    bumpRequestSequence();
   };
   const updateElement = (elementId: string, patch: Partial<EditableElement>) => {
     updatePlan((current) => ({ ...current, elements: current.elements.map((element) => element.id === elementId ? { ...element, ...patch } as CreativeElement : element) }));
@@ -298,8 +347,6 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
     const result = await window.kbrDesktop.selectProductPng();
     if (result.status !== "SELECTED") { if (result.status === "ERROR") setNotice(result.message); return; }
     const assetId = "asset-primary";
-    setAssetTokens((current) => ({ ...current, [assetId]: result.assetToken }));
-    setAssetSelections((current) => ({ ...current, [assetId]: result }));
     const image = plan.elements.find((element): element is Extract<EditableElement, { type: "IMAGE" }> => element.type === "IMAGE");
     if (image) selectAssetFor(image.id, assetId);
     else {
@@ -307,6 +354,8 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
       updatePlan((current) => ({ ...current, elements: [...current.elements, makeElement("IMAGE", id, assetId)] }));
       setSelectedId(id);
     }
+    setAssetTokens((current) => ({ ...current, [assetId]: result.assetToken }));
+    setAssetSelections((current) => ({ ...current, [assetId]: result }));
     setNotice(`${result.displayName} · ${formatProductMetadata(result)}`);
   }
 
@@ -314,8 +363,6 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
     const result = await window.kbrDesktop.selectLogoPng();
     if (result.status !== "SELECTED") { if (result.status === "ERROR") setNotice(result.message); return; }
     const assetId = "asset-logo";
-    setAssetTokens((current) => ({ ...current, [assetId]: result.assetToken }));
-    setAssetSelections((current) => ({ ...current, [assetId]: result }));
     const logo = plan.elements.find((element): element is Extract<EditableElement, { type: "LOGO" }> => element.type === "LOGO");
     if (logo) selectAssetFor(logo.id, assetId);
     else {
@@ -323,6 +370,8 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
       updatePlan((current) => ({ ...current, elements: [...current.elements, makeElement("LOGO", id, assetId)] }));
       setSelectedId(id);
     }
+    setAssetTokens((current) => ({ ...current, [assetId]: result.assetToken }));
+    setAssetSelections((current) => ({ ...current, [assetId]: result }));
     setNotice(`${result.displayName} · 투명 PNG 로고`);
   }
 
@@ -352,29 +401,74 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
       headline: "FREEFORM",
       subcopy: "FREEFORM",
       jobName,
-      requestSequence,
+      requestSequence: requestSequenceRef.current,
       layoutMode: "FREEFORM",
       freeform,
     };
   }
 
+  function metaQaRequestView(): Record<string, unknown> | null {
+    if (channel !== "META") return null;
+    return {
+      formatProfileId: profileId,
+      placementContext: metaPlacementContext || null,
+      creativeLayoutPlan: plan,
+      output: {
+        format: outputFormat,
+        ...(outputQuality !== undefined ? { quality: outputQuality } : {}),
+      },
+    };
+  }
+
   async function requestPreview(): Promise<void> {
     const input = inputForRender();
-    if (!input) return;
+    if (!input) {
+      const failure = { kind: "VALIDATION_BLOCKED" as const, code: "DESKTOP-META-REQUEST-001", message: "현재 META Render Request를 만들 수 없습니다." };
+      setPreviewFailure(failure);
+      setNotice(`${failure.code}: ${failure.message}`);
+      return;
+    }
+    if (channel === "META" && !isMetaContextCompatible(profileId, metaPlacementContext)) {
+      const failure = { kind: "VALIDATION_BLOCKED" as const, code: "DESKTOP-META-CONTEXT-001", message: `${profileId}에서 선택한 placementContext는 지원되지 않습니다.` };
+      setPreview(null);
+      setPreviewFailure(failure);
+      setNotice(`${failure.code}: ${failure.message}`);
+      return;
+    }
     setValidating(true);
+    setPreviewFailure(null);
     setExported(null);
     try {
       const result = await window.kbrDesktop.requestPreview(input);
+      if (result.requestSequence !== requestSequenceRef.current || input.requestSequence !== requestSequenceRef.current) {
+        const failure = { kind: "VALIDATION_BLOCKED" as const, code: "DESKTOP-PREVIEW-003", message: "Preview 결과가 현재 Render Request와 일치하지 않습니다. 현재 요청으로 다시 실행하세요." };
+        setPreview(null);
+        setPreviewFailure(failure);
+        setNotice(`${failure.code}: ${failure.message}`);
+        return;
+      }
       setPreview(result);
+      if (!result.previewUrl || !(result.eligibility?.previewAllowed ?? true)) {
+        const first = result.errors[0];
+        setPreviewFailure({
+          kind: "VALIDATION_BLOCKED",
+          code: first?.code ?? "DESKTOP-PREVIEW-001",
+          message: first ? issueMessage(first) : "Preview를 생성할 수 없습니다.",
+        });
+      } else {
+        setPreviewFailure(null);
+      }
       if (result.validationStatus === "ERROR" && result.eligibility?.previewAllowed) {
         setNotice("프리뷰는 생성되었습니다. 다만 최종 매체 규격을 통과하지 못해 Export가 차단되었습니다.");
       } else if (result.validationStatus === "ERROR") {
-        setNotice("프리뷰를 생성할 수 없습니다. 렌더 전에 해결해야 하는 오류가 있습니다.");
+        setNotice(`${result.errors[0]?.code ?? "DESKTOP-PREVIEW-001"}: 프리뷰를 생성할 수 없습니다. 렌더 전에 해결해야 하는 오류가 있습니다.`);
       }
       else setNotice(result.validationStatus === "WARNING" ? "Core Preview PASS · 수동 검토 경고가 있습니다." : "Core Preview PASS");
     } catch (error) {
       setPreview(null);
-      setNotice(error instanceof Error ? error.message : "Preview IPC 호출에 실패했습니다.");
+      const failure = { kind: "RUNTIME_ERROR" as const, code: "DESKTOP-PREVIEW-002", message: error instanceof Error ? error.message : "Preview IPC 호출에 실패했습니다." };
+      setPreviewFailure(failure);
+      setNotice(`${failure.code}: ${failure.message}`);
     } finally { setValidating(false); }
   }
 
@@ -403,13 +497,19 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
 
   function importPlan(): void {
     try {
-      const parsed = JSON.parse(planJson) as CreativeLayoutPlan;
+      const parsedValue: unknown = JSON.parse(planJson);
+      if (!parsedValue || typeof parsedValue !== "object" || Array.isArray(parsedValue)) throw new Error("KBR-FREEFORM-PLAN-SCHEMA-INVALID: Plan JSON object가 필요합니다.");
+      const parsedRecord = parsedValue as Record<string, unknown>;
+      if ("placementContext" in parsedRecord) throw new Error("KBR-FREEFORM-PLAN-SCHEMA-INVALID: placementContext는 Plan이 아니라 Render Request에 있어야 합니다. MOVE_PLACEMENT_CONTEXT_TO_RENDER_REQUEST");
+      if (parsedRecord.schemaVersion !== "1.0.0" || typeof parsedRecord.formatProfileId !== "string" || !Array.isArray(parsedRecord.elements)) throw new Error("KBR-FREEFORM-PLAN-SCHEMA-INVALID: schemaVersion, formatProfileId, elements가 필요합니다.");
+      const parsed = parsedValue as CreativeLayoutPlan;
+      const importedProfile = availableProfiles.find((entry) => entry.formatProfileId === parsed.formatProfileId);
+      if (!importedProfile) throw new Error(`DESKTOP-META-PROFILE-001: ${parsed.formatProfileId}는 현재 ${channel} QA harness에서 지원되지 않습니다.`);
       setPlan(parsed);
+      const profileChanged = parsed.formatProfileId !== profileId;
       setProfileId(parsed.formatProfileId);
       if (channel === "META") {
-        setMetaPlacementContext((current) => parsed.formatProfileId === "META_STATIC_VERTICAL_FULL"
-          ? current === "FACEBOOK_FEED" ? "" : current
-          : current || "FACEBOOK_FEED");
+        setMetaPlacementContext((current) => resolveMetaContextForProfile(parsed.formatProfileId, current));
       }
       if (channel === "META" && metaOutputMode === "PLACEMENT_SET") {
         const updated = { ...metaVariantPlansRef.current, [parsed.formatProfileId]: parsed };
@@ -418,10 +518,19 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
       }
       setSelectedId(parsed.elements[0]?.id ?? null);
       setPreview(null);
+      setPreviewFailure(null);
       setExported(null);
-      setRequestSequence((value) => value + 1);
-      setNotice("Plan JSON을 Import했습니다. Preview를 다시 실행하세요.");
-    } catch (error) { setNotice(error instanceof Error ? error.message : "Plan JSON을 읽을 수 없습니다."); }
+      bumpRequestSequence();
+      setNotice(profileChanged
+        ? `Imported CreativeLayoutPlan · ${parsed.formatProfileId} profile을 명시적으로 선택했습니다. Preview를 다시 실행하세요.`
+        : "Imported CreativeLayoutPlan을 적용했습니다. Preview를 다시 실행하세요.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Plan JSON을 읽을 수 없습니다.";
+      const [code, ...rest] = message.split(": ");
+      const failure = { kind: "VALIDATION_BLOCKED" as const, code: code || "KBR-FREEFORM-PLAN-SCHEMA-INVALID", message: rest.join(": ") || message };
+      setPreviewFailure(failure);
+      setNotice(`${failure.code}: ${failure.message}`);
+    }
   }
 
   function copyPlan(): void {
@@ -495,13 +604,13 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
         </div> : null}
 
         {channel === "META" ? <section className="meta-static-controls" data-testid="meta-static-controls">
-          <div className="section-heading"><h3>META Static</h3><span className="capability-pill">PROJECT_OUTPUT_PRESET_V1</span></div>
-          <label className="field-group"><span className="field-label">Output mode</span><select data-testid="meta-output-mode" value={metaOutputMode} onChange={(event) => { const value = event.currentTarget.value as "SINGLE" | "PLACEMENT_SET"; setMetaOutputMode(value); setPreview(null); setExported(null); setRequestSequence((current) => current + 1); }}><option value="SINGLE">SINGLE</option><option value="PLACEMENT_SET">META_STATIC_PLACEMENT_SET_V1 · COLLECTION</option></select></label>
-          <label className="field-group"><span className="field-label">Placement context</span><select data-testid="meta-placement-context" value={metaPlacementContext} onChange={(event) => { setMetaPlacementContext(event.currentTarget.value); setPreview(null); setRequestSequence((current) => current + 1); }}><option value="">Unspecified · generic vertical</option><option value="FACEBOOK_FEED">Facebook Feed</option><option value="INSTAGRAM_FEED">Instagram Feed</option><option value="FACEBOOK_STORIES">Facebook Stories</option><option value="INSTAGRAM_STORIES">Instagram Stories</option><option value="FACEBOOK_REELS">Facebook Reels · SOURCE_REQUIRED geometry</option><option value="INSTAGRAM_REELS">Instagram Reels · SOURCE_REQUIRED geometry</option></select></label>
+           <div className="section-heading"><h3>META Static</h3><span className="capability-pill">PROJECT_OUTPUT_PRESET_V1</span></div>
+           <label className="field-group"><span className="field-label">Output mode</span><select data-testid="meta-output-mode" value={metaOutputMode} onChange={(event) => { const value = event.currentTarget.value as "SINGLE" | "PLACEMENT_SET"; setMetaOutputMode(value); setPreview(null); setPreviewFailure(null); setExported(null); bumpRequestSequence(); }}><option value="SINGLE">SINGLE</option><option value="PLACEMENT_SET">META_STATIC_PLACEMENT_SET_V1 · COLLECTION</option></select></label>
+        <label className="field-group"><span className="field-label">Placement context · Render Request</span><select data-testid="meta-placement-context" value={metaPlacementContext} onChange={(event) => { setMetaPlacementContext(event.currentTarget.value as MetaQaContext); setPreview(null); setPreviewFailure(null); bumpRequestSequence(); }}><option value="">Unspecified / null · generic profile context</option>{META_QA_CONTEXTS.map((context) => <option key={context} value={context} disabled={!isMetaContextCompatible(profileId, context)}>{context === "FACEBOOK_FEED" ? "Facebook Feed" : context === "INSTAGRAM_FEED" ? "Instagram Feed" : context === "FACEBOOK_STORIES" ? "Facebook Stories" : context === "INSTAGRAM_STORIES" ? "Instagram Stories" : context === "FACEBOOK_REELS" ? "Facebook Reels · SOURCE_REQUIRED geometry" : "Instagram Reels · SOURCE_REQUIRED geometry"}{!isMetaContextCompatible(profileId, context) ? " · incompatible profile" : ""}</option>)}</select><small className="hint" data-testid="meta-request-context-help">Context는 CreativeLayoutPlan이 아니라 canonical Render Request가 소유합니다.</small></label>
           {metaOutputMode === "PLACEMENT_SET" ? <div className="button-row" role="tablist" aria-label="META placement variants" data-testid="meta-placement-tabs">{metaProfiles.map((entry) => <button type="button" key={entry.formatProfileId} role="tab" className={profileId === entry.formatProfileId ? "primary" : "secondary"} onClick={() => selectProfile(entry.formatProfileId)} data-testid={`meta-placement-tab-${entry.formatProfileId}`}>{entry.officialRatio} · {entry.canvas.width}×{entry.canvas.height}</button>)}</div> : null}
           <div className="meta-platform-copy" data-testid="meta-platform-copy"><span className="field-label">Platform copy · metadata only (never rasterized)</span>{(["primaryText", "headline", "description", "callToAction", "destinationUrl"] as const).map((field) => <label key={field}><span>{field}</span><input data-testid={`meta-platform-${field}`} value={metaPlatformCopy[field]} onChange={(event) => updateMeta({ [field]: event.currentTarget.value })} /></label>)}</div>
-          {metaPlacementContext.includes("STORIES") ? <p className="hint" data-testid="meta-safe-zone-guide">Stories guide: top 14% / bottom 20% normalized exclusion · WARNING only · final overlay excluded.</p> : null}
-          {metaPlacementContext.includes("REELS") ? <p className="hint" data-testid="meta-reels-source-required">Reels 9:16 project preset · exact platform safe-zone geometry SOURCE_REQUIRED · INFO only.</p> : null}
+           {metaStoriesContext ? <p className="hint" data-testid="meta-safe-zone-guide">Stories guide: top 14% / bottom 20% normalized exclusion · WARNING only · final overlay excluded.</p> : null}
+           {metaReelsContext ? <p className="hint" data-testid="meta-reels-source-required">Reels 9:16 project preset · exact platform safe-zone geometry SOURCE_REQUIRED · INFO only.</p> : null}
         </section> : null}
 
         <div className="field-group"><span className="field-label">Background</span><div className="button-row"><button type="button" className={plan.background.type === "SOLID" ? "primary" : "secondary"} onClick={() => updatePlan((current) => ({ ...current, background: { type: "SOLID", color: current.background.type === "SOLID" ? current.background.color : "#FFFFFF" } }))} data-testid="freeform-background-solid">Solid</button><button type="button" className={plan.background.type === "TRANSPARENT" ? "primary" : "secondary"} onClick={() => updatePlan((current) => ({ ...current, background: { type: "TRANSPARENT" } }))} data-testid="freeform-background-transparent">Transparent</button></div>{plan.background.type === "SOLID" ? <input data-testid="freeform-background-color" value={plan.background.color} onChange={(event) => updatePlan((current) => ({ ...current, background: { type: "SOLID", color: event.currentTarget.value } }))} /> : null}{profile?.outputConstraints?.requiresOpaqueOutput === true && plan.background.type === "TRANSPARENT" ? <small className="hint status-error">Transparent는 Core Validator ERROR를 발생시킵니다. 자동 보정하지 않습니다.</small> : null}</div>
@@ -525,22 +634,24 @@ export function FreeformEditor({ channel = "KAKAO", initialProfileId }: { channe
         </section> : <p className="hint">Element를 추가하거나 목록에서 선택하세요.</p>}
 
         <label className="field-group"><span className="field-label">Output format</span><select data-testid="freeform-output-format" value={outputFormat} onChange={(event) => formatChanged(event.currentTarget.value as "PNG" | "JPEG")} >{allowedFormats.map((format) => <option key={format} value={format}>{format}</option>)}</select>{profile?.outputConstraints?.maximumBytes ? <small className="hint">Profile byte limit · {profile.outputConstraints.maximumBytes} bytes</small> : null}</label>
-        {outputFormat === "JPEG" ? <label className="field-group"><span className="field-label">JPEG quality</span><select value={String(outputQuality)} onChange={(event) => { const value = event.currentTarget.value; setOutputQuality(value === "AUTO_FIT" ? "AUTO_FIT" : Number(value)); setPreview(null); setExported(null); setRequestSequence((current) => current + 1); }}><option value="AUTO_FIT">AUTO_FIT</option>{[92, 88, 84, 80, 76, 72, 68, 64].map((value) => <option key={value} value={value}>{value}</option>)}</select></label> : null}
-        <label className="field-group"><span className="field-label">Job name</span><input value={jobName} onChange={(event) => { setJobName(event.currentTarget.value); setPreview(null); setExported(null); setRequestSequence((current) => current + 1); }} /></label>
+        {outputFormat === "JPEG" ? <label className="field-group"><span className="field-label">JPEG quality</span><select value={String(outputQuality)} onChange={(event) => { const value = event.currentTarget.value; setOutputQuality(value === "AUTO_FIT" ? "AUTO_FIT" : Number(value)); setPreview(null); setPreviewFailure(null); setExported(null); bumpRequestSequence(); }}><option value="AUTO_FIT">AUTO_FIT</option>{[92, 88, 84, 80, 76, 72, 68, 64].map((value) => <option key={value} value={value}>{value}</option>)}</select></label> : null}
+        <label className="field-group"><span className="field-label">Job name</span><input value={jobName} onChange={(event) => { setJobName(event.currentTarget.value); setPreview(null); setPreviewFailure(null); setExported(null); bumpRequestSequence(); }} /></label>
 
-        <div className="button-row"><button type="button" onClick={importPlan} data-testid="freeform-plan-import">Import Plan JSON</button><button type="button" className="secondary" onClick={() => setPlanJson(JSON.stringify(plan, null, 2))} data-testid="freeform-plan-export">Export Plan JSON</button><button type="button" className="secondary" onClick={copyPlan} data-testid="freeform-plan-copy">Copy Plan JSON</button></div>
-        <textarea className="freeform-plan-json" value={planJson} onChange={(event) => setPlanJson(event.currentTarget.value)} rows={10} spellCheck={false} data-testid="freeform-plan-json" />
+        {channel === "META" ? <section className="meta-qa-request-state" data-testid="meta-qa-request-state"><div className="section-heading"><h3>Canonical META Render Request</h3><span className="capability-pill">QA BRIDGE</span></div><dl><dt>formatProfileId</dt><dd data-testid="meta-request-format-profile">{profileId}</dd><dt>placementContext</dt><dd data-testid="meta-request-placement-context">{metaPlacementContext || "null / DEFAULT_NONE"}</dd></dl><pre data-testid="meta-request-json">{JSON.stringify(metaQaRequestView(), null, 2)}</pre></section> : null}
+        <section className="freeform-plan-import-panel" data-testid="freeform-plan-import-panel"><div className="section-heading"><h3>Imported CreativeLayoutPlan JSON</h3><span className="hint">Plan-only · request context is separate</span></div><div className="button-row"><button type="button" onClick={importPlan} data-testid="freeform-plan-import">Import Plan JSON</button><button type="button" className="secondary" onClick={() => setPlanJson(JSON.stringify(plan, null, 2))} data-testid="freeform-plan-export">Export Plan JSON</button><button type="button" className="secondary" onClick={copyPlan} data-testid="freeform-plan-copy">Copy Plan JSON</button></div><textarea className="freeform-plan-json" value={planJson} onChange={(event) => setPlanJson(event.currentTarget.value)} rows={10} spellCheck={false} data-testid="freeform-plan-json" /></section>
         {notice ? <small className="placement-plan-status" data-testid="freeform-notice">{notice}</small> : null}
       </aside>
 
-      <section className="freeform-preview-panel" aria-label="FREEFORM Preview"><div className="section-heading"><div><h2>Preview</h2><p className="hint">{profile ? `${profile.canvas.width}×${profile.canvas.height} · UI scale only` : "Profile 선택"}</p></div><label className="guide-toggle"><input type="checkbox" checked={safeZoneVisible} onChange={() => setSafeZoneVisible((value) => !value)} data-testid="freeform-safe-zone-toggle" /> Safe Zone</label></div>
-        <div className="freeform-canvas" data-testid="freeform-canvas" style={{ aspectRatio: profile ? `${profile.canvas.width} / ${profile.canvas.height}` : "1 / 1" }}><div className="freeform-canvas-label">{profile ? `${profile.canvas.width} × ${profile.canvas.height}` : "—"}</div>{previewAvailable && preview?.previewUrl ? <img src={preview.previewUrl} alt="FREEFORM Core Preview" data-preview-format={preview.previewArtifact?.format ?? preview.artifactFormat ?? outputFormat} data-preview-mime={preview.previewArtifact?.mimeType ?? ""} data-testid="freeform-preview-image" /> : <div className="preview-empty">{previewCurrent && preview?.validationStatus === "ERROR" ? "프리뷰를 생성할 수 없습니다." : "Render Preview를 실행하세요."}</div>}{safeZoneVisible && safeZone.insets ? <div className={`freeform-safe-zone safe-zone-${safeZone.classification.toLowerCase()}`} style={{ top: `${(safeZone.insets.top / (profile?.canvas.height || 1)) * 100}%`, right: `${(safeZone.insets.right / (profile?.canvas.width || 1)) * 100}%`, bottom: `${(safeZone.insets.bottom / (profile?.canvas.height || 1)) * 100}%`, left: `${(safeZone.insets.left / (profile?.canvas.width || 1)) * 100}%` }} data-testid="freeform-safe-zone-overlay" /> : safeZoneVisible ? <span className="freeform-safe-zone-unknown" data-testid="freeform-safe-zone-unknown">Safe Zone · {safeZone.classification} / MANUAL REVIEW</span> : null}</div>
+      <section className="freeform-preview-panel" aria-label="FREEFORM Preview"><div className="section-heading"><div><h2>Preview</h2><p className="hint">{profile ? `${profile.canvas.width}×${profile.canvas.height} · UI scale only` : "Profile 선택"}</p></div><label className="guide-toggle"><input type="checkbox" checked={safeZoneOverlayVisible} disabled={!safeZoneGuideEnabled} onChange={() => setSafeZoneVisible((value) => !value)} data-testid="freeform-safe-zone-toggle" /> Safe Zone{channel === "META" && !safeZoneGuideEnabled ? " · disabled for this context" : ""}</label></div>
+        <div className="freeform-canvas" data-testid="freeform-canvas" style={{ aspectRatio: profile ? `${profile.canvas.width} / ${profile.canvas.height}` : "1 / 1" }}><div className="freeform-canvas-label">{profile ? `${profile.canvas.width} × ${profile.canvas.height}` : "—"}</div>{previewAvailable && preview?.previewUrl ? <img src={preview.previewUrl} alt="FREEFORM Core Preview" data-preview-format={preview.previewArtifact?.format ?? preview.artifactFormat ?? outputFormat} data-preview-mime={preview.previewArtifact?.mimeType ?? ""} data-testid="freeform-preview-image" /> : <div className="preview-empty">{previewCurrent && preview?.validationStatus === "ERROR" ? "프리뷰를 생성할 수 없습니다." : "Render Preview를 실행하세요."}</div>}{safeZoneOverlayVisible && safeZone.insets ? <div className={`freeform-safe-zone safe-zone-${safeZone.classification.toLowerCase()}`} style={{ top: `${(safeZone.insets.top / (profile?.canvas.height || 1)) * 100}%`, right: `${(safeZone.insets.right / (profile?.canvas.width || 1)) * 100}%`, bottom: `${(safeZone.insets.bottom / (profile?.canvas.height || 1)) * 100}%`, left: `${(safeZone.insets.left / (profile?.canvas.width || 1)) * 100}%` }} data-testid="freeform-safe-zone-overlay" /> : channel !== "META" && safeZoneVisible ? <span className="freeform-safe-zone-unknown" data-testid="freeform-safe-zone-unknown">Safe Zone · {safeZone.classification} / MANUAL REVIEW</span> : null}</div>
+        <div className={`freeform-preview-outcome outcome-${previewOutcome.toLowerCase()}`} data-testid="freeform-preview-outcome"><strong data-testid="freeform-preview-outcome-status">{previewOutcome}</strong><small data-testid="freeform-preview-sequence">request {requestSequence} · result {preview?.requestSequence ?? "—"}</small>{previewFailure ? <><code data-testid="freeform-preview-outcome-code">{previewFailure.code}</code><span data-testid="freeform-preview-outcome-message">{previewFailure.message}</span></> : null}</div>
         {previewCurrent && preview?.validationStatus === "ERROR" ? <p className="freeform-preview-eligibility status-error" data-testid="freeform-preview-eligibility">{previewAvailable ? "프리뷰는 생성되었습니다. 다만 최종 매체 규격을 통과하지 못했습니다." : "프리뷰를 생성할 수 없습니다. 렌더 전에 해결해야 하는 오류가 있습니다."}</p> : null}
         <div className="freeform-preview-actions"><button type="button" className="primary" onClick={() => void requestPreview()} disabled={validating || !profile || profile.implementationStatus !== "IMPLEMENTED"} data-testid="freeform-render-preview">{validating ? "Core Validator 실행 중…" : "Render Preview"}</button><button type="button" className="secondary" onClick={() => void selectOutputDirectory()} data-testid="freeform-select-output">출력 폴더 선택</button><button type="button" className="primary" onClick={() => void exportRender()} disabled={!previewFresh || !preview?.previewToken || !output} data-testid="freeform-export">{outputFormat} 및 Manifest 저장</button></div>
         <div className="freeform-output-summary"><span>상태</span><strong data-testid="freeform-status">{validating ? "VALIDATING" : previewCurrent ? (preview?.validationStatus ?? "PASS") : preview ? "STALE" : "DIRTY"}</strong><span>오류</span><strong>{preview?.errors.length ?? 0}</strong><span>경고</span><strong>{preview?.warnings.length ?? 0}</strong><span>Artifact</span><strong>{preview?.pngMetadata ? `${preview.pngMetadata.bytes} bytes · ${preview.artifactFormat ?? outputFormat}` : "—"}</strong>{preview?.outputEncoding && typeof preview.outputEncoding.qualityResolved === "number" ? <><span>JPEG quality</span><strong>{String(preview.outputEncoding.qualityResolved)}</strong></> : null}<span>Limit</span><strong>{profile?.outputConstraints?.maximumBytes ?? "—"}</strong></div>
         {output ? <p className="hint">출력 폴더 · {output.displayName}</p> : null}
         <div className="freeform-issues" data-testid="freeform-validation-panel"><h3>Core Validation</h3>{issues.length === 0 ? <p className="hint">Core 결과가 여기에 표시됩니다.</p> : issues.map((issue) => <article className={`issue issue-${issue.severity.toLowerCase()}`} key={`${issue.code}-${issue.path}-${issue.elementId ?? ""}`}><div><strong>{issue.severity}</strong><code>{issue.code}</code></div><p>{issueMessage(issue)}</p><small>stage · {issue.stage ?? "PRE_RENDER"} · elementId · {issue.elementId ?? "—"} · actual · {jsonValue(issue.actual)} · expected · {jsonValue(issue.expected)}</small><small>{issue.path}</small></article>)}</div>
-        <div className="freeform-manual-review" data-testid="freeform-manual-review"><h3>Manual Review</h3>{profile?.safeZonePolicy && typeof profile.safeZonePolicy === "object" && JSON.stringify(profile.safeZonePolicy).includes("MANUAL_REVIEW_REQUIRED") ? <p>완성 이미지 안에 Bake된 텍스트/로고와 공식 좌표가 없는 가림 영역은 수동 검수가 필요합니다.</p> : null}{safeZone.classification === "UNKNOWN" ? <p>공식 Safe Zone geometry가 없어 자동으로 그리지 않습니다.</p> : null}{profile?.collectionRule ? <p>현재는 개별 이미지 1장을 제작합니다. 묶음/순서 관리 기능은 후속 단계에서 지원됩니다.</p> : null}{!profile?.safeZonePolicy && !profile?.collectionRule ? <p className="hint">수동 검토 항목 없음</p> : null}</div>
+        <div className="freeform-manual-review" data-testid="freeform-manual-review"><h3>Manual Review</h3>{profile?.safeZonePolicy && typeof profile.safeZonePolicy === "object" && JSON.stringify(profile.safeZonePolicy).includes("MANUAL_REVIEW_REQUIRED") ? <p>완성 이미지 안에 Bake된 텍스트/로고와 공식 좌표가 없는 가림 영역은 수동 검수가 필요합니다.</p> : null}{channel !== "META" && safeZone.classification === "UNKNOWN" ? <p>공식 Safe Zone geometry가 없어 자동으로 그리지 않습니다.</p> : null}{profile?.collectionRule ? <p>현재는 개별 이미지 1장을 제작합니다. 묶음/순서 관리 기능은 후속 단계에서 지원됩니다.</p> : null}{!profile?.safeZonePolicy && !profile?.collectionRule ? <p className="hint">수동 검토 항목 없음</p> : null}</div>
+        {channel === "META" ? <section className="meta-render-manifest-viewer" data-testid="meta-render-manifest-viewer"><div className="section-heading"><h3>Last Render Manifest</h3><span className="hint">Core output evidence · read-only</span></div>{preview?.manifest ? <><dl><dt>formatProfileId</dt><dd data-testid="meta-manifest-format-profile">{jsonValue(preview.manifest.formatProfileId)}</dd><dt>requested context</dt><dd data-testid="meta-manifest-requested-context">{jsonValue((preview.manifest.metaStaticReport as Record<string, unknown> | undefined)?.placementContextResolution && ((preview.manifest.metaStaticReport as Record<string, unknown>).placementContextResolution as Record<string, unknown>).requested)}</dd><dt>resolved context</dt><dd data-testid="meta-manifest-resolved-context">{jsonValue((preview.manifest.metaStaticReport as Record<string, unknown> | undefined)?.placementContextResolution && ((preview.manifest.metaStaticReport as Record<string, unknown>).placementContextResolution as Record<string, unknown>).resolved)}</dd></dl><pre data-testid="meta-render-manifest-json">{JSON.stringify(preview.manifest, null, 2)}</pre></> : <p className="hint" data-testid="meta-render-manifest-empty">Preview 성공 후 manifest evidence가 표시됩니다.</p>}</section> : null}
         {exported ? <div className="export-result" data-testid="freeform-export-result"><span>{exported.jobName}\{exported.artifactFileName ?? exported.pngFileName}</span><code>{exported.artifactDigest ?? exported.pngDigest}</code><button type="button" className="secondary" onClick={() => void window.kbrDesktop.revealExportedFile(exported.exportToken)}>폴더 열기</button></div> : null}
       </section>
     </section>

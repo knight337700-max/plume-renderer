@@ -1,0 +1,44 @@
+{
+  "phase": "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX",
+  "status": "PASS",
+  "feed": {
+    "profiles": [
+      "META_STATIC_FEED_SQUARE",
+      "META_STATIC_FEED_PORTRAIT"
+    ],
+    "guideEnabled": false,
+    "missingGeometryMessage": false,
+    "storiesWarning": false,
+    "reelsInfo": false
+  },
+  "stories": {
+    "contexts": [
+      "FACEBOOK_STORIES",
+      "INSTAGRAM_STORIES"
+    ],
+    "guideEnabled": true,
+    "advisoryGeometry": {
+      "topNormalized": 0.14,
+      "bottomNormalized": 0.2
+    },
+    "severity": "WARNING",
+    "finalOverlay": false
+  },
+  "reels": {
+    "contexts": [
+      "FACEBOOK_REELS",
+      "INSTAGRAM_REELS"
+    ],
+    "guideEnabled": false,
+    "sourceRequiredInfo": true,
+    "severity": "INFO",
+    "guessedGeometry": false
+  },
+  "verticalNone": {
+    "context": null,
+    "guideEnabled": false,
+    "storiesWarning": false,
+    "reelsInfo": false,
+    "resolved": null
+  }
+}

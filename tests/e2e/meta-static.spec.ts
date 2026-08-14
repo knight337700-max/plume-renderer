@@ -42,6 +42,7 @@ test("META selector renders a project preset and exports the ordered placement s
     await launched.page.getByTestId("freeform-select-image").click();
     await expect(launched.page.getByText("object-right__product__basic__pass.png", { exact: true })).toBeVisible();
     await launched.page.getByTestId("meta-platform-headline").fill("Meta headline metadata");
+    await launched.page.getByTestId("meta-profile-select").selectOption("META_STATIC_VERTICAL_FULL");
     await launched.page.getByTestId("meta-placement-context").selectOption("INSTAGRAM_STORIES");
     await expect(launched.page.getByTestId("meta-safe-zone-guide")).toBeVisible();
     await launched.page.getByTestId("freeform-render-preview").click();
@@ -80,6 +81,127 @@ test("vertical META profile starts neutral and propagates explicit Stories conte
     await launched.page.getByTestId("freeform-render-preview").click();
     await expect(launched.page.getByTestId("freeform-preview-image")).toBeVisible();
     await expect(launched.page.getByTestId("freeform-status")).toHaveText(/PASS|WARNING/u);
+  } finally {
+    await close(launched);
+  }
+});
+
+test("META QA bridge keeps Feed safe-zone guidance disabled and exposes manifest context", async () => {
+  const launched = await launch();
+  try {
+    const page = launched.page;
+    await page.getByTestId("channel-meta").click();
+    await page.getByTestId("freeform-select-image").click();
+    await expect(page.getByTestId("meta-profile-select")).toHaveValue("META_STATIC_FEED_SQUARE");
+    await expect(page.getByTestId("meta-placement-context")).toHaveValue("FACEBOOK_FEED");
+    await expect(page.getByTestId("freeform-safe-zone-toggle")).toBeDisabled();
+    await expect(page.getByTestId("meta-safe-zone-guide")).toHaveCount(0);
+    await expect(page.getByTestId("freeform-manual-review")).not.toContainText("공식 Safe Zone geometry가 없어 자동으로 그리지 않습니다.");
+    await expect(page.getByTestId("meta-request-format-profile")).toHaveText("META_STATIC_FEED_SQUARE");
+    await expect(page.getByTestId("meta-request-placement-context")).toHaveText("FACEBOOK_FEED");
+    await page.getByTestId("freeform-render-preview").click();
+    await expect(page.getByTestId("freeform-preview-image")).toBeVisible();
+    await expect(page.getByTestId("freeform-preview-outcome-status")).toHaveText("PREVIEW_RENDERED");
+    await expect(page.getByTestId("meta-render-manifest-viewer")).toContainText("Last Render Manifest");
+    await expect(page.getByTestId("meta-manifest-format-profile")).toHaveText("META_STATIC_FEED_SQUARE");
+    await expect(page.getByTestId("meta-manifest-requested-context")).toHaveText("FACEBOOK_FEED");
+    await expect(page.getByTestId("meta-manifest-resolved-context")).toHaveText("FACEBOOK_FEED");
+    await expect(page.getByTestId("freeform-plan-import-panel")).toContainText("Imported CreativeLayoutPlan JSON");
+  } finally {
+    await close(launched);
+  }
+});
+
+test("META QA bridge routes Stories and Reels Preview without a silent no-op", async () => {
+  const launched = await launch();
+  try {
+    const page = launched.page;
+    await page.getByTestId("channel-meta").click();
+    await page.getByTestId("freeform-select-image").click();
+    await expect(page.getByText("object-right__product__basic__pass.png", { exact: true })).toBeVisible();
+    await page.getByTestId("meta-profile-select").selectOption("META_STATIC_VERTICAL_FULL");
+    await expect(page.getByTestId("meta-placement-context")).toHaveValue("");
+    await page.getByTestId("meta-placement-context").selectOption("INSTAGRAM_STORIES");
+    await expect(page.getByTestId("meta-safe-zone-guide")).toBeVisible();
+    await expect(page.getByTestId("freeform-safe-zone-toggle")).toBeEnabled();
+    await page.getByTestId("freeform-render-preview").click();
+    await expect(page.getByTestId("freeform-preview-image")).toBeVisible();
+    await expect(page.getByTestId("freeform-preview-outcome-status")).toHaveText("PREVIEW_RENDERED");
+    await expect(page.getByTestId("meta-manifest-requested-context")).toHaveText("INSTAGRAM_STORIES");
+    await expect(page.getByTestId("meta-manifest-resolved-context")).toHaveText("INSTAGRAM_STORIES");
+    await expect(page.getByTestId("meta-reels-source-required")).toHaveCount(0);
+
+    await page.getByTestId("meta-placement-context").selectOption("INSTAGRAM_REELS");
+    await expect(page.getByTestId("meta-safe-zone-guide")).toHaveCount(0);
+    await expect(page.getByTestId("freeform-safe-zone-toggle")).toBeDisabled();
+    await expect(page.getByTestId("meta-reels-source-required")).toBeVisible();
+    await page.getByTestId("freeform-render-preview").click();
+    await expect(page.getByTestId("freeform-preview-image")).toBeVisible();
+    await expect(page.getByTestId("freeform-preview-outcome-status")).toHaveText("PREVIEW_RENDERED");
+    await expect(page.getByTestId("meta-manifest-requested-context")).toHaveText("INSTAGRAM_REELS");
+    await expect(page.getByTestId("meta-manifest-resolved-context")).toHaveText("INSTAGRAM_REELS");
+  } finally {
+    await close(launched);
+  }
+});
+
+test("META QA bridge preserves imported Plan placement across context/profile switches and reports invalid Plan roots", async () => {
+  const launched = await launch();
+  try {
+    const page = launched.page;
+    await page.getByTestId("channel-meta").click();
+    await page.getByTestId("freeform-select-image").click();
+    await expect(page.getByText("object-right__product__basic__pass.png", { exact: true })).toBeVisible();
+    const importedPlan = {
+      schemaVersion: "1.0.0",
+      formatProfileId: "META_STATIC_FEED_SQUARE",
+      source: "MANUAL",
+      background: { type: "SOLID", color: "#FFFFFF" },
+      elements: [{
+        id: "hero",
+        type: "IMAGE",
+        assetId: "asset-primary",
+        bounds: { x: 0, y: 0, width: 1, height: 1 },
+        zIndex: 2,
+        opacity: 0.82,
+        placement: {
+          policy: "MANUAL_CROP",
+          source: "MANUAL",
+          fitMode: "COVER",
+          cropRect: { x: 0.125, y: 0, width: 0.75, height: 1 },
+          anchor: "CENTER",
+          subjectProtection: "PREFERRED",
+        },
+      }],
+    };
+    await page.getByTestId("freeform-plan-json").fill(JSON.stringify(importedPlan));
+    await page.getByTestId("freeform-plan-import").click();
+    await expect(page.getByTestId("freeform-image-policy")).toHaveValue("MANUAL_CROP");
+    await expect(page.getByTestId("freeform-crop-x")).toHaveValue("0.125");
+    await expect(page.getByTestId("freeform-geometry-hero-opacity")).toHaveValue("0.82");
+    await page.getByTestId("meta-profile-select").selectOption("META_STATIC_VERTICAL_FULL");
+    await expect(page.getByTestId("meta-placement-context")).toHaveValue("");
+    await expect(page.getByTestId("freeform-image-policy")).toHaveValue("MANUAL_CROP");
+    await page.getByTestId("freeform-render-preview").click();
+    await expect(page.getByTestId("freeform-preview-image")).toBeVisible();
+    await expect(page.getByTestId("meta-manifest-requested-context")).toHaveText("null");
+    await expect(page.getByTestId("meta-manifest-resolved-context")).toHaveText("null");
+    await page.getByTestId("meta-placement-context").selectOption("INSTAGRAM_REELS");
+    await page.getByTestId("meta-profile-select").selectOption("META_STATIC_FEED_PORTRAIT");
+    await expect(page.getByTestId("meta-placement-context")).toHaveValue("FACEBOOK_FEED");
+    await expect(page.getByTestId("freeform-image-policy")).toHaveValue("MANUAL_CROP");
+    await page.getByTestId("meta-placement-context").selectOption("INSTAGRAM_FEED");
+    await page.getByTestId("freeform-render-preview").click();
+    await expect(page.getByTestId("freeform-preview-image")).toBeVisible();
+    await expect(page.getByTestId("meta-manifest-format-profile")).toHaveText("META_STATIC_FEED_PORTRAIT");
+    await expect(page.getByText("공식 Safe Zone geometry가 없어 자동으로 그리지 않습니다.", { exact: true })).toHaveCount(0);
+
+    const invalidPlan = { ...importedPlan, placementContext: "INSTAGRAM_REELS" };
+    await page.getByTestId("freeform-plan-json").fill(JSON.stringify(invalidPlan));
+    await page.getByTestId("freeform-plan-import").click();
+    await expect(page.getByTestId("freeform-preview-outcome-status")).toHaveText("VALIDATION_BLOCKED");
+    await expect(page.getByTestId("freeform-preview-outcome-code")).toHaveText("KBR-FREEFORM-PLAN-SCHEMA-INVALID");
+    await expect(page.getByTestId("freeform-notice")).toContainText("MOVE_PLACEMENT_CONTEXT_TO_RENDER_REQUEST");
   } finally {
     await close(launched);
   }

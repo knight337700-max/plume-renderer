@@ -1,0 +1,21 @@
+{
+  "phase": "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX",
+  "status": "PASS",
+  "sourceCommit": "36e4f06b2e1c510f504a767b51e47a417a7d765c",
+  "m2_2Core": "PASS",
+  "kakaoGoldensUnchanged": true,
+  "naverSmartChannelGoldensUnchanged": true,
+  "naverSmartChannel120": "PASS",
+  "naverRemaining": "PASS",
+  "metaM1": "PASS",
+  "metaM2": "PASS",
+  "metaM2_1": "PASS",
+  "metaM2_2": "PASS",
+  "desktopMetaE2e": "PASS",
+  "goldenStatus": "CANDIDATE_NOT_APPROVED",
+  "manualAcceptanceStatus": "NOT_REVIEWED",
+  "finalGoldenFrozen": false,
+  "canonicalDocumentVersion": "1.23.1",
+  "templateContractVersion": "1.9.0",
+  "rendererCoreVersion": "0.9.0"
+}

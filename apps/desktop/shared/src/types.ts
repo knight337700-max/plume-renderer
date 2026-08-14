@@ -317,6 +317,8 @@ export type PreviewResult = {
   collectionArtifactFileNames?: readonly string[];
   previewArtifact?: PreviewArtifact | null;
   eligibility?: PreviewEligibility;
+  /** In-memory Core manifest exposed only to the Desktop QA harness. */
+  manifest?: Readonly<Record<string, unknown>> | null;
 };
 
 export type OutputDirectoryResult =

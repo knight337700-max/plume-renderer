@@ -1,0 +1,33 @@
+{
+  "phase": "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX",
+  "status": "PASS",
+  "planPanel": {
+    "label": "Imported CreativeLayoutPlan JSON",
+    "testId": "freeform-plan-import-panel",
+    "requestContextIncluded": false
+  },
+  "requestPanel": {
+    "label": "Canonical META Render Request",
+    "testId": "meta-qa-request-state",
+    "requestContextIncluded": true
+  },
+  "manifestPanel": {
+    "label": "Last Render Manifest",
+    "testId": "meta-render-manifest-viewer",
+    "readOnly": true
+  },
+  "manifestFields": [
+    "formatProfileId",
+    "metaStaticReport.placementContextResolution.requested",
+    "metaStaticReport.placementContextResolution.resolved"
+  ],
+  "importedFieldsPreserved": [
+    "placement.policy",
+    "placement.fitMode",
+    "placement.cropRect",
+    "bounds",
+    "zIndex",
+    "opacity"
+  ],
+  "placementContextRemainsRequestLevel": true
+}

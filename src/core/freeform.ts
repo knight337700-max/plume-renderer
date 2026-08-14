@@ -156,6 +156,8 @@ export type FreeformRenderResult = Readonly<{
   errors: ValidationIssue[];
   warnings: ValidationIssue[];
   metaStaticReport?: RenderManifest["metaStaticReport"];
+  /** In-memory manifest used by Desktop Preview QA; never changes the public response envelope. */
+  manifest?: RenderManifest | null;
 }>;
 
 type PixelRect = { x: number; y: number; width: number; height: number };
@@ -220,6 +222,7 @@ function emptyResult(
     appliedElements: [],
     errors: errorIssues,
     warnings,
+    manifest: null,
   };
 }
 
@@ -1370,6 +1373,7 @@ async function renderFreeformInternal(
         appliedElements,
         errors: split.errors,
         warnings: split.warnings,
+        manifest: null,
       };
     }
     return emptyResult(finalIssues, {
@@ -1483,6 +1487,7 @@ async function renderFreeformInternal(
         errors: [],
         warnings: splitIssues(finalIssues).warnings,
         ...(metaStaticReport ? { metaStaticReport } : {}),
+        manifest,
       };
     } catch (error) {
       const code = error instanceof PublishError ? error.code : "KBR-SYSTEM-004";
@@ -1513,6 +1518,7 @@ async function renderFreeformInternal(
     errors: [],
     warnings: splitIssues(finalIssues).warnings,
     ...(metaStaticReport ? { metaStaticReport } : {}),
+    manifest,
   };
 }
 

@@ -1,0 +1,22 @@
+{
+  "phase": "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX",
+  "status": "PASS",
+  "outcomes": [
+    "PREVIEW_RENDERED",
+    "VALIDATION_BLOCKED",
+    "RUNTIME_ERROR"
+  ],
+  "silentNoOpCount": 0,
+  "visibleFields": [
+    "status",
+    "error code",
+    "message"
+  ],
+  "validationBlockedCode": "DESKTOP-META-CONTEXT-001",
+  "planSchemaBlockedCode": "KBR-FREEFORM-PLAN-SCHEMA-INVALID",
+  "runtimeErrorCode": "DESKTOP-PREVIEW-002",
+  "staleResultCode": "DESKTOP-PREVIEW-003",
+  "staleResultVisible": true,
+  "asyncHandlerCatch": true,
+  "rendererValidationErrorsRemainVisible": true
+}
