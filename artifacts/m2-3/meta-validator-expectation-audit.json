@@ -1,0 +1,76 @@
+{
+  "entries": {
+    "portrait": {
+      "expected": {
+        "errorCount": 0,
+        "infoCount": 0,
+        "issueCodes": [],
+        "warningCount": 0
+      },
+      "runtime": {
+        "errorCount": 0,
+        "infoCount": 0,
+        "issues": [],
+        "warningCount": 0
+      }
+    },
+    "reels": {
+      "expected": {
+        "errorCount": 0,
+        "infoCount": 1,
+        "issueCodes": [
+          "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED"
+        ],
+        "warningCount": 0
+      },
+      "runtime": {
+        "errorCount": 0,
+        "infoCount": 1,
+        "issues": [
+          {
+            "actual": "INSTAGRAM_REELS",
+            "code": "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED",
+            "expected": "source-backed exact Reels safe-zone geometry; no guessed coordinates",
+            "formatProfileId": "META_STATIC_VERTICAL_FULL",
+            "messageKey": "meta.reels_safe_zone_source_required",
+            "path": "/placementContext",
+            "severity": "INFO",
+            "stage": "PRE_RENDER"
+          }
+        ],
+        "warningCount": 0
+      }
+    },
+    "square": {
+      "expected": {
+        "errorCount": 0,
+        "infoCount": 0,
+        "issueCodes": [],
+        "warningCount": 0
+      },
+      "runtime": {
+        "errorCount": 0,
+        "infoCount": 0,
+        "issues": [],
+        "warningCount": 0
+      }
+    },
+    "stories": {
+      "expected": {
+        "errorCount": 0,
+        "infoCount": 0,
+        "issueCodes": [],
+        "warningCount": 0
+      },
+      "runtime": {
+        "errorCount": 0,
+        "infoCount": 0,
+        "issues": [],
+        "warningCount": 0
+      }
+    }
+  },
+  "phase": "M2_3",
+  "reelsSourceRequiredInfo": "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED",
+  "status": "PASS"
+}

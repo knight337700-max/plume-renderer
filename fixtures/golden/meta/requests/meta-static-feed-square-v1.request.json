@@ -1,0 +1,77 @@
+{
+  "assets": [
+    {
+      "assetId": "asset-primary",
+      "checksumSha256": "ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917",
+      "declaredHeight": 5102,
+      "declaredWidth": 7652,
+      "mimeType": "image/jpeg",
+      "path": "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source-original.jpg"
+    }
+  ],
+  "creativeLayoutPlan": {
+    "background": {
+      "color": "#FFFFFF",
+      "type": "SOLID"
+    },
+    "elements": [
+      {
+        "assetId": "asset-primary",
+        "bounds": {
+          "height": 1,
+          "width": 1,
+          "x": 0,
+          "y": 0
+        },
+        "id": "image-1",
+        "opacity": 1,
+        "placement": {
+          "anchor": "CENTER",
+          "cropRect": {
+            "height": 1,
+            "width": 0.6667537898588604,
+            "x": 0.16662310507056982,
+            "y": 0
+          },
+          "fitMode": "COVER",
+          "policy": "MANUAL_CROP",
+          "source": "MANUAL",
+          "subjectProtection": "NONE"
+        },
+        "type": "IMAGE",
+        "zIndex": 0
+      }
+    ],
+    "formatProfileId": "META_STATIC_FEED_SQUARE",
+    "schemaVersion": "1.0.0",
+    "source": "MANUAL"
+  },
+  "formatProfileId": "META_STATIC_FEED_SQUARE",
+  "layoutMode": "FREEFORM",
+  "metaStatic": {
+    "conceptId": "meta-static-m2-3-approved-golden",
+    "mode": "SINGLE",
+    "placementContext": "INSTAGRAM_FEED",
+    "platformCopy": {
+      "callToAction": "",
+      "description": "",
+      "destinationUrl": "",
+      "headline": "",
+      "primaryText": ""
+    }
+  },
+  "output": {
+    "format": "JPEG",
+    "mimeType": "image/jpeg",
+    "quality": 92
+  },
+  "placementContext": "INSTAGRAM_FEED",
+  "provenance": {
+    "cropPolicy": "FILL_CANVAS_CENTERED_MANUAL_CROP",
+    "phase": "M2_3_META_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE",
+    "source": "USER_APPROVED_DESKTOP_QA_OUTPUT",
+    "sourceAsset": "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source-original.jpg",
+    "sourceAssetSha256": "ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917"
+  },
+  "schemaVersion": "1.5.0"
+}

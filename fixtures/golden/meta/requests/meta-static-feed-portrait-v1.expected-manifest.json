@@ -1,0 +1,32 @@
+{
+  "approval": {
+    "method": "USER_VISUAL_REVIEW",
+    "phase": "M2_3",
+    "status": "APPROVED"
+  },
+  "canvas": {
+    "height": 1350,
+    "width": 1080
+  },
+  "formatProfileId": "META_STATIC_FEED_PORTRAIT",
+  "goldenId": "META_STATIC_FEED_PORTRAIT_GOLDEN_V1",
+  "outputArtifactDigest": "de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85",
+  "outputBytes": 399966,
+  "outputEncoding": {
+    "chromaSubsampling": "4:2:0",
+    "format": "JPEG",
+    "metadataStripped": true,
+    "progressive": false,
+    "qualityRequested": 92,
+    "qualityResolved": 92
+  },
+  "pixelFingerprint": "bd1d3cf506fda3c3a0379802c7b62be60304e4acd17b9994f1d9105d8b2ab2ce",
+  "placementContext": "INSTAGRAM_FEED",
+  "requestFingerprint": "10f25590fb4a9d8c9651240f10663b8bbb0ab6e790d01fa872ef83540ef40f1b",
+  "validatorExpectation": {
+    "errorCount": 0,
+    "infoCount": 0,
+    "issueCodes": [],
+    "warningCount": 0
+  }
+}

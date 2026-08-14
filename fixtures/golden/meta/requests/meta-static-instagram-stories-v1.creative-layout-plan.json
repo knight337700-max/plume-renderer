@@ -1,0 +1,37 @@
+{
+  "background": {
+    "color": "#FFFFFF",
+    "type": "SOLID"
+  },
+  "elements": [
+    {
+      "assetId": "asset-primary",
+      "bounds": {
+        "height": 1,
+        "width": 1,
+        "x": 0,
+        "y": 0
+      },
+      "id": "image-1",
+      "opacity": 1,
+      "placement": {
+        "anchor": "CENTER",
+        "cropRect": {
+          "height": 1,
+          "width": 0.375049006795609,
+          "x": 0.31247549660219553,
+          "y": 0
+        },
+        "fitMode": "COVER",
+        "policy": "MANUAL_CROP",
+        "source": "MANUAL",
+        "subjectProtection": "NONE"
+      },
+      "type": "IMAGE",
+      "zIndex": 0
+    }
+  ],
+  "formatProfileId": "META_STATIC_VERTICAL_FULL",
+  "schemaVersion": "1.0.0",
+  "source": "MANUAL"
+}

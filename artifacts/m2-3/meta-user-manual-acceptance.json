@@ -1,0 +1,15 @@
+{
+  "manualAcceptance": {
+    "approvedBy": "USER_MANUAL_ACCEPTANCE",
+    "method": "USER_VISUAL_REVIEW",
+    "scope": [
+      "META_STATIC_FEED_SQUARE / INSTAGRAM_FEED",
+      "META_STATIC_FEED_PORTRAIT / INSTAGRAM_FEED",
+      "META_STATIC_VERTICAL_FULL / INSTAGRAM_STORIES",
+      "META_STATIC_VERTICAL_FULL / INSTAGRAM_REELS"
+    ],
+    "status": "APPROVED"
+  },
+  "phase": "M2_3",
+  "status": "PASS"
+}

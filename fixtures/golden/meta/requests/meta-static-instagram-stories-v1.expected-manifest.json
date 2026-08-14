@@ -1,0 +1,39 @@
+{
+  "approval": {
+    "method": "USER_VISUAL_REVIEW",
+    "phase": "M2_3",
+    "status": "APPROVED"
+  },
+  "canvas": {
+    "height": 1920,
+    "width": 1080
+  },
+  "formatProfileId": "META_STATIC_VERTICAL_FULL",
+  "goldenId": "META_STATIC_VERTICAL_STORIES_GOLDEN_V1",
+  "outputArtifactDigest": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+  "outputBytes": 637585,
+  "outputEncoding": {
+    "chromaSubsampling": "4:2:0",
+    "format": "JPEG",
+    "metadataStripped": true,
+    "progressive": false,
+    "qualityRequested": 92,
+    "qualityResolved": 92
+  },
+  "pixelFingerprint": "b8201c47a54fedba62a2a0be9c83524fa7e1aa4ba9f6508624bf05a28bbe4988",
+  "placementContext": "INSTAGRAM_STORIES",
+  "requestFingerprint": "fdf2ff02bd6bf5149bc230d52be21069a73585e97ab62e8ba31a14f55e14b9c6",
+  "stories": {
+    "advisoryBottomExclusion": 0.2,
+    "advisoryTopExclusion": 0.14,
+    "finalOverlay": false,
+    "requestedContext": "INSTAGRAM_STORIES",
+    "resolvedContext": "INSTAGRAM_STORIES"
+  },
+  "validatorExpectation": {
+    "errorCount": 0,
+    "infoCount": 0,
+    "issueCodes": [],
+    "warningCount": 0
+  }
+}

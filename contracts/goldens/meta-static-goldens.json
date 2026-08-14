@@ -1,0 +1,292 @@
+{
+  "contractVersion": {
+    "canonicalDocument": "1.23.1",
+    "inputSchema": "1.2.0",
+    "outputSchema": "2.0.0",
+    "rendererCore": "0.9.0",
+    "templateContract": "1.9.0",
+    "validator": "1.9.0"
+  },
+  "entries": [
+    {
+      "approvalPhase": "M2_3",
+      "approvedBy": "USER_MANUAL_ACCEPTANCE",
+      "artifactSha256": "1516d007cec83b8e16e8e6ad70825dcd36490e13b491e51b8868652e608a0ccf",
+      "byteSize": 295358,
+      "canvas": {
+        "height": 1080,
+        "width": 1080
+      },
+      "formatProfileId": "META_STATIC_FEED_SQUARE",
+      "goldenId": "META_STATIC_FEED_SQUARE_GOLDEN_V1",
+      "outputEncoding": {
+        "chromaSubsampling": "4:2:0",
+        "format": "JPEG",
+        "metadataStripped": true,
+        "progressive": false,
+        "qualityRequested": 92,
+        "qualityResolved": 92
+      },
+      "pixelFingerprint": "a2f2c5ac7add3e7a16ee33da88d286629ad80563c35002ef39e1785ca28c8b1a",
+      "placement": {
+        "cropRect": {
+          "height": 1,
+          "width": 0.6667537898588604,
+          "x": 0.16662310507056982,
+          "y": 0
+        },
+        "fitMode": "COVER",
+        "fullBleed": true,
+        "policy": "MANUAL_CROP"
+      },
+      "placementContext": "INSTAGRAM_FEED",
+      "requestFingerprint": "7a893e8cc4d1c12b84d9411072147c03ba62a691c4aeb33af2f154c7aaed1b42",
+      "runtimeVerification": {
+        "artifactReproduced": true,
+        "pixelFingerprintSource": "USER_APPROVED_QA_EVIDENCE",
+        "requestFingerprintSource": "USER_APPROVED_QA_EVIDENCE",
+        "rerenderManifest": "artifacts/m2-3/runtime/square.manifest.json",
+        "runtimePixelFingerprint": "f0508a49192240771dfe1719a066c0405271232e83b203c6cfd1ed7b7fb95f36",
+        "runtimeRequestFingerprint": "f2b2c9bd12dcde492bb80ee8cb50d5cbe6542d933900268971feb450a89c740c",
+        "threeRunDeterminism": true
+      },
+      "sourceFixture": {
+        "artifact": "fixtures/golden/meta/meta-static-feed-square-v1.jpg",
+        "assetDigestReference": "fixtures/golden/meta/asset-digest-reference.json",
+        "creativeLayoutPlan": "fixtures/golden/meta/requests/meta-static-feed-square-v1.creative-layout-plan.json",
+        "expectedManifest": "fixtures/golden/meta/requests/meta-static-feed-square-v1.expected-manifest.json",
+        "request": "fixtures/golden/meta/requests/meta-static-feed-square-v1.request.json"
+      },
+      "status": "APPROVED_FROZEN",
+      "validatorExpectation": {
+        "errorCount": 0,
+        "infoCount": 0,
+        "issueCodes": [],
+        "warningCount": 0
+      }
+    },
+    {
+      "approvalPhase": "M2_3",
+      "approvedBy": "USER_MANUAL_ACCEPTANCE",
+      "artifactSha256": "de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85",
+      "byteSize": 399966,
+      "canvas": {
+        "height": 1350,
+        "width": 1080
+      },
+      "formatProfileId": "META_STATIC_FEED_PORTRAIT",
+      "goldenId": "META_STATIC_FEED_PORTRAIT_GOLDEN_V1",
+      "outputEncoding": {
+        "chromaSubsampling": "4:2:0",
+        "format": "JPEG",
+        "metadataStripped": true,
+        "progressive": false,
+        "qualityRequested": 92,
+        "qualityResolved": 92
+      },
+      "pixelFingerprint": "bd1d3cf506fda3c3a0379802c7b62be60304e4acd17b9994f1d9105d8b2ab2ce",
+      "placement": {
+        "cropRect": {
+          "height": 1,
+          "width": 0.5334030318870884,
+          "x": 0.2332984840564558,
+          "y": 0
+        },
+        "fitMode": "COVER",
+        "fullBleed": true,
+        "policy": "MANUAL_CROP"
+      },
+      "placementContext": "INSTAGRAM_FEED",
+      "requestFingerprint": "10f25590fb4a9d8c9651240f10663b8bbb0ab6e790d01fa872ef83540ef40f1b",
+      "runtimeVerification": {
+        "artifactReproduced": true,
+        "pixelFingerprintSource": "USER_APPROVED_QA_EVIDENCE",
+        "requestFingerprintSource": "USER_APPROVED_QA_EVIDENCE",
+        "rerenderManifest": "artifacts/m2-3/runtime/portrait.manifest.json",
+        "runtimePixelFingerprint": "66bd21cea98f96b001a20df0bc61ca887beb00f74b4fd2d841e989ec22800f07",
+        "runtimeRequestFingerprint": "f0aff3e2f224c7c063936857f5468f80027d302443a2895b07c13e8449391c8a",
+        "threeRunDeterminism": true
+      },
+      "sourceFixture": {
+        "artifact": "fixtures/golden/meta/meta-static-feed-portrait-v1.jpg",
+        "assetDigestReference": "fixtures/golden/meta/asset-digest-reference.json",
+        "creativeLayoutPlan": "fixtures/golden/meta/requests/meta-static-feed-portrait-v1.creative-layout-plan.json",
+        "expectedManifest": "fixtures/golden/meta/requests/meta-static-feed-portrait-v1.expected-manifest.json",
+        "request": "fixtures/golden/meta/requests/meta-static-feed-portrait-v1.request.json"
+      },
+      "status": "APPROVED_FROZEN",
+      "validatorExpectation": {
+        "errorCount": 0,
+        "infoCount": 0,
+        "issueCodes": [],
+        "warningCount": 0
+      }
+    },
+    {
+      "approvalPhase": "M2_3",
+      "approvedBy": "USER_MANUAL_ACCEPTANCE",
+      "artifactSha256": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+      "byteSize": 637585,
+      "canvas": {
+        "height": 1920,
+        "width": 1080
+      },
+      "formatProfileId": "META_STATIC_VERTICAL_FULL",
+      "goldenId": "META_STATIC_VERTICAL_STORIES_GOLDEN_V1",
+      "outputEncoding": {
+        "chromaSubsampling": "4:2:0",
+        "format": "JPEG",
+        "metadataStripped": true,
+        "progressive": false,
+        "qualityRequested": 92,
+        "qualityResolved": 92
+      },
+      "pixelFingerprint": "b8201c47a54fedba62a2a0be9c83524fa7e1aa4ba9f6508624bf05a28bbe4988",
+      "placement": {
+        "cropRect": {
+          "height": 1,
+          "width": 0.375049006795609,
+          "x": 0.31247549660219553,
+          "y": 0
+        },
+        "fitMode": "COVER",
+        "fullBleed": true,
+        "policy": "MANUAL_CROP"
+      },
+      "placementContext": "INSTAGRAM_STORIES",
+      "requestFingerprint": "fdf2ff02bd6bf5149bc230d52be21069a73585e97ab62e8ba31a14f55e14b9c6",
+      "runtimeVerification": {
+        "artifactReproduced": true,
+        "pixelFingerprintSource": "USER_APPROVED_QA_EVIDENCE",
+        "requestFingerprintSource": "USER_APPROVED_QA_EVIDENCE",
+        "rerenderManifest": "artifacts/m2-3/runtime/stories.manifest.json",
+        "runtimePixelFingerprint": "8e3d0bb735a5286d868cf94f89e1e60f3a5b12ce7f048b22dd403bf98623c26b",
+        "runtimeRequestFingerprint": "bffff1084ea40bbb43b32aa80951bb6c895937790a9f05adbc6a0d9b016842ab",
+        "threeRunDeterminism": true
+      },
+      "sourceFixture": {
+        "artifact": "fixtures/golden/meta/meta-static-instagram-stories-v1.jpg",
+        "assetDigestReference": "fixtures/golden/meta/asset-digest-reference.json",
+        "creativeLayoutPlan": "fixtures/golden/meta/requests/meta-static-instagram-stories-v1.creative-layout-plan.json",
+        "expectedManifest": "fixtures/golden/meta/requests/meta-static-instagram-stories-v1.expected-manifest.json",
+        "request": "fixtures/golden/meta/requests/meta-static-instagram-stories-v1.request.json"
+      },
+      "status": "APPROVED_FROZEN",
+      "stories": {
+        "advisoryBottomExclusion": 0.2,
+        "advisoryTopExclusion": 0.14,
+        "finalOverlay": false,
+        "requestedContext": "INSTAGRAM_STORIES",
+        "resolvedContext": "INSTAGRAM_STORIES"
+      },
+      "validatorExpectation": {
+        "errorCount": 0,
+        "infoCount": 0,
+        "issueCodes": [],
+        "warningCount": 0
+      }
+    },
+    {
+      "approvalPhase": "M2_3",
+      "approvedBy": "USER_MANUAL_ACCEPTANCE",
+      "artifactSha256": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+      "byteSize": 637585,
+      "canvas": {
+        "height": 1920,
+        "width": 1080
+      },
+      "formatProfileId": "META_STATIC_VERTICAL_FULL",
+      "goldenId": "META_STATIC_VERTICAL_REELS_GOLDEN_V1",
+      "outputEncoding": {
+        "chromaSubsampling": "4:2:0",
+        "format": "JPEG",
+        "metadataStripped": true,
+        "progressive": false,
+        "qualityRequested": 92,
+        "qualityResolved": 92
+      },
+      "pixelFingerprint": "b8201c47a54fedba62a2a0be9c83524fa7e1aa4ba9f6508624bf05a28bbe4988",
+      "placement": {
+        "cropRect": {
+          "height": 1,
+          "width": 0.375049006795609,
+          "x": 0.31247549660219553,
+          "y": 0
+        },
+        "fitMode": "COVER",
+        "fullBleed": true,
+        "policy": "MANUAL_CROP"
+      },
+      "placementContext": "INSTAGRAM_REELS",
+      "reels": {
+        "expectedInfoCode": "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED",
+        "geometryStatus": "SOURCE_REQUIRED",
+        "guessedGeometryUsed": false,
+        "requestedContext": "INSTAGRAM_REELS",
+        "resolvedContext": "INSTAGRAM_REELS"
+      },
+      "requestFingerprint": "9b6f6b00eca635eeca06b9eda3662af4126c4a4b98307007ffac9f65650d2b5a",
+      "runtimeVerification": {
+        "artifactReproduced": true,
+        "pixelFingerprintSource": "USER_APPROVED_QA_EVIDENCE",
+        "requestFingerprintSource": "USER_APPROVED_QA_EVIDENCE",
+        "rerenderManifest": "artifacts/m2-3/runtime/reels.manifest.json",
+        "runtimePixelFingerprint": "8e3d0bb735a5286d868cf94f89e1e60f3a5b12ce7f048b22dd403bf98623c26b",
+        "runtimeRequestFingerprint": "4f2871b1136fa63074325093044bfb9554cbd50acad8e2c6dff988cec09d524f",
+        "threeRunDeterminism": true
+      },
+      "sourceFixture": {
+        "artifact": "fixtures/golden/meta/meta-static-instagram-reels-v1.jpg",
+        "assetDigestReference": "fixtures/golden/meta/asset-digest-reference.json",
+        "creativeLayoutPlan": "fixtures/golden/meta/requests/meta-static-instagram-reels-v1.creative-layout-plan.json",
+        "expectedManifest": "fixtures/golden/meta/requests/meta-static-instagram-reels-v1.expected-manifest.json",
+        "request": "fixtures/golden/meta/requests/meta-static-instagram-reels-v1.request.json"
+      },
+      "status": "APPROVED_FROZEN",
+      "validatorExpectation": {
+        "errorCount": 0,
+        "infoCount": 1,
+        "issueCodes": [
+          "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED"
+        ],
+        "warningCount": 0
+      }
+    }
+  ],
+  "finalGoldenFrozen": true,
+  "goldenIdentity": [
+    "formatProfileId",
+    "placementContext",
+    "requestFingerprint",
+    "validation semantics",
+    "artifactSha256",
+    "pixelFingerprint"
+  ],
+  "manualAcceptance": {
+    "approvalPhase": "M2_3",
+    "approvedBy": "USER_MANUAL_ACCEPTANCE",
+    "method": "USER_VISUAL_REVIEW",
+    "scope": "META static image renderer current scope only",
+    "status": "APPROVED"
+  },
+  "phase": "M2_3_META_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE",
+  "registryVersion": "1.0.0",
+  "schemaVersion": "1.0.0",
+  "sourceAsset": {
+    "dimensions": {
+      "height": 5102,
+      "width": 7652
+    },
+    "path": "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source-original.jpg",
+    "sha256": "ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917"
+  },
+  "status": "APPROVED_FROZEN",
+  "unsupportedScope": [
+    "Carousel",
+    "Catalog",
+    "Dynamic",
+    "Video",
+    "unsupported landscape family",
+    "future exact Reels safe-zone geometry"
+  ]
+}

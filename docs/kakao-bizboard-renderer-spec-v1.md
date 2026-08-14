@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.23.0
-- **Status:** Frozen Implementation Contract — Phase M2.1 META visual candidate correction and output-compliance audit
+- **Document version:** 1.23.1
+- **Status:** Frozen Implementation Contract — Phase M2.3 META user visual acceptance and Golden freeze
 - **Checked date:** 2026-08-11 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, and additive `META` static renderer capability namespace
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **50. Phase M2.1 META visual candidate correction and output-compliance audit**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **52. Phase M2.3 META user visual acceptance and Golden freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. **[PROJECT]**
 
 ---
 
@@ -5168,3 +5168,48 @@ full-bleed raster bounds; Stories and Reels use explicit request contexts. No st
 limit is reintroduced. Manual acceptance remains `NOT_REVIEWED`, candidate status remains
 `CANDIDATE_NOT_APPROVED`, and `finalGoldenFrozen=false`; no upload approval is implied. Evidence and
 the verifier are `artifacts/m2-2/` and `scripts/verify-m2-2-meta.mjs`. **[PROJECT]**
+
+## 52. Phase M2.3 — META user visual acceptance and Golden freeze [PROJECT]
+
+M2.3 freezes the approved META static image outputs without changing Renderer Core, Validator,
+CreativeLayoutPlan, crop behavior, output encoding, Desktop UI, or any existing channel. The frozen
+registry is `contracts/goldens/meta-static-goldens.json`, registry version `1.0.0`. The source
+fixture is the confirmed `7652×5102` sofa/stool JPEG at
+`fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source-original.jpg`; its SHA-256 is
+`ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917`. **[PROJECT]**
+
+The approved contextual Goldens are:
+
+1. `META_STATIC_FEED_SQUARE / INSTAGRAM_FEED`, `1080×1080`, JPEG;
+2. `META_STATIC_FEED_PORTRAIT / INSTAGRAM_FEED`, `1080×1350`, JPEG;
+3. `META_STATIC_VERTICAL_FULL / INSTAGRAM_STORIES`, `1080×1920`, JPEG;
+4. `META_STATIC_VERTICAL_FULL / INSTAGRAM_REELS`, `1080×1920`, JPEG.
+
+All four use full-bleed `MANUAL_CROP + COVER` with no stretch. Stories and Reels may share the same
+artifact bytes and pixel fingerprint, but remain separate Golden entries because their
+`placementContext`, request fingerprint, and validator semantics differ. Stories freezes advisory
+guide metadata at `top=0.14`, `bottom=0.20` with no final overlay and `ERROR=0/WARNING=0/INFO=0`.
+Reels freezes `SOURCE_REQUIRED` geometry with no guessed coordinates and one expected INFO issue:
+`KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED`. **[PROJECT]**
+
+The exact approved artifact, pixel, and request fingerprints are recorded in the frozen registry
+and per-Golden expected manifest subsets. The four approved artifact SHA-256 values are:
+
+- Square: `1516d007cec83b8e16e8e6ad70825dcd36490e13b491e51b8868652e608a0ccf`;
+- Portrait: `de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85`;
+- Stories: `b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988`;
+- Reels: `b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988`.
+
+The approved artifact sizes are `295358`, `399966`, `637585`, and `637585` decimal bytes. META
+does not reintroduce a stale `maximumBytes=300000` rule; exact placement-specific maximum bytes
+remain `NO_EXACT_MAX_PINNED`. **[PROJECT]**
+
+`manualAcceptance.status=APPROVED` and `finalGoldenFrozen=true` apply only to the current META
+static image renderer scope. Carousel, Catalog, Dynamic, Video, the unsupported landscape family,
+and future exact Reels safe-zone geometry remain outside the freeze. This state is not an upload
+approval claim. **[PROJECT]**
+
+M2.3 evidence is under `artifacts/m2-3/`, frozen fixtures are under `fixtures/golden/meta/`, and
+verification uses `scripts/verify-m2-3-meta-goldens.mjs`. Existing Kakao, NAVER, FREEFORM, M1,
+M2.1, M2.2, and M2.2a runtime behavior remains unchanged. Runtime network access remains
+prohibited and no Plume or remote service is introduced. **[PROJECT]**

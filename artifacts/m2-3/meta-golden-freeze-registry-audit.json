@@ -1,0 +1,32 @@
+{
+  "approvedCount": 4,
+  "artifactHashes": {
+    "portrait": {
+      "actual": "de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85",
+      "bytes": 399966,
+      "expected": "de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85"
+    },
+    "reels": {
+      "actual": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+      "bytes": 637585,
+      "expected": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988"
+    },
+    "square": {
+      "actual": "1516d007cec83b8e16e8e6ad70825dcd36490e13b491e51b8868652e608a0ccf",
+      "bytes": 295358,
+      "expected": "1516d007cec83b8e16e8e6ad70825dcd36490e13b491e51b8868652e608a0ccf"
+    },
+    "stories": {
+      "actual": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+      "bytes": 637585,
+      "expected": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988"
+    }
+  },
+  "finalGoldenFrozen": true,
+  "freezeScope": "META static image renderer current scope only",
+  "manualAcceptanceStatus": "APPROVED",
+  "phase": "M2_3_META_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE",
+  "registry": "contracts/goldens/meta-static-goldens.json",
+  "registryVersion": "1.0.0",
+  "status": "PASS"
+}

@@ -1,0 +1,10 @@
+{
+  "runtimeNetworkAccess": "PROHIBITED",
+  "sourceAsset": "fixtures/meta/m2-1/source/meta-m2-1-sofa-stool__source-original.jpg",
+  "sourceAssetSha256": "ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917",
+  "sourceDimensions": {
+    "height": 5102,
+    "width": 7652
+  },
+  "sourceStatus": "SOURCE_CONFIRMED"
+}

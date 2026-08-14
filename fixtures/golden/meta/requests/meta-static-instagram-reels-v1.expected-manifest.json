@@ -1,0 +1,41 @@
+{
+  "approval": {
+    "method": "USER_VISUAL_REVIEW",
+    "phase": "M2_3",
+    "status": "APPROVED"
+  },
+  "canvas": {
+    "height": 1920,
+    "width": 1080
+  },
+  "formatProfileId": "META_STATIC_VERTICAL_FULL",
+  "goldenId": "META_STATIC_VERTICAL_REELS_GOLDEN_V1",
+  "outputArtifactDigest": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+  "outputBytes": 637585,
+  "outputEncoding": {
+    "chromaSubsampling": "4:2:0",
+    "format": "JPEG",
+    "metadataStripped": true,
+    "progressive": false,
+    "qualityRequested": 92,
+    "qualityResolved": 92
+  },
+  "pixelFingerprint": "b8201c47a54fedba62a2a0be9c83524fa7e1aa4ba9f6508624bf05a28bbe4988",
+  "placementContext": "INSTAGRAM_REELS",
+  "reels": {
+    "expectedInfoCode": "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED",
+    "geometryStatus": "SOURCE_REQUIRED",
+    "guessedGeometryUsed": false,
+    "requestedContext": "INSTAGRAM_REELS",
+    "resolvedContext": "INSTAGRAM_REELS"
+  },
+  "requestFingerprint": "9b6f6b00eca635eeca06b9eda3662af4126c4a4b98307007ffac9f65650d2b5a",
+  "validatorExpectation": {
+    "errorCount": 0,
+    "infoCount": 1,
+    "issueCodes": [
+      "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED"
+    ],
+    "warningCount": 0
+  }
+}

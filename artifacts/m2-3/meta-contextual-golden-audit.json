@@ -1,0 +1,8 @@
+{
+  "phase": "M2_3",
+  "requestFingerprintsDifferent": true,
+  "status": "PASS",
+  "storiesReelsSameArtifact": true,
+  "storiesReelsSamePixel": true,
+  "validationSemanticsDifferent": true
+}

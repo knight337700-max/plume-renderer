@@ -1,0 +1,12 @@
+{
+  "approvedBytes": {
+    "portrait": 399966,
+    "reels": 637585,
+    "square": 295358,
+    "stories": 637585
+  },
+  "exactMaxBytesStatus": "NO_EXACT_MAX_PINNED",
+  "phase": "M2_3",
+  "stale300000RulePresent": false,
+  "status": "PASS"
+}

@@ -1,0 +1,192 @@
+{
+  "candidates": {
+    "portrait": [
+      {
+        "artifactSha256": "de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85",
+        "bytes": 399966,
+        "pixelFingerprint": "66bd21cea98f96b001a20df0bc61ca887beb00f74b4fd2d841e989ec22800f07",
+        "requestFingerprint": "f0aff3e2f224c7c063936857f5468f80027d302443a2895b07c13e8449391c8a",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 0,
+          "issues": [],
+          "warningCount": 0
+        }
+      },
+      {
+        "artifactSha256": "de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85",
+        "bytes": 399966,
+        "pixelFingerprint": "66bd21cea98f96b001a20df0bc61ca887beb00f74b4fd2d841e989ec22800f07",
+        "requestFingerprint": "f0aff3e2f224c7c063936857f5468f80027d302443a2895b07c13e8449391c8a",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 0,
+          "issues": [],
+          "warningCount": 0
+        }
+      },
+      {
+        "artifactSha256": "de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85",
+        "bytes": 399966,
+        "pixelFingerprint": "66bd21cea98f96b001a20df0bc61ca887beb00f74b4fd2d841e989ec22800f07",
+        "requestFingerprint": "f0aff3e2f224c7c063936857f5468f80027d302443a2895b07c13e8449391c8a",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 0,
+          "issues": [],
+          "warningCount": 0
+        }
+      }
+    ],
+    "reels": [
+      {
+        "artifactSha256": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+        "bytes": 637585,
+        "pixelFingerprint": "8e3d0bb735a5286d868cf94f89e1e60f3a5b12ce7f048b22dd403bf98623c26b",
+        "requestFingerprint": "4f2871b1136fa63074325093044bfb9554cbd50acad8e2c6dff988cec09d524f",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 1,
+          "issues": [
+            {
+              "actual": "INSTAGRAM_REELS",
+              "code": "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED",
+              "expected": "source-backed exact Reels safe-zone geometry; no guessed coordinates",
+              "formatProfileId": "META_STATIC_VERTICAL_FULL",
+              "messageKey": "meta.reels_safe_zone_source_required",
+              "path": "/placementContext",
+              "severity": "INFO",
+              "stage": "PRE_RENDER"
+            }
+          ],
+          "warningCount": 0
+        }
+      },
+      {
+        "artifactSha256": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+        "bytes": 637585,
+        "pixelFingerprint": "8e3d0bb735a5286d868cf94f89e1e60f3a5b12ce7f048b22dd403bf98623c26b",
+        "requestFingerprint": "4f2871b1136fa63074325093044bfb9554cbd50acad8e2c6dff988cec09d524f",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 1,
+          "issues": [
+            {
+              "actual": "INSTAGRAM_REELS",
+              "code": "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED",
+              "expected": "source-backed exact Reels safe-zone geometry; no guessed coordinates",
+              "formatProfileId": "META_STATIC_VERTICAL_FULL",
+              "messageKey": "meta.reels_safe_zone_source_required",
+              "path": "/placementContext",
+              "severity": "INFO",
+              "stage": "PRE_RENDER"
+            }
+          ],
+          "warningCount": 0
+        }
+      },
+      {
+        "artifactSha256": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+        "bytes": 637585,
+        "pixelFingerprint": "8e3d0bb735a5286d868cf94f89e1e60f3a5b12ce7f048b22dd403bf98623c26b",
+        "requestFingerprint": "4f2871b1136fa63074325093044bfb9554cbd50acad8e2c6dff988cec09d524f",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 1,
+          "issues": [
+            {
+              "actual": "INSTAGRAM_REELS",
+              "code": "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED",
+              "expected": "source-backed exact Reels safe-zone geometry; no guessed coordinates",
+              "formatProfileId": "META_STATIC_VERTICAL_FULL",
+              "messageKey": "meta.reels_safe_zone_source_required",
+              "path": "/placementContext",
+              "severity": "INFO",
+              "stage": "PRE_RENDER"
+            }
+          ],
+          "warningCount": 0
+        }
+      }
+    ],
+    "square": [
+      {
+        "artifactSha256": "1516d007cec83b8e16e8e6ad70825dcd36490e13b491e51b8868652e608a0ccf",
+        "bytes": 295358,
+        "pixelFingerprint": "f0508a49192240771dfe1719a066c0405271232e83b203c6cfd1ed7b7fb95f36",
+        "requestFingerprint": "f2b2c9bd12dcde492bb80ee8cb50d5cbe6542d933900268971feb450a89c740c",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 0,
+          "issues": [],
+          "warningCount": 0
+        }
+      },
+      {
+        "artifactSha256": "1516d007cec83b8e16e8e6ad70825dcd36490e13b491e51b8868652e608a0ccf",
+        "bytes": 295358,
+        "pixelFingerprint": "f0508a49192240771dfe1719a066c0405271232e83b203c6cfd1ed7b7fb95f36",
+        "requestFingerprint": "f2b2c9bd12dcde492bb80ee8cb50d5cbe6542d933900268971feb450a89c740c",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 0,
+          "issues": [],
+          "warningCount": 0
+        }
+      },
+      {
+        "artifactSha256": "1516d007cec83b8e16e8e6ad70825dcd36490e13b491e51b8868652e608a0ccf",
+        "bytes": 295358,
+        "pixelFingerprint": "f0508a49192240771dfe1719a066c0405271232e83b203c6cfd1ed7b7fb95f36",
+        "requestFingerprint": "f2b2c9bd12dcde492bb80ee8cb50d5cbe6542d933900268971feb450a89c740c",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 0,
+          "issues": [],
+          "warningCount": 0
+        }
+      }
+    ],
+    "stories": [
+      {
+        "artifactSha256": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+        "bytes": 637585,
+        "pixelFingerprint": "8e3d0bb735a5286d868cf94f89e1e60f3a5b12ce7f048b22dd403bf98623c26b",
+        "requestFingerprint": "bffff1084ea40bbb43b32aa80951bb6c895937790a9f05adbc6a0d9b016842ab",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 0,
+          "issues": [],
+          "warningCount": 0
+        }
+      },
+      {
+        "artifactSha256": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+        "bytes": 637585,
+        "pixelFingerprint": "8e3d0bb735a5286d868cf94f89e1e60f3a5b12ce7f048b22dd403bf98623c26b",
+        "requestFingerprint": "bffff1084ea40bbb43b32aa80951bb6c895937790a9f05adbc6a0d9b016842ab",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 0,
+          "issues": [],
+          "warningCount": 0
+        }
+      },
+      {
+        "artifactSha256": "b958c022962b3641ca32e9cdb7da32e607b0d30ebd0f6b3a996452f58973d988",
+        "bytes": 637585,
+        "pixelFingerprint": "8e3d0bb735a5286d868cf94f89e1e60f3a5b12ce7f048b22dd403bf98623c26b",
+        "requestFingerprint": "bffff1084ea40bbb43b32aa80951bb6c895937790a9f05adbc6a0d9b016842ab",
+        "validatorResult": {
+          "errorCount": 0,
+          "infoCount": 0,
+          "issues": [],
+          "warningCount": 0
+        }
+      }
+    ]
+  },
+  "phase": "M2_3",
+  "runs": 3,
+  "status": "PASS"
+}

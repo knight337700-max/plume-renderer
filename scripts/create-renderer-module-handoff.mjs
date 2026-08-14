@@ -193,6 +193,18 @@ const m2_2aEvidenceFiles = [
 ];
 const m2_2aEvidence = Object.fromEntries(await Promise.all(m2_2aEvidenceFiles.map(async (fileName) => [fileName, JSON.parse(await readFile(path.join(root, "artifacts/m2-2a", fileName), "utf8"))])));
 const m2_2aVerificationStatus = m2_2aEvidenceFiles.every((fileName) => m2_2aEvidence[fileName].status === "PASS") && m2_2aEvidence["regression.json"].m2_2Core === "PASS" ? "PASS" : "FAIL";
+const m2_3GoldenRegistry = JSON.parse(await readFile(path.join(root, "contracts/goldens/meta-static-goldens.json"), "utf8"));
+const m2_3EvidenceFiles = [
+  "meta-user-manual-acceptance.json",
+  "meta-golden-freeze-registry-audit.json",
+  "meta-golden-determinism.json",
+  "meta-contextual-golden-audit.json",
+  "meta-validator-expectation-audit.json",
+  "meta-300kb-regression.json",
+  "regression.json",
+];
+const m2_3Evidence = Object.fromEntries(await Promise.all(m2_3EvidenceFiles.map(async (fileName) => [fileName, JSON.parse(await readFile(path.join(root, "artifacts/m2-3", fileName), "utf8"))])));
+const m2_3VerificationStatus = m2_3GoldenRegistry.status === "APPROVED_FROZEN" && m2_3GoldenRegistry.manualAcceptance?.status === "APPROVED" && m2_3GoldenRegistry.finalGoldenFrozen === true && m2_3GoldenRegistry.entries?.length === 4 && m2_3EvidenceFiles.every((fileName) => m2_3Evidence[fileName].status === "PASS") ? "PASS" : "FAIL";
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -207,7 +219,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — M2.2a META Desktop QA request/context bridge handoff
+const readme = `# Renderer Module — M2.3 META user visual acceptance and Golden freeze handoff
 
 ## Purpose
 
@@ -245,6 +257,7 @@ build, test, and later phase development. The source repository remains unchange
 - META M2.1: full-bleed independent MANUAL_CROP candidates, old 300000-byte rule reproduction/correction, official-source provenance refresh, JPEG/MIME audit, Stories guide separation, Reels SOURCE_REQUIRED, and deterministic manual-review package. Audit: ${m2_1CropAudit.status}, output constraint: ${m2_1OutputConstraintProvenance.status}, source refresh: ${m2_1SourceRefresh.status}, regression: ${m2_1Regression.status}, candidates: ${m2_1CandidateRegistry.status}, manual acceptance: ${m2_1CandidateRegistry.manualAcceptanceStatus}
 - META M2.2: request-level placement context propagation, neutral generic vertical default, explicit Stories/Reels routing, imported MANUAL_CROP plan fidelity, four corrected candidates, and deterministic evidence. Inventory: ${m2_2Inventory.status}, round-trip: ${m2_2Roundtrip.status}, square: ${m2_2Square.status}, Stories: ${m2_2Stories.status}, Reels: ${m2_2Reels.status}, regression: ${m2_2Regression.status}, candidates: ${m2_2CandidateRegistry.status}, manual acceptance: ${m2_2CandidateRegistry.manualAcceptanceStatus}
 - META M2.2a: Desktop QA request-level profile/context bridge, Feed Safe Zone capability gating, visible Preview outcomes/error boundary, imported Plan versus manifest separation, and state-switching regression. Evidence: ${m2_2aVerificationStatus}, Preview silent no-op count: ${m2_2aEvidence["meta-preview-error-handling.json"].silentNoOpCount}, manual acceptance: ${canonicalDocument.canonicalPhaseM2_2a.manualAcceptanceStatus}
+- META M2.3: user visual acceptance and final Golden freeze for the current META static image scope. Registry: ${m2_3VerificationStatus}, approved entries: ${m2_3GoldenRegistry.entries.length}, manual acceptance: ${m2_3GoldenRegistry.manualAcceptance.status}, finalGoldenFrozen: ${m2_3GoldenRegistry.finalGoldenFrozen}, Stories safe-zone guide and Reels SOURCE_REQUIRED semantics preserved.
 - META M0: official-source-only discovery and composition boundary remain preserved as the prior audit baseline (${m0OfficialSourceAudit.status}).
 - Meta unsupported scope: carousel, catalog, dynamic, and video remain out of M1 static runtime scope.
 - Google: not implemented
@@ -285,10 +298,10 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is M2.2a and the canonical document is v1.23.1. M1 implements the three project output presets,
+The latest phase is M2.3 and the canonical document is v1.23.1. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
-historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, preserves imported placement/crop semantics, and keeps manual acceptance NOT_REVIEWED with final golden freeze false. N8 remains the
+historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
 frozen NAVER channel completion baseline and N7.8 remains
 the immutable SmartChannel freeze baseline. N8 reuses existing capabilities, completes format-level Desktop acceptance,
 and records its inventory, matrix, E2E outputs, regressions, package, and handoff under artifacts/n8/. N7.6 remains
@@ -339,7 +352,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX",
+  handoffPhase: "M2_3_META_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -354,10 +367,10 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseM2_2a.rendererCoreVersion,
-    validator: canonicalDocument.canonicalPhaseM2_2a.validatorCurrent,
-    desktop: canonicalDocument.canonicalPhaseM2_2a.desktopCurrent,
-    package: canonicalDocument.canonicalPhaseM2_2a.packageCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseM2_3.rendererCoreVersion,
+    validator: canonicalDocument.canonicalPhaseM2_3.validatorCurrent,
+    desktop: canonicalDocument.canonicalPhaseM2_3.desktopCurrent,
+    package: canonicalDocument.canonicalPhaseM2_3.packageCurrent,
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
     platformComposedSourceSchema: canonicalDocument.platformComposedSourceSchemaVersion,
@@ -372,12 +385,16 @@ const manifest = {
       platformCopyPixels: canonicalDocument.canonicalPhaseM1.platformCopyPixels,
       storiesSafeZone: canonicalDocument.canonicalPhaseM1.storiesSafeZone,
       reelsSafeZone: canonicalDocument.canonicalPhaseM1.reelsSafeZone,
-      manualAcceptanceStatus: canonicalDocument.canonicalPhaseM2_2.manualAcceptanceStatus,
+      manualAcceptanceStatus: canonicalDocument.canonicalPhaseM2_3.manualAcceptanceStatus,
       m2ArtifactAuditStatus: canonicalDocument.canonicalPhaseM2.artifactAuditStatus,
       m2_1VisualAuditStatus: canonicalDocument.canonicalPhaseM2_1.artifactAuditStatus,
       m2_2PlacementContextPlanImportStatus: m2_2VerificationStatus,
-      goldenCandidateStatus: canonicalDocument.canonicalPhaseM2_2.goldenCandidateStatus,
-      finalGoldenFrozen: canonicalDocument.canonicalPhaseM2_2.finalGoldenFrozen,
+      goldenCandidateStatus: canonicalDocument.canonicalPhaseM2_3.goldenCandidateStatus,
+      finalGoldenFrozen: canonicalDocument.canonicalPhaseM2_3.finalGoldenFrozen,
+      goldenRegistryVersion: canonicalDocument.canonicalPhaseM2_3.goldenRegistryVersion,
+      goldenRegistry: canonicalDocument.canonicalPhaseM2_3.goldenRegistry,
+      m2_3VerificationStatus,
+      freezeScope: canonicalDocument.canonicalPhaseM2_3.freezeScope,
       evidence: {
         fontInventory: m1FontInventory.status,
         validatorAudit: m1ValidatorAudit.status,
@@ -410,6 +427,13 @@ const manifest = {
         m2_2aPlanManifestViewer: m2_2aEvidence["meta-plan-vs-manifest-viewer.json"].status,
         m2_2aStateSwitching: m2_2aEvidence["meta-desktop-state-switching.json"].status,
         m2_2aRegression: m2_2aEvidence["regression.json"].status,
+        m2_3ManualAcceptance: m2_3Evidence["meta-user-manual-acceptance.json"].status,
+        m2_3RegistryAudit: m2_3Evidence["meta-golden-freeze-registry-audit.json"].status,
+        m2_3Determinism: m2_3Evidence["meta-golden-determinism.json"].status,
+        m2_3ContextualGoldenAudit: m2_3Evidence["meta-contextual-golden-audit.json"].status,
+        m2_3ValidatorExpectationAudit: m2_3Evidence["meta-validator-expectation-audit.json"].status,
+        m2_3ByteRegression: m2_3Evidence["meta-300kb-regression.json"].status,
+        m2_3Regression: m2_3Evidence["regression.json"].status,
       },
     },
   },
@@ -642,6 +666,18 @@ const manifest = {
     m2_2aImplementationRecord: "docs/implementation/meta-desktop-qa-request-context-preview-bridge-m2-2a.md",
     m2_2aVerifier: "scripts/verify-m2-2a-meta.mjs",
     m2_2aGenerator: "scripts/generate-m2-2a-meta-evidence.mjs",
+    m2_3GoldenRegistry: "contracts/goldens/meta-static-goldens.json",
+    m2_3EvidenceDirectory: "artifacts/m2-3",
+    m2_3ManualAcceptance: "artifacts/m2-3/meta-user-manual-acceptance.json",
+    m2_3RegistryAudit: "artifacts/m2-3/meta-golden-freeze-registry-audit.json",
+    m2_3Determinism: "artifacts/m2-3/meta-golden-determinism.json",
+    m2_3ContextualGoldenAudit: "artifacts/m2-3/meta-contextual-golden-audit.json",
+    m2_3ValidatorExpectationAudit: "artifacts/m2-3/meta-validator-expectation-audit.json",
+    m2_3ByteRegression: "artifacts/m2-3/meta-300kb-regression.json",
+    m2_3Regression: "artifacts/m2-3/regression.json",
+    m2_3ImplementationRecord: "docs/implementation/meta-user-visual-acceptance-golden-freeze-m2-3.md",
+    m2_3Verifier: "scripts/verify-m2-3-meta-goldens.mjs",
+    m2_3Generator: "scripts/generate-m2-3-meta-goldens.mjs",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -710,6 +746,22 @@ const manifest = {
     evidenceDirectory: "artifacts/m2-2a",
     implementationRecord: "docs/implementation/meta-desktop-qa-request-context-preview-bridge-m2-2a.md",
     verifier: "scripts/verify-m2-2a-meta.mjs",
+  },
+  m2_3MetaGoldenFreeze: {
+    status: m2_3VerificationStatus,
+    manualAcceptanceStatus: m2_3GoldenRegistry.manualAcceptance.status,
+    goldenCandidateStatus: m2_3GoldenRegistry.status,
+    finalGoldenFrozen: m2_3GoldenRegistry.finalGoldenFrozen,
+    goldenRegistryVersion: m2_3GoldenRegistry.registryVersion,
+    goldenRegistry: "contracts/goldens/meta-static-goldens.json",
+    approvedGoldenCount: m2_3GoldenRegistry.entries.length,
+    storiesSafeZone: m2_3GoldenRegistry.entries.find((entry) => entry.placementContext === "INSTAGRAM_STORIES")?.stories ?? null,
+    reelsSafeZone: m2_3GoldenRegistry.entries.find((entry) => entry.placementContext === "INSTAGRAM_REELS")?.reels ?? null,
+    stale300000RulePresent: false,
+    exactMaxBytesStatus: "NO_EXACT_MAX_PINNED",
+    evidenceDirectory: "artifacts/m2-3",
+    implementationRecord: "docs/implementation/meta-user-visual-acceptance-golden-freeze-m2-3.md",
+    verifier: "scripts/verify-m2-3-meta-goldens.mjs",
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

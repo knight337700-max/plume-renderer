@@ -1,0 +1,183 @@
+{
+  "appliedElements": [
+    {
+      "actualRasterBounds": {
+        "height": 1350,
+        "width": 1080,
+        "x": 0,
+        "y": 0
+      },
+      "assetDigest": "ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917",
+      "assetId": "asset-primary",
+      "destinationPixelRect": {
+        "height": 1350,
+        "width": 1080,
+        "x": 0,
+        "y": 0
+      },
+      "elementId": "image-1",
+      "elementType": "IMAGE",
+      "fitMode": "COVER",
+      "normalizedBounds": {
+        "height": 1,
+        "width": 1,
+        "x": 0,
+        "y": 0
+      },
+      "opacity": 1,
+      "originalArrayIndex": 0,
+      "placementPolicy": "MANUAL_CROP",
+      "requestedCropRect": {
+        "height": 1,
+        "width": 0.5334030318870884,
+        "x": 0.2332984840564558,
+        "y": 0
+      },
+      "resolvedSourceCropPixels": {
+        "height": 5102,
+        "width": 4082,
+        "x": 1785,
+        "y": 0
+      },
+      "zIndex": 0
+    }
+  ],
+  "assetDigests": {
+    "approvedIcons": [],
+    "fonts": [
+      {
+        "id": "SPOQA_HAN_SANS_BOLD",
+        "sha256": "5a6b9b258145e243dfd5f70cc869119c6af708843658e380304bdfe3d4f4eaef"
+      },
+      {
+        "id": "SPOQA_HAN_SANS_REGULAR",
+        "sha256": "1f56c8535b6592672ea7f540a67bb5792c34558d72875fc504166a3e2b28b4b1"
+      }
+    ],
+    "images": [
+      {
+        "id": "asset-primary",
+        "sha256": "ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917"
+      }
+    ],
+    "product": {
+      "id": "asset-primary",
+      "sha256": "ffadcc7954d500fd618e12161ce11396f8858d5d6ab8a52333836dfd03348917"
+    },
+    "referenceFixture": {
+      "id": "KAKAO_TOOL_OBJECT_RIGHT_1029X258",
+      "sha256": "33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b"
+    }
+  },
+  "canonicalInputDigest": "f0aff3e2f224c7c063936857f5468f80027d302443a2895b07c13e8449391c8a",
+  "formatProfileId": "META_STATIC_FEED_PORTRAIT",
+  "inputSchemaVersion": "1.2.0",
+  "manualAcceptanceStatus": {
+    "items": [
+      {
+        "id": "M-001",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "NOT_REVIEWED"
+      },
+      {
+        "id": "M-002",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "NOT_REVIEWED"
+      },
+      {
+        "id": "M-003",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "NOT_REVIEWED"
+      },
+      {
+        "id": "M-004",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "NOT_REVIEWED"
+      },
+      {
+        "id": "M-005",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "NOT_REVIEWED"
+      },
+      {
+        "id": "M-006",
+        "reviewedAt": null,
+        "reviewer": null,
+        "status": "NOT_REVIEWED"
+      }
+    ],
+    "status": "NOT_REVIEWED"
+  },
+  "metaStaticReport": {
+    "canvas": {
+      "height": 1350,
+      "width": 1080
+    },
+    "channel": "META",
+    "manualAcceptanceStatus": "NOT_REVIEWED",
+    "officialRatio": "4:5",
+    "placementContext": "INSTAGRAM_FEED",
+    "placementContextResolution": {
+      "path": "/placementContext",
+      "requested": "INSTAGRAM_FEED",
+      "resolved": "INSTAGRAM_FEED",
+      "source": "EXPLICIT_REQUEST"
+    },
+    "platformCopy": {
+      "callToAction": "",
+      "description": "",
+      "destinationUrl": "",
+      "headline": "",
+      "primaryText": ""
+    },
+    "profileId": "META_STATIC_FEED_PORTRAIT",
+    "projectPixelPresetId": "META_STATIC_FEED_PORTRAIT_1080X1350",
+    "reelsGeometryStatus": "NOT_APPLICABLE",
+    "safeZonePolicy": {
+      "classification": "PROJECT_GUIDE_ONLY",
+      "enforcement": "WARNING_ONLY",
+      "finalOverlay": false,
+      "normalizedExclusion": {
+        "bottom": 0,
+        "left": 0,
+        "right": 0,
+        "top": 0
+      },
+      "sourceStatus": "OFFICIAL_RATIO_PROJECT_PIXEL_PRESET",
+      "storiesNormalizedExclusion": {
+        "bottom": 0.2,
+        "left": 0,
+        "right": 0,
+        "top": 0.14
+      }
+    }
+  },
+  "normalizedInputDigest": "66bd21cea98f96b001a20df0bc61ca887beb00f74b4fd2d841e989ec22800f07",
+  "outputArtifactDigest": "de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85",
+  "outputEncoding": {
+    "chromaSubsampling": "4:2:0",
+    "format": "JPEG",
+    "metadataStripped": true,
+    "progressive": false,
+    "qualityRequested": 92,
+    "qualityResolved": 92
+  },
+  "outputFileName": "output.jpg",
+  "outputPngDigest": "de7162cd2d1b6cfe9a9e0f33f62172d156075ceab2ff22ec9a58e68d1bd75c85",
+  "outputSchemaVersion": "2.0.0",
+  "pixelFingerprint": "66bd21cea98f96b001a20df0bc61ca887beb00f74b4fd2d841e989ec22800f07",
+  "requestFingerprint": "f0aff3e2f224c7c063936857f5468f80027d302443a2895b07c13e8449391c8a",
+  "schemaVersion": "1.0.0",
+  "templateContractVersion": "1.9.0",
+  "validatorResult": {
+    "errorCount": 0,
+    "infoCount": 0,
+    "issues": [],
+    "warningCount": 0
+  }
+}
