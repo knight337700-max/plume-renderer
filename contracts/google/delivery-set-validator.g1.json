@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/google/delivery-set-validator.g1.schema.json",
+  "schemaVersion": "1.0.0",
+  "status": "IMPLEMENTED",
+  "diagnosticsSource": "contracts/google/diagnostics.g0.json",
+  "validators": ["GOOGLE_RDA_ASSET_SET", "GOOGLE_PMAX_ASSET_GROUP_STATIC", "GOOGLE_DEMAND_GEN_SINGLE_IMAGE", "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC"],
+  "platformComposedTextIsNotRasterInput": true,
+  "pmaxBrandAssociationModes": [
+    {"brandGuidelinesEnabled": true, "associationLevel": "CampaignAsset", "businessName": {"min": 1, "max": 1}, "squareLogo": {"min": 1, "max": 5}},
+    {"brandGuidelinesEnabled": false, "associationLevel": "AssetGroupAsset", "businessName": {"min": 1, "max": 1}, "squareLogo": {"min": 1, "max": 5}, "landscapeLogoOptional": true}
+  ],
+  "recommendationMetadata": {"pmaxLandscapeAndSquareMinimum": 4, "pmaxPortraitMinimum": 2, "enforcement": "METADATA_ONLY"},
+  "safeZone": {"demandGenTallPortrait": {"severity": "INFO", "code": "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED"}},
+  "rdaVertical": {"severity": "INFO", "code": "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY"}
+}

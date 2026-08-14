@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.24.0
-- **Status:** Frozen Implementation Contract — Phase G0.1 Google Ads static architecture acceptance and freeze
+- **Document version:** 1.25.0
+- **Status:** Frozen Implementation Contract — Phase G1 Google Ads static contracts and profile implementation
 - **Checked date:** 2026-08-14 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **54. Phase G0.1 Google Ads static architecture acceptance and freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **55. Phase G1 Google Ads static contracts and profile implementation**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry와 G1 계약 레코드를 따른다. **[PROJECT]**
 
 ---
 
@@ -5334,3 +5334,70 @@ The freeze registry is `contracts/google/architecture-freeze.g0.1.json`; the imp
 is `docs/implementation/google-ads-static-architecture-freeze-g0-1.md`; the ADR is
 `docs/adr/ADR-0059-google-static-architecture-freeze-g0-1.md`; and the deterministic verifier is
 `scripts/verify-g0-1-google-architecture-freeze.mjs`. **[PROJECT]**
+
+## 55. Phase G1 — Google Ads static contracts and profile implementation [PROJECT]
+
+G1 implements only the contracts and deterministic validation boundary permitted by the G0.1
+freeze. The Canonical document advances from `1.24.0` to `1.25.0` (minor): Google architecture
+remains frozen at `1.0.0`, template remains `1.9.0`, input remains `1.2.0`, output remains
+`2.0.0`, and the separate CreativeAssetSetManifest and response contracts remain `1.0.0`.
+Renderer Core advances from `0.9.0` to `0.10.0` and Validator from `1.9.0` to `1.10.0` because
+profile resolution and Google delivery-set validation are now executable. Desktop/package remain
+`0.10.1`. **[PROJECT]**
+
+### 55.1 Static profile and composition contract [PROJECT]
+
+The runtime registry `contracts/google/static-asset-profiles.g1.json` contains exactly fourteen
+profiles: seven geometry profiles and seven Demand Gen uploaded-static project presets. Each
+delivered asset is one `SINGLE` artifact and each delivery is a `COLLECTION` manifest. All profiles
+are `FREEFORM`; platform-composed capabilities keep text, CTA, URL, layout, and preview chrome
+Google-owned, while the Renderer never rasterizes `platformFields`. The legacy twenty-canvas
+Display list remains architecture metadata and has zero active runtime profiles. **[PROJECT]
+[INFERRED]**
+
+Marketing-image placement permits `CENTER_CONTAIN`, `MANUAL_CROP`, and `SEMANTIC_CROP_COVER`,
+with `CENTER_CONTAIN` as the default and no `ALPHA_TRIM_CONTAIN`. Logo placement permits only
+`CENTER_CONTAIN` and `ALPHA_TRIM_CONTAIN`, with alpha trim as the default. Uploaded static
+placement has a global `NONE` policy and requires an explicit element plan; no implicit crop is
+performed. **[PROJECT]**
+
+Output MIME is limited to PNG and JPEG. Decimal-byte caps are enforced against encoded artifacts:
+RDA/PMax image and logo `5,120,000`, Demand Gen marketing image `5,000,000`, Demand Gen logo
+`150,000`, and Demand Gen uploaded static `150,000`. Exceeding a cap is an ERROR. **[OFFICIAL]
+[PROJECT]**
+
+### 55.2 CreativeAssetSetManifest and delivery validation [PROJECT]
+
+`CreativeAssetSetManifest` requires `capabilityId`, `lifecycleSnapshot`, and deterministic ordered
+`assets` entries containing `artifactId`, `assetProfileId`, `role`, and `ordinal`. Optional
+`brandGuidelinesEnabled` and `platformFields` are metadata; they are never raster input. Unknown
+profiles, duplicate or non-contiguous ordinals, missing required roles, cardinality overflow,
+unsupported MIME, canvas mismatch, and encoded byte overflow fail closed using the eleven frozen
+Google diagnostic IDs. Diagnostics are sorted by severity, input path, code, and message key.
+**[PROJECT]**
+
+RDA, PMax non-retail, Demand Gen single-image, and Demand Gen uploaded-static validators are
+implemented. RDA vertical source discrepancy and Demand Gen 9:16 safe-zone source requirement
+remain INFO diagnostics. PMax `brandGuidelinesEnabled` is a required discriminator for the
+CampaignAsset versus AssetGroupAsset association matrix; the four-plus landscape/square and
+two-plus portrait recommendation is metadata only. **[PROJECT] [INFERRED]**
+
+### 55.3 Scope and next gate [PROJECT]
+
+G1 does not implement Google upload/API integration, Desktop UI, carousel runtime, Search image
+runtime, legacy twenty-canvas runtime profiles, pixel Goldens, or platform-owned text composition.
+Runtime network access remains prohibited and no Plume, Agent, Queue, Railway, PostgreSQL,
+Redis, MinIO, or remote service dependency is introduced. G2 may add rendering validation and
+manual-review Golden candidates after these contracts pass. **[PROJECT]**
+
+`nextPhase`: `G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES`. **[PROJECT]**
+
+Machine-readable records are `contracts/google/static-asset-profiles.g1.json`,
+`contracts/google/capability-asset-role-mapping.g1.json`,
+`contracts/google/target-constraints.g1.json`,
+`contracts/google/creative-asset-set-manifest.schema.json`,
+`contracts/google/delivery-set-validator.g1.json`, and
+`contracts/google/diagnostics.g1.json`. The implementation record is
+`docs/implementation/google-ads-static-contracts-profile-implementation-g1.md`; the ADR is
+`docs/adr/ADR-0060-google-static-contracts-and-profiles-g1.md`; and the deterministic verifier is
+`scripts/verify-g1-google-static.mjs`. **[PROJECT]**

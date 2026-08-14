@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/google/diagnostics.g1.schema.json",
+  "schemaVersion": "1.0.0",
+  "status": "IMPLEMENTED",
+  "frozenSource": "contracts/google/diagnostics.g0.json",
+  "codes": [
+    {"code": "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", "severity": "ERROR", "layer": "artifact", "blocking": true, "messageKey": "google.asset_profile_unknown"},
+    {"code": "KBR-GOOGLE-ASSET-CANVAS-MISMATCH", "severity": "ERROR", "layer": "artifact", "blocking": true, "messageKey": "google.asset_canvas_mismatch"},
+    {"code": "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED", "severity": "ERROR", "layer": "artifact", "blocking": true, "messageKey": "google.asset_mime_unsupported"},
+    {"code": "KBR-GOOGLE-ASSET-BYTES-EXCEEDED", "severity": "ERROR", "layer": "artifact", "blocking": true, "messageKey": "google.asset_bytes_exceeded"},
+    {"code": "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING", "severity": "ERROR", "layer": "deliverySet", "blocking": true, "messageKey": "google.required_role_missing"},
+    {"code": "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED", "severity": "ERROR", "layer": "deliverySet", "blocking": true, "messageKey": "google.role_cardinality_exceeded"},
+    {"code": "KBR-GOOGLE-TEXT-LIMIT-EXCEEDED", "severity": "ERROR", "layer": "deliverySet", "blocking": true, "messageKey": "google.text_limit_exceeded"},
+    {"code": "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH", "severity": "ERROR", "layer": "deliverySet", "blocking": true, "messageKey": "google.pmax_brand_association_mode_mismatch"},
+    {"code": "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY", "severity": "INFO", "layer": "platformIntegration", "blocking": false, "messageKey": "google.rda_vertical_source_discrepancy"},
+    {"code": "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED", "severity": "INFO", "layer": "platformIntegration", "blocking": false, "messageKey": "google.demandgen_safe_zone_source_required"},
+    {"code": "KBR-GOOGLE-LIFECYCLE-TRANSITIONAL", "severity": "INFO", "layer": "platformIntegration", "blocking": false, "messageKey": "google.lifecycle_transitional"}
+  ],
+  "count": 11
+}

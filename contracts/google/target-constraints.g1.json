@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/google/target-constraints.g1.schema.json",
+  "schemaVersion": "1.0.0",
+  "status": "IMPLEMENTED",
+  "byteUnit": "decimal-byte",
+  "mime": ["image/png", "image/jpeg"],
+  "constraints": [
+    {"targetId": "RDA", "roles": ["MARKETING_IMAGE", "SQUARE_MARKETING_IMAGE", "PORTRAIT_MARKETING_IMAGE", "TALL_PORTRAIT_MARKETING_IMAGE", "LOGO", "LANDSCAPE_LOGO"], "maxBytes": 5120000},
+    {"targetId": "PMAX", "roles": ["MARKETING_IMAGE", "SQUARE_MARKETING_IMAGE", "PORTRAIT_MARKETING_IMAGE", "TALL_PORTRAIT_MARKETING_IMAGE", "LOGO", "LANDSCAPE_LOGO"], "maxBytes": 5120000},
+    {"targetId": "DEMAND_GEN", "roles": ["MARKETING_IMAGE", "SQUARE_MARKETING_IMAGE", "PORTRAIT_MARKETING_IMAGE", "TALL_PORTRAIT_MARKETING_IMAGE"], "maxBytes": 5000000},
+    {"targetId": "DEMAND_GEN", "roles": ["LOGO"], "maxBytes": 150000},
+    {"targetId": "DEMAND_GEN_UPLOADED_DISPLAY_STATIC", "roles": ["UPLOADED_DISPLAY_STATIC"], "maxBytes": 150000}
+  ]
+}

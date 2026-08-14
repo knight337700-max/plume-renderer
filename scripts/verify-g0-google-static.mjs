@@ -58,6 +58,7 @@ const provenance = await readJson("contracts/google/provenance.g0.json");
 const diagnostics = await readJson("contracts/google/diagnostics.g0.json");
 const evidence = await readJson("artifacts/g0/google-static-discovery-verification.json");
 const versions = await readJson("contracts/contract-versions.json");
+const g1Implemented = versions?.canonicalPhaseG1Google?.phase === "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION" && versions?.canonicalPhaseG1Google?.contractsImplemented === true;
 const packageJson = await readJson("package.json");
 const canonical = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");
 
@@ -107,20 +108,20 @@ for (const relativePath of activeFiles) {
   const text = await readFile(path.join(root, relativePath), "utf8").catch(() => "");
   if (/google|GOOGLE/u.test(text)) activeGoogleHits.push(relativePath);
 }
-check("active_google_runtime_absent", activeGoogleHits.length === 0, activeGoogleHits.join(",") || "no active Google profile/runtime text");
+check("active_google_runtime_absent", g1Implemented ? activeGoogleHits.every((relativePath) => relativePath.startsWith("src/core/google-static.") || relativePath === "src/core/index.ts" || relativePath.startsWith("packages/renderer-contract/src/google-static.") || relativePath === "packages/renderer-contract/src/index.ts" || relativePath.startsWith("packages/renderer-contract/dist/")) : activeGoogleHits.length === 0, g1Implemented ? `${activeGoogleHits.length} expected G1 implementation file(s)` : (activeGoogleHits.join(",") || "no active Google profile/runtime text"));
 check("google_runtime_paths_absent", !(await exists("src/core/google")) && !(await exists("apps/desktop/renderer/src/google")) && !(await exists("fixtures/golden/google")), "no Google runtime or golden directories");
 const googleCodes = new Set((diagnostics?.codes ?? []).map((entry) => entry.code));
 const activeErrorRegistryText = await readFile(path.join(root, "contracts/error-registry.json"), "utf8").catch(() => "");
 const activeIntegrationErrorText = await readFile(path.join(root, "contracts/integration-error-registry.json"), "utf8").catch(() => "");
 check("diagnostics_not_in_active_registry", [...googleCodes].every((code) => !activeErrorRegistryText.includes(code) && !activeIntegrationErrorText.includes(code)), "Google diagnostics are not active Error Registry entries");
 
-const frozenDiff = execFileSync("git", ["diff", "--name-only", baseline, "--", "src", "apps", "packages", "contracts/freeform-format-profiles.json", "fixtures/golden"], { cwd: root, encoding: "utf8" }).trim();
+const frozenDiff = execFileSync("git", ["diff", "--name-only", baseline, "--", "src", "apps", "packages", "contracts/freeform-format-profiles.json", "fixtures/golden"], { cwd: root, encoding: "utf8" }).trim().split(/\r?\n/u).filter((relativePath) => relativePath && !(g1Implemented && ["src/core/google-static.ts", "src/core/index.ts", "packages/renderer-contract/src/google-static.ts", "packages/renderer-contract/src/index.ts"].includes(relativePath))).join("\n");
 check("frozen_runtime_paths", frozenDiff.length === 0, frozenDiff || "no frozen runtime/profile/golden changes from baseline");
 
 const objectRightHash = await sha256("reference/kakao-tool/OBJECT_RIGHT.png").catch(() => null);
 check("object_right_fixture", objectRightHash === expectedObjectRightSha256, JSON.stringify({ expected: expectedObjectRightSha256, actual: objectRightHash }));
 check("template_contract", versions?.templateContractVersion === "1.9.0" && architecture?.baseline?.frozenOutputChanges === 0 && /x=666, y=0, w=315, h=258/u.test(canonical) && /1029×258/u.test(canonical), JSON.stringify({ template: versions?.templateContractVersion, coordinates: "x=666,y=0,w=315,h=258", canvas: "1029x258" }));
-check("canonical_version_unchanged", canonical.startsWith("# Kakao Bizboard Local Renderer Specification v1") && /Document version:\*\* (?:1\.23\.1|1\.24\.0)/u.test(canonical) && canonical.includes("Phase G0") && versions?.canonicalPhaseG0Google?.documentCurrent === "1.23.1" && versions?.canonicalPhaseG0Google?.documentBump === "none" && versions?.canonicalPhaseG0_1Google?.documentCurrent === "1.24.0", JSON.stringify({ historical: versions?.canonicalPhaseG0Google?.documentCurrent, current: versions?.canonicalPhaseG0_1Google?.documentCurrent }));
+check("canonical_version_unchanged", canonical.startsWith("# Kakao Bizboard Local Renderer Specification v1") && /Document version:\*\* (?:1\.23\.1|1\.24\.0|1\.25\.0)/u.test(canonical) && canonical.includes("Phase G0") && versions?.canonicalPhaseG0Google?.documentCurrent === "1.23.1" && versions?.canonicalPhaseG0Google?.documentBump === "none" && versions?.canonicalPhaseG0_1Google?.documentCurrent === "1.24.0" && (!g1Implemented || versions?.canonicalPhaseG1Google?.documentCurrent === "1.25.0"), JSON.stringify({ historical: versions?.canonicalPhaseG0Google?.documentCurrent, freeze: versions?.canonicalPhaseG0_1Google?.documentCurrent, g1: versions?.canonicalPhaseG1Google?.documentCurrent }));
 check("runtime_versions_unchanged", versions?.canonicalPhaseG0Google?.templateContractVersion === "1.9.0" && versions?.canonicalPhaseG0Google?.inputSchemaVersion === "1.2.0" && versions?.canonicalPhaseG0Google?.outputSchemaVersion === "2.0.0" && versions?.canonicalPhaseG0Google?.rendererCoreVersion === "0.9.0" && versions?.canonicalPhaseG0Google?.validatorCurrent === "1.9.0" && versions?.canonicalPhaseG0Google?.desktopCurrent === "0.10.1" && versions?.canonicalPhaseG0Google?.packageCurrent === "0.10.1", JSON.stringify(versions?.canonicalPhaseG0Google));
 check("evidence_consistency", evidence?.phase === architecture?.phase && evidence?.architecture?.capabilityCount === 7 && evidence?.architecture?.demandGenUploadedPresetCount === 7 && evidence?.architecture?.legacyDisplayCanvasCount === 20 && evidence?.diagnostics?.count === 11 && evidence?.sourcePolicy?.unresolvedRuleCount === 9, JSON.stringify(evidence));
 check("package_boundary", !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("plume") && !JSON.stringify(packageJson?.devDependencies ?? {}).toLowerCase().includes("plume") && packageJson?.scripts?.["verify:g0-google"] === "node scripts/verify-g0-google-static.mjs", "no Plume dependency and G0 verifier script registered");

@@ -56,6 +56,7 @@ async function collectFiles(relativePath) {
 }
 
 const versions = await readJson("contracts/contract-versions.json");
+const g1Implemented = versions?.canonicalPhaseG1Google?.phase === "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION" && versions?.canonicalPhaseG1Google?.contractsImplemented === true;
 const registry = await readJson("contracts/google/architecture-freeze.g0.1.json");
 const architecture = await readJson("contracts/google/architecture.g0.json");
 const capabilities = await readJson("contracts/google/capabilities.g0.json");
@@ -74,7 +75,7 @@ try { execFileSync("git", ["merge-base", "--is-ancestor", acceptedCommit, "HEAD"
 catch { baselineReachable = false; }
 check("accepted_baseline_lineage", baselineReachable, acceptedCommit);
 
-check("canonical_version", versions?.documentVersion?.previous === "1.23.1" && versions?.documentVersion?.current === "1.24.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.24\.0/u.test(canonical), JSON.stringify(versions?.documentVersion));
+check("canonical_version", g1Implemented ? versions?.documentVersion?.previous === "1.24.0" && versions?.documentVersion?.current === "1.25.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.25\.0/u.test(canonical) : versions?.documentVersion?.previous === "1.23.1" && versions?.documentVersion?.current === "1.24.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.24\.0/u.test(canonical), JSON.stringify(versions?.documentVersion));
 check("google_architecture_version", versions?.canonicalPhaseG0_1Google?.googleArchitecturePrevious === "0.1.0" && versions?.canonicalPhaseG0_1Google?.googleArchitectureVersion === "1.0.0" && versions?.canonicalPhaseG0_1Google?.googleArchitectureBump === "major", JSON.stringify(versions?.canonicalPhaseG0_1Google));
 check("current_architecture_frozen", versions?.canonicalPhaseG0_1Google?.architectureStatusPrevious === "FREEZE_CANDIDATE" && versions?.canonicalPhaseG0_1Google?.architectureStatus === "FROZEN" && registry?.status === "FROZEN" && registry?.googleArchitectureVersion === "1.0.0" && architecture?.architectureStatus === "FROZEN" && architecture?.freezeStatus === "FROZEN" && capabilities?.architectureStatus === "FROZEN" && capabilities?.freezeStatus === "FROZEN", JSON.stringify({ version: versions?.canonicalPhaseG0_1Google?.architectureStatus, registry: registry?.status, architecture: architecture?.architectureStatus }));
 check("historical_g0_record_preserved", versions?.canonicalPhaseG0Google?.documentCurrent === "1.23.1" && versions?.canonicalPhaseG0Google?.googleArchitectureVersion === "0.1.0" && versions?.canonicalPhaseG0Google?.architectureStatus === "FREEZE_CANDIDATE" && architecture?.status === "FREEZE_CANDIDATE" && g0Evidence?.phase === "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE", JSON.stringify({ g0: versions?.canonicalPhaseG0Google, sourceStatus: architecture?.status, evidencePhase: g0Evidence?.phase }));
@@ -113,11 +114,11 @@ for (const relativePath of activeFiles) {
   const text = await readFile(path.join(root, relativePath), "utf8").catch(() => "");
   if (/google|GOOGLE/u.test(text)) activeGoogleHits.push(relativePath);
 }
-check("runtime_google_profiles_absent", activeGoogleHits.length === 0, activeGoogleHits.join(",") || "no Google runtime profile/implementation/golden text");
+check("runtime_google_profiles_absent", g1Implemented ? activeGoogleHits.every((relativePath) => relativePath.startsWith("src/core/google-static.") || relativePath === "src/core/index.ts" || relativePath.startsWith("packages/renderer-contract/src/google-static.") || relativePath === "packages/renderer-contract/src/index.ts" || relativePath.startsWith("packages/renderer-contract/dist/")) : activeGoogleHits.length === 0, g1Implemented ? `${activeGoogleHits.length} expected G1 implementation file(s)` : (activeGoogleHits.join(",") || "no Google runtime profile/implementation/golden text"));
 check("runtime_google_paths_absent", !(await exists("src/core/google")) && !(await exists("apps/desktop/renderer-ui/src/google")) && !(await exists("fixtures/golden/google")), "no Google runtime, UI, or golden paths");
 check("implementation_boundary_frozen", registry?.invariants?.runtimeNetworkAccess === "PROHIBITED" && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("plume") && !JSON.stringify(packageJson?.devDependencies ?? {}).toLowerCase().includes("plume"), "network prohibited and no Plume package dependency");
 
-const frozenDiff = execFileSync("git", ["diff", "--name-only", acceptedCommit, "HEAD", "--", "src", "apps", "packages", "contracts/freeform-format-profiles.json", "fixtures/golden"], { cwd: root, encoding: "utf8" }).trim();
+const frozenDiff = execFileSync("git", ["diff", "--name-only", acceptedCommit, "HEAD", "--", "src", "apps", "packages", "contracts/freeform-format-profiles.json", "fixtures/golden"], { cwd: root, encoding: "utf8" }).trim().split(/\r?\n/u).filter((relativePath) => relativePath && !(g1Implemented && ["src/core/google-static.ts", "src/core/index.ts", "packages/renderer-contract/src/google-static.ts", "packages/renderer-contract/src/index.ts"].includes(relativePath))).join("\n");
 check("frozen_channel_paths", frozenDiff.length === 0, frozenDiff || "KAKAO/NAVER/META runtime and golden paths unchanged");
 const objectRightHash = await sha256("reference/kakao-tool/OBJECT_RIGHT.png").catch(() => null);
 check("object_right_reference", objectRightHash === expectedObjectRightSha256, JSON.stringify({ expected: expectedObjectRightSha256, actual: objectRightHash }));

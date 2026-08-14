@@ -217,6 +217,13 @@ const g0_1GoogleFreezeRegistry = JSON.parse(await readFile(path.join(root, "cont
 const g0_1GoogleVerification = JSON.parse(await readFile(path.join(root, "artifacts/g0-1/google-static-architecture-freeze-verification.json"), "utf8"));
 const g0_1GoogleVersion = canonicalDocument.canonicalPhaseG0_1Google;
 const g0_1GoogleVerificationStatus = g0_1GoogleFreezeRegistry.status === "FROZEN" && g0_1GoogleVerification.status === "PASS" && g0_1GoogleVerification.architectureStatus === "FROZEN" && g0_1GoogleVersion.architectureStatus === "FROZEN" && g0_1GoogleVersion.googleArchitectureVersion === "1.0.0" && g0_1GoogleFreezeRegistry.counts.capabilities === 7 && g0_1GoogleFreezeRegistry.counts.demandGenUploadedPresets === 7 && g0_1GoogleFreezeRegistry.counts.legacyDisplayCanvases === 20 && g0_1GoogleFreezeRegistry.counts.unresolvedRules === 9 && g0_1GoogleFreezeRegistry.counts.diagnostics === 11 ? "PASS" : "FAIL";
+const g1GoogleProfiles = JSON.parse(await readFile(path.join(root, "contracts/google/static-asset-profiles.g1.json"), "utf8"));
+const g1GoogleMapping = JSON.parse(await readFile(path.join(root, "contracts/google/capability-asset-role-mapping.g1.json"), "utf8"));
+const g1GoogleConstraints = JSON.parse(await readFile(path.join(root, "contracts/google/target-constraints.g1.json"), "utf8"));
+const g1GoogleDiagnostics = JSON.parse(await readFile(path.join(root, "contracts/google/diagnostics.g1.json"), "utf8"));
+const g1GoogleVersion = canonicalDocument.canonicalPhaseG1Google;
+const g1GoogleEvidence = JSON.parse(await readFile(path.join(root, "artifacts/g1/google-static-contracts-profile-verification.json"), "utf8"));
+const g1GoogleVerificationStatus = g1GoogleEvidence.status === "PASS" && g1GoogleProfiles.status === "IMPLEMENTED" && g1GoogleProfiles.profileCount === 14 && g1GoogleMapping.capabilityCount === 7 && g1GoogleMapping.compositionBoundary.legacyRuntimeProfiles === 0 ? "PASS" : "FAIL";
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -231,7 +238,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — G0.1 Google Ads static architecture freeze handoff
+const readme = `# Renderer Module — G1 Google Ads static contracts and profiles handoff
 
 ## Purpose
 
@@ -273,7 +280,8 @@ build, test, and later phase development. The source repository remains unchange
 - META M0: official-source-only discovery and composition boundary remain preserved as the prior audit baseline (${m0OfficialSourceAudit.status}).
 - Meta unsupported scope: carousel, catalog, dynamic, and video remain out of M1 static runtime scope.
 - Google G0 (historical): architecture-only capability boundary; official-source provenance: ${g0GoogleProvenance.status}, architecture: ${g0GoogleArchitecture.status}, verification: ${g0GoogleVerificationStatus}. Runtime profiles: ${g0GoogleArchitecture.implementation.runtimeProfilesAdded}, renderer code: ${g0GoogleArchitecture.implementation.rendererCodeAdded}, Validator runtime: ${g0GoogleArchitecture.implementation.validatorRuntimeAdded}, Goldens: ${g0GoogleArchitecture.implementation.goldensAdded}, Desktop UI: ${g0GoogleArchitecture.implementation.desktopUiAdded}, upload integration: ${g0GoogleArchitecture.implementation.uploadIntegrationAdded}.
-- Google G0.1 (current): architecture acceptance and freeze: ${g0_1GoogleVerificationStatus}, architecture version ${g0_1GoogleVersion.googleArchitectureVersion}, registry status ${g0_1GoogleFreezeRegistry.status}. Counts are fixed at capabilities ${g0_1GoogleFreezeRegistry.counts.capabilities}, Demand Gen uploaded presets ${g0_1GoogleFreezeRegistry.counts.demandGenUploadedPresets}, legacy Display canvases ${g0_1GoogleFreezeRegistry.counts.legacyDisplayCanvases}, unresolved rules ${g0_1GoogleFreezeRegistry.counts.unresolvedRules}, and proposed diagnostics ${g0_1GoogleFreezeRegistry.counts.proposedDiagnostics}. No Google runtime profile, renderer, Validator, Desktop UI, Golden, upload, or network implementation was added; unresolved rules remain fail-closed. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; uploaded Display static remains RENDERER_COMPOSED; every image is SINGLE and delivery sets are separate COLLECTION manifests.
+- Google G0.1 (historical freeze): architecture acceptance and freeze: ${g0_1GoogleVerificationStatus}, architecture version ${g0_1GoogleVersion.googleArchitectureVersion}, registry status ${g0_1GoogleFreezeRegistry.status}. Counts are fixed at capabilities ${g0_1GoogleFreezeRegistry.counts.capabilities}, Demand Gen uploaded presets ${g0_1GoogleFreezeRegistry.counts.demandGenUploadedPresets}, legacy Display canvases ${g0_1GoogleFreezeRegistry.counts.legacyDisplayCanvases}, unresolved rules ${g0_1GoogleFreezeRegistry.counts.unresolvedRules}, and proposed diagnostics ${g0_1GoogleFreezeRegistry.counts.proposedDiagnostics}.
+- Google G1 (current): static contracts/profile implementation: ${g1GoogleVerificationStatus}, architecture version ${g1GoogleVersion.googleArchitectureVersion}, profile registry ${g1GoogleProfiles.profileCount} (${g1GoogleProfiles.geometryProfileCount} geometry + ${g1GoogleProfiles.uploadedDisplayStaticProfileCount} uploaded static), capability mapping ${g1GoogleMapping.capabilityCount}, legacy runtime profiles ${g1GoogleMapping.compositionBoundary.legacyRuntimeProfiles}, diagnostics ${g1GoogleDiagnostics.count}, and target constraints ${g1GoogleConstraints.byteUnit}. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; Demand Gen uploaded static is RENDERER_COMPOSED; every artifact is SINGLE and delivery sets are COLLECTION manifests. No Google upload/API, Desktop UI, Golden, carousel, Search image, or runtime network integration was added.
 
 ## Directories
 
@@ -311,7 +319,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is G0.1 Google Ads static architecture acceptance and freeze and the canonical document is v1.24.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. It adds no Google runtime profile, renderer code, Validator behavior, Desktop UI, Golden, or upload integration. The G0.1 implementation record, ADR, and verifier are the source of the next G1 gate. M1 implements the three project output presets,
+The latest phase is G1 Google Ads static contracts and profile implementation and the canonical document is v1.25.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 is the next phase for rendering validation and Golden candidates. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
@@ -365,7 +373,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "G0_1_GOOGLE_ARCHITECTURE_ACCEPTANCE_AND_FREEZE",
+  handoffPhase: "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -380,10 +388,10 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseM2_3.rendererCoreVersion,
-    validator: canonicalDocument.canonicalPhaseM2_3.validatorCurrent,
-    desktop: canonicalDocument.canonicalPhaseM2_3.desktopCurrent,
-    package: canonicalDocument.canonicalPhaseM2_3.packageCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseG1Google.rendererCoreVersion,
+    validator: canonicalDocument.canonicalPhaseG1Google.validatorCurrent,
+    desktop: canonicalDocument.canonicalPhaseG1Google.desktopCurrent,
+    package: canonicalDocument.canonicalPhaseG1Google.packageCurrent,
     googleStatic: {
       architectureVersion: g0_1GoogleVersion.googleArchitectureVersion,
       architectureVersionPrevious: g0_1GoogleVersion.googleArchitecturePrevious,
@@ -404,6 +412,20 @@ const manifest = {
       repositoryApplication: g0GoogleArchitecture.repositoryApplication,
       counts: g0_1GoogleFreezeRegistry.counts,
       evidence: "artifacts/g0-1/google-static-architecture-freeze-verification.json",
+      g1ContractVersion: g1GoogleVersion.googleStaticContractVersion,
+      g1ProfileRegistryVersion: g1GoogleVersion.googleStaticProfileRegistryVersion,
+      g1ProfileRegistry: g1GoogleVersion.googleStaticProfileRegistry,
+      g1CapabilityRoleMapping: g1GoogleVersion.googleCapabilityRoleMapping,
+      g1TargetConstraints: g1GoogleVersion.googleTargetConstraints,
+      g1ManifestSchema: g1GoogleVersion.googleCreativeAssetSetManifestSchema,
+      g1DeliverySetValidator: g1GoogleVersion.googleDeliverySetValidator,
+      g1Diagnostics: g1GoogleVersion.googleDiagnostics,
+      g1Status: g1GoogleVerificationStatus,
+      g1GeometryProfileCount: g1GoogleProfiles.geometryProfileCount,
+      g1UploadedDisplayStaticProfileCount: g1GoogleProfiles.uploadedDisplayStaticProfileCount,
+      g1RuntimeProfileCount: g1GoogleProfiles.profileCount,
+      g1LegacyDisplayRuntimeProfiles: g1GoogleProfiles.legacyDisplayRuntimeProfiles.length,
+      g1Evidence: "artifacts/g1/google-static-contracts-profile-verification.json",
     },
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
@@ -729,6 +751,17 @@ const manifest = {
     g0_1GoogleImplementationRecord: "docs/implementation/google-ads-static-architecture-freeze-g0-1.md",
     g0_1GoogleAdr: "docs/adr/ADR-0059-google-static-architecture-freeze-g0-1.md",
     g0_1GoogleVerifier: "scripts/verify-g0-1-google-architecture-freeze.mjs",
+    g1GoogleProfileRegistry: "contracts/google/static-asset-profiles.g1.json",
+    g1GoogleCapabilityRoleMapping: "contracts/google/capability-asset-role-mapping.g1.json",
+    g1GoogleTargetConstraints: "contracts/google/target-constraints.g1.json",
+    g1GoogleManifestSchema: "contracts/google/creative-asset-set-manifest.schema.json",
+    g1GoogleDeliveryValidator: "contracts/google/delivery-set-validator.g1.json",
+    g1GoogleDiagnostics: "contracts/google/diagnostics.g1.json",
+    g1GoogleEvidenceDirectory: "artifacts/g1",
+    g1GoogleVerification: "artifacts/g1/google-static-contracts-profile-verification.json",
+    g1GoogleImplementationRecord: "docs/implementation/google-ads-static-contracts-profile-implementation-g1.md",
+    g1GoogleAdr: "docs/adr/ADR-0060-google-static-contracts-and-profiles-g1.md",
+    g1GoogleVerifier: "scripts/verify-g1-google-static.mjs",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -873,6 +906,37 @@ const manifest = {
     plumeDependencies: [],
     frozenChannelOutputChanges: 0,
     g1GateStatus: g0_1GoogleFreezeRegistry.g1GateStatus,
+  },
+  g1GoogleStaticContracts: {
+    phase: g1GoogleVersion.phase,
+    status: g1GoogleVerificationStatus,
+    architectureVersion: g1GoogleVersion.googleArchitectureVersion,
+    contractVersion: g1GoogleVersion.googleStaticContractVersion,
+    profileRegistryVersion: g1GoogleVersion.googleStaticProfileRegistryVersion,
+    profileCount: g1GoogleProfiles.profileCount,
+    geometryProfileCount: g1GoogleProfiles.geometryProfileCount,
+    uploadedDisplayStaticProfileCount: g1GoogleProfiles.uploadedDisplayStaticProfileCount,
+    legacyDisplayRuntimeProfiles: g1GoogleProfiles.legacyDisplayRuntimeProfiles.length,
+    capabilityCount: g1GoogleMapping.capabilityCount,
+    validators: g1GoogleVersion.googleDeliverySetValidator,
+    diagnostics: g1GoogleDiagnostics.count,
+    byteUnit: g1GoogleConstraints.byteUnit,
+    runtimeNetworkAccess: "PROHIBITED",
+    plumeDependencies: [],
+    desktopUiAdded: false,
+    goldensAdded: false,
+    uploadIntegrationAdded: false,
+    registry: g1GoogleVersion.googleStaticProfileRegistry,
+    capabilityRoleMapping: g1GoogleVersion.googleCapabilityRoleMapping,
+    targetConstraints: g1GoogleVersion.googleTargetConstraints,
+    manifestSchema: g1GoogleVersion.googleCreativeAssetSetManifestSchema,
+    deliveryValidator: g1GoogleVersion.googleDeliverySetValidator,
+    diagnosticsRegistry: g1GoogleVersion.googleDiagnostics,
+    evidence: "artifacts/g1/google-static-contracts-profile-verification.json",
+    implementationRecord: "docs/implementation/google-ads-static-contracts-profile-implementation-g1.md",
+    adr: "docs/adr/ADR-0060-google-static-contracts-and-profiles-g1.md",
+    verifier: "scripts/verify-g1-google-static.mjs",
+    nextPhase: g1GoogleVersion.nextPhase,
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

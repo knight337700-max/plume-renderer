@@ -108,6 +108,36 @@ export {
   MASK_SEMICIRCLE_RIGHT_MAX_UPSCALE,
 } from "./mask-semicircle-right.js";
 export { loadContracts } from "./contracts.js";
+export {
+  GOOGLE_STATIC_DIAGNOSTIC_CODES,
+  listGoogleStaticProfiles,
+  loadGoogleStaticContracts,
+  resolveGoogleCapability,
+  resolveGoogleStaticProfile,
+  resolveGoogleTargetConstraint,
+  validateGoogleCreativeAssetSetManifest,
+  validateGoogleDeliverySet,
+  validateGoogleDemandGenSingleImageDeliverySet,
+  validateGoogleDemandGenUploadedDisplayStaticSet,
+  validateGooglePerformanceMaxDeliverySet,
+  validateGoogleRdaDeliverySet,
+  validateGoogleStaticArtifact,
+} from "./google-static.js";
+export type {
+  CreativeAssetSetManifest,
+  GoogleAssetArtifact,
+  GoogleCapabilityMapping,
+  GoogleCapabilityRoleMappingRegistry,
+  GoogleDiagnosticRegistry,
+  GoogleStaticAssetProfile,
+  GoogleStaticContracts,
+  GoogleStaticMime,
+  GoogleStaticProfileRegistry,
+  GoogleStaticTarget,
+  GoogleTargetConstraintRegistry,
+  GoogleValidationIssue,
+  GoogleValidationResult,
+} from "@kbr/renderer-contract";
 export { SchemaValidators, parseJsonInput } from "./schema-validation.js";
 export { validateCanonicalSemantics, validateRawText } from "./semantic-validation.js";
 export {

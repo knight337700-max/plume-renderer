@@ -1,0 +1,28 @@
+{
+  "phase": "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION",
+  "status": "PASS",
+  "baselineCommit": "ef807153c1143966a3f6d83bf01704bf1d2ad206",
+  "architectureVersion": "1.0.0",
+  "canonicalDocumentVersion": "1.25.0",
+  "profileRegistry": {
+    "status": "IMPLEMENTED",
+    "geometryProfileCount": 7,
+    "uploadedDisplayStaticProfileCount": 7,
+    "runtimeProfileCount": 14,
+    "legacyDisplayRuntimeProfiles": 0
+  },
+  "capabilityMapping": {"capabilityCount": 7, "status": "IMPLEMENTED"},
+  "deliveryValidators": {
+    "status": "IMPLEMENTED",
+    "capabilities": ["GOOGLE_RDA_ASSET_SET", "GOOGLE_PMAX_ASSET_GROUP_STATIC", "GOOGLE_DEMAND_GEN_SINGLE_IMAGE", "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC"]
+  },
+  "diagnostics": {"status": "IMPLEMENTED", "count": 11, "activeGlobalErrorRegistry": false},
+  "frozenArchitectureHashes": "PASS",
+  "objectRightReference": "33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b",
+  "runtimeNetworkRequests": 0,
+  "plumeDependencies": [],
+  "desktopUiAdded": false,
+  "goldensAdded": false,
+  "uploadIntegrationAdded": false,
+  "nextPhase": "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES"
+}
