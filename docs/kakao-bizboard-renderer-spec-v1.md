@@ -1,11 +1,11 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.23.1
-- **Status:** Frozen Implementation Contract — Phase G0 Google Ads static capability discovery and architecture (runtime-freeze candidate)
+- **Document version:** 1.24.0
+- **Status:** Frozen Implementation Contract — Phase G0.1 Google Ads static architecture acceptance and freeze
 - **Checked date:** 2026-08-14 (KST)
 - **Owner:** Local Renderer Project
-- **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, and additive `META` static renderer capability namespace
+- **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
 
 ---
 
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **53. Phase G0 Google Ads static capability discovery and renderer architecture**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records are architecture-only and do not activate runtime profiles. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **54. Phase G0.1 Google Ads static architecture acceptance and freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry를 따른다. **[PROJECT]**
 
 ---
 
@@ -5285,3 +5285,52 @@ The machine-readable G0 records are under `contracts/google/`; the implementatio
 verifier is `scripts/verify-g0-google-static.mjs`. G1 may add provenance-backed Google contracts
 and profiles only after this boundary is accepted; KAKAO, NAVER, and META frozen behavior remains
 unchanged. **[PROJECT]**
+
+## 54. Phase G0.1 — Google Ads static architecture acceptance and freeze [PROJECT]
+
+G0.1 accepts the reviewed G0 Google Ads static capability architecture without adding a Google
+runtime profile, Renderer behavior, Validator runtime behavior, Desktop UI, Golden, preview
+screenshot, or upload integration. The accepted source commit is
+`731b956e69700154a8b8e1c51ec9a2b7973aa07f`. The Canonical document advances from `1.23.1` to
+`1.24.0`; Google architecture advances from `0.1.0` to frozen architecture version `1.0.0`.
+Template `1.9.0`, input `1.2.0`, output `2.0.0`, Renderer Core `0.9.0`, Validator `1.9.0`, and
+Desktop/package `0.10.1` remain unchanged. **[PROJECT]**
+
+### 54.1 Frozen records and invariants [PROJECT]
+
+`contracts/google/architecture-freeze.g0.1.json` is the deterministic freeze registry. It records
+the six authoritative Google architecture records in ascending repository-relative path order,
+their freeze version, semantic role, and SHA-256. The registry deliberately does not contain its
+own SHA-256. The frozen counts are capabilities `7`, Demand Gen uploaded-display recommended
+presets `7`, legacy Display canvases `20`, unresolved rules `9`, and proposed diagnostics `11`.
+**[PROJECT]**
+
+The frozen boundary remains: RDA, Performance Max, and Demand Gen single-image are
+`PLATFORM_COMPOSED`; Demand Gen uploaded display static and legacy uploaded Display static are
+`RENDERER_COMPOSED`; every image is a `SINGLE` artifact; and delivery sets are separate
+`COLLECTION` manifests. Renderer-owned pixels, Google-owned fields, official mandatory rules,
+official recommendations, project presets, FREEFORM reuse, lifecycle, and excluded scopes are
+unchanged from G0. **[PROJECT] [OFFICIAL]**
+
+All nine unresolved rules remain explicitly `UNRESOLVED_FAIL_CLOSED`. No RDA vertical discrepancy,
+square recommendation discrepancy, PMax MIME/logo discrepancy, byte-unit ambiguity, non-exhaustive
+Demand Gen size list, 9:16 safe-zone gap, migration-date gap, or logo-minimum conflict is promoted
+to an inferred mandatory rule. The eleven Google diagnostics remain proposed and outside the active
+Error Registry and Validator runtime. **[PROJECT] [INFERRED]**
+
+### 54.2 Current status and historical boundary [PROJECT]
+
+The current Google architecture status is `FROZEN`. The G0 implementation record and G0 verification
+artifact remain historical records of the reviewed `FREEZE_CANDIDATE` state and are not rewritten.
+Only this current Canonical section, the G0.1 freeze registry, the G0.1 implementation record and
+ADR, and the final handoff report `FROZEN`. **[PROJECT]**
+
+The G1 gate is open only when every G0.1 freeze verification passes. G1 may implement the frozen
+contracts but MUST NOT change this architecture contract as part of implementation. Runtime network
+access remains prohibited; Plume, Agent, Queue, Railway, PostgreSQL, Redis, MinIO, and Google upload
+services remain outside the project. **[PROJECT]**
+
+The freeze registry is `contracts/google/architecture-freeze.g0.1.json`; the implementation record
+is `docs/implementation/google-ads-static-architecture-freeze-g0-1.md`; the ADR is
+`docs/adr/ADR-0059-google-static-architecture-freeze-g0-1.md`; and the deterministic verifier is
+`scripts/verify-g0-1-google-architecture-freeze.mjs`. **[PROJECT]**

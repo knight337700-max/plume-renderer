@@ -35,7 +35,7 @@ check("platform_copy_metadata_only", metaProfiles.platformCopy?.metadataOnly ===
 check("unsupported_scope", ["CAROUSEL", "CATALOG", "DYNAMIC", "VIDEO"].every((value) => metaProfiles.unsupported?.includes(value)), JSON.stringify(metaProfiles.unsupported));
 check("error_codes", ["KBR-META-STORIES-SAFE-ZONE-WARNING", "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED", "KBR-META-PLACEMENT-SET-INCOMPLETE", "KBR-META-PLACEMENT-SET-CHILD-BLOCKED"].every((code) => errors.codes?.some((entry) => entry.code === code)), "M1 META codes registered");
 check("manifest_no_self_digest", !Object.keys(manifestSchema.properties ?? {}).some((key) => /manifest.*digest/i.test(key) && key !== "canonicalInputDigest"), "manifest schema contains no self digest field");
-check("version_m1", ["1.22.0", "1.23.0", "1.23.1"].includes(versions.documentVersion?.current) && versions.canonicalPhaseM1?.metaRuntimeImplemented === true && ["0.10.0", "0.10.1"].includes(versions.desktopAppVersion) && ["0.10.0", "0.10.1"].includes(packageJson.version), JSON.stringify({ document: versions.documentVersion?.current, desktop: versions.desktopAppVersion, package: packageJson.version }));
+check("version_m1", ["1.22.0", "1.23.0", "1.23.1", "1.24.0"].includes(versions.documentVersion?.current) && versions.canonicalPhaseM1?.metaRuntimeImplemented === true && ["0.10.0", "0.10.1"].includes(versions.desktopAppVersion) && ["0.10.0", "0.10.1"].includes(packageJson.version), JSON.stringify({ document: versions.documentVersion?.current, desktop: versions.desktopAppVersion, package: packageJson.version }));
 for (const fixture of [
   "fixtures/meta/feed-square/meta-feed-square-basic.json",
   "fixtures/meta/feed-portrait/meta-feed-portrait-basic.json",

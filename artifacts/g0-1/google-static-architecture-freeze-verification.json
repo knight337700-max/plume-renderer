@@ -1,0 +1,43 @@
+{
+  "phase": "G0_1_GOOGLE_ARCHITECTURE_ACCEPTANCE_AND_FREEZE",
+  "status": "PASS",
+  "architectureStatus": "FROZEN",
+  "acceptedFromCommit": "731b956e69700154a8b8e1c51ec9a2b7973aa07f",
+  "canonical": {
+    "previousVersion": "1.23.1",
+    "currentVersion": "1.24.0"
+  },
+  "googleArchitecture": {
+    "previousVersion": "0.1.0",
+    "currentVersion": "1.0.0"
+  },
+  "freezeRegistry": "contracts/google/architecture-freeze.g0.1.json",
+  "authoritativeRecordCount": 6,
+  "counts": {
+    "capabilities": 7,
+    "demandGenUploadedPresets": 7,
+    "legacyDisplayCanvases": 20,
+    "unresolvedRules": 9,
+    "proposedDiagnostics": 11
+  },
+  "checks": {
+    "canonicalVersion": "PASS",
+    "googleArchitectureVersion": "PASS",
+    "registryStatus": "PASS",
+    "registryOrderingAndDigests": "PASS",
+    "compositionBoundary": "PASS",
+    "cardinality": "PASS",
+    "officialSourcePolicy": "PASS",
+    "unresolvedRulesFailClosed": "PASS",
+    "runtimeAbsent": "PASS",
+    "runtimeNetworkProhibited": "PASS",
+    "plumeDependenciesEmpty": "PASS",
+    "frozenChannelOutputsUnchanged": "PASS",
+    "objectRightReference": "PASS"
+  },
+  "g1GateStatus": "OPEN",
+  "runtimeNetworkRequests": 0,
+  "plumeDependencies": [],
+  "frozenChannelOutputChanges": 0,
+  "objectRightSha256": "33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b"
+}

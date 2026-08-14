@@ -4,6 +4,8 @@
   "sourcePolicy": "GOOGLE_OFFICIAL_ONLY",
   "checkedAt": "2026-08-14",
   "status": "PASS",
+  "freezeStatus": "FROZEN",
+  "freezeVersion": "1.0.0",
   "sources": [
     {
       "ruleId": "GGL-LIFECYCLE-001",

@@ -2,6 +2,9 @@
   "schemaVersion": "0.1.0",
   "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
   "status": "FREEZE_CANDIDATE",
+  "architectureStatus": "FROZEN",
+  "freezeStatus": "FROZEN",
+  "freezeVersion": "1.0.0",
   "repositoryApplication": "APPLIED_ARCHITECTURE_ONLY",
   "baseline": {
     "sourceCommitSha": "be0c4198e5f1d4b433f9654409021db34710e29c",

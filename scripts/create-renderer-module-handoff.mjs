@@ -213,6 +213,10 @@ const g0GoogleProvenance = JSON.parse(await readFile(path.join(root, "contracts/
 const g0GoogleDiagnostics = JSON.parse(await readFile(path.join(root, "contracts/google/diagnostics.g0.json"), "utf8"));
 const g0GoogleVerification = JSON.parse(await readFile(path.join(root, "artifacts/g0/google-static-discovery-verification.json"), "utf8"));
 const g0GoogleVerificationStatus = g0GoogleArchitecture.status === "FREEZE_CANDIDATE" && g0GoogleArchitecture.repositoryApplication === "APPLIED_ARCHITECTURE_ONLY" && g0GoogleVerification.status === "PASS" && g0GoogleCapabilities.runtimeEnabled === false && g0GoogleDiagnostics.activeRuntimeRegistration === false ? "PASS" : "FAIL";
+const g0_1GoogleFreezeRegistry = JSON.parse(await readFile(path.join(root, "contracts/google/architecture-freeze.g0.1.json"), "utf8"));
+const g0_1GoogleVerification = JSON.parse(await readFile(path.join(root, "artifacts/g0-1/google-static-architecture-freeze-verification.json"), "utf8"));
+const g0_1GoogleVersion = canonicalDocument.canonicalPhaseG0_1Google;
+const g0_1GoogleVerificationStatus = g0_1GoogleFreezeRegistry.status === "FROZEN" && g0_1GoogleVerification.status === "PASS" && g0_1GoogleVerification.architectureStatus === "FROZEN" && g0_1GoogleVersion.architectureStatus === "FROZEN" && g0_1GoogleVersion.googleArchitectureVersion === "1.0.0" && g0_1GoogleFreezeRegistry.counts.capabilities === 7 && g0_1GoogleFreezeRegistry.counts.demandGenUploadedPresets === 7 && g0_1GoogleFreezeRegistry.counts.legacyDisplayCanvases === 20 && g0_1GoogleFreezeRegistry.counts.unresolvedRules === 9 && g0_1GoogleFreezeRegistry.counts.diagnostics === 11 ? "PASS" : "FAIL";
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -227,7 +231,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — G0 Google Ads static discovery architecture handoff
+const readme = `# Renderer Module — G0.1 Google Ads static architecture freeze handoff
 
 ## Purpose
 
@@ -268,7 +272,8 @@ build, test, and later phase development. The source repository remains unchange
 - META M2.3: user visual acceptance and final Golden freeze for the current META static image scope. Registry: ${m2_3VerificationStatus}, approved entries: ${m2_3GoldenRegistry.entries.length}, manual acceptance: ${m2_3GoldenRegistry.manualAcceptance.status}, finalGoldenFrozen: ${m2_3GoldenRegistry.finalGoldenFrozen}, Stories safe-zone guide and Reels SOURCE_REQUIRED semantics preserved.
 - META M0: official-source-only discovery and composition boundary remain preserved as the prior audit baseline (${m0OfficialSourceAudit.status}).
 - Meta unsupported scope: carousel, catalog, dynamic, and video remain out of M1 static runtime scope.
-- Google G0: architecture-only capability boundary; official-source provenance: ${g0GoogleProvenance.status}, architecture: ${g0GoogleArchitecture.status}, verification: ${g0GoogleVerificationStatus}. Runtime profiles: ${g0GoogleArchitecture.implementation.runtimeProfilesAdded}, renderer code: ${g0GoogleArchitecture.implementation.rendererCodeAdded}, Validator runtime: ${g0GoogleArchitecture.implementation.validatorRuntimeAdded}, Goldens: ${g0GoogleArchitecture.implementation.goldensAdded}, Desktop UI: ${g0GoogleArchitecture.implementation.desktopUiAdded}, upload integration: ${g0GoogleArchitecture.implementation.uploadIntegrationAdded}. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; uploaded Display static remains RENDERER_COMPOSED; every image is SINGLE and delivery sets are separate COLLECTION manifests.
+- Google G0 (historical): architecture-only capability boundary; official-source provenance: ${g0GoogleProvenance.status}, architecture: ${g0GoogleArchitecture.status}, verification: ${g0GoogleVerificationStatus}. Runtime profiles: ${g0GoogleArchitecture.implementation.runtimeProfilesAdded}, renderer code: ${g0GoogleArchitecture.implementation.rendererCodeAdded}, Validator runtime: ${g0GoogleArchitecture.implementation.validatorRuntimeAdded}, Goldens: ${g0GoogleArchitecture.implementation.goldensAdded}, Desktop UI: ${g0GoogleArchitecture.implementation.desktopUiAdded}, upload integration: ${g0GoogleArchitecture.implementation.uploadIntegrationAdded}.
+- Google G0.1 (current): architecture acceptance and freeze: ${g0_1GoogleVerificationStatus}, architecture version ${g0_1GoogleVersion.googleArchitectureVersion}, registry status ${g0_1GoogleFreezeRegistry.status}. Counts are fixed at capabilities ${g0_1GoogleFreezeRegistry.counts.capabilities}, Demand Gen uploaded presets ${g0_1GoogleFreezeRegistry.counts.demandGenUploadedPresets}, legacy Display canvases ${g0_1GoogleFreezeRegistry.counts.legacyDisplayCanvases}, unresolved rules ${g0_1GoogleFreezeRegistry.counts.unresolvedRules}, and proposed diagnostics ${g0_1GoogleFreezeRegistry.counts.proposedDiagnostics}. No Google runtime profile, renderer, Validator, Desktop UI, Golden, upload, or network implementation was added; unresolved rules remain fail-closed. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; uploaded Display static remains RENDERER_COMPOSED; every image is SINGLE and delivery sets are separate COLLECTION manifests.
 
 ## Directories
 
@@ -306,7 +311,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is G0 Google Ads static discovery and architecture and the canonical document is v1.23.1. G0 is architecture-only: it adds no Google runtime profile, renderer code, Validator behavior, Desktop UI, Golden, or upload integration. The six machine-readable Google records under contracts/google/, the G0 verification evidence, implementation record, and ADR are the source of the next G1 gate. M1 implements the three project output presets,
+The latest phase is G0.1 Google Ads static architecture acceptance and freeze and the canonical document is v1.24.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. It adds no Google runtime profile, renderer code, Validator behavior, Desktop UI, Golden, or upload integration. The G0.1 implementation record, ADR, and verifier are the source of the next G1 gate. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
@@ -360,7 +365,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
+  handoffPhase: "G0_1_GOOGLE_ARCHITECTURE_ACCEPTANCE_AND_FREEZE",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -380,21 +385,25 @@ const manifest = {
     desktop: canonicalDocument.canonicalPhaseM2_3.desktopCurrent,
     package: canonicalDocument.canonicalPhaseM2_3.packageCurrent,
     googleStatic: {
-      architectureVersion: canonicalDocument.canonicalPhaseG0Google.googleArchitectureVersion,
-      capabilityRegistry: canonicalDocument.canonicalPhaseG0Google.googleCapabilityRegistry,
-      assetGeometry: canonicalDocument.canonicalPhaseG0Google.googleAssetGeometryRegistry,
-      deliveryContracts: canonicalDocument.canonicalPhaseG0Google.googleDeliveryContracts,
-      provenance: canonicalDocument.canonicalPhaseG0Google.googleProvenance,
-      diagnostics: canonicalDocument.canonicalPhaseG0Google.googleDiagnostics,
-      runtimeProfilesAdded: canonicalDocument.canonicalPhaseG0Google.runtimeProfilesAdded,
-      rendererCodeAdded: canonicalDocument.canonicalPhaseG0Google.rendererCodeAdded,
-      validatorRuntimeAdded: canonicalDocument.canonicalPhaseG0Google.validatorRuntimeAdded,
-      goldensAdded: canonicalDocument.canonicalPhaseG0Google.goldensAdded,
-      desktopUiAdded: canonicalDocument.canonicalPhaseG0Google.desktopUiAdded,
-      uploadIntegrationAdded: canonicalDocument.canonicalPhaseG0Google.uploadIntegrationAdded,
-      status: g0GoogleVerificationStatus,
-      architectureStatus: g0GoogleArchitecture.status,
+      architectureVersion: g0_1GoogleVersion.googleArchitectureVersion,
+      architectureVersionPrevious: g0_1GoogleVersion.googleArchitecturePrevious,
+      capabilityRegistry: g0_1GoogleVersion.googleCapabilityRegistry,
+      assetGeometry: g0_1GoogleVersion.googleAssetGeometryRegistry,
+      deliveryContracts: g0_1GoogleVersion.googleDeliveryContracts,
+      provenance: g0_1GoogleVersion.googleProvenance,
+      diagnostics: g0_1GoogleVersion.googleDiagnostics,
+      freezeRegistry: g0_1GoogleVersion.googleFreezeRegistry,
+      runtimeProfilesAdded: g0_1GoogleVersion.runtimeProfilesAdded,
+      rendererCodeAdded: g0_1GoogleVersion.rendererCodeAdded,
+      validatorRuntimeAdded: g0_1GoogleVersion.validatorRuntimeAdded,
+      goldensAdded: g0_1GoogleVersion.goldensAdded,
+      desktopUiAdded: g0_1GoogleVersion.desktopUiAdded,
+      uploadIntegrationAdded: g0_1GoogleVersion.uploadIntegrationAdded,
+      status: g0_1GoogleVerificationStatus,
+      architectureStatus: g0_1GoogleVersion.architectureStatus,
       repositoryApplication: g0GoogleArchitecture.repositoryApplication,
+      counts: g0_1GoogleFreezeRegistry.counts,
+      evidence: "artifacts/g0-1/google-static-architecture-freeze-verification.json",
     },
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
@@ -714,6 +723,12 @@ const manifest = {
     g0GoogleImplementationRecord: "docs/implementation/google-ads-static-discovery-architecture-g0.md",
     g0GoogleAdr: "docs/adr/ADR-0058-google-static-capability-boundary-g0.md",
     g0GoogleVerifier: "scripts/verify-g0-google-static.mjs",
+    g0_1GoogleFreezeRegistry: "contracts/google/architecture-freeze.g0.1.json",
+    g0_1GoogleEvidenceDirectory: "artifacts/g0-1",
+    g0_1GoogleVerification: "artifacts/g0-1/google-static-architecture-freeze-verification.json",
+    g0_1GoogleImplementationRecord: "docs/implementation/google-ads-static-architecture-freeze-g0-1.md",
+    g0_1GoogleAdr: "docs/adr/ADR-0059-google-static-architecture-freeze-g0-1.md",
+    g0_1GoogleVerifier: "scripts/verify-g0-1-google-architecture-freeze.mjs",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -833,6 +848,31 @@ const manifest = {
     implementationRecord: "docs/implementation/google-ads-static-discovery-architecture-g0.md",
     adr: "docs/adr/ADR-0058-google-static-capability-boundary-g0.md",
     nextPhase: "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION",
+  },
+  g0_1GoogleArchitectureFreeze: {
+    phase: g0_1GoogleFreezeRegistry.phase,
+    status: g0_1GoogleVerificationStatus,
+    architectureStatus: g0_1GoogleFreezeRegistry.status,
+    architectureVersion: g0_1GoogleFreezeRegistry.googleArchitectureVersion,
+    previousArchitectureVersion: g0_1GoogleFreezeRegistry.sourceArchitectureVersion,
+    acceptedFromCommit: g0_1GoogleFreezeRegistry.acceptedFromCommit,
+    counts: g0_1GoogleFreezeRegistry.counts,
+    authoritativeRecordCount: g0_1GoogleFreezeRegistry.authoritativeRecords.length,
+    registry: "contracts/google/architecture-freeze.g0.1.json",
+    evidence: "artifacts/g0-1/google-static-architecture-freeze-verification.json",
+    implementationRecord: "docs/implementation/google-ads-static-architecture-freeze-g0-1.md",
+    adr: "docs/adr/ADR-0059-google-static-architecture-freeze-g0-1.md",
+    verifier: "scripts/verify-g0-1-google-architecture-freeze.mjs",
+    runtimeProfilesAdded: false,
+    rendererCodeAdded: false,
+    validatorRuntimeAdded: false,
+    goldensAdded: false,
+    desktopUiAdded: false,
+    uploadIntegrationAdded: false,
+    runtimeNetworkAccess: "PROHIBITED",
+    plumeDependencies: [],
+    frozenChannelOutputChanges: 0,
+    g1GateStatus: g0_1GoogleFreezeRegistry.g1GateStatus,
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

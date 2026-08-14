@@ -3,6 +3,8 @@
   "registryVersion": "0.1.0",
   "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
   "status": "PROPOSED_NOT_RUNTIME",
+  "freezeStatus": "FROZEN",
+  "freezeVersion": "1.0.0",
   "projectPresetPolicy": "Project output presets are explicit Renderer decisions and are not mandatory Google pixel-size claims.",
   "rendererOutputMime": ["image/png", "image/jpeg"],
   "profiles": [

@@ -3,6 +3,8 @@
   "registryVersion": "0.1.0",
   "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
   "status": "PROPOSED_NOT_ACTIVE",
+  "freezeStatus": "FROZEN",
+  "freezeVersion": "1.0.0",
   "activeRuntimeRegistration": false,
   "codes": [
     { "code": "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", "severity": "ERROR", "layer": "ARTIFACT", "blocking": true },

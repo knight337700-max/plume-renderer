@@ -3,6 +3,9 @@
   "registryVersion": "0.1.0",
   "phase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
   "status": "FREEZE_CANDIDATE",
+  "architectureStatus": "FROZEN",
+  "freezeStatus": "FROZEN",
+  "freezeVersion": "1.0.0",
   "implementationStatus": "ARCHITECTURE_ONLY",
   "runtimeEnabled": false,
   "capabilities": [

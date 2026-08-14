@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "1.0.0",
+  "registryVersion": "1.0.0",
+  "phase": "G0_1_GOOGLE_ARCHITECTURE_ACCEPTANCE_AND_FREEZE",
+  "googleArchitectureVersion": "1.0.0",
+  "status": "FROZEN",
+  "acceptedFromCommit": "731b956e69700154a8b8e1c51ec9a2b7973aa07f",
+  "sourcePhase": "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE",
+  "sourceArchitectureVersion": "0.1.0",
+  "counts": {
+    "capabilities": 7,
+    "demandGenUploadedPresets": 7,
+    "legacyDisplayCanvases": 20,
+    "unresolvedRules": 9,
+    "diagnostics": 11
+  },
+  "invariants": {
+    "runtimeProfilesAdded": false,
+    "rendererCodeAdded": false,
+    "validatorRuntimeAdded": false,
+    "desktopUiAdded": false,
+    "goldensAdded": false,
+    "uploadIntegrationAdded": false,
+    "runtimeNetworkAccess": "PROHIBITED",
+    "plumeDependencies": [],
+    "unresolvedRuleStatus": "UNRESOLVED_FAIL_CLOSED",
+    "g1Gate": "OPEN_ONLY_AFTER_EVERY_FREEZE_VERIFICATION_PASSES",
+    "frozenChannels": ["KAKAO", "NAVER", "META_STATIC"],
+    "frozenOutputChanges": 0
+  },
+  "authoritativeRecords": [
+    {
+      "path": "contracts/google/architecture.g0.json",
+      "version": "1.0.0",
+      "sourceRegistryVersion": "0.1.0",
+      "sha256": "53fd47786da8317af14a5f6ac3f0c5290e8589fd0d96fca322f8d6bf59b2ec02",
+      "semanticRole": "composition boundary, ownership, lifecycle, scope, and reuse matrix",
+      "frozenStatus": "FROZEN"
+    },
+    {
+      "path": "contracts/google/asset-geometry.g0.json",
+      "version": "1.0.0",
+      "sourceRegistryVersion": "0.1.0",
+      "sha256": "97514dc1fa465523ef4e0997a2783f03bc46d45c1bfd2d2c73f3686b850ae32e",
+      "semanticRole": "official geometry provenance, project presets, canvas subset, MIME, and byte policy",
+      "frozenStatus": "FROZEN"
+    },
+    {
+      "path": "contracts/google/capabilities.g0.json",
+      "version": "1.0.0",
+      "sourceRegistryVersion": "0.1.0",
+      "sha256": "1c32d7bb7673ee59f66a0fd5f57d458e76a9327f552f08e967fd06e93761806b",
+      "semanticRole": "seven separate Google delivery capability records and cardinality",
+      "frozenStatus": "FROZEN"
+    },
+    {
+      "path": "contracts/google/delivery-contracts.g0.json",
+      "version": "1.0.0",
+      "sourceRegistryVersion": "0.1.0",
+      "sha256": "5793c53ae4a76b5cb6bb2c45b8083616d12f05414116a65e12e84869ba8d1f0e",
+      "semanticRole": "RDA, PMax, Demand Gen, and uploaded-static delivery-set semantics",
+      "frozenStatus": "FROZEN"
+    },
+    {
+      "path": "contracts/google/diagnostics.g0.json",
+      "version": "1.0.0",
+      "sourceRegistryVersion": "0.1.0",
+      "sha256": "763dd9513be3f74436578279ecc5cff954edce2529756edf4f9f47c1916c9eee",
+      "semanticRole": "eleven proposed Google diagnostic codes kept outside active runtime",
+      "frozenStatus": "FROZEN"
+    },
+    {
+      "path": "contracts/google/provenance.g0.json",
+      "version": "1.0.0",
+      "sourceRegistryVersion": "0.1.0",
+      "sha256": "1cf3eb9636d51987b24218080068b644c11cb783ff13d1414adf057def7ee499",
+      "semanticRole": "official-source-only provenance and nine unresolved fail-closed rules",
+      "frozenStatus": "FROZEN"
+    }
+  ],
+  "registrySelfHash": "NOT_INCLUDED",
+  "g1GateStatus": "OPEN"
+}
