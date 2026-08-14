@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "GOOGLE_DG_UPLOAD_300X250",
+  "sourceFixturePath": "fixtures/google/g2/source/g2-GOOGLE_DG_UPLOAD_300X250.png",
+  "placementPolicy": "NONE",
+  "destinationRect": {
+    "x": 0,
+    "y": 0,
+    "width": 300,
+    "height": 250
+  },
+  "background": {
+    "r": 245,
+    "g": 247,
+    "b": 250,
+    "alpha": 255
+  },
+  "explicitElementPlan": true,
+  "outputFormat": "PNG"
+}

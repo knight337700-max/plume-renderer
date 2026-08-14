@@ -42,6 +42,7 @@ async function sha256(relativePath) {
 }
 
 const versions = await json("contracts/contract-versions.json");
+const g2Implemented = versions?.canonicalPhaseG2Google?.phase === "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES" && versions?.canonicalPhaseG2Google?.renderingValidationImplemented === true;
 const freeze = await json("contracts/google/architecture-freeze.g0.1.json");
 const architecture = await json("contracts/google/architecture.g0.json");
 const capabilities = await json("contracts/google/capabilities.g0.json");
@@ -61,7 +62,7 @@ let lineage = true;
 try { execFileSync("git", ["merge-base", "--is-ancestor", baseline, "HEAD"], { cwd: root, stdio: "ignore" }); }
 catch { lineage = false; }
 check("baseline_lineage", lineage, baseline);
-check("canonical_version", versions?.documentVersion?.previous === "1.24.0" && versions?.documentVersion?.current === "1.25.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.25\.0/u.test(canonical), JSON.stringify(versions?.documentVersion));
+check("canonical_version", (g2Implemented && versions?.documentVersion?.previous === "1.25.0" && versions?.documentVersion?.current === "1.26.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.26\.0/u.test(canonical)) || (!g2Implemented && versions?.documentVersion?.previous === "1.24.0" && versions?.documentVersion?.current === "1.25.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.25\.0/u.test(canonical)), JSON.stringify(versions?.documentVersion));
 check("architecture_preserved", versions?.canonicalPhaseG1Google?.googleArchitecturePrevious === "1.0.0" && versions?.canonicalPhaseG1Google?.googleArchitectureVersion === "1.0.0" && versions?.canonicalPhaseG1Google?.googleArchitectureBump === "none" && freeze?.status === "FROZEN" && freeze?.googleArchitectureVersion === "1.0.0", JSON.stringify(versions?.canonicalPhaseG1Google));
 check("g1_phase", versions?.canonicalPhaseG1Google?.phase === "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION" && versions?.canonicalPhaseG1Google?.contractsImplemented === true && versions?.canonicalPhaseG1Google?.profileResolutionImplemented === true && versions?.canonicalPhaseG1Google?.deliveryValidatorsImplemented === true, JSON.stringify(versions?.canonicalPhaseG1Google));
 check("frozen_architecture_counts", architecture?.architectureStatus === "FROZEN" && capabilities?.capabilities?.length === 7 && geometry?.profiles?.length === 7 && geometry?.uploadedDisplayPresets?.demandGenRecommendedSubset?.length === 7 && geometry?.uploadedDisplayPresets?.legacyDisplaySupportedCanvases?.length === 20 && freeze?.counts?.capabilities === 7 && freeze?.counts?.demandGenUploadedPresets === 7 && freeze?.counts?.legacyDisplayCanvases === 20 && freeze?.counts?.unresolvedRules === 9 && freeze?.counts?.diagnostics === 11, JSON.stringify(freeze?.counts));

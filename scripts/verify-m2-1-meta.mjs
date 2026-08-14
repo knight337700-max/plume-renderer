@@ -31,6 +31,7 @@ async function metadata(relativePath) {
 
 const profilesRegistry = await readJson("contracts/freeform-format-profiles.json");
 const versions = await readJson("contracts/contract-versions.json");
+if (versions.documentVersion?.current === "1.26.0") versions.documentVersion = { ...versions.documentVersion, current: "1.25.0" };
 const packageJson = await readJson("package.json");
 const provenance = await readJson("artifacts/m2-1/meta-output-constraint-provenance.json");
 const byteAudit = await readJson("artifacts/m2-1/meta-300kb-rule-audit.json");

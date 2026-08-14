@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5",
+  "sourceFixturePath": "fixtures/google/g2/source/g2-GOOGLE_MARKETING_PORTRAIT_4_5.png",
+  "placementPolicy": "CENTER_CONTAIN",
+  "destinationRect": {
+    "x": 76,
+    "y": 76,
+    "width": 808,
+    "height": 1048
+  },
+  "background": {
+    "r": 245,
+    "g": 247,
+    "b": 250,
+    "alpha": 255
+  },
+  "outputFormat": "PNG"
+}

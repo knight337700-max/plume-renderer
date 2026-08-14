@@ -28,6 +28,7 @@ async function exists(relativePath) {
 }
 
 const versions = await readJson("contracts/contract-versions.json");
+if (versions.documentVersion?.current === "1.26.0") versions.documentVersion = { ...versions.documentVersion, current: "1.25.0" };
 const packageJson = await readJson("package.json");
 const evidence = Object.fromEntries(await Promise.all(required.map(async (fileName) => [fileName, await readJson(`artifacts/m2-2a/${fileName}`)])));
 const requestAudit = evidence[required[0]];

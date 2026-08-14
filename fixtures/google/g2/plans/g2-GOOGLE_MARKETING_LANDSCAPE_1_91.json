@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "GOOGLE_MARKETING_LANDSCAPE_1_91",
+  "sourceFixturePath": "fixtures/google/g2/source/g2-GOOGLE_MARKETING_LANDSCAPE_1_91.png",
+  "placementPolicy": "MANUAL_CROP",
+  "sourceRect": {
+    "x": 64,
+    "y": 0,
+    "width": 512,
+    "height": 480
+  },
+  "destinationRect": {
+    "x": 50,
+    "y": 50,
+    "width": 1100,
+    "height": 528
+  },
+  "background": {
+    "r": 245,
+    "g": 247,
+    "b": 250,
+    "alpha": 255
+  },
+  "outputFormat": "PNG"
+}

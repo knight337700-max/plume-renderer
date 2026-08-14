@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "GOOGLE_RDA_VERTICAL_9_16",
+  "sourceFixturePath": "fixtures/google/g2/source/g2-GOOGLE_RDA_VERTICAL_9_16.png",
+  "placementPolicy": "CENTER_CONTAIN",
+  "destinationRect": {
+    "x": 72,
+    "y": 72,
+    "width": 756,
+    "height": 1456
+  },
+  "background": {
+    "r": 245,
+    "g": 247,
+    "b": 250,
+    "alpha": 255
+  },
+  "outputFormat": "PNG"
+}

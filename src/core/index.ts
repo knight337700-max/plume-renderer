@@ -123,6 +123,16 @@ export {
   validateGoogleRdaDeliverySet,
   validateGoogleStaticArtifact,
 } from "./google-static.js";
+export {
+  GoogleStaticRenderError,
+  renderGoogleStaticCandidate,
+} from "./google-static-render.js";
+export type {
+  GoogleStaticCandidateRenderPlan,
+  GoogleStaticCandidateRenderResult,
+  GoogleStaticPixelRect,
+  GoogleStaticRgbaColor,
+} from "./google-static-render.js";
 export type {
   CreativeAssetSetManifest,
   GoogleAssetArtifact,

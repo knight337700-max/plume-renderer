@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "GOOGLE_DG_UPLOAD_336X280",
+  "sourceFixturePath": "fixtures/google/g2/source/g2-GOOGLE_DG_UPLOAD_336X280.png",
+  "placementPolicy": "NONE",
+  "destinationRect": {
+    "x": 0,
+    "y": 0,
+    "width": 336,
+    "height": 280
+  },
+  "background": {
+    "r": 245,
+    "g": 247,
+    "b": 250,
+    "alpha": 255
+  },
+  "explicitElementPlan": true,
+  "outputFormat": "JPEG",
+  "jpegQuality": 88
+}

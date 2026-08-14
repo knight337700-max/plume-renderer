@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "GOOGLE_LOGO_SQUARE_1_1",
+  "sourceFixturePath": "fixtures/google/g2/source/g2-GOOGLE_LOGO_SQUARE_1_1.png",
+  "placementPolicy": "ALPHA_TRIM_CONTAIN",
+  "destinationRect": {
+    "x": 96,
+    "y": 96,
+    "width": 1008,
+    "height": 1008
+  },
+  "background": {
+    "r": 255,
+    "g": 255,
+    "b": 255,
+    "alpha": 255
+  },
+  "outputFormat": "PNG"
+}

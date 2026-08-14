@@ -264,6 +264,13 @@ function validatePmax(manifest: CreativeAssetSetManifest, contracts: GoogleStati
   if (typeof mode !== "boolean" || squareLogos.length < 1 || squareLogos.length > 5) {
     issues.push(makeIssue(PMAX_MODE_MISMATCH, "ERROR", "google.pmax_brand_association_mode_mismatch", "/brandGuidelinesEnabled", { actual: { brandGuidelinesEnabled: mode, squareLogoCount: squareLogos.length }, expected: "boolean discriminator with 1..5 square logos" }));
   }
+  const associationLevel = fieldValue(manifest, "PMAX_ASSOCIATION_LEVEL");
+  if (associationLevel !== undefined) {
+    const expectedAssociationLevel = mode === true ? "CampaignAsset" : "AssetGroupAsset";
+    if (associationLevel !== expectedAssociationLevel) {
+      issues.push(makeIssue(PMAX_MODE_MISMATCH, "ERROR", "google.pmax_brand_association_mode_mismatch", "/platformFields/PMAX_ASSOCIATION_LEVEL", { actual: associationLevel, expected: expectedAssociationLevel }));
+    }
+  }
   return issues;
 }
 
@@ -275,6 +282,13 @@ function validateDemandGenSingle(manifest: CreativeAssetSetManifest, contracts: 
   const issues = validateManifestShape(manifest, contracts, "DEMAND_GEN");
   const capability = resolveGoogleCapability("GOOGLE_DEMAND_GEN_SINGLE_IMAGE", contracts);
   for (const rule of capability?.roles ?? []) validateRoleCardinality(manifest, rule, contracts, issues);
+  const marketing = roleAssets(manifest, "HORIZONTAL_IMAGE", contracts).length
+    + roleAssets(manifest, "SQUARE_IMAGE", contracts).length
+    + roleAssets(manifest, "PORTRAIT_IMAGE", contracts).length
+    + roleAssets(manifest, "TALL_PORTRAIT_IMAGE", contracts).length;
+  const logos = roleAssets(manifest, "SQUARE_LOGO", contracts).length;
+  if (marketing > 20) issues.push(makeIssue(ROLE_CARDINALITY_EXCEEDED, "ERROR", "google.role_cardinality_exceeded", "/assets", { actual: marketing, expected: 20, role: "MARKETING_IMAGE" }));
+  if (logos > 5) issues.push(makeIssue(ROLE_CARDINALITY_EXCEEDED, "ERROR", "google.role_cardinality_exceeded", "/assets", { actual: logos, expected: 5, role: "LOGO" }));
   if (roleAssets(manifest, "TALL_PORTRAIT_IMAGE", contracts).length > 0) issues.push(makeIssue(DG_SAFE_ZONE_INFO, "INFO", "google.demandgen_safe_zone_source_required", "/assets", { role: "TALL_PORTRAIT_IMAGE" }));
   validateTextField(manifest, "HEADLINE", 1, 1, 90, issues);
   validateTextField(manifest, "DESCRIPTION", 1, 1, 90, issues);

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "GOOGLE_MARKETING_SQUARE_1_1",
+  "sourceFixturePath": "fixtures/google/g2/source/g2-GOOGLE_MARKETING_SQUARE_1_1.png",
+  "placementPolicy": "SEMANTIC_CROP_COVER",
+  "sourceRect": {
+    "x": 72,
+    "y": 0,
+    "width": 576,
+    "height": 520
+  },
+  "destinationRect": {
+    "x": 96,
+    "y": 96,
+    "width": 1008,
+    "height": 1008
+  },
+  "background": {
+    "r": 245,
+    "g": 247,
+    "b": 250,
+    "alpha": 255
+  },
+  "semanticPlan": true,
+  "outputFormat": "JPEG",
+  "jpegQuality": 88
+}

@@ -1,0 +1,57 @@
+{
+  "phase": "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES",
+  "status": "PASS",
+  "baselineCommit": "5456780dc2303a680c578d43e53f36333450d6c4",
+  "g1CompletionGate": {
+    "status": "PASS",
+    "diagnosticFrozenCount": 11,
+    "validatorEmissionActive": true,
+    "diagnosticMessagesRegistered": true,
+    "activeGlobalErrorRegistry": false,
+    "globalRegistryDeferredReason": "Desktop/global UI integration is deferred until G2.1; public Google validators return code, severity, and deterministic messageKey directly.",
+    "objectRightSha256": "33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b",
+    "frozenChannelsOutputChanges": 0,
+    "runtimeNetworkRequests": 0
+  },
+  "architecture": {
+    "status": "FROZEN",
+    "version": "1.0.0",
+    "changed": false
+  },
+  "candidates": {
+    "geometry": 7,
+    "demandGenUploadedDisplayStatic": 7,
+    "total": 14,
+    "registryStatus": "CANDIDATE",
+    "frozen": false,
+    "visualAcceptance": "PENDING",
+    "previewIndex": "artifacts/g2/google-static-candidate-index.html"
+  },
+  "renderingValidation": {
+    "repeatedRenderByteEquality": true,
+    "canvasValidation": true,
+    "mimeValidation": true,
+    "byteCapValidation": true,
+    "placementPolicyValidation": true,
+    "platformFieldRasterizationAbsent": true
+  },
+  "deliverySetValidation": {
+    "rda": "PASS",
+    "performanceMax": "PASS",
+    "demandGenSingleImage": "PASS",
+    "demandGenUploadedStatic": "PASS"
+  },
+  "expectedInfo": {
+    "rdaVertical": "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY",
+    "demandGenVertical": "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED"
+  },
+  "scope": {
+    "desktopUiAdded": false,
+    "googleUploadAdded": false,
+    "frozenGoldensAdded": false,
+    "plumeIntegrationAdded": false,
+    "runtimeNetworkAccess": "PROHIBITED"
+  },
+  "deliveryEvidence": "artifacts/g2/google-static-delivery-validation.json",
+  "registry": "contracts/google/golden-candidates.g2.json"
+}

@@ -1,0 +1,418 @@
+{
+  "phase": "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES",
+  "status": "PASS",
+  "scenarios": [
+    {
+      "name": "rda.valid_required_landscape_square",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "rda.valid_with_optional_vertical_info",
+      "expectedStatus": "PASS",
+      "expectedCodes": [
+        "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY"
+      ],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [
+        "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY"
+      ],
+      "passed": true
+    },
+    {
+      "name": "rda.invalid_missing_required_role",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "rda.invalid_combined_image_max",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED",
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "rda.invalid_combined_logo_max",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED",
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "pmax.valid_brand_guidelines_enabled",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "pmax.valid_brand_guidelines_disabled",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "pmax.invalid_campaign_asset_association",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "pmax.invalid_asset_group_association",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "pmax.invalid_required_text_count",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "pmax.invalid_required_image_role",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "pmax.valid_optional_portrait",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen.valid_landscape_square_logo",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen.valid_with_portrait",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen.valid_with_vertical_info",
+      "expectedStatus": "PASS",
+      "expectedCodes": [
+        "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED"
+      ],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [
+        "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED"
+      ],
+      "passed": true
+    },
+    {
+      "name": "demand_gen.invalid_missing_logo",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen.invalid_combined_image_max",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING",
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED",
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen.invalid_combined_logo_max",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED",
+        "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.valid_GOOGLE_DG_UPLOAD_300X250",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.valid_GOOGLE_DG_UPLOAD_336X280",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.valid_GOOGLE_DG_UPLOAD_728X90",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.valid_GOOGLE_DG_UPLOAD_970X90",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.valid_GOOGLE_DG_UPLOAD_160X600",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.valid_GOOGLE_DG_UPLOAD_300X600",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.valid_GOOGLE_DG_UPLOAD_320X50",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.valid_collection_up_to_20",
+      "expectedStatus": "PASS",
+      "expectedCodes": [],
+      "status": "PASS",
+      "errors": [],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.invalid_unknown_canvas",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-ASSET-CANVAS-MISMATCH"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-ASSET-CANVAS-MISMATCH",
+        "KBR-GOOGLE-ASSET-CANVAS-MISMATCH"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.invalid_over_150000_bytes",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-ASSET-BYTES-EXCEEDED"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-ASSET-BYTES-EXCEEDED",
+        "KBR-GOOGLE-ASSET-BYTES-EXCEEDED"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.invalid_gif_mime",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED",
+        "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    },
+    {
+      "name": "demand_gen_uploaded.invalid_animated_asset",
+      "expectedStatus": "ERROR",
+      "expectedCodes": [
+        "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED"
+      ],
+      "status": "ERROR",
+      "errors": [
+        "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED",
+        "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED"
+      ],
+      "warnings": [],
+      "info": [],
+      "passed": true
+    }
+  ],
+  "negativePlacementCases": [
+    {
+      "name": "logo.semantic_crop_forbidden",
+      "expectedCode": "KBR-G2-LOGO-CROP-FORBIDDEN",
+      "actualCode": "KBR-G2-LOGO-CROP-FORBIDDEN",
+      "passed": true,
+      "publishAllowed": false
+    },
+    {
+      "name": "logo.manual_crop_forbidden",
+      "expectedCode": "KBR-G2-LOGO-CROP-FORBIDDEN",
+      "actualCode": "KBR-G2-LOGO-CROP-FORBIDDEN",
+      "passed": true,
+      "publishAllowed": false
+    },
+    {
+      "name": "marketing.alpha_trim_forbidden",
+      "expectedCode": "KBR-G2-MARKETING-ALPHA-TRIM-FORBIDDEN",
+      "actualCode": "KBR-G2-MARKETING-ALPHA-TRIM-FORBIDDEN",
+      "passed": true,
+      "publishAllowed": false
+    },
+    {
+      "name": "uploaded.automatic_policy_forbidden",
+      "expectedCode": "KBR-G2-UPLOADED-PLAN-REQUIRED",
+      "actualCode": "KBR-G2-UPLOADED-PLAN-REQUIRED",
+      "passed": true,
+      "publishAllowed": false
+    },
+    {
+      "name": "marketing.crop_plan_required",
+      "expectedCode": "KBR-G2-CROP-RECT-REQUIRED",
+      "actualCode": "KBR-G2-CROP-RECT-REQUIRED",
+      "passed": true,
+      "publishAllowed": false
+    }
+  ],
+  "platformFieldRasterizationAbsent": true,
+  "errorArtifactPublishAllowed": false
+}

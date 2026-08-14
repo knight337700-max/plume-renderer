@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "profileId": "GOOGLE_DG_UPLOAD_970X90",
+  "sourceFixturePath": "fixtures/google/g2/source/g2-GOOGLE_DG_UPLOAD_970X90.png",
+  "placementPolicy": "NONE",
+  "destinationRect": {
+    "x": 0,
+    "y": 0,
+    "width": 970,
+    "height": 90
+  },
+  "background": {
+    "r": 245,
+    "g": 247,
+    "b": 250,
+    "alpha": 255
+  },
+  "explicitElementPlan": true,
+  "outputFormat": "JPEG",
+  "jpegQuality": 88
+}

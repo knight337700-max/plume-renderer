@@ -224,6 +224,11 @@ const g1GoogleDiagnostics = JSON.parse(await readFile(path.join(root, "contracts
 const g1GoogleVersion = canonicalDocument.canonicalPhaseG1Google;
 const g1GoogleEvidence = JSON.parse(await readFile(path.join(root, "artifacts/g1/google-static-contracts-profile-verification.json"), "utf8"));
 const g1GoogleVerificationStatus = g1GoogleEvidence.status === "PASS" && g1GoogleProfiles.status === "IMPLEMENTED" && g1GoogleProfiles.profileCount === 14 && g1GoogleMapping.capabilityCount === 7 && g1GoogleMapping.compositionBoundary.legacyRuntimeProfiles === 0 ? "PASS" : "FAIL";
+const g2GoogleRegistry = JSON.parse(await readFile(path.join(root, "contracts/google/golden-candidates.g2.json"), "utf8"));
+const g2GoogleEvidence = JSON.parse(await readFile(path.join(root, "artifacts/g2/google-static-rendering-validation-verification.json"), "utf8"));
+const g2GoogleDeliveryEvidence = JSON.parse(await readFile(path.join(root, "artifacts/g2/google-static-delivery-validation.json"), "utf8"));
+const g2GoogleVersion = canonicalDocument.canonicalPhaseG2Google;
+const g2GoogleVerificationStatus = g2GoogleEvidence.status === "PASS" && g2GoogleDeliveryEvidence.status === "PASS" && g2GoogleRegistry.status === "CANDIDATE" && g2GoogleRegistry.frozen === false && g2GoogleRegistry.candidates?.length === 14 ? "PASS" : "FAIL";
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -238,7 +243,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — G1 Google Ads static contracts and profiles handoff
+const readme = `# Renderer Module — G2 Google Ads static rendering validation handoff
 
 ## Purpose
 
@@ -281,7 +286,8 @@ build, test, and later phase development. The source repository remains unchange
 - Meta unsupported scope: carousel, catalog, dynamic, and video remain out of M1 static runtime scope.
 - Google G0 (historical): architecture-only capability boundary; official-source provenance: ${g0GoogleProvenance.status}, architecture: ${g0GoogleArchitecture.status}, verification: ${g0GoogleVerificationStatus}. Runtime profiles: ${g0GoogleArchitecture.implementation.runtimeProfilesAdded}, renderer code: ${g0GoogleArchitecture.implementation.rendererCodeAdded}, Validator runtime: ${g0GoogleArchitecture.implementation.validatorRuntimeAdded}, Goldens: ${g0GoogleArchitecture.implementation.goldensAdded}, Desktop UI: ${g0GoogleArchitecture.implementation.desktopUiAdded}, upload integration: ${g0GoogleArchitecture.implementation.uploadIntegrationAdded}.
 - Google G0.1 (historical freeze): architecture acceptance and freeze: ${g0_1GoogleVerificationStatus}, architecture version ${g0_1GoogleVersion.googleArchitectureVersion}, registry status ${g0_1GoogleFreezeRegistry.status}. Counts are fixed at capabilities ${g0_1GoogleFreezeRegistry.counts.capabilities}, Demand Gen uploaded presets ${g0_1GoogleFreezeRegistry.counts.demandGenUploadedPresets}, legacy Display canvases ${g0_1GoogleFreezeRegistry.counts.legacyDisplayCanvases}, unresolved rules ${g0_1GoogleFreezeRegistry.counts.unresolvedRules}, and proposed diagnostics ${g0_1GoogleFreezeRegistry.counts.proposedDiagnostics}.
-- Google G1 (current): static contracts/profile implementation: ${g1GoogleVerificationStatus}, architecture version ${g1GoogleVersion.googleArchitectureVersion}, profile registry ${g1GoogleProfiles.profileCount} (${g1GoogleProfiles.geometryProfileCount} geometry + ${g1GoogleProfiles.uploadedDisplayStaticProfileCount} uploaded static), capability mapping ${g1GoogleMapping.capabilityCount}, legacy runtime profiles ${g1GoogleMapping.compositionBoundary.legacyRuntimeProfiles}, diagnostics ${g1GoogleDiagnostics.count}, and target constraints ${g1GoogleConstraints.byteUnit}. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; Demand Gen uploaded static is RENDERER_COMPOSED; every artifact is SINGLE and delivery sets are COLLECTION manifests. No Google upload/API, Desktop UI, Golden, carousel, Search image, or runtime network integration was added.
+- Google G1 (historical): static contracts/profile implementation: ${g1GoogleVerificationStatus}, architecture version ${g1GoogleVersion.googleArchitectureVersion}, profile registry ${g1GoogleProfiles.profileCount} (${g1GoogleProfiles.geometryProfileCount} geometry + ${g1GoogleProfiles.uploadedDisplayStaticProfileCount} uploaded static), capability mapping ${g1GoogleMapping.capabilityCount}, legacy runtime profiles ${g1GoogleMapping.compositionBoundary.legacyRuntimeProfiles}, diagnostics ${g1GoogleDiagnostics.count}, and target constraints ${g1GoogleConstraints.byteUnit}. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; Demand Gen uploaded static is RENDERER_COMPOSED; every artifact is SINGLE and delivery sets are COLLECTION manifests. No Google upload/API, Desktop UI, Golden, carousel, Search image, or runtime network integration was added.
+- Google G2 (current): deterministic static rendering validation: ${g2GoogleVerificationStatus}, architecture version ${g2GoogleVersion.googleArchitectureVersion}, ${g2GoogleRegistry.geometryCandidateCount} geometry candidates + ${g2GoogleRegistry.demandGenUploadedStaticCandidateCount} uploaded-display-static candidates (${g2GoogleRegistry.candidates?.length} total), registry status ${g2GoogleRegistry.status}, visual acceptance ${g2GoogleRegistry.visualAcceptance}, final frozen ${g2GoogleRegistry.frozen}. Repeat-render byte equality, exact canvas/MIME, decimal-byte caps, placement policies, thirty delivery scenarios, and five negative placement cases are verified. No Google upload/API, Desktop UI, frozen Golden, platform-field rasterization, or runtime network integration was added.
 
 ## Directories
 
@@ -319,7 +325,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is G1 Google Ads static contracts and profile implementation and the canonical document is v1.25.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 is the next phase for rendering validation and Golden candidates. M1 implements the three project output presets,
+The latest phase is G2 Google Ads static rendering validation and Golden Candidates and the canonical document is v1.26.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen non-frozen candidate artifacts; G2.1 is the next phase for user visual acceptance and any Golden freeze. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
@@ -373,7 +379,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION",
+  handoffPhase: "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -388,10 +394,10 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: canonicalDocument.canonicalPhaseG1Google.rendererCoreVersion,
-    validator: canonicalDocument.canonicalPhaseG1Google.validatorCurrent,
-    desktop: canonicalDocument.canonicalPhaseG1Google.desktopCurrent,
-    package: canonicalDocument.canonicalPhaseG1Google.packageCurrent,
+    rendererCore: canonicalDocument.canonicalPhaseG2Google.rendererCoreVersion,
+    validator: canonicalDocument.canonicalPhaseG2Google.validatorCurrent,
+    desktop: canonicalDocument.canonicalPhaseG2Google.desktopCurrent,
+    package: canonicalDocument.canonicalPhaseG2Google.packageCurrent,
     googleStatic: {
       architectureVersion: g0_1GoogleVersion.googleArchitectureVersion,
       architectureVersionPrevious: g0_1GoogleVersion.googleArchitecturePrevious,
@@ -426,6 +432,18 @@ const manifest = {
       g1RuntimeProfileCount: g1GoogleProfiles.profileCount,
       g1LegacyDisplayRuntimeProfiles: g1GoogleProfiles.legacyDisplayRuntimeProfiles.length,
       g1Evidence: "artifacts/g1/google-static-contracts-profile-verification.json",
+      g2Renderer: "src/core/google-static-render.ts",
+      g2CandidateRegistry: g2GoogleVersion.googleGoldenCandidateRegistry,
+      g2Evidence: g2GoogleVersion.g1CompletionAudit,
+      g2DeliveryEvidence: g2GoogleVersion.deliveryEvidence,
+      g2PreviewIndex: g2GoogleVersion.previewIndex,
+      g2Status: g2GoogleVerificationStatus,
+      g2GeometryCandidateCount: g2GoogleRegistry.geometryCandidateCount,
+      g2UploadedDisplayStaticCandidateCount: g2GoogleRegistry.demandGenUploadedStaticCandidateCount,
+      g2CandidateCount: g2GoogleRegistry.candidateCount,
+      g2CandidateRegistryStatus: g2GoogleRegistry.status,
+      g2VisualAcceptance: g2GoogleRegistry.visualAcceptance,
+      g2Frozen: g2GoogleRegistry.frozen,
     },
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
@@ -762,6 +780,16 @@ const manifest = {
     g1GoogleImplementationRecord: "docs/implementation/google-ads-static-contracts-profile-implementation-g1.md",
     g1GoogleAdr: "docs/adr/ADR-0060-google-static-contracts-and-profiles-g1.md",
     g1GoogleVerifier: "scripts/verify-g1-google-static.mjs",
+    g2GoogleCandidateRegistry: "contracts/google/golden-candidates.g2.json",
+    g2GoogleEvidenceDirectory: "artifacts/g2",
+    g2GoogleVerification: "artifacts/g2/google-static-rendering-validation-verification.json",
+    g2GoogleDeliveryEvidence: "artifacts/g2/google-static-delivery-validation.json",
+    g2GooglePreviewIndex: "artifacts/g2/google-static-candidate-index.html",
+    g2GoogleImplementationRecord: "docs/implementation/google-ads-static-rendering-validation-g2.md",
+    g2GoogleAdr: "docs/adr/ADR-0061-google-static-rendering-validation-candidates-g2.md",
+    g2GoogleVerifier: "scripts/verify-g2-google-static.mjs",
+    g2GoogleGenerator: "scripts/generate-g2-google-static-candidates.mjs",
+    g2GoogleRenderer: "src/core/google-static-render.ts",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -937,6 +965,30 @@ const manifest = {
     adr: "docs/adr/ADR-0060-google-static-contracts-and-profiles-g1.md",
     verifier: "scripts/verify-g1-google-static.mjs",
     nextPhase: g1GoogleVersion.nextPhase,
+  },
+  g2GoogleStaticRendering: {
+    phase: g2GoogleVersion.phase,
+    status: g2GoogleVerificationStatus,
+    architectureVersion: g2GoogleVersion.googleArchitectureVersion,
+    rendererCoreVersion: g2GoogleVersion.rendererCoreVersion,
+    validatorVersion: g2GoogleVersion.validatorCurrent,
+    candidateRegistryVersion: g2GoogleVersion.googleGoldenCandidateRegistryVersion,
+    candidateRegistry: g2GoogleVersion.googleGoldenCandidateRegistry,
+    candidateStatus: g2GoogleRegistry.status,
+    finalGoldenFrozen: g2GoogleRegistry.frozen,
+    visualAcceptance: g2GoogleRegistry.visualAcceptance,
+    geometryCandidateCount: g2GoogleRegistry.geometryCandidateCount,
+    uploadedDisplayStaticCandidateCount: g2GoogleRegistry.demandGenUploadedStaticCandidateCount,
+    candidateCount: g2GoogleRegistry.candidateCount,
+    renderVerification: g2GoogleVersion.g1CompletionAudit,
+    deliveryEvidence: g2GoogleVersion.deliveryEvidence,
+    previewIndex: g2GoogleVersion.previewIndex,
+    desktopUiAdded: g2GoogleVersion.desktopUiAdded,
+    goldensAdded: g2GoogleVersion.goldensAdded,
+    uploadIntegrationAdded: g2GoogleVersion.uploadIntegrationAdded,
+    runtimeNetworkAccess: g2GoogleVersion.runtimeNetworkAccess,
+    plumeDependencies: g2GoogleVersion.plumeDependencies,
+    nextPhase: g2GoogleVersion.nextPhase,
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

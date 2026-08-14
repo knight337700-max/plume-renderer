@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.25.0
-- **Status:** Frozen Implementation Contract — Phase G1 Google Ads static contracts and profile implementation
+- **Document version:** 1.26.0
+- **Status:** Frozen Implementation Contract — Phase G2 Google Ads static rendering validation and Golden Candidates
 - **Checked date:** 2026-08-14 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **55. Phase G1 Google Ads static contracts and profile implementation**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry와 G1 계약 레코드를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **56. Phase G2 Google Ads static rendering validation and Golden Candidates**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry와 G1/G2 계약 레코드를 따른다. **[PROJECT]**
 
 ---
 
@@ -5401,3 +5401,74 @@ Machine-readable records are `contracts/google/static-asset-profiles.g1.json`,
 `docs/implementation/google-ads-static-contracts-profile-implementation-g1.md`; the ADR is
 `docs/adr/ADR-0060-google-static-contracts-and-profiles-g1.md`; and the deterministic verifier is
 `scripts/verify-g1-google-static.mjs`. **[PROJECT]**
+
+## 56. Phase G2 — Google Ads static rendering validation and Golden Candidates [PROJECT]
+
+G2 begins only after the G1 completion audit passes. The audit confirms that all eleven frozen
+Google diagnostic IDs are emitted by public RDA, Performance Max, Demand Gen, or generic
+manifest validation paths with registry-matching severity and deterministic `messageKey` values.
+The Google diagnostics remain outside the global Error Registry; this is an explicit boundary until
+Desktop/global UI wiring is introduced. INFO diagnostics do not block validation, while ERROR
+diagnostics produce `status: ERROR` and therefore cannot publish or download an artifact. **[PROJECT]**
+
+### 56.1 Deterministic candidate renderer [PROJECT]
+
+`src/core/google-static-render.ts` is a local G2 laboratory renderer. It accepts a repository-local
+encoded fixture and an explicit pixel placement plan, resolves the frozen Google profile, creates
+the exact project canvas, applies the profile-approved placement policy, and encodes only PNG or
+JPEG. The renderer does not resolve fonts, rasterize Google-owned headline/description/CTA/URL
+fields, compose Google UI chrome, access a network, or invoke upload services. Render fingerprints
+contain only canonical profile, fixture digest, plan, placement, background, and pinned encoder
+values; absolute paths and runtime environment values are excluded. **[PROJECT]**
+
+Marketing candidates cover `MANUAL_CROP`, explicit-plan `SEMANTIC_CROP_COVER`, and
+`CENTER_CONTAIN`. Logo candidates cover `ALPHA_TRIM_CONTAIN` and `CENTER_CONTAIN`; crop policies
+are rejected for logos. Uploaded display-static candidates use `NONE` with an explicit element
+plan and reject implicit placement. These policy failures are G2 project validation errors and do
+not alter the eleven frozen architecture diagnostics. **[PROJECT]**
+
+### 56.2 Candidate artifacts and validation [PROJECT]
+
+Exactly fourteen candidate artifacts are generated in deterministic frozen-profile order: seven
+geometry candidates and seven Demand Gen uploaded-display static candidates. Each candidate records
+its profile, capability contexts, role, exact canvas, MIME, encoded bytes, target byte caps,
+artifact SHA-256, render fingerprint, source fixture and plan digests, placement result, and
+validator summary. PNG/JPEG encoders are pinned; repeated rendering with the same fixture and plan
+is byte-equal. The candidate artifacts are not production publish outputs. **[PROJECT]**
+
+The candidate registry is `contracts/google/golden-candidates.g2.json`, version `0.1.0`, with
+`status: CANDIDATE`, `frozen: false`, and `visualAcceptance: PENDING`. It is deliberately separate
+from every frozen Golden registry. The file-based preview index is
+`artifacts/g2/google-static-candidate-index.html`; it displays all fourteen candidates without
+Google platform chrome and is not itself a publish artifact or Golden. **[PROJECT] [MANUAL]**
+
+RDA, Performance Max, Demand Gen single-image, and Demand Gen uploaded-display delivery scenarios
+are validated, including required-role failures, cardinality failures, PMax association modes,
+vertical INFO diagnostics, uploaded-display seven-preset coverage, collection size twenty,
+unknown canvas, MIME, animation, and byte-cap failures. Shared geometry candidates are validated
+against each applicable target separately. Demand Gen logo and uploaded-display candidates are
+verified below the decimal `150000` byte cap. **[PROJECT]**
+
+Platform-composed fields remain metadata: changing platform field values does not enter the image
+renderer or alter candidate pixels. A candidate with any ERROR has publish/download permission
+`false`; INFO-only results remain non-blocking. Legacy twenty-canvas Display runtime, Search image,
+carousel, Google Ads upload/API, Desktop Google UI, platform screenshot chrome, and frozen Google
+Goldens remain out of scope. **[PROJECT]**
+
+### 56.3 Version, evidence, and next gate [PROJECT]
+
+The Canonical document advances from `1.25.0` to `1.26.0` (minor) to record G2. Google
+architecture remains frozen at `1.0.0`; template `1.9.0`, input `1.2.0`, output `2.0.0`, and
+Desktop/package `0.10.1` remain unchanged. The Google Golden Candidate registry is introduced at
+`0.1.0`. Renderer Core advances from `0.10.0` to `0.11.0` because the deterministic candidate
+render path is executable. Validator advances from `1.10.0` to `1.11.0` because target association
+and aggregate delivery validations are executable. **[PROJECT]**
+
+G2 evidence is `artifacts/g2/google-static-rendering-validation-verification.json` and
+`artifacts/g2/google-static-delivery-validation.json`. The implementation record is
+`docs/implementation/google-ads-static-rendering-validation-g2.md`; the ADR is
+`docs/adr/ADR-0061-google-static-rendering-validation-candidates-g2.md`; and the deterministic
+verifier is `scripts/verify-g2-google-static.mjs`. User visual acceptance and Golden freeze are
+not asserted by G2. **[PROJECT] [MANUAL]**
+
+`nextPhase`: `G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE`. **[PROJECT]**
