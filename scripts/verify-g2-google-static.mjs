@@ -223,11 +223,14 @@ check("preview_index", previewHtml.includes("GOOGLE_MARKETING_LANDSCAPE_1_91") &
 check("legacy_display_runtime_zero", profiles?.legacyDisplayRuntimeProfiles?.length === 0 && !(registry?.candidates ?? []).some((candidate) => candidate.profileId.includes("LEGACY")), "legacy Display runtime is not active");
 check("google_upload_absent", !(await exists("src/core/google-upload")) && !(await exists("apps/desktop/electron-main/google-upload")) && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("googleapis"), "Google Ads upload integration is absent");
 check("desktop_google_ui_absent", !(await exists("apps/desktop/renderer-ui/src/google")), "Desktop Google UI is absent");
-check("google_frozen_golden_absent", !(await exists("contracts/google/goldens.g1.json")) && !(await exists("fixtures/golden/google")), "Google candidates are not registered as frozen goldens");
+check("google_frozen_golden_scope", !(await exists("contracts/google/goldens.g1.json")) && (await exists("contracts/google/goldens.g2.1.json")) && (await exists("fixtures/golden/google")), "G2 candidates remain historical while G2.1 owns the additive frozen Google Golden scope");
 const renderSource = await readFile(path.join(root, "src/core/google-static-render.ts"), "utf8").catch(() => "");
 check("plume_absent", !JSON.stringify(packageJson ?? {}).toLowerCase().includes("plume") && !renderSource.toLowerCase().includes("plume"), "no Plume dependency");
 let frozenDiff = "";
-try { frozenDiff = execFileSync("git", ["diff", "--name-only", baselineCommit, "HEAD", "--", "fixtures/golden", "contracts/goldens", "artifacts/n7-8", "artifacts/n8", "artifacts/m2-3"], { cwd: root, encoding: "utf8" }).trim(); }
+try {
+  const rawFrozenDiff = execFileSync("git", ["diff", "--name-only", baselineCommit, "HEAD", "--", "fixtures/golden", "contracts/goldens", "artifacts/n7-8", "artifacts/n8", "artifacts/m2-3"], { cwd: root, encoding: "utf8" }).trim();
+  frozenDiff = rawFrozenDiff.split(/\r?\n/).filter((entry) => entry && !entry.replaceAll("\\", "/").startsWith("fixtures/golden/google/")).join("\n");
+}
 catch { frozenDiff = "ERROR"; }
 check("frozen_channels_output_changes", frozenDiff === "", frozenDiff || "0 frozen output files changed");
 check("object_right_sha256", await sha256("reference/kakao-tool/OBJECT_RIGHT.png") === expectedObjectRightSha256, expectedObjectRightSha256);

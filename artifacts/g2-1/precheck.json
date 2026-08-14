@@ -1,0 +1,37 @@
+{
+  "phase": "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE",
+  "status": "PASS",
+  "capturedBeforeReviewPreparation": true,
+  "baseline": {
+    "head": "27b15aaefa2ecbe0ad37c588e395330cf1e3b28f",
+    "workingTreeClean": true
+  },
+  "verifiers": {
+    "contract": "PASS",
+    "g0": "PASS",
+    "g0_1": "PASS",
+    "g1": "PASS",
+    "g2": "PASS_137_OF_137"
+  },
+  "g1CompletionEvidence": {
+    "frozenDiagnostics": 11,
+    "validatorEmissionActive": true,
+    "diagnosticMessagesRegistered": true,
+    "activeGlobalErrorRegistry": false,
+    "globalRegistryDeferredReason": "DESKTOP_GLOBAL_UI_NOT_STARTED"
+  },
+  "candidateSet": {
+    "geometry": 7,
+    "uploadedDisplayStatic": 7,
+    "total": 14,
+    "registryStatus": "CANDIDATE",
+    "frozen": false,
+    "visualAcceptance": "PENDING"
+  },
+  "invariants": {
+    "frozenChannelsOutputChanges": 0,
+    "runtimeNetworkRequests": 0,
+    "plumeDependencies": [],
+    "objectRightSha256": "33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b"
+  }
+}

@@ -229,6 +229,11 @@ const g2GoogleEvidence = JSON.parse(await readFile(path.join(root, "artifacts/g2
 const g2GoogleDeliveryEvidence = JSON.parse(await readFile(path.join(root, "artifacts/g2/google-static-delivery-validation.json"), "utf8"));
 const g2GoogleVersion = canonicalDocument.canonicalPhaseG2Google;
 const g2GoogleVerificationStatus = g2GoogleEvidence.status === "PASS" && g2GoogleDeliveryEvidence.status === "PASS" && g2GoogleRegistry.status === "CANDIDATE" && g2GoogleRegistry.frozen === false && g2GoogleRegistry.candidates?.length === 14 ? "PASS" : "FAIL";
+const g2_1GoogleRegistry = JSON.parse(await readFile(path.join(root, "contracts/google/goldens.g2.1.json"), "utf8"));
+const g2_1GoogleAcceptance = JSON.parse(await readFile(path.join(root, "artifacts/g2-1/google-static-visual-acceptance.json"), "utf8"));
+const g2_1GoogleReviewManifest = JSON.parse(await readFile(path.join(root, "artifacts/g2-1/google-static-review-manifest.json"), "utf8"));
+const g2_1GoogleVersion = canonicalDocument.canonicalPhaseG2_1Google;
+const g2_1GoogleVerificationStatus = g2_1GoogleRegistry.status === "FROZEN" && g2_1GoogleRegistry.visualAcceptance === "ACCEPTED" && g2_1GoogleRegistry.frozen === true && g2_1GoogleRegistry.entries?.length === 14 && g2_1GoogleAcceptance.status === "ACCEPTED" && g2_1GoogleAcceptance.userAcceptanceStatement === "ACCEPT_ALL_GOOGLE_G2_CANDIDATES" ? "PASS" : "FAIL";
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const packageArtifactPath = path.join(root, "release", `Kakao-Bizboard-Local-Renderer-${packageJson.version}-x64.exe`);
@@ -287,7 +292,8 @@ build, test, and later phase development. The source repository remains unchange
 - Google G0 (historical): architecture-only capability boundary; official-source provenance: ${g0GoogleProvenance.status}, architecture: ${g0GoogleArchitecture.status}, verification: ${g0GoogleVerificationStatus}. Runtime profiles: ${g0GoogleArchitecture.implementation.runtimeProfilesAdded}, renderer code: ${g0GoogleArchitecture.implementation.rendererCodeAdded}, Validator runtime: ${g0GoogleArchitecture.implementation.validatorRuntimeAdded}, Goldens: ${g0GoogleArchitecture.implementation.goldensAdded}, Desktop UI: ${g0GoogleArchitecture.implementation.desktopUiAdded}, upload integration: ${g0GoogleArchitecture.implementation.uploadIntegrationAdded}.
 - Google G0.1 (historical freeze): architecture acceptance and freeze: ${g0_1GoogleVerificationStatus}, architecture version ${g0_1GoogleVersion.googleArchitectureVersion}, registry status ${g0_1GoogleFreezeRegistry.status}. Counts are fixed at capabilities ${g0_1GoogleFreezeRegistry.counts.capabilities}, Demand Gen uploaded presets ${g0_1GoogleFreezeRegistry.counts.demandGenUploadedPresets}, legacy Display canvases ${g0_1GoogleFreezeRegistry.counts.legacyDisplayCanvases}, unresolved rules ${g0_1GoogleFreezeRegistry.counts.unresolvedRules}, and proposed diagnostics ${g0_1GoogleFreezeRegistry.counts.proposedDiagnostics}.
 - Google G1 (historical): static contracts/profile implementation: ${g1GoogleVerificationStatus}, architecture version ${g1GoogleVersion.googleArchitectureVersion}, profile registry ${g1GoogleProfiles.profileCount} (${g1GoogleProfiles.geometryProfileCount} geometry + ${g1GoogleProfiles.uploadedDisplayStaticProfileCount} uploaded static), capability mapping ${g1GoogleMapping.capabilityCount}, legacy runtime profiles ${g1GoogleMapping.compositionBoundary.legacyRuntimeProfiles}, diagnostics ${g1GoogleDiagnostics.count}, and target constraints ${g1GoogleConstraints.byteUnit}. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; Demand Gen uploaded static is RENDERER_COMPOSED; every artifact is SINGLE and delivery sets are COLLECTION manifests. No Google upload/API, Desktop UI, Golden, carousel, Search image, or runtime network integration was added.
-- Google G2 (current): deterministic static rendering validation: ${g2GoogleVerificationStatus}, architecture version ${g2GoogleVersion.googleArchitectureVersion}, ${g2GoogleRegistry.geometryCandidateCount} geometry candidates + ${g2GoogleRegistry.demandGenUploadedStaticCandidateCount} uploaded-display-static candidates (${g2GoogleRegistry.candidates?.length} total), registry status ${g2GoogleRegistry.status}, visual acceptance ${g2GoogleRegistry.visualAcceptance}, final frozen ${g2GoogleRegistry.frozen}. Repeat-render byte equality, exact canvas/MIME, decimal-byte caps, placement policies, thirty delivery scenarios, and five negative placement cases are verified. No Google upload/API, Desktop UI, frozen Golden, platform-field rasterization, or runtime network integration was added.
+- Google G2 (historical): deterministic static rendering validation: ${g2GoogleVerificationStatus}, architecture version ${g2GoogleVersion.googleArchitectureVersion}, ${g2GoogleRegistry.geometryCandidateCount} geometry candidates + ${g2GoogleRegistry.demandGenUploadedStaticCandidateCount} uploaded-display-static candidates (${g2GoogleRegistry.candidates?.length} total), registry status ${g2GoogleRegistry.status}. Repeat-render byte equality, exact canvas/MIME, decimal-byte caps, placement policies, thirty delivery scenarios, and five negative placement cases are verified.
+- Google G2.1 (current): user visual acceptance and Golden freeze: ${g2_1GoogleVerificationStatus}, exact statement ${g2_1GoogleAcceptance.userAcceptanceStatement}, ${g2_1GoogleRegistry.geometryGoldenCount} geometry + ${g2_1GoogleRegistry.demandGenUploadedDisplayStaticGoldenCount} uploaded-display-static Goldens (${g2_1GoogleRegistry.artifactCount} total), registry ${g2_1GoogleRegistry.status}, byte-identical promotion ${g2_1GoogleRegistry.entries?.every((entry) => entry.candidateToFrozenByteEquality) === true}. No Google upload/API, Desktop UI, platform-field rasterization, or runtime network integration was added. G3 is the next phase.
 
 ## Directories
 
@@ -325,7 +331,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-The latest phase is G2 Google Ads static rendering validation and Golden Candidates and the canonical document is v1.26.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen non-frozen candidate artifacts; G2.1 is the next phase for user visual acceptance and any Golden freeze. M1 implements the three project output presets,
+ The latest phase is G2.1 Google Static user visual acceptance and Golden freeze and the canonical document is v1.27.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen historical candidate artifacts; G2.1 freezes the fourteen explicitly accepted byte-identical Google Goldens. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
@@ -379,7 +385,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES",
+  handoffPhase: g2_1GoogleVerificationStatus === "PASS" ? "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" : "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES",
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -444,6 +450,17 @@ const manifest = {
       g2CandidateRegistryStatus: g2GoogleRegistry.status,
       g2VisualAcceptance: g2GoogleRegistry.visualAcceptance,
       g2Frozen: g2GoogleRegistry.frozen,
+      g2_1GoldenRegistry: g2_1GoogleVersion.googleStaticGoldenRegistry,
+      g2_1GoldenRegistryVersion: g2_1GoogleVersion.googleStaticGoldenRegistryVersion,
+      g2_1GoldenRegistryStatus: g2_1GoogleRegistry.status,
+      g2_1VisualAcceptance: g2_1GoogleAcceptance.status,
+      g2_1AcceptanceStatement: g2_1GoogleAcceptance.userAcceptanceStatement,
+      g2_1GoldenCount: g2_1GoogleRegistry.artifactCount,
+      g2_1GeometryGoldenCount: g2_1GoogleRegistry.geometryGoldenCount,
+      g2_1UploadedDisplayStaticGoldenCount: g2_1GoogleRegistry.demandGenUploadedDisplayStaticGoldenCount,
+      g2_1AcceptanceEvidence: g2_1GoogleVersion.acceptanceEvidence,
+      g2_1ReviewManifest: "artifacts/g2-1/google-static-review-manifest.json",
+      g2_1Verification: g2_1GoogleVersion.verifier,
     },
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
@@ -790,6 +807,13 @@ const manifest = {
     g2GoogleVerifier: "scripts/verify-g2-google-static.mjs",
     g2GoogleGenerator: "scripts/generate-g2-google-static-candidates.mjs",
     g2GoogleRenderer: "src/core/google-static-render.ts",
+    g2_1GoogleAcceptanceEvidence: "artifacts/g2-1/google-static-visual-acceptance.json",
+    g2_1GoogleFrozenRegistry: "contracts/google/goldens.g2.1.json",
+    g2_1GoogleReviewManifest: "artifacts/g2-1/google-static-review-manifest.json",
+    g2_1GoogleImplementationRecord: "docs/implementation/google-static-user-visual-acceptance-golden-freeze-g2-1.md",
+    g2_1GoogleAdr: "docs/adr/ADR-0062-google-static-golden-freeze-g2-1.md",
+    g2_1GoogleVerifier: "scripts/verify-g2-1-google-static.mjs",
+    g2_1GooglePromotionScript: "scripts/promote-g2-1-google-goldens.mjs",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -989,6 +1013,32 @@ const manifest = {
     runtimeNetworkAccess: g2GoogleVersion.runtimeNetworkAccess,
     plumeDependencies: g2GoogleVersion.plumeDependencies,
     nextPhase: g2GoogleVersion.nextPhase,
+  },
+  g2_1GoogleGoldenFreeze: {
+    phase: g2_1GoogleVersion.phase,
+    status: g2_1GoogleVerificationStatus,
+    goldenRegistryVersion: g2_1GoogleRegistry.registryVersion,
+    goldenRegistry: g2_1GoogleVersion.googleStaticGoldenRegistry,
+    goldenRegistryStatus: g2_1GoogleRegistry.status,
+    visualAcceptance: g2_1GoogleAcceptance.status,
+    acceptanceStatement: g2_1GoogleAcceptance.userAcceptanceStatement,
+    acceptedSet: g2_1GoogleAcceptance.acceptedSet,
+    acceptanceEvidence: g2_1GoogleVersion.acceptanceEvidence,
+    acceptanceEvidenceSha256: g2_1GoogleVersion.acceptanceEvidenceSha256,
+    reviewManifest: "artifacts/g2-1/google-static-review-manifest.json",
+    reviewManifestSha256: g2_1GoogleReviewManifest.reviewIdentity?.reviewManifestSha256 ?? g2_1GoogleVersion.reviewManifestSha256,
+    candidateRegistry: g2_1GoogleVersion.googleGoldenCandidateRegistry,
+    candidateRegistryStatus: g2GoogleRegistry.status,
+    frozenArtifactRoot: "fixtures/golden/google",
+    artifactCount: g2_1GoogleRegistry.artifactCount,
+    geometryGoldenCount: g2_1GoogleRegistry.geometryGoldenCount,
+    uploadedDisplayStaticGoldenCount: g2_1GoogleRegistry.demandGenUploadedDisplayStaticGoldenCount,
+    candidateToFrozenByteEquality: g2_1GoogleRegistry.entries?.every((entry) => entry.candidateToFrozenByteEquality) === true,
+    runtimeNetworkAccess: "PROHIBITED",
+    plumeDependencies: [],
+    desktopUiAdded: false,
+    uploadIntegrationAdded: false,
+    nextPhase: g2_1GoogleVersion.nextPhase,
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

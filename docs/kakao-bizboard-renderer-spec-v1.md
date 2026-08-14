@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.26.0
-- **Status:** Frozen Implementation Contract — Phase G2 Google Ads static rendering validation and Golden Candidates
+- **Document version:** 1.27.0
+- **Status:** Frozen Implementation Contract — Phase G2.1 Google Static user visual acceptance and Golden freeze
 - **Checked date:** 2026-08-14 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **56. Phase G2 Google Ads static rendering validation and Golden Candidates**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry와 G1/G2 계약 레코드를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **57. Phase G2.1 Google Static user visual acceptance and Golden freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
 
 ---
 
@@ -5472,3 +5472,67 @@ verifier is `scripts/verify-g2-google-static.mjs`. User visual acceptance and Go
 not asserted by G2. **[PROJECT] [MANUAL]**
 
 `nextPhase`: `G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE`. **[PROJECT]**
+
+## 57. Phase G2.1 — Google Static user visual acceptance and Golden freeze [PROJECT] [MANUAL]
+
+G2.1 records the explicit user visual decision for the fourteen G2 candidates and promotes the
+accepted bytes to a separate frozen Golden scope. The accepted statement is exactly
+`ACCEPT_ALL_GOOGLE_G2_CANDIDATES`; the accepted set is `ALL_14`, consisting of seven geometry
+Goldens and seven Demand Gen uploaded-display static Goldens. This manual decision is evidence of
+project acceptance only; it is not an assertion of Google upload approval. **[PROJECT] [MANUAL]**
+
+### 57.1 Immutable review identity and promotion [PROJECT]
+
+The review identity is the immutable manifest
+`artifacts/g2-1/google-static-review-manifest.json` (SHA-256
+`111f28635def6faf5170e7842691b18c8bb1b36e7bcf581b0f57625a9251763e`), the candidate registry
+`contracts/google/golden-candidates.g2.json` (SHA-256
+`5adbdd834ae9d6a7824f8991993492112f4e1d678a3427f593e240932d905226`), and the preview index
+`artifacts/g2/google-static-candidate-index.html` (SHA-256
+`e0ae566bcaaa59b6c8764695758ecd0afdf1743381738699835332bc9dce77a0`). The review manifest uses
+repository-relative POSIX paths and remains historical with `AWAITING_USER_DECISION` status.
+Candidate files are not regenerated, recompressed, rescaled, or overwritten during promotion.
+**[PROJECT] [MANUAL]**
+
+The promotion script copies candidate bytes exactly, without a raster or encoder operation, from
+`artifacts/g2/google-static-candidates/` to `fixtures/golden/google/`. Byte equality, encoded byte
+count, SHA-256, canvas, MIME, render fingerprint, source fixture digest, and layout plan digest
+are required for every entry. A mismatch blocks the freeze. **[PROJECT]**
+
+### 57.2 Frozen Golden registry [PROJECT]
+
+The frozen registry is `contracts/google/goldens.g2.1.json`, registry version `1.0.0`, with
+`status: FROZEN`, `visualAcceptance: ACCEPTED`, `frozen: true`, and `finalGoldenFrozen: true`.
+It contains exactly fourteen entries: seven geometry entries and seven Demand Gen uploaded-display
+static entries. Frozen files live below `fixtures/golden/google/`. The original candidate registry
+remains `0.1.0`, `status: CANDIDATE`, `frozen: false`, `visualAcceptance: PENDING`, and is not
+rewritten into a frozen state. **[PROJECT]**
+
+The RDA vertical candidate retains INFO diagnostic
+`KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY`; the Demand Gen vertical candidate retains INFO
+diagnostic `KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED`. These INFO records are expected and
+non-blocking. Every frozen entry has an ERROR-free expected validator summary. The G2.1 verifier
+rerenders each source/plan three times and requires byte equality with the frozen file. **[PROJECT]**
+
+### 57.3 Version, scope, and invariants [PROJECT]
+
+The Canonical document advances from `1.26.0` to `1.27.0` (minor) solely to record this manual
+acceptance and Golden freeze. Google architecture remains `1.0.0`; the G2 candidate registry
+remains `0.1.0`; Renderer Core remains `0.11.0`; Validator remains `1.11.0`; Template remains
+`1.9.0`; Input/Output remain `1.2.0`/`2.0.0`; and Desktop/package remain `0.10.1`. No runtime
+schema, template coordinate, renderer behavior, or validator version is changed. **[PROJECT]**
+
+G2.1 adds no Electron/Desktop Google UI, Google upload/API integration, Google-owned platform
+field rasterization, telemetry, remote font, runtime network access, or Plume dependency. KAKAO,
+NAVER, and META frozen output paths remain unchanged, and the canonical OBJECT_RIGHT reference
+SHA-256 remains
+`33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b`. **[PROJECT]**
+
+Evidence is `artifacts/g2-1/google-static-visual-acceptance.json` (SHA-256
+`bacb0b133d1c833f85fb7b28b6cd0bb27d51eb669f81c7c981f895ab4a9a46b3`), the frozen registry
+(SHA-256 `00dabc5d94ffc0c225d17d22b3b5527d0b0c7488aa11495da4a79e1327d37359`), and
+`scripts/verify-g2-1-google-static.mjs`. The intentional freeze commit is
+`test(google): freeze accepted static goldens`. **[PROJECT]**
+
+`nextPhase`: `G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT`. Desktop review, upload/API integration,
+and platform approval remain separate future contracts. **[PROJECT]**

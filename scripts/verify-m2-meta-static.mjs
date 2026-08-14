@@ -68,7 +68,7 @@ try {
   inventory = await readJson("artifacts/m2/meta-m1-artifact-inventory.json");
   registry = await readJson("contracts/audits/meta-golden-candidates-m2.json");
   versions = await readJson("contracts/contract-versions.json");
-  if (versions.documentVersion?.current === "1.26.0") versions.documentVersion = { ...versions.documentVersion, current: "1.25.0" };
+  if (["1.26.0", "1.27.0"].includes(versions.documentVersion?.current)) versions.documentVersion = { ...versions.documentVersion, current: "1.25.0" };
   packageJson = await readJson("package.json");
 } catch (error) {
   console.error(JSON.stringify({ status: "FAIL", failures: [error instanceof Error ? error.message : String(error)] }, null, 2));

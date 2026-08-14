@@ -22,7 +22,7 @@ function basePlan(profileId) { return { schemaVersion: "1.0.0", formatProfileId:
 function baseRequest(profileId, context) { return { formatProfileId: profileId, layoutMode: "FREEFORM", ...(context ? { placementContext: context } : {}), creativeLayoutPlan: basePlan(profileId), output: { format: "PNG" }, metaStatic: { mode: "SINGLE" } }; }
 
 const versions = await readJson("contracts/contract-versions.json");
-if (versions.documentVersion?.current === "1.26.0") versions.documentVersion = { ...versions.documentVersion, previous: "1.24.0", current: "1.25.0" };
+if (["1.26.0", "1.27.0"].includes(versions.documentVersion?.current)) versions.documentVersion = { ...versions.documentVersion, previous: "1.24.0", current: "1.25.0" };
 const packageJson = await readJson("package.json");
 const inputSchema = await readJson("packages/renderer-contract/schema/renderer-integration-input-v1.schema.json");
 const planSchema = await readJson("packages/renderer-contract/schema/creative-layout-plan-v1.schema.json");

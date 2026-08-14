@@ -1,0 +1,85 @@
+{
+  "phase": "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE",
+  "status": "ACCEPTED",
+  "acceptedSet": "ALL_14",
+  "acceptedCandidateRegistrySha256": "5adbdd834ae9d6a7824f8991993492112f4e1d678a3427f593e240932d905226",
+  "acceptedReviewManifestSha256": "111f28635def6faf5170e7842691b18c8bb1b36e7bcf581b0f57625a9251763e",
+  "acceptedPreviewIndexSha256": "e0ae566bcaaa59b6c8764695758ecd0afdf1743381738699835332bc9dce77a0",
+  "acceptedArtifactSha256s": [
+    {
+      "profileId": "GOOGLE_MARKETING_LANDSCAPE_1_91",
+      "artifactSha256": "04cd7330f288ee37f701edef3f030ae1d682a7a77da71ddccef990eefb048658",
+      "encodedBytes": 9508
+    },
+    {
+      "profileId": "GOOGLE_MARKETING_SQUARE_1_1",
+      "artifactSha256": "19afaa7bdf6310a1283cdb141749d8c2f620318b2d2646b01ff5b49bc6ba0aed",
+      "encodedBytes": 33347
+    },
+    {
+      "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5",
+      "artifactSha256": "57fb072aa6317661c51a7a5cea06b98a47dd20f593f6db689d5fab066b39f17d",
+      "encodedBytes": 19242
+    },
+    {
+      "profileId": "GOOGLE_RDA_VERTICAL_9_16",
+      "artifactSha256": "608605fbb6fa2e85819f7ea810eec8c15c9e19404f489adc2aec99b88a8c172f",
+      "encodedBytes": 21367
+    },
+    {
+      "profileId": "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+      "artifactSha256": "11d76d9ccfa5494cc08ad0fe094032ff1d0a2d926e7606f2bbb21acd64702d26",
+      "encodedBytes": 54163
+    },
+    {
+      "profileId": "GOOGLE_LOGO_SQUARE_1_1",
+      "artifactSha256": "561577d2c1376df2ec4546c6b0c5049cc735c31c76ab62eb8771cdb37f28db95",
+      "encodedBytes": 20732
+    },
+    {
+      "profileId": "GOOGLE_LOGO_LANDSCAPE_4_1",
+      "artifactSha256": "3ecc97df70521a6cf7247506fe404eb4de62be92535d7057e2c63055329515c2",
+      "encodedBytes": 6366
+    },
+    {
+      "profileId": "GOOGLE_DG_UPLOAD_300X250",
+      "artifactSha256": "9d93311e54454b5a2a862aa65c8a11ea29afae9f7e9f0a550fd5367d00b8b6c9",
+      "encodedBytes": 1722
+    },
+    {
+      "profileId": "GOOGLE_DG_UPLOAD_336X280",
+      "artifactSha256": "e3247f470d73b8c65f1c9d17009c819d437bfb0920b7089de9a9331740c0ae3d",
+      "encodedBytes": 5573
+    },
+    {
+      "profileId": "GOOGLE_DG_UPLOAD_728X90",
+      "artifactSha256": "73fd409f002067c27f1ff8015041a18d022f81decad77ff788023a810d1502e6",
+      "encodedBytes": 956
+    },
+    {
+      "profileId": "GOOGLE_DG_UPLOAD_970X90",
+      "artifactSha256": "f24f8990226ed3160e6a9c323923910513da93e7eec389af762a09dadf461a4a",
+      "encodedBytes": 6809
+    },
+    {
+      "profileId": "GOOGLE_DG_UPLOAD_160X600",
+      "artifactSha256": "d536e55f1bf6bc0bb00e986696499aeebe762a3fae123161582c61e647e52793",
+      "encodedBytes": 2139
+    },
+    {
+      "profileId": "GOOGLE_DG_UPLOAD_300X600",
+      "artifactSha256": "6a94c2cc074602c7a70588cdb1a34748edc243ae8543f0f40429ad6d932f9d6e",
+      "encodedBytes": 7963
+    },
+    {
+      "profileId": "GOOGLE_DG_UPLOAD_320X50",
+      "artifactSha256": "64c48ad49564ecfc0acba22b68fd8222c0180c2d57bcc99ec29c00ef90489bfc",
+      "encodedBytes": 467
+    }
+  ],
+  "userAcceptanceStatement": "ACCEPT_ALL_GOOGLE_G2_CANDIDATES",
+  "acceptedAt": "2026-08-14",
+  "acceptedAtTimezone": "Asia/Seoul",
+  "method": "USER_VISUAL_REVIEW",
+  "scope": "ALL_GOOGLE_G2_CANDIDATES"
+}
