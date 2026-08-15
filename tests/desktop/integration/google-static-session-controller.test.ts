@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
+import type { ImagePlacementPlan } from "@kbr/renderer-contract";
 import { DesktopController } from "../../../apps/desktop/electron-main/src/desktop-controller.js";
 import { DesktopSessionManager } from "../../../apps/desktop/electron-main/src/session/session-manager.js";
 import type { GoogleStaticUiRequest, UiRenderInput } from "../../../apps/desktop/shared/src/index.js";
@@ -117,5 +118,106 @@ describe("Google Static Desktop QA controller", () => {
     expect(blocked.status).not.toBe("EXPORTED");
     expect(await stat(context.outputRoot).then(() => true)).toBe(true);
     expect(sha256Bytes(Buffer.from("metadata-only"))).toMatch(/^[a-f0-9]{64}$/u);
+  });
+
+  it("selects the requested raster format and blocks export until a JPEG preview is current", async () => {
+    const context = await setup("format-parity");
+    const profileId = "GOOGLE_MARKETING_LANDSCAPE_1_91";
+    const selected = await selectSource(context, profileId);
+    const plan = await readPlan(profileId);
+    const base: UiRenderInput = {
+      assetToken: selected.assetToken,
+      advertiser: "",
+      headline: "",
+      subcopy: "",
+      jobName: "google-format-parity",
+      requestSequence: 1,
+      googleStatic: { ...plan, profileId, capabilityId: "GOOGLE_RDA_ASSET_SET" },
+    };
+    const preview = await context.controller.requestPreview(base);
+    expect(preview.validationStatus).toBe("PASS");
+    if (!preview.previewToken) throw new Error("Google preview token missing");
+    const baseGoogleStatic = base.googleStatic;
+    if (!baseGoogleStatic) throw new Error("Google Static request missing");
+    const output = await context.controller.registerOutputDirectory(context.outputRoot);
+    const jpegRequest: UiRenderInput = {
+      ...base,
+      requestSequence: 2,
+      googleStatic: { ...baseGoogleStatic, outputFormat: "JPEG", jpegQuality: 88 },
+    };
+    const stale = await context.controller.exportRender({ ...jpegRequest, previewToken: preview.previewToken, outputDirectoryToken: output.token });
+    expect(stale).toMatchObject({ status: "BLOCKED", code: "DESKTOP-EXPORT-003" });
+
+    const jpegPreview = await context.controller.requestPreview(jpegRequest);
+    expect(jpegPreview.validationStatus).toBe("PASS");
+    expect(jpegPreview.pngMetadata).toMatchObject({ format: "JPEG", width: 1200, height: 628 });
+    if (!jpegPreview.previewToken) throw new Error("JPEG preview token missing");
+    const exported = await context.controller.exportRender({ ...jpegRequest, previewToken: jpegPreview.previewToken, outputDirectoryToken: output.token });
+    expect(exported.status).toBe("EXPORTED");
+    if (exported.status !== "EXPORTED") return;
+    expect(exported.artifactFormat).toBe("JPEG");
+    const artifactPath = path.join(context.outputRoot, base.jobName, "output.jpg");
+    const artifact = await readFile(artifactPath);
+    expect(artifact.subarray(0, 2)).toEqual(Buffer.from([0xff, 0xd8]));
+    expect(artifact.subarray(-2)).toEqual(Buffer.from([0xff, 0xd9]));
+  });
+
+  it("propagates a common manual placement plan through preview, stale export, and publish", async () => {
+    const context = await setup("placement-parity");
+    const profileId = "GOOGLE_MARKETING_LANDSCAPE_1_91";
+    const selected = await selectSource(context, profileId);
+    const plan = await readPlan(profileId);
+    const base: UiRenderInput = {
+      assetToken: selected.assetToken,
+      advertiser: "",
+      headline: "",
+      subcopy: "",
+      jobName: "google-placement-parity",
+      requestSequence: 1,
+      googleStatic: { ...plan, profileId, capabilityId: "GOOGLE_RDA_ASSET_SET" },
+    };
+    const baseGoogleStatic = base.googleStatic;
+    if (!baseGoogleStatic) throw new Error("Google Static request missing");
+    const first = await context.controller.requestPreview(base);
+    expect(first.validationStatus).toBe("PASS");
+    if (!first.previewToken) throw new Error("Google preview token missing");
+    const cropRect = { x: 0.2, y: 0, width: 0.7, height: 1 };
+    const placementPlan: ImagePlacementPlan = {
+      schemaVersion: "1.8.0",
+      imageSlotId: "GOOGLE_STATIC_PRIMARY",
+      assetId: selected.checksumSha256,
+      policy: "MANUAL_CROP",
+      source: "MANUAL",
+      fitMode: "COVER",
+      cropRect,
+      anchor: "CENTER",
+      subjectProtection: "NONE",
+    };
+    const changedSourceRect = {
+      x: Math.floor(cropRect.x * selected.width),
+      y: Math.floor(cropRect.y * selected.height),
+      width: Math.ceil((cropRect.x + cropRect.width) * selected.width) - Math.floor(cropRect.x * selected.width),
+      height: Math.ceil((cropRect.y + cropRect.height) * selected.height) - Math.floor(cropRect.y * selected.height),
+    };
+    const changedRequest: UiRenderInput = {
+      ...base,
+      requestSequence: 2,
+      googleStatic: {
+        ...baseGoogleStatic,
+        placementPlan,
+        sourceRect: changedSourceRect,
+      },
+    };
+    const output = await context.controller.registerOutputDirectory(context.outputRoot);
+    const stale = await context.controller.exportRender({ ...changedRequest, previewToken: first.previewToken, outputDirectoryToken: output.token });
+    expect(stale).toMatchObject({ status: "BLOCKED", code: "DESKTOP-EXPORT-003" });
+    const second = await context.controller.requestPreview(changedRequest);
+    expect(second.validationStatus).toBe("PASS");
+    expect(second.previewPngDigest).not.toBe(first.previewPngDigest);
+    if (!second.previewToken) throw new Error("Manual placement preview token missing");
+    const exported = await context.controller.exportRender({ ...changedRequest, previewToken: second.previewToken, outputDirectoryToken: output.token });
+    expect(exported.status).toBe("EXPORTED");
+    if (exported.status !== "EXPORTED") throw new Error("Manual placement export did not complete");
+    expect(exported.artifactFormat).toBe("PNG");
   });
 });

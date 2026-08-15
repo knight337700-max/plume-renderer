@@ -141,6 +141,7 @@ function roleFamily(profile: GoogleStaticAssetProfile): "marketing" | "logo" | "
 
 function validatePlan(profile: GoogleStaticAssetProfile, plan: GoogleStaticCandidateRenderPlan, source: RawRgba): void {
   if (plan.profileId !== profile.profileId) fail("KBR-G2-PLAN-PROFILE-MISMATCH", "render plan profileId does not match the selected profile");
+  if (plan.outputFormat !== "PNG" && plan.outputFormat !== "JPEG") fail("KBR-G2-FORMAT-UNSUPPORTED", "outputFormat must be PNG or JPEG");
   assertRect(plan.destinationRect, "destinationRect", profile.projectOutputPreset);
   assertColor(plan.background);
   if (plan.sourceRect) assertRect(plan.sourceRect, "sourceRect", { width: source.width, height: source.height });

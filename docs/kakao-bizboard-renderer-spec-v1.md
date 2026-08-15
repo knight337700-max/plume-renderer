@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.28.1
-- **Status:** Frozen Implementation Contract — Phase G3.0.2 Google Static Desktop QA Preview/Export identity revision
+- **Document version:** 1.29.0
+- **Status:** Frozen Implementation Contract — Phase G3.0.3 Google Static transform/raster export parity
 - **Checked date:** 2026-08-15 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **59. Phase G3.0.2 Google Static Desktop QA Preview/Export identity revision**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **60. Phase G3.0.3 Google Static transform/raster export parity**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
 
 ---
 
@@ -5579,6 +5579,113 @@ record is `docs/implementation/google-static-desktop-qa-enablement-g3.md`; the A
 `docs/adr/ADR-0063-google-static-desktop-qa-enablement-g3.md`; and the deterministic verifier is
 `scripts/verify-g3-google-static-desktop-qa.mjs`. Frozen G2.1 bytes and registry are evidence-only
 inputs and are not regenerated or rewritten. **[PROJECT]**
+
+`nextPhase`: `G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE`. **[PROJECT]**
+
+## 60. Phase G3.0.3 — Google Static transform and raster export parity [PROJECT]
+
+G3.0.3은 G3.0.2의 하나의 canonical Google Static request 경계를 유지하면서, 기존 공통
+`@kbr/renderer-contract`의 `ImagePlacementPlan` 의미와 실제 PNG/JPEG encoder를 Desktop
+production path에 연결한다. 이 단계는 사용자 승인, Golden 재생성, Google Ads 업로드 또는
+플랫폼 화면 캡처를 수행하지 않는다. **[PROJECT]**
+
+### 60.1 Profile format capability and frozen defaults [PROJECT] [INFERRED]
+
+Runtime profile은 `contracts/google/format-capability.g3-0-3.json`의 허용 format matrix를
+사용한다. 현재 14개 profile은 `PNG`와 `JPEG`를 모두 허용하며, 각 profile의 `defaultFormat`은
+G2.1 Frozen Golden의 MIME에서 파생된 값이다. 기본 format은 다음과 같이 보존된다.
+
+| 기본 MIME | Profile 수 | 규칙 |
+|---|---:|---|
+| `image/png` / `.png` | 9 | PNG signature, RGBA canvas |
+| `image/jpeg` / `.jpg` | 5 | JPEG SOI/EOI, RGB canvas |
+
+UI의 format 선택은 canonical request의 `outputFormat`과 동일한 값을 전송한다. Main/Core는
+IPC enum, profile matrix, 실제 magic bytes, 확장자, manifest metadata를 모두 독립적으로
+확인하며 불일치 시 fail-closed 한다. 선택 format의 최종 encoded bytes가 profile 대상 byte
+cap을 넘으면 Preview와 Export를 허용하지 않는다. **[PROJECT]**
+
+기존 Google G2 encoder는 pinned Sharp/libvips 설정을 그대로 사용한다. PNG는 기존
+`compressionLevel=9`, `adaptiveFiltering=false`, `palette=false`를 사용하고 alpha를
+보존한다. JPEG는 기존 공통 encoder와 동일한 `quality=88` 명시값, `4:2:0`, progressive=false,
+mozjpeg=false, metadata passthrough=false를 사용한다. Google 전용 새 quality slider는
+추가하지 않는다. 기존 G2 plan의 opaque canvas background가 JPEG matte 역할을 하며, OS 기본
+검정색 합성이나 비결정적 metadata를 사용하지 않는다. **[PROJECT] [INFERRED]**
+
+### 60.2 Canonical manual placement [PROJECT]
+
+Google UI의 Drag, Zoom, X, Y, Scale, Reset은 window 좌표나 CSS transform을 저장하지 않는다.
+수동 marketing image 조정은 공통 `ImagePlacementPlan`으로 표현한다.
+
+```yaml
+placementPlan:
+  policy: MANUAL_CROP
+  source: MANUAL
+  fitMode: COVER
+  cropRect: normalized_source_rect
+  anchor: CENTER
+  subjectProtection: NONE
+```
+
+`cropRect`는 source image의 normalized 좌표이며, X/Y는 crop center, Scale은 crop 크기에서
+결정되는 단일 균등 배율이다. UI는 X/Y를 0~1, Scale을 0.25~4.00으로 표시하고 canonical
+serialization 전에 소수점 6자리로 양자화한다. `NaN`, `Infinity`, `-0`, 0 이하 scale,
+rotation, flip, skew, non-uniform scale은 허용하지 않는다. Logo와 uploaded static은 기존
+profile policy 의미를 바꾸지 않으며, 수동 값은 profile canvas 내부의 deterministic
+`destinationRect`로 제한한다. **[PROJECT] [INFERRED]**
+
+Main/Core는 placement plan의 schema version, slot, asset digest, policy/fit 조합과 crop
+범위를 다시 확인하고, normalized crop을 기존 공통 `normalizedRectToPixelRect` 규칙으로
+변환한다. UI의 preview surface에는 drag handle, grid, border 또는 checkerboard를 artifact에
+합성하지 않는다. Fit/actual pixel view 전환은 placement 값을 변경하지 않는다. Profile 또는
+asset 변경 시 placement는 profile frozen default로 초기화되고, format 변경 시 placement는
+보존되지만 기존 PASS result는 즉시 STALE이 된다. **[PROJECT]**
+
+### 60.3 Preview/Validate/Export identity [PROJECT]
+
+Preview와 Export는 모두 `buildCanonicalGoogleStaticRequest`를 호출한다. canonical request
+identity에는 profile ID, asset digest, raster input, `placementPlan` 또는 destination/source
+geometry, `outputFormat`, deterministic encoder settings, 그리고 G3.0.2 delivery metadata가
+포함된다. Main/Core는 UI가 보낸 MIME, filename, digest 또는 PASS boolean을 신뢰하지 않는다.
+
+PASS Preview 이후 placement, format, profile, asset 또는 delivery metadata가 바뀌면
+`DESKTOP-EXPORT-003`으로 Export를 차단한다. 현재 request로 다시 Preview/Validator를 실행해
+새 PASS artifact가 생성된 경우에만 Export한다. Export는 Core가 생성한 Preview와 동일한
+encoded bytes를 atomic publish 경로로 저장하고, PNG는 `.png`, JPEG는 `.jpg`를 사용한다.
+**[PROJECT]**
+
+### 60.4 Parity inventory [PROJECT]
+
+| 항목 | KAKAO | NAVER | META | Common Core | Google baseline | G3.0.3 결정 |
+|---|---|---|---|---|---|---|
+| Drag positioning | Placement UI | object placement UI | freeform plan UI | normalized plan semantics | JSON plan only | Google surface drag → `ImagePlacementPlan` |
+| Zoom / scale | crop adjustments | object scale | element bounds | crop/fit conversion | absent | single normalized Scale |
+| Numeric X/Y/Scale | crop fields | placement fields | normalized bounds | finite normalized values | absent | 0~1 X/Y, 0.25~4 Scale |
+| Reset | template default | profile default | profile plan | default omission | profile plan JSON | frozen profile default |
+| Canonical placement serialization | `ImagePlacementPlan` | `ImagePlacementPlan` | `CreativeLayoutPlan` | JCS-compatible | source/destination rect | common plan + existing rects |
+| PNG encoding | Core PNG | Core PNG | Core PNG | pinned Sharp/canvas | pinned Google G2 PNG | reuse existing encoder |
+| JPEG encoding | freeform Sharp | freeform Sharp | freeform Sharp | 4:2:0, progressive=false | G2 Sharp JPEG | reuse existing encoder policy |
+| JPEG quality / matte policy | AUTO_FIT/quality | AUTO_FIT/quality | AUTO_FIT/quality | deterministic quality | quality 88 + opaque canvas | no slider; preserve G2 defaults |
+| Preview/Export byte identity | PASS gate | PASS gate | PASS gate | fingerprint + bytes | G3.0.2 identity | one canonical builder |
+| Stale invalidation | request sequence | request sequence | request sequence | stale export code | metadata stale guard | placement/format stale guard |
+
+### 60.5 Version, evidence, and boundaries [PROJECT]
+
+The Canonical document advances from `1.28.1` to `1.29.0` (minor), and Desktop/package advance
+from `0.11.1` to `0.12.0` (minor). Google architecture `1.0.0`, template `1.9.0`, Renderer Core
+`0.11.0`, Validator `1.11.0`, Input `1.2.0`, Output `2.0.0`, manifest `1.0.0`, response envelope
+`1.0.0`, and error registry `1.10.0` remain unchanged because existing Core/Validator contracts
+and encoder capabilities are reused. The optional Google Desktop placement extension is kept at
+the Desktop IPC boundary and does not alter the legacy renderer input schema. Coordinates and all
+G2.1 Frozen Golden bytes remain unchanged. **[PROJECT]**
+
+The implementation record is
+`docs/implementation/google-static-transform-raster-export-parity-g3-0-3.md`; the ADR is
+`docs/adr/ADR-0066-google-static-transform-raster-export-parity-g3-0-3.md`; the format capability
+record is `contracts/google/format-capability.g3-0-3.json`; and the deterministic verifier is
+`scripts/verify-g3-0-3-google-static-transform-raster-export-parity.mjs`. G3.1 review, acceptance,
+freeze, upload/API, OAuth, remote assets, runtime network, Google legacy Display profiles, and
+Plume dependencies remain prohibited. **[PROJECT]**
 
 `nextPhase`: `G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE`. **[PROJECT]**
 

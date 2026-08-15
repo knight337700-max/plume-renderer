@@ -237,6 +237,12 @@ const g2_1GoogleVerificationStatus = g2_1GoogleRegistry.status === "FROZEN" && g
 const g3GoogleQa = JSON.parse(await readFile(path.join(root, "contracts/google/desktop-qa.g3.json"), "utf8"));
 const g3GoogleVersion = canonicalDocument.canonicalPhaseG3Google;
 const g3GoogleRevision = canonicalDocument.canonicalPhaseG3_0_2Google ?? g3GoogleVersion;
+const g3GoogleTransform = canonicalDocument.canonicalPhaseG3_0_3Google;
+const g3_0_3Implemented = g3GoogleTransform?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
+const g3GoogleCurrent = g3_0_3Implemented ? g3GoogleTransform : g3GoogleRevision;
+const g3FormatCapability = g3_0_3Implemented
+  ? JSON.parse(await readFile(path.join(root, "contracts/google/format-capability.g3-0-3.json"), "utf8"))
+  : null;
 const g3GoogleVerificationStatus = g3GoogleQa.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT"
   && g3GoogleQa.registryVersion === "1.0.0"
   && g3GoogleQa.groups?.length === 2
@@ -257,6 +263,15 @@ const g3GoogleVerificationStatus = g3GoogleQa.phase === "G3_GOOGLE_STATIC_DESKTO
   && g3GoogleVersion.geometryProfileCount === 7
   && g3GoogleVersion.uploadedDisplayStaticProfileCount === 7
   && g3GoogleVersion.activeGoogleDiagnostics === 11
+  ? "PASS" : "FAIL";
+const g3_0_3GoogleVerificationStatus = g3_0_3Implemented
+  && g3FormatCapability?.status === "IMPLEMENTED"
+  && g3FormatCapability?.profiles?.length === 14
+  && g3GoogleTransform?.allowedFormats?.join(",") === "PNG,JPEG"
+  && g3GoogleTransform?.defaultGoldenFormatPreserved === true
+  && g3GoogleTransform?.placementAndFormatInFingerprint === true
+  && g3GoogleTransform?.stalePlacementExportBlocked === true
+  && g3GoogleTransform?.staleFormatExportBlocked === true
   ? "PASS" : "FAIL";
 const canonicalTarget = path.join(target, "docs/kakao-bizboard-renderer-spec-v1.md");
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
@@ -318,7 +333,7 @@ build, test, and later phase development. The source repository remains unchange
 - Google G1 (historical): static contracts/profile implementation: ${g1GoogleVerificationStatus}, architecture version ${g1GoogleVersion.googleArchitectureVersion}, profile registry ${g1GoogleProfiles.profileCount} (${g1GoogleProfiles.geometryProfileCount} geometry + ${g1GoogleProfiles.uploadedDisplayStaticProfileCount} uploaded static), capability mapping ${g1GoogleMapping.capabilityCount}, legacy runtime profiles ${g1GoogleMapping.compositionBoundary.legacyRuntimeProfiles}, diagnostics ${g1GoogleDiagnostics.count}, and target constraints ${g1GoogleConstraints.byteUnit}. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; Demand Gen uploaded static is RENDERER_COMPOSED; every artifact is SINGLE and delivery sets are COLLECTION manifests. No Google upload/API, Desktop UI, Golden, carousel, Search image, or runtime network integration was added.
 - Google G2 (historical): deterministic static rendering validation: ${g2GoogleVerificationStatus}, architecture version ${g2GoogleVersion.googleArchitectureVersion}, ${g2GoogleRegistry.geometryCandidateCount} geometry candidates + ${g2GoogleRegistry.demandGenUploadedStaticCandidateCount} uploaded-display-static candidates (${g2GoogleRegistry.candidates?.length} total), registry status ${g2GoogleRegistry.status}. Repeat-render byte equality, exact canvas/MIME, decimal-byte caps, placement policies, thirty delivery scenarios, and five negative placement cases are verified.
 - Google G2.1 (historical freeze): user visual acceptance and Golden freeze: ${g2_1GoogleVerificationStatus}, exact statement ${g2_1GoogleAcceptance.userAcceptanceStatement}, ${g2_1GoogleRegistry.geometryGoldenCount} geometry + ${g2_1GoogleRegistry.demandGenUploadedDisplayStaticGoldenCount} uploaded-display-static Goldens (${g2_1GoogleRegistry.artifactCount} total), registry ${g2_1GoogleRegistry.status}, byte-identical promotion ${g2_1GoogleRegistry.entries?.every((entry) => entry.candidateToFrozenByteEquality) === true}. The fourteen Goldens remain frozen and unchanged.
-- Google G3 (current): Desktop Static QA enablement: ${g3GoogleVerificationStatus}, two profile groups (7 Geometry + 7 Uploaded Display Static), fourteen profile selectors sourced from the G1 registry, deterministic local preview, validator diagnostics, Fit/Actual pixel view, and pass-only local export. Platform fields remain metadata-only; no Google upload/API, OAuth, runtime network access, or Plume dependency is present. G3.0.2 aligns Preview and Export on one canonical request identity and preserves stale blocking for changed metadata. Next phase: ${g3GoogleRevision.nextPhase}.
+- Google G3 (current): Desktop Static QA enablement: ${g3GoogleVerificationStatus}, two profile groups (7 Geometry + 7 Uploaded Display Static), fourteen profile selectors sourced from the G1 registry, deterministic local preview, validator diagnostics, Fit/Actual pixel view, and pass-only local export. Platform fields remain metadata-only; no Google upload/API, OAuth, runtime network access, or Plume dependency is present. G3.0.2 aligns Preview and Export on one canonical request identity and preserves stale blocking for changed metadata. G3.0.3 adds profile-driven PNG/JPEG selection, common ImagePlacementPlan transforms, deterministic raster encoding, and Preview/Export byte parity: ${g3_0_3GoogleVerificationStatus}. Next phase: ${g3GoogleCurrent.nextPhase}.
 
 ## Directories
 
@@ -356,7 +371,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-  The latest phase is G3.0.2 Google Static Desktop QA Preview/Export identity revision and the canonical document is v1.28.1. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen historical candidate artifacts; G2.1 freezes the fourteen explicitly accepted byte-identical Google Goldens. G3 exposes those frozen profiles in the additive Desktop QA workflow with deterministic preview, diagnostics, Fit/Actual view, and pass-only local export. G3.0.2 aligns Preview and Export on one canonical request identity while preserving stale blocking for changed delivery metadata. M1 implements the three project output presets,
+  The latest phase is G3.0.3 Google Static Transform & Raster Export Parity and the canonical document is v1.29.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen historical candidate artifacts; G2.1 freezes the fourteen explicitly accepted byte-identical Google Goldens. G3 exposes those frozen profiles in the additive Desktop QA workflow with deterministic preview, diagnostics, Fit/Actual view, and pass-only local export. G3.0.2 aligns Preview and Export on one canonical request identity while preserving stale blocking for changed delivery metadata. G3.0.3 adds the production format capability registry, common placement controls, deterministic PNG/JPEG encoding, stale placement/format guards, and preserves all fourteen frozen bytes. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
@@ -410,7 +425,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: g3GoogleVerificationStatus === "PASS" ? "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" : (g2_1GoogleVerificationStatus === "PASS" ? "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" : "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES"),
+  handoffPhase: g3_0_3GoogleVerificationStatus === "PASS" ? "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY" : g3GoogleVerificationStatus === "PASS" ? "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" : (g2_1GoogleVerificationStatus === "PASS" ? "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" : "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES"),
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -425,10 +440,10 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: g3GoogleRevision.rendererCoreVersion,
-    validator: g3GoogleRevision.validatorCurrent,
-    desktop: g3GoogleRevision.desktopCurrent,
-    package: g3GoogleRevision.packageCurrent,
+    rendererCore: g3GoogleCurrent.rendererCoreVersion,
+    validator: g3GoogleCurrent.validatorCurrent,
+    desktop: g3GoogleCurrent.desktopCurrent,
+    package: g3GoogleCurrent.packageCurrent,
     googleStatic: {
       architectureVersion: g0_1GoogleVersion.googleArchitectureVersion,
       architectureVersionPrevious: g0_1GoogleVersion.googleArchitecturePrevious,
@@ -507,6 +522,17 @@ const manifest = {
       g3ImplementationRecord: g3GoogleVersion.implementationDocument,
       g3Adr: g3GoogleVersion.adr,
       g3Verifier: g3GoogleVersion.verifier,
+      g3_0_3TransformStatus: g3_0_3GoogleVerificationStatus,
+      g3_0_3FormatCapabilityRegistry: g3GoogleTransform?.formatCapabilityRegistry ?? null,
+      g3_0_3AllowedFormats: g3GoogleTransform?.allowedFormats ?? [],
+      g3_0_3ProfileCount: g3GoogleTransform?.profileCount ?? 0,
+      g3_0_3DefaultGoldenFormatPreserved: g3GoogleTransform?.defaultGoldenFormatPreserved ?? false,
+      g3_0_3PlacementAndFormatInFingerprint: g3GoogleTransform?.placementAndFormatInFingerprint ?? false,
+      g3_0_3StalePlacementExportBlocked: g3GoogleTransform?.stalePlacementExportBlocked ?? false,
+      g3_0_3StaleFormatExportBlocked: g3GoogleTransform?.staleFormatExportBlocked ?? false,
+      g3_0_3ImplementationRecord: g3GoogleTransform?.implementationDocument ?? null,
+      g3_0_3Adr: g3GoogleTransform?.adr ?? null,
+      g3_0_3Verifier: g3GoogleTransform?.verifier ?? null,
      },
     platformComposedRuntime: canonicalDocument.canonicalPhaseN8.platformComposedRuntimeCurrent,
     smartChannelTemplate: canonicalDocument.smartChannelTemplateContractVersion,
@@ -680,15 +706,18 @@ const manifest = {
     NAVER_GFA: { smartChannel120: "IMPLEMENTED", freeform: "IMPLEMENTED", platformComposedSource: "FROZEN_SOURCE_ONLY", feedCollectionSourceArtifacts: "IMPLEMENTED", desktopIntegration: "IMPLEMENTED", finalNativeUi: "NOT_IMPLEMENTED", video: "DISABLED_OUT_OF_STATIC_SCOPE" },
     META: { staticProfiles: "IMPLEMENTED", placementSet: "IMPLEMENTED", platformCopy: "METADATA_ONLY", unsupported: canonicalDocument.canonicalPhaseM1.unsupportedRuntime },
     GOOGLE: {
-      staticQa: g3GoogleVerificationStatus === "PASS" ? "IMPLEMENTED" : "NOT_IMPLEMENTED",
+      staticQa: g3_0_3GoogleVerificationStatus === "PASS" ? "IMPLEMENTED" : g3GoogleVerificationStatus === "PASS" ? "IMPLEMENTED" : "NOT_IMPLEMENTED",
       profileGroups: g3GoogleQa.groups?.map((group) => ({ id: group.id, label: group.label, profileCount: group.profileIds.length })) ?? [],
-      profileCount: g3GoogleVersion.profileCount,
+      profileCount: g3GoogleCurrent.profileCount,
       frozenGoldenCount: g3GoogleQa.frozenGoldenCount,
       diagnostics: g3GoogleVersion.activeGoogleDiagnostics,
-      platformFieldsRasterized: g3GoogleVersion.platformFieldsRasterized,
-      uploadApi: g3GoogleVersion.googleUploadApiAdded,
-      runtimeNetworkAccess: g3GoogleVersion.runtimeNetworkAccess,
-      plumeDependencies: g3GoogleVersion.plumeDependencies,
+      platformFieldsRasterized: g3GoogleCurrent.platformFieldsRasterized,
+      uploadApi: g3GoogleCurrent.googleUploadApiAdded,
+      runtimeNetworkAccess: g3GoogleCurrent.runtimeNetworkAccess,
+      plumeDependencies: g3GoogleCurrent.plumeDependencies,
+      transformRasterParity: g3_0_3GoogleVerificationStatus,
+      allowedFormats: g3GoogleTransform?.allowedFormats ?? [],
+      formatCapabilityRegistry: g3GoogleTransform?.formatCapabilityRegistry ?? null,
     },
   },
   files,
@@ -881,6 +910,15 @@ const manifest = {
     g3_0_2GoogleAdr: "docs/adr/ADR-0065-google-static-preview-export-fingerprint-revision-g3-0-2.md",
     g3_0_2GoogleVerifier: "scripts/verify-g3-0-2-google-static-preview-export.mjs",
     g3_0_2GoogleSharedRequestBuilder: "apps/desktop/shared/src/google-static-request.ts",
+    g3_0_3GoogleFormatCapabilityRegistry: "contracts/google/format-capability.g3-0-3.json",
+    g3_0_3GoogleImplementationRecord: "docs/implementation/google-static-transform-raster-export-parity-g3-0-3.md",
+    g3_0_3GoogleAdr: "docs/adr/ADR-0066-google-static-transform-raster-export-parity-g3-0-3.md",
+    g3_0_3GoogleVerifier: "scripts/verify-g3-0-3-google-static-transform-raster-export-parity.mjs",
+    g3_0_3GoogleDesktopController: "apps/desktop/electron-main/src/desktop-controller.ts",
+    g3_0_3GoogleIpcSchemas: "apps/desktop/electron-main/src/ipc/schemas.ts",
+    g3_0_3GoogleEditor: "apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx",
+    g3_0_3GoogleIntegrationTest: "tests/desktop/integration/google-static-session-controller.test.ts",
+    g3_0_3GoogleE2eTest: "tests/e2e/desktop.spec.ts",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -1146,6 +1184,30 @@ const manifest = {
       adr: g3GoogleRevision.adr,
       verifier: g3GoogleRevision.verifier,
       g3_1ArtifactsCreated: g3GoogleRevision.g3_1ArtifactsCreated,
+    },
+    transformRasterParity: {
+      phase: g3GoogleTransform?.phase ?? null,
+      status: g3_0_3GoogleVerificationStatus,
+      documentVersion: g3GoogleTransform?.documentCurrent ?? null,
+      desktopVersion: g3GoogleTransform?.desktopCurrent ?? null,
+      packageVersion: g3GoogleTransform?.packageCurrent ?? null,
+      formatCapabilityRegistry: g3GoogleTransform?.formatCapabilityRegistry ?? null,
+      formatCapabilityRegistryStatus: g3FormatCapability?.status ?? null,
+      allowedFormats: g3GoogleTransform?.allowedFormats ?? [],
+      profileCount: g3GoogleTransform?.profileCount ?? 0,
+      defaultGoldenFormatPreserved: g3GoogleTransform?.defaultGoldenFormatPreserved ?? false,
+      placementControls: g3GoogleTransform?.placementControls ?? [],
+      placementAndFormatInFingerprint: g3GoogleTransform?.placementAndFormatInFingerprint ?? false,
+      previewExportByteEquality: g3GoogleTransform?.previewExportByteEquality ?? false,
+      stalePlacementExportBlocked: g3GoogleTransform?.stalePlacementExportBlocked ?? false,
+      staleFormatExportBlocked: g3GoogleTransform?.staleFormatExportBlocked ?? false,
+      productionPaths: g3GoogleTransform?.productionPaths ?? [],
+      regressionTestPaths: g3GoogleTransform?.regressionTestPaths ?? [],
+      implementationRecord: g3GoogleTransform?.implementationDocument ?? null,
+      adr: g3GoogleTransform?.adr ?? null,
+      verifier: g3GoogleTransform?.verifier ?? null,
+      g3_1ArtifactsCreated: g3GoogleTransform?.g3_1ArtifactsCreated ?? false,
+      nextPhase: g3GoogleTransform?.nextPhase ?? null,
     },
   },
   externalRuntimeDependencies: [],

@@ -16,6 +16,7 @@ import {
   THUMBNAIL_MULTI_RIGHT_SECONDARY_SLOT_ID,
   THUMBNAIL_MULTI_RIGHT_TEMPLATE_ID,
   renderWithIntegrationAdapter,
+  normalizedRectToPixelRect,
   type RendererIntegrationInputV1,
   type ImagePlacementPlan,
 } from "@kbr/renderer-contract";
@@ -263,11 +264,38 @@ function googleInfoDiagnostics(profile: GoogleStaticAssetProfile): GoogleValidat
   return [];
 }
 
-function googlePlanFromRequest(request: GoogleStaticUiRequest): GoogleStaticCandidateRenderPlan {
+function googlePlanError(code: string, message: string): never {
+  const error = new Error(message) as Error & { code: string };
+  error.code = code;
+  throw error;
+}
+
+function googlePlanFromRequest(request: GoogleStaticUiRequest, asset: SessionAsset): GoogleStaticCandidateRenderPlan {
+  let sourceRect = request.sourceRect;
+  const placement = request.placementPlan;
+  if (placement) {
+    if (!["1.8.0", "1.7.0", "1.6.0", "1.5.0", "1.4.0", "1.3.0", "1.2.0", "1.1.0"].includes(placement.schemaVersion)) {
+      googlePlanError("KBR-G2-PLACEMENT-SCHEMA-INVALID", "placementPlan schemaVersion is not supported");
+    }
+    if (placement.imageSlotId !== "GOOGLE_STATIC_PRIMARY") googlePlanError("KBR-G2-PLACEMENT-SLOT-INVALID", "Google Static placementPlan must target GOOGLE_STATIC_PRIMARY");
+    if (placement.assetId !== asset.sha256) googlePlanError("KBR-G2-PLACEMENT-ASSET-MISMATCH", "placementPlan assetId does not match the selected asset");
+    if (placement.policy !== request.placementPolicy) googlePlanError("KBR-G2-PLACEMENT-POLICY-MISMATCH", "placementPlan policy does not match placementPolicy");
+    if (placement.policy === "MANUAL_CROP") {
+      const cropRect = placement.cropRect;
+      if (placement.source !== "MANUAL" || placement.fitMode !== "COVER" || !cropRect) googlePlanError("KBR-G2-PLACEMENT-MANUAL-INVALID", "MANUAL_CROP requires a MANUAL COVER plan with cropRect");
+      const derived = normalizedRectToPixelRect(cropRect, asset.width, asset.height);
+      const currentSourceRect = sourceRect;
+      const sourceMatches = !currentSourceRect || ["x", "y", "width", "height"].every((key) => currentSourceRect[key as keyof typeof currentSourceRect] === derived[key as keyof typeof derived]);
+      if (!sourceMatches) googlePlanError("KBR-G2-PLACEMENT-SOURCE-MISMATCH", "sourceRect does not match placementPlan.cropRect");
+      sourceRect = derived;
+    } else if (placement.cropRect || placement.focalPoint || placement.cropCandidateId) {
+      googlePlanError("KBR-G2-PLACEMENT-CROP-FORBIDDEN", "contain placement plans cannot carry crop or focal fields");
+    }
+  }
   return {
     profileId: request.profileId,
     placementPolicy: request.placementPolicy,
-    ...(request.sourceRect ? { sourceRect: request.sourceRect } : {}),
+    ...(sourceRect ? { sourceRect } : {}),
     destinationRect: request.destinationRect,
     background: request.background,
     ...(request.explicitElementPlan === undefined ? {} : { explicitElementPlan: request.explicitElementPlan }),
@@ -1489,9 +1517,10 @@ export class DesktopController {
     if (request.capabilityId && !resolveGoogleCapability(request.capabilityId, contracts)) {
       return { contracts, profile, plan: null, rendered: null, requestFingerprint: null, errors: [{ code: "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", severity: "ERROR", messageKey: "google.asset_profile_unknown", path: "/googleStatic/capabilityId", actual: request.capabilityId, expected: contracts.mapping.capabilities.map((entry) => entry.capabilityId) }], warnings: [], info: [] };
     }
-    const plan = googlePlanFromRequest(request);
+    let plan: GoogleStaticCandidateRenderPlan | null = null;
     try {
       const sourceBytes = await readFile(asset.absolutePath);
+      plan = googlePlanFromRequest(request, asset);
       const rendered = await renderGoogleStaticCandidate(sourceBytes, plan, contracts);
       const target = googleTargetForCapability(profile, request.capabilityId);
       const artifact = {
@@ -1561,9 +1590,9 @@ export class DesktopController {
           info: built.info,
           generatedAt,
           formatProfileId: built.profile?.profileId ?? null,
-          artifactFormat: input.googleStatic?.outputFormat ?? null,
+          artifactFormat: built.plan?.outputFormat ?? null,
           artifactDigest: null,
-          googleStatic: built.profile ? { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(input.googleStatic?.placementPolicy ? { placementPolicy: input.googleStatic.placementPolicy } : {}), deliveryCardinality: "COLLECTION", renderFingerprint: null } : null,
+          googleStatic: built.profile ? { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(built.plan?.placementPolicy ? { placementPolicy: built.plan.placementPolicy } : {}), placementPlan: input.googleStatic?.placementPlan ?? null, outputFormat: built.plan?.outputFormat ?? "PNG", deliveryCardinality: "COLLECTION", renderFingerprint: null } : null,
         };
       }
       const stored = await this.#session.storePreview(
@@ -1572,7 +1601,7 @@ export class DesktopController {
         asset.sha256,
         sha256Bytes(rendered.bytes),
         { GOOGLE_STATIC_PRIMARY: asset.sha256 },
-        { format: input.googleStatic?.outputFormat ?? "PNG", publishAllowed: true },
+        { format: built.plan?.outputFormat ?? "PNG", publishAllowed: true },
       );
       return {
         requestSequence: input.requestSequence,
@@ -1582,10 +1611,10 @@ export class DesktopController {
         productAssetDigest: asset.sha256,
         previewPngDigest: sha256Bytes(rendered.bytes),
         pngMetadata: {
-          format: input.googleStatic?.outputFormat ?? "PNG",
-          colorType: input.googleStatic?.outputFormat === "JPEG" ? "RGB" : "RGBA",
+          format: built.plan?.outputFormat ?? "PNG",
+          colorType: built.plan?.outputFormat === "JPEG" ? "RGB" : "RGBA",
           bitDepth: 8,
-          hasAlpha: input.googleStatic?.outputFormat !== "JPEG",
+          hasAlpha: built.plan?.outputFormat !== "JPEG",
           width: rendered.width,
           height: rendered.height,
           bytes: rendered.encodedBytes,
@@ -1597,10 +1626,10 @@ export class DesktopController {
         info: built.info,
         generatedAt,
         formatProfileId: built.profile.profileId,
-        artifactFormat: input.googleStatic?.outputFormat ?? "PNG",
+        artifactFormat: built.plan?.outputFormat ?? "PNG",
         artifactDigest: sha256Bytes(rendered.bytes),
-        outputEncoding: { format: input.googleStatic?.outputFormat ?? "PNG", mime: rendered.mime },
-        googleStatic: { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(input.googleStatic?.placementPolicy ? { placementPolicy: input.googleStatic.placementPolicy } : {}), deliveryCardinality: "COLLECTION", renderFingerprint: rendered.renderFingerprint },
+        outputEncoding: { format: built.plan?.outputFormat ?? "PNG", mime: rendered.mime },
+        googleStatic: { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(built.plan?.placementPolicy ? { placementPolicy: built.plan.placementPolicy } : {}), placementPlan: input.googleStatic?.placementPlan ?? null, outputFormat: built.plan?.outputFormat ?? "PNG", deliveryCardinality: "COLLECTION", renderFingerprint: rendered.renderFingerprint },
         eligibility: resolvePreviewEligibility([], true),
       };
     } catch (error) {
@@ -2071,6 +2100,7 @@ export class DesktopController {
       const artifactDigest = sha256Bytes(built.rendered.bytes);
       if (built.requestFingerprint !== previewRecord.inputDigest || artifactDigest !== previewRecord.pngDigest) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-003", "Google Static Preview가 현재 입력과 일치하지 않습니다.");
       const contracts = built.contracts;
+      const outputFormat = built.plan?.outputFormat ?? "PNG";
       const validatorIssues = [...built.errors, ...built.warnings, ...built.info];
       const manifest = {
         schemaVersion: "1.0.0",
@@ -2078,8 +2108,8 @@ export class DesktopController {
         normalizedInputDigest: built.requestFingerprint,
         outputPngDigest: artifactDigest,
         outputArtifactDigest: artifactDigest,
-        outputFileName: `output.${request.googleStatic?.outputFormat === "JPEG" ? "jpg" : "png"}`,
-        outputEncoding: { format: request.googleStatic?.outputFormat ?? "PNG", mime: built.rendered.mime },
+        outputFileName: `output.${outputFormat === "JPEG" ? "jpg" : "png"}`,
+        outputEncoding: { format: outputFormat, mime: built.rendered.mime },
         templateContractVersion: "1.9.0",
         inputSchemaVersion: "1.2.0",
         outputSchemaVersion: "2.0.0",
@@ -2096,7 +2126,8 @@ export class DesktopController {
         googleStatic: {
           profileId: built.profile.profileId,
           capabilityId: request.googleStatic?.capabilityId ?? null,
-          placementPolicy: request.googleStatic?.placementPolicy,
+          placementPolicy: built.plan?.placementPolicy,
+          placementPlan: request.googleStatic?.placementPlan ?? null,
           deliveryCardinality: "COLLECTION",
           platformFieldsRasterized: false,
         },
@@ -2104,7 +2135,7 @@ export class DesktopController {
       const manifestText = canonicalJson(manifest);
       const manifestDigest = sha256Bytes(Buffer.from(manifestText, "utf8"));
       const jobDirectory = await resolveTrustedJobDirectory(output.root, ".", request.jobName);
-      const artifactFileName = request.googleStatic?.outputFormat === "JPEG" ? "output.jpg" : "output.png";
+      const artifactFileName = outputFormat === "JPEG" ? "output.jpg" : "output.png";
       const published = await publishArtifacts({ outputRoot: output.root, jobDirectory, artifact: built.rendered.bytes, artifactFileName, manifest: manifestText, overwrite: false });
       artifactPath = published.artifactPath;
       manifestPath = published.manifestPath;
@@ -2114,7 +2145,7 @@ export class DesktopController {
         return desktopFailure("ERROR", "DESKTOP-EXPORT-004", "Google Static 저장 digest 검증에 실패했습니다.");
       }
       const exportToken = this.#session.registerExport(artifactPath, manifestPath);
-      return { status: "EXPORTED", exportToken, jobName: request.jobName, pngFileName: artifactFileName, manifestFileName: "render-manifest.json", pngDigest: actualArtifactDigest, manifestDigest: actualManifestDigest, bytes: artifactStat.size, warnings: built.warnings, artifactFileName, artifactFormat: request.googleStatic?.outputFormat ?? "PNG", artifactDigest: actualArtifactDigest };
+      return { status: "EXPORTED", exportToken, jobName: request.jobName, pngFileName: artifactFileName, manifestFileName: "render-manifest.json", pngDigest: actualArtifactDigest, manifestDigest: actualManifestDigest, bytes: artifactStat.size, warnings: built.warnings, artifactFileName, artifactFormat: outputFormat, artifactDigest: actualArtifactDigest };
     } catch (error) {
       if (artifactPath || manifestPath) await Promise.allSettled([artifactPath ? rm(artifactPath, { force: true }) : Promise.resolve(), manifestPath ? rm(manifestPath, { force: true }) : Promise.resolve()]);
       return desktopFailure("ERROR", error instanceof DesktopSecurityError ? error.code : "DESKTOP-EXPORT-999", error instanceof Error ? error.message : "Google Static Export 중 내부 오류가 발생했습니다.");

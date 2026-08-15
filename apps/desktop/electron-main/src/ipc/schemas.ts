@@ -50,10 +50,44 @@ const googleStaticBackgroundSchema = z.strictObject({
   alpha: z.number().int().min(0).max(255),
 });
 
+const googleStaticNormalizedRectSchema = z.strictObject({
+  x: z.number().finite().min(0).max(1),
+  y: z.number().finite().min(0).max(1),
+  width: z.number().finite().gt(0).max(1),
+  height: z.number().finite().gt(0).max(1),
+}).refine((rect) => rect.x + rect.width <= 1 && rect.y + rect.height <= 1, { message: "normalized_rect_out_of_bounds" });
+
+const googleStaticNormalizedPointSchema = z.strictObject({
+  x: z.number().finite().min(0).max(1),
+  y: z.number().finite().min(0).max(1),
+});
+
+const googleStaticPlacementPlanSchema = z.strictObject({
+  schemaVersion: z.string().min(1).max(32),
+  imageSlotId: z.string().min(1).max(120),
+  assetId: z.string().min(1).max(200),
+  policy: z.enum(["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"]),
+  source: z.enum(["DETERMINISTIC", "MANUAL", "AGENT", "SAVED_CREATIVE"]),
+  fitMode: z.enum(["CONTAIN", "COVER"]),
+  cropRect: googleStaticNormalizedRectSchema.optional(),
+  focalPoint: googleStaticNormalizedPointSchema.optional(),
+  anchor: z.enum(["CENTER", "CENTER_LEFT", "CENTER_RIGHT", "TOP_CENTER", "TOP_LEFT", "TOP_RIGHT", "BOTTOM_CENTER", "BOTTOM_LEFT", "BOTTOM_RIGHT"]),
+  subjectProtection: z.enum(["REQUIRED", "PREFERRED", "NONE"]),
+  cropCandidateId: z.string().min(1).max(200).optional(),
+  confidence: z.number().finite().min(0).max(1).optional(),
+  protectedSubjects: z.array(z.strictObject({
+    subjectId: z.string().min(1).max(200),
+    subjectType: z.enum(["PRODUCT", "PERSON", "FACE", "LOGO", "TEXT", "OTHER"]),
+    bounds: googleStaticNormalizedRectSchema,
+  })).max(64).optional(),
+  rationale: z.string().max(2_000).optional(),
+});
+
 const googleStaticRequestSchema = z.strictObject({
   profileId: z.string().min(1).max(200),
   capabilityId: z.string().min(1).max(200).optional(),
   placementPolicy: z.enum(["NONE", "CENTER_CONTAIN", "MANUAL_CROP", "SEMANTIC_CROP_COVER", "ALPHA_TRIM_CONTAIN"]),
+  placementPlan: googleStaticPlacementPlanSchema.optional(),
   sourceRect: googleStaticRectSchema.optional(),
   destinationRect: googleStaticRectSchema,
   background: googleStaticBackgroundSchema,

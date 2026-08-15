@@ -260,6 +260,8 @@ export type GoogleStaticUiRequest = Readonly<{
   profileId: string;
   capabilityId?: string;
   placementPolicy: GoogleStaticPlacementPolicy;
+  /** Optional common ImagePlacementPlan used for manual Google image transforms. */
+  placementPlan?: ImagePlacementPlan;
   sourceRect?: GoogleStaticPixelRect;
   destinationRect: GoogleStaticPixelRect;
   background: GoogleStaticRgbaColor;
@@ -350,6 +352,8 @@ export type PreviewResult = {
     assetRole?: string;
     canvas?: { width: number; height: number };
     placementPolicy?: GoogleStaticPlacementPolicy;
+    placementPlan?: ImagePlacementPlan | null;
+    outputFormat?: "PNG" | "JPEG";
     deliveryCardinality?: "COLLECTION";
     renderFingerprint?: string | null;
   }> | null;

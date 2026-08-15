@@ -2,6 +2,10 @@ import type { GoogleStaticUiRequest } from "./types.js";
 
 function normalizeValue(value: unknown): unknown {
   if (typeof value === "string") return value.normalize("NFC");
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) throw new TypeError("Canonical Google Static numbers must be finite.");
+    return Object.is(value, -0) ? 0 : value;
+  }
   if (Array.isArray(value)) return value.map((entry) => normalizeValue(entry));
   if (value && typeof value === "object") {
     const record = value as Record<string, unknown>;
@@ -22,12 +26,13 @@ export function buildCanonicalGoogleStaticRequest(
   plan: GoogleStaticUiRequest,
   deliveryMetadata: unknown = plan.deliveryMetadata,
 ): GoogleStaticUiRequest {
-  if (deliveryMetadata === undefined) return { ...plan };
+  const normalizedPlan = normalizeValue(plan) as GoogleStaticUiRequest;
+  if (deliveryMetadata === undefined) return normalizedPlan;
   if (!deliveryMetadata || Array.isArray(deliveryMetadata) || typeof deliveryMetadata !== "object") {
     throw new TypeError("Delivery metadata must be a JSON object.");
   }
   return {
-    ...plan,
+    ...normalizedPlan,
     deliveryMetadata: normalizeValue(deliveryMetadata) as Readonly<Record<string, unknown>>,
   };
 }

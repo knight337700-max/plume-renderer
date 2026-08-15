@@ -105,6 +105,49 @@ test("Google Static Preview with delivery metadata exports without a false stale
   }
 });
 
+test("Google Static transform controls and raster format stay in Preview/Export parity", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "google", "g2", "source", "g2-GOOGLE_MARKETING_LANDSCAPE_1_91.png"),
+  );
+  try {
+    await launched.page.getByTestId("channel-google").click();
+    await launched.page.getByTestId("google-select-asset").click();
+    await expect(launched.page.getByTestId("google-asset-metadata")).toContainText("g2-GOOGLE_MARKETING_LANDSCAPE_1_91.png");
+    await expect(launched.page.getByTestId("google-output-format")).toHaveValue("PNG");
+    await launched.page.getByTestId("google-select-output").click();
+    await launched.page.getByTestId("google-request-preview").click();
+    await expect(launched.page.getByTestId("google-status")).toHaveText("PASS");
+    await expect(launched.page.getByTestId("google-download")).toBeEnabled();
+
+    await launched.page.getByTestId("google-output-format").selectOption("JPEG");
+    await expect(launched.page.getByTestId("google-status")).toHaveText("STALE");
+    await expect(launched.page.getByTestId("google-download")).toBeDisabled();
+    await launched.page.getByTestId("google-request-preview").click();
+    await expect(launched.page.getByTestId("google-status")).toHaveText("PASS");
+    await expect(launched.page.getByTestId("google-output-format")).toHaveValue("JPEG");
+    await launched.page.getByTestId("google-download").click();
+    await expect(launched.page.getByTestId("google-export-result")).toBeVisible();
+    await expect.poll(async () => {
+      try {
+        return await readdir(path.join(launched.outputRoot, "google-static"));
+      } catch {
+        return [];
+      }
+    }).toEqual(expect.arrayContaining(["output.jpg", "render-manifest.json"]));
+
+    await launched.page.getByTestId("google-placement-scale").fill("1.2");
+    await expect(launched.page.getByTestId("google-status")).toHaveText("STALE");
+    await expect(launched.page.getByTestId("google-download")).toBeDisabled();
+    await launched.page.getByTestId("google-placement-zoom-out").click();
+    await expect(launched.page.getByTestId("google-status")).toHaveText("STALE");
+    await launched.page.getByTestId("google-reset-placement").click();
+    await expect(launched.page.getByTestId("google-placement-scale")).toHaveValue("1");
+    await expect(launched.page.getByTestId("google-status")).toHaveText("STALE");
+  } finally {
+    await close(launched);
+  }
+});
+
 test("valid Desktop workflow renders Preview and atomically exports the Golden PNG", async () => {
   const launched = await launch(
     path.join(projectRoot, "fixtures", "valid", "object-right__product__basic__pass.png"),

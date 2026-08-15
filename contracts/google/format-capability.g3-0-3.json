@@ -1,0 +1,36 @@
+{
+  "$schema": "https://kbr.local/contracts/google/format-capability.g3-0-3.schema.json",
+  "$id": "https://kbr.local/contracts/google/format-capability.g3-0-3.json",
+  "schemaVersion": "1.0.0",
+  "phase": "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY",
+  "status": "IMPLEMENTED",
+  "sourceProfileRegistry": "contracts/google/static-asset-profiles.g1.json",
+  "sourceGoldenRegistry": "contracts/google/goldens.g2.1.json",
+  "globalAllowedFormats": ["PNG", "JPEG"],
+  "mimeByFormat": { "PNG": "image/png", "JPEG": "image/jpeg" },
+  "extensionByFormat": { "PNG": ".png", "JPEG": ".jpg" },
+  "profiles": [
+    { "profileId": "GOOGLE_MARKETING_LANDSCAPE_1_91", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "PNG" },
+    { "profileId": "GOOGLE_MARKETING_SQUARE_1_1", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "JPEG" },
+    { "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "PNG" },
+    { "profileId": "GOOGLE_RDA_VERTICAL_9_16", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "PNG" },
+    { "profileId": "GOOGLE_DEMAND_GEN_VERTICAL_9_16", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "JPEG" },
+    { "profileId": "GOOGLE_LOGO_SQUARE_1_1", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "PNG" },
+    { "profileId": "GOOGLE_LOGO_LANDSCAPE_4_1", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "PNG" },
+    { "profileId": "GOOGLE_DG_UPLOAD_300X250", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "PNG" },
+    { "profileId": "GOOGLE_DG_UPLOAD_336X280", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "JPEG" },
+    { "profileId": "GOOGLE_DG_UPLOAD_728X90", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "PNG" },
+    { "profileId": "GOOGLE_DG_UPLOAD_970X90", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "JPEG" },
+    { "profileId": "GOOGLE_DG_UPLOAD_160X600", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "PNG" },
+    { "profileId": "GOOGLE_DG_UPLOAD_300X600", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "JPEG" },
+    { "profileId": "GOOGLE_DG_UPLOAD_320X50", "allowedFormats": ["PNG", "JPEG"], "defaultFormat": "PNG" }
+  ],
+  "jpegPolicy": {
+    "qualityDefault": 88,
+    "qualitySlider": false,
+    "chromaSubsampling": "4:2:0",
+    "progressive": false,
+    "metadataPassthrough": false,
+    "alphaMatte": "EXISTING_OPAQUE_CANVAS_BACKGROUND"
+  }
+}

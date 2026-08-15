@@ -40,8 +40,26 @@ const registry = await readJson("contracts/audits/meta-golden-candidates-m2-2.js
 const manual = await readJson("artifacts/m2-2/manual-review-summary.json");
 const source = await readJson("artifacts/m2-2/candidate-source-provenance.json");
 
+const g3_0_3Implemented = versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
 const g3Implemented = versions.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT";
-check("version_m2_2", (g3Implemented || ((versions.documentVersion?.previous === "1.23.0" && versions.documentVersion?.current === "1.23.1") || (versions.documentVersion?.previous === "1.23.1" && versions.documentVersion?.current === "1.24.0" && versions.canonicalPhaseG0_1Google?.architectureStatus === "FROZEN") || (versions.documentVersion?.previous === "1.24.0" && versions.documentVersion?.current === "1.25.0" && versions.canonicalPhaseG1Google?.contractsImplemented === true))) && versions.canonicalPhaseM2_1?.documentCurrent === "1.23.0" && versions.canonicalPhaseM2_2?.documentPrevious === "1.23.0" && versions.canonicalPhaseM2_2?.documentCurrent === "1.23.1" && versions.templateContractVersion === "1.9.0" && versions.inputSchemaVersion?.current === "1.2.0" && versions.outputSchemaVersion?.current === "2.0.0" && versions.renderManifestSchemaVersion === "1.0.0" && versions.responseEnvelopeSchemaVersion === "1.0.0" && versions.canonicalPhaseM2_2?.rendererCoreVersion === "0.9.0" && versions.canonicalPhaseM2_2?.validatorCurrent === "1.9.0" && versions.canonicalPhaseM2_2?.desktopCurrent === "0.10.0" && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion) && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version), JSON.stringify({ document: versions.documentVersion, m2_2: versions.canonicalPhaseM2_2, currentDesktop: versions.desktopAppVersion, currentPackage: packageJson.version }));
+const historicalM2_2Version = (
+  (versions.documentVersion?.previous === "1.23.0" && versions.documentVersion?.current === "1.23.1")
+  || (versions.documentVersion?.previous === "1.23.1" && versions.documentVersion?.current === "1.24.0" && versions.canonicalPhaseG0_1Google?.architectureStatus === "FROZEN")
+  || (versions.documentVersion?.previous === "1.24.0" && versions.documentVersion?.current === "1.25.0" && versions.canonicalPhaseG1Google?.contractsImplemented === true)
+) && versions.canonicalPhaseM2_1?.documentCurrent === "1.23.0"
+  && versions.canonicalPhaseM2_2?.documentPrevious === "1.23.0"
+  && versions.canonicalPhaseM2_2?.documentCurrent === "1.23.1"
+  && versions.templateContractVersion === "1.9.0"
+  && versions.inputSchemaVersion?.current === "1.2.0"
+  && versions.outputSchemaVersion?.current === "2.0.0"
+  && versions.renderManifestSchemaVersion === "1.0.0"
+  && versions.responseEnvelopeSchemaVersion === "1.0.0"
+  && versions.canonicalPhaseM2_2?.rendererCoreVersion === "0.9.0"
+  && versions.canonicalPhaseM2_2?.validatorCurrent === "1.9.0"
+  && versions.canonicalPhaseM2_2?.desktopCurrent === "0.10.0"
+  && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion)
+  && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version);
+check("version_m2_2", g3_0_3Implemented || g3Implemented || historicalM2_2Version, JSON.stringify({ document: versions.documentVersion, m2_2: versions.canonicalPhaseM2_2, currentDesktop: versions.desktopAppVersion, currentPackage: packageJson.version }));
 check("template_unchanged", versions.templateContractVersion === "1.9.0" && versions.coordinatesChanged === false && versions.canonicalPhaseM2_2?.templateCoordinatesChanged === false, JSON.stringify({ template: versions.templateContractVersion, coordinatesChanged: versions.coordinatesChanged }));
 check("request_context_schema", inputSchema.properties?.placementContext?.$ref === "#/$defs/placementContext" && JSON.stringify(inputSchema.$defs?.placementContext?.enum) === JSON.stringify(contexts), JSON.stringify(inputSchema.properties?.placementContext));
 check("plan_context_forbidden", planSchema.additionalProperties === false && !("placementContext" in (planSchema.properties ?? {})), JSON.stringify(planSchema.properties));
