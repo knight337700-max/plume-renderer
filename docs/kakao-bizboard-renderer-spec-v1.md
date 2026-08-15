@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.31.0
-- **Status:** Frozen Implementation Contract — Phase G3.0.4 Google Static Geometry placement and manifest revision
+- **Document version:** 1.31.1
+- **Status:** Frozen Implementation Contract — Phase G3.0.5 Google Static Preview Fit and review-pack path hardening
 - **Checked date:** 2026-08-15 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **62. Phase G3.0.4 Google Static Geometry placement and manifest revision**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **63. Phase G3.0.5 Google Static Preview Fit and review-pack path hardening**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
 
 ---
 
@@ -5581,6 +5581,85 @@ record is `docs/implementation/google-static-desktop-qa-enablement-g3.md`; the A
 inputs and are not regenerated or rewritten. **[PROJECT]**
 
 `nextPhase`: `G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE`. **[PROJECT]**
+
+## 63. Phase G3.0.5 — Google Static Preview Fit and review-pack path hardening [PROJECT] [INFERRED]
+
+G3.0.5은 G3.0.4의 raster/export 의미를 변경하지 않는 Desktop view-layer patch다. 실제 production
+Electron UI에서 확인된 기존 결함은 Fit surface가 `16 / 9` wrapper와 width-constrained image에
+의존하면서 output canvas의 높이를 제약하지 않았다는 점이다. 그 결과 square, portrait,
+vertical profile의 Preview image bounding rect가 viewport 높이를 초과했지만 export bytes는
+정상이었다. **[PROJECT] [DERIVED]**
+
+### 63.1 Fit 표시 계약 [PROJECT]
+
+`Fit`은 output canvas 전체를 viewport content box 안에 contain으로 표시한다. view layer는
+다음 계산을 사용하며 output bitmap 또는 export request를 변경하지 않는다.
+
+```text
+fitScale = min(viewportInnerWidth / canvasPixelWidth,
+               viewportInnerHeight / canvasPixelHeight)
+displayWidth = canvasPixelWidth * fitScale
+displayHeight = canvasPixelHeight * fitScale
+```
+
+표시 canvas는 가로·세로 중앙 정렬하고 남는 영역은 letterbox로 둔다. 네 모서리는 viewport
+안에 있어야 하며 Fit 상태의 overflow와 scrollbar는 없어야 한다. 계산값이 유한하고 양수인
+경우에만 적용하고, CSS layout rounding 허용 오차는 1 CSS px 이하, display/output aspect
+차이는 0.1% 이하로 둔다. `ResizeObserver`를 통해 창, side panel 또는 viewport가 바뀔 때
+다시 계산한다. CSS `object-fit: contain`만 선언하고 부모 높이를 제공하지 않는 구현은 이
+계약을 충족하지 않는다. **[PROJECT] [INFERRED]**
+
+### 63.2 Actual Pixels와 view-only 불변식 [PROJECT]
+
+`100% actual pixels`는 output width와 height를 각각 동일한 CSS pixel 값으로 표시한다.
+viewport보다 큰 canvas는 내부 scrollbar로 전체 영역에 접근할 수 있고, `overflow: hidden`
+으로 영역을 잃지 않는다. Fit/Actual 전환과 창 resize는 view-only 상태이므로 canonical
+request, canonical input digest, render fingerprint, output bytes, validation PASS/STALE
+상태를 변경하지 않는다. Fit으로 돌아오면 같은 output canvas가 즉시 전체 표시된다.
+**[PROJECT]**
+
+### 63.3 Pointer 기준 rect와 Uploaded Display lock [PROJECT]
+
+Geometry profile pointer interaction은 outer preview surface가 아니라 실제로 표시된
+`google-preview-content`의 `getBoundingClientRect()`를 기준으로 normalized delta를 계산한다.
+letterbox에서 시작한 drag는 no-op이며, Fit/Actual/resize/DPR에서도 같은 displayed-content
+rect semantics를 사용한다. pointer로 얻은 X/Y/Scale과 같은 수치 입력은 기존 canonical
+placement semantics, digest, fingerprint 및 bytes를 유지한다. 기존 G3.0.4의 focal-center
+의미와 identity transform은 변경하지 않는다. **[PROJECT] [INFERRED]**
+
+7개 `UPLOADED_DISPLAY_STATIC` profile은 `NONE` exact-canvas다. pointer drag, wheel/zoom,
+X/Y/Scale input, +/- zoom, placement reset, explicit placement plan textarea 편집,
+`Plan 적용`, profile-default action은 모두 hidden 또는 disabled/read-only이고 실제 event
+handler도 no-op이어야 한다. Canonical JSON은 inspection용 read-only 표시로만 남길 수 있다.
+Format 선택과 export는 계속 사용할 수 있다. **[PROJECT]**
+
+### 63.4 Review-pack 경로 개인정보 계약 [PROJECT]
+
+차기 G3.2.2 review pack payload에는 ZIP root 상대경로, repository-relative path 또는
+`DESKTOP_ROOT` 같은 익명 logical root label만 기록한다. drive-letter/UNC/Unix home 경로,
+사용자명, home/temp directory, Electron executable 전체 경로, output staging 전체 경로는
+금지한다. Execution identity는 executable basename과 repository-relative build artifact
+및 digest만 포함한다. JSON/HTML/MD/TXT를 fail-closed scan하며 외부 URL/CDN/font/script,
+credential/token/API key 및 `NOT_EXPOSED` placeholder도 허용하지 않는다. 과거 G3.2.1
+evidence는 원본 hash와 실패 원인을 보존하고 sanitize 또는 성공 재분류하지 않는다. 이
+단계에서는 G3.2.2 pack을 생성하지 않는다. **[PROJECT] [MANUAL]**
+
+### 63.5 회귀·버전·범위 [PROJECT]
+
+G3.0.5는 Desktop UI 및 evidence tooling patch다. Canonical document는 `1.31.0`에서
+`1.31.1`로 patch 증가하고 Desktop/package는 `0.13.0`에서 `0.13.1`로 patch 증가한다.
+Google export manifest `1.1.0`, Renderer Core `0.11.0`, Validator `1.11.0`, Template
+`1.9.0`, Input `1.2.0`, Output `2.0.0`, response envelope `1.0.0`, Google profile/Golden
+registry, G3.1 freeze registry 및 좌표는 유지한다. KAKAO/NAVER/META output, runtime network
+정책(`PROHIBITED`) 및 Plume 비의존도 유지한다. 사용자 acceptance, Desktop QA freeze,
+G4 release freeze는 이 단계에서 기록하지 않는다. **[PROJECT]**
+
+실행 기록은 `docs/implementation/google-static-preview-fit-review-pack-hardening-g3-0-5.md`,
+G3.2.1 외부 review 보존 기록은 `docs/reviews/google-static-final-output-review-g3-2-1.md`,
+ADR은 `docs/adr/ADR-0069-google-static-preview-fit-and-review-pack-hardening-g3-0-5.md`,
+verifier는 `scripts/verify-g3-0-5-google-static-preview-fit-review-pack.mjs`다. 다음 단계는
+`G3_2_2_GOOGLE_STATIC_FINAL_OUTPUT_PACK_REGENERATION`이며 새 pack이 외부 검토될 때까지
+G4 release freeze는 HOLD다. **[PROJECT] [MANUAL]**
 
 ## 62. Phase G3.0.4 — Google Static Geometry placement and manifest revision [PROJECT] [INFERRED]
 

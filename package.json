@@ -1,6 +1,6 @@
 {
   "name": "kakao-bizboard-local-renderer",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "private": true,
   "type": "module",
   "description": "Unofficial independent local Kakao Bizboard OBJECT_RIGHT renderer core, CLI, and Windows desktop app",
@@ -57,6 +57,8 @@
     "verify:g3-0-2-google": "node scripts/verify-g3-0-2-google-static-preview-export.mjs",
     "verify:g3-0-3-google": "node scripts/verify-g3-0-3-google-static-transform-raster-export-parity.mjs",
     "verify:g3-0-4-google": "node scripts/verify-g3-0-4-google-static-geometry-placement-manifest.mjs",
+    "verify:g3-0-5-google": "node scripts/verify-g3-0-5-google-static-preview-fit-review-pack.mjs",
+    "verify:g3-2-2-pack-hygiene": "node scripts/verify-g3-2-2-google-static-review-pack-hygiene.mjs",
     "verify:g3-google": "node scripts/verify-g3-google-static-desktop-qa.mjs",
     "promote:g2-1-google": "node scripts/promote-g2-1-google-goldens.mjs",
     "evidence:m2-meta": "pnpm build && node scripts/generate-m2-meta-audit.mjs",

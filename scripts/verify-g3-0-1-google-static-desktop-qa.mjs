@@ -98,6 +98,7 @@ if (versions?.documentVersion?.current === "1.30.0" && versions?.canonicalPhaseG
 const g3_0_2Implemented = versions?.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION";
 const g3_0_3Implemented = versions?.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
 const g3_0_4Implemented = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION";
+const g3_0_5Implemented = versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING";
 const packageJson = await readJson("package.json");
 const canonicalSha = await sha256("docs/kakao-bizboard-renderer-spec-v1.md").catch(() => null);
 const goldenRegistrySha = await sha256("contracts/google/goldens.g2.1.json").catch(() => null);
@@ -121,12 +122,16 @@ try {
 check("g3_feature_lineage", g3FeatureReachable, g3FeatureCommit);
 
 check("revision_scope", versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" && versions?.canonicalPhaseG3Google?.desktopUiAdded === true, JSON.stringify(versions?.canonicalPhaseG3Google));
-check("canonical_unchanged", g3_0_4Implemented
+check("canonical_unchanged", g3_0_5Implemented
+  ? versions?.documentVersion?.previous === "1.31.0" && versions?.documentVersion?.current === "1.31.1" && versions?.documentVersion?.bump === "patch"
+  : g3_0_4Implemented
   ? versions?.documentVersion?.previous === "1.30.0" && versions?.documentVersion?.current === "1.31.0" && versions?.documentVersion?.bump === "minor"
   : g3_0_3Implemented
   ? versions?.documentVersion?.previous === "1.28.1" && versions?.documentVersion?.current === "1.29.0" && versions?.documentVersion?.bump === "minor"
   : g3_0_2Implemented ? versions?.documentVersion?.previous === "1.28.0" && versions?.documentVersion?.current === "1.28.1" : canonicalSha === expectedCanonicalSha256 && versions?.documentVersion?.current === "1.28.0", JSON.stringify({ expected: expectedCanonicalSha256, actual: canonicalSha, version: versions?.documentVersion?.current }));
-check("desktop_package_unchanged", g3_0_4Implemented
+check("desktop_package_unchanged", g3_0_5Implemented
+  ? packageJson?.version === "0.13.1" && versions?.desktopAppVersion === "0.13.1"
+  : g3_0_4Implemented
   ? packageJson?.version === "0.13.0" && versions?.desktopAppVersion === "0.13.0"
   : g3_0_3Implemented
   ? packageJson?.version === "0.12.0" && versions?.desktopAppVersion === "0.12.0"

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 
 import {
   applyGoogleStaticPlacementTransform,
@@ -11,6 +11,7 @@ import profilesRegistry from "../../../../../../contracts/google/static-asset-pr
 import desktopQaRegistry from "../../../../../../contracts/google/desktop-qa.g3.json" with { type: "json" };
 import { issueMessage, localizedMessage } from "../validation/messages.js";
 import { formatProductMetadata } from "../product-file/format.js";
+import { isPointInsidePreviewContent, normalizedPointerDelta, resolveFitPreviewGeometry, type FitPreviewGeometry } from "./google-preview-geometry.js";
 
 type Profile = (typeof profilesRegistry.geometryProfiles)[number] | (typeof profilesRegistry.uploadedDisplayStaticProfiles)[number];
 type SelectedProduct = Extract<ProductSelectionResult, { status: "SELECTED" }>;
@@ -74,7 +75,33 @@ export function GoogleStaticEditor() {
   const [localError, setLocalError] = useState<string | null>(null);
   const [stale, setStale] = useState(false);
   const sequence = useRef(0);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ pointerId: number; startX: number; startY: number; values: PlacementValues } | null>(null);
+  const [fitGeometry, setFitGeometry] = useState<FitPreviewGeometry | null>(null);
+  const metadata = preview?.pngMetadata;
+
+  useLayoutEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !metadata) {
+      setFitGeometry(null);
+      return undefined;
+    }
+    const measure = () => {
+      const next = resolveFitPreviewGeometry(
+        { width: canvas.clientWidth, height: canvas.clientHeight },
+        { width: metadata.width, height: metadata.height },
+      );
+      setFitGeometry((current) => {
+        if (!next || !current || current.width !== next.width || current.height !== next.height || current.scale !== next.scale) return next;
+        return current;
+      });
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(canvas);
+    measure();
+    return () => observer.disconnect();
+  }, [metadata?.height, metadata?.width]);
 
   useEffect(() => {
     if (!profile) return;
@@ -117,6 +144,7 @@ export function GoogleStaticEditor() {
   }
 
   function applyPlan() {
+    if (profile.role === "UPLOADED_DISPLAY_STATIC") return;
     try {
       const next = JSON.parse(planText) as GoogleStaticUiRequest;
       if (!next || next.profileId !== profile.profileId) throw new Error("Plan profileId가 선택한 profile과 다릅니다.");
@@ -129,6 +157,7 @@ export function GoogleStaticEditor() {
   }
 
   function updatePlacement(next: PlacementValues) {
+    if (profile.role === "UPLOADED_DISPLAY_STATIC") return;
     if (![next.x, next.y, next.scale].every(Number.isFinite) || next.x < 0 || next.x > 1 || next.y < 0 || next.y > 1 || next.scale <= 0 || next.scale > 4) {
       setLocalError(localizedMessage("google.placement_invalid"));
       markDirty();
@@ -147,6 +176,7 @@ export function GoogleStaticEditor() {
   }
 
   function resetPlacement() {
+    if (profile.role === "UPLOADED_DISPLAY_STATIC") return;
     const defaults = defaultPlan(profile, asset ?? undefined);
     const next = {
       ...defaults,
@@ -170,6 +200,8 @@ export function GoogleStaticEditor() {
 
   function pointerDown(event: PointerEvent<HTMLDivElement>) {
     if (!asset || profile.role === "UPLOADED_DISPLAY_STATIC") return;
+    const bounds = contentRef.current?.getBoundingClientRect();
+    if (!bounds || !isPointInsidePreviewContent({ x: event.clientX, y: event.clientY }, bounds)) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, values: placementValues };
   }
@@ -177,10 +209,10 @@ export function GoogleStaticEditor() {
   function pointerMove(event: PointerEvent<HTMLDivElement>) {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const dx = bounds.width > 0 ? (event.clientX - drag.startX) / bounds.width : 0;
-    const dy = bounds.height > 0 ? (event.clientY - drag.startY) / bounds.height : 0;
-    updatePlacement({ x: drag.values.x + dx, y: drag.values.y + dy, scale: drag.values.scale });
+    const bounds = contentRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+    const delta = normalizedPointerDelta({ x: drag.startX, y: drag.startY }, { x: event.clientX, y: event.clientY }, bounds);
+    updatePlacement({ x: drag.values.x + delta.x, y: drag.values.y + delta.y, scale: drag.values.scale });
   }
 
   function pointerUp(event: PointerEvent<HTMLDivElement>) {
@@ -248,8 +280,12 @@ export function GoogleStaticEditor() {
     }
   }
 
-  const metadata = preview?.pngMetadata;
-  const previewStyle = view === "ACTUAL" && metadata ? { width: `${metadata.width}px`, height: `${metadata.height}px`, maxWidth: "none", maxHeight: "none" } : undefined;
+  const contentStyle = view === "FIT" && fitGeometry
+    ? { width: `${fitGeometry.width}px`, height: `${fitGeometry.height}px` }
+    : view === "ACTUAL" && metadata
+      ? { width: `${metadata.width}px`, height: `${metadata.height}px` }
+      : undefined;
+  const previewStyle = metadata ? { width: "100%", height: "100%", maxWidth: "none", maxHeight: "none" } : undefined;
   const allowedFormats = (profilesRegistry.rendererOutputMime ?? []).map((mime) => mime === "image/jpeg" ? "JPEG" : "PNG").filter((format, index, all) => all.indexOf(format) === index) as Array<"PNG" | "JPEG">;
   const canExport = Boolean(asset && output && preview?.previewToken && !stale && preview.validationStatus !== "ERROR" && preview.errors.length === 0 && !busy);
   const status = stale ? "STALE" : preview?.validationStatus ?? "READY";
@@ -304,14 +340,14 @@ export function GoogleStaticEditor() {
             <label><span>{localizedMessage("google.placement_y")}</span><input disabled={profile.role === "UPLOADED_DISPLAY_STATIC" || !asset} data-testid="google-placement-y" type="number" min="0" max="1" step="0.01" value={placementValues.y} onChange={(event) => updatePlacement({ ...placementValues, y: Number(event.currentTarget.value) })} /></label>
             <label><span>{localizedMessage("google.placement_scale")}</span><input disabled={profile.role === "UPLOADED_DISPLAY_STATIC" || !asset} data-testid="google-placement-scale" type="number" min="0.25" max="4" step="0.01" value={placementValues.scale} onChange={(event) => updatePlacement({ ...placementValues, scale: Number(event.currentTarget.value) })} /></label>
           </div>
-          <div className="button-row google-placement-buttons"><button type="button" className="secondary" onClick={() => updatePlacement({ ...placementValues, scale: Math.max(0.25, quantize(placementValues.scale - 0.1)) })} disabled={!asset || profile.role === "UPLOADED_DISPLAY_STATIC"} data-testid="google-placement-zoom-out">−</button><button type="button" className="secondary" onClick={() => updatePlacement({ ...placementValues, scale: Math.min(4, quantize(placementValues.scale + 0.1)) })} disabled={!asset || profile.role === "UPLOADED_DISPLAY_STATIC"} data-testid="google-placement-zoom-in">+</button><button type="button" className="secondary" onClick={resetPlacement} data-testid="google-reset-placement">{localizedMessage("google.reset_placement")}</button></div>
+          <div className="button-row google-placement-buttons"><button type="button" className="secondary" onClick={() => updatePlacement({ ...placementValues, scale: Math.max(0.25, quantize(placementValues.scale - 0.1)) })} disabled={!asset || profile.role === "UPLOADED_DISPLAY_STATIC"} data-testid="google-placement-zoom-out">−</button><button type="button" className="secondary" onClick={() => updatePlacement({ ...placementValues, scale: Math.min(4, quantize(placementValues.scale + 0.1)) })} disabled={!asset || profile.role === "UPLOADED_DISPLAY_STATIC"} data-testid="google-placement-zoom-in">+</button><button type="button" className="secondary" onClick={resetPlacement} disabled={profile.role === "UPLOADED_DISPLAY_STATIC"} data-testid="google-reset-placement">{localizedMessage("google.reset_placement")}</button></div>
           <small className="hint">{localizedMessage("google.placement_normalized_hint")}</small>
         </div>
 
         <div className="google-card">
           <div className="section-heading"><h3>Explicit placement plan</h3><span className="capability-pill">Canonical JSON</span></div>
-          <textarea className="google-plan-json" data-testid="google-plan-json" value={planText} onChange={(event) => { setPlanText(event.target.value); markDirty(); }} />
-          <div className="button-row"><button type="button" onClick={applyPlan} data-testid="google-apply-plan">Plan 적용</button><button type="button" className="secondary" onClick={resetPlacement} data-testid="google-reset-plan">Profile 기본값</button></div>
+          <textarea className="google-plan-json" data-testid="google-plan-json" value={planText} readOnly={profile.role === "UPLOADED_DISPLAY_STATIC"} onChange={(event) => { if (profile.role === "UPLOADED_DISPLAY_STATIC") return; setPlanText(event.target.value); markDirty(); }} />
+          <div className="button-row"><button type="button" onClick={applyPlan} disabled={profile.role === "UPLOADED_DISPLAY_STATIC"} data-testid="google-apply-plan">Plan 적용</button><button type="button" className="secondary" onClick={resetPlacement} disabled={profile.role === "UPLOADED_DISPLAY_STATIC"} data-testid="google-reset-plan">Profile 기본값</button></div>
           <small className="hint">destinationRect와 ImagePlacementPlan은 profile canvas 안의 정규화된 입력입니다. Platform fields는 이 plan에 포함되지 않습니다.</small>
         </div>
 
@@ -327,7 +363,7 @@ export function GoogleStaticEditor() {
 
       <section className="google-preview-panel" aria-label="Google Static QA Preview">
         <div className="section-heading"><div><h2>Preview</h2><p className="hint">실제 artifact만 표시 · platform chrome 없음</p></div><div className="button-row"><button type="button" className={view === "FIT" ? "primary" : "secondary"} onClick={() => setView("FIT")} data-testid="google-fit-view">Fit</button><button type="button" className={view === "ACTUAL" ? "primary" : "secondary"} onClick={() => setView("ACTUAL")} data-testid="google-actual-view">100% actual pixels</button></div></div>
-        <div className={`google-canvas google-canvas-${view.toLowerCase()} google-placement-surface`} data-testid="google-preview-canvas" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp}><div className="google-canvas-inner" style={view === "ACTUAL" && metadata ? { width: `${metadata.width}px`, height: `${metadata.height}px` } : undefined}>{preview?.previewUrl ? <img src={preview.previewUrl} alt="Google Static preview" data-testid="google-preview-image" style={previewStyle} draggable={false} /> : <div className="preview-empty">Preview가 없습니다.</div>}</div></div>
+        <div ref={canvasRef} className={`google-canvas google-canvas-${view.toLowerCase()} google-placement-surface`} data-testid="google-preview-canvas" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerUp} onPointerCancel={pointerUp}><div ref={contentRef} className="google-canvas-inner" data-testid="google-preview-content" style={contentStyle}>{preview?.previewUrl ? <img src={preview.previewUrl} alt="Google Static preview" data-testid="google-preview-image" style={previewStyle} draggable={false} /> : <div className="preview-empty">Preview가 없습니다.</div>}</div></div>
         <div className="validation-summary google-validation-summary"><div><span>상태</span><strong data-testid="google-status">{status}</strong></div><div><span>Canvas</span><strong>{metadata ? `${metadata.width}×${metadata.height}` : "—"}</strong></div><div><span>Format</span><strong>{metadata?.format ?? plan.outputFormat}</strong></div><div><span>Bytes</span><strong>{metadata?.bytes ?? 0}</strong></div><div><span>Fingerprint</span><strong>{preview?.googleStatic?.renderFingerprint?.slice(0, 10) ?? "—"}</strong></div></div>
         <div className="google-issues" data-testid="google-diagnostics"><h3>Diagnostics</h3>{issueList(preview?.errors ?? [], "ERROR 없음")}{issueList(preview?.warnings ?? [], "WARNING 없음")}{issueList(preview?.info ?? [], "INFO 없음")}</div>
         {preview?.googleStatic ? <pre className="google-contract-summary" data-testid="google-contract-summary">{pretty(preview.googleStatic)}</pre> : null}

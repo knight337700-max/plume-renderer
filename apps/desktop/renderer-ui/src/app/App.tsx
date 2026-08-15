@@ -646,6 +646,7 @@ export function App() {
         <div className="app-version">v{appInfo?.version ?? "…"}</div>
       </header>
 
+      <div className="app-content" data-testid="desktop-app-content">
       <RendererErrorBoundary boundaryKey={channel} onNavigateDefault={() => setChannel("KAKAO")}>
       {channel === "NAVER" ? <NaverDesktopEditor /> : channel === "GOOGLE" ? <GoogleStaticEditor /> : (channel === "META" || layoutMode === "FREEFORM") ? <FreeformEditor channel={channel} {...(channel === "META" ? { initialProfileId: "META_STATIC_FEED_SQUARE" } : {})} /> : <section className="workspace">
         <aside className="input-panel" aria-label="입력 패널">
@@ -960,6 +961,7 @@ export function App() {
         </section>
       </section>}
       </RendererErrorBoundary>
+      </div>
 
       {channel === "KAKAO" && layoutMode === "TEMPLATE_LOCKED" ? <footer className="export-bar">
         <div>

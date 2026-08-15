@@ -241,10 +241,15 @@ const g3GoogleTransform = canonicalDocument.canonicalPhaseG3_0_3Google;
 const g3_1GoogleFreeze = canonicalDocument.canonicalPhaseG3_1Google;
 const g3_1FrozenHistorical = g3_1GoogleFreeze?.phase === "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" && g3_1GoogleFreeze?.status === "FROZEN";
 const g3_0_4Google = canonicalDocument.canonicalPhaseG3_0_4Google;
+const g3_0_5Google = canonicalDocument.canonicalPhaseG3_0_5Google;
 const g3_0_4Implemented = g3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION";
-const g3_1Frozen = g3_1FrozenHistorical && !g3_0_4Implemented;
+const g3_0_5Implemented = g3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING";
+const g3LatestImplemented = g3_0_5Implemented || g3_0_4Implemented;
+const g3_1Frozen = g3_1FrozenHistorical && !g3LatestImplemented;
 const g3_0_3Implemented = g3GoogleTransform?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
-const g3GoogleCurrent = g3_0_4Implemented
+const g3GoogleCurrent = g3_0_5Implemented
+  ? { ...g3GoogleVersion, ...g3_0_5Google, validatorCurrent: g3_0_5Google.validatorVersion }
+  : g3_0_4Implemented
   ? { ...g3GoogleVersion, ...g3_0_4Google, validatorCurrent: g3_0_4Google.validatorVersion }
   : g3_0_3Implemented ? g3GoogleTransform : g3GoogleRevision;
 const g3FormatCapability = g3_0_3Implemented
@@ -294,7 +299,7 @@ for (const absolutePath of await collectFiles(target)) {
   files.push({ path: relativePath, sha256: await sha256(absolutePath), role: fileRole(relativePath) });
 }
 
-const readme = `# Renderer Module — ${g3_0_4Implemented ? "G3.0.4 Google Static Geometry placement and manifest revision" : g3_1Frozen ? "G3.1 Google Static Desktop QA freeze" : "G3 Google Static Desktop QA handoff"}
+const readme = `# Renderer Module — ${g3_0_5Implemented ? "G3.0.5 Google Static Preview Fit and review-pack hardening" : g3_0_4Implemented ? "G3.0.4 Google Static Geometry placement and manifest revision" : g3_1Frozen ? "G3.1 Google Static Desktop QA freeze" : "G3 Google Static Desktop QA handoff"}
 
 ## Purpose
 
@@ -378,7 +383,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-  The latest phase is ${g3_0_4Implemented ? "G3.0.4 Google Static Geometry placement and manifest revision" : g3_1Frozen ? "G3.1 Google Static Desktop User QA and Freeze" : "G3.0.3 Google Static Transform & Raster Export Parity"} and the canonical document is v${canonicalDocument.documentVersion.current}. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen historical candidate artifacts; G2.1 freezes the fourteen explicitly accepted byte-identical Google Goldens. G3 exposes those frozen profiles in the additive Desktop QA workflow with deterministic preview, diagnostics, Fit/Actual view, and pass-only local export. G3.0.2 aligns Preview and Export on one canonical request identity while preserving stale blocking for changed delivery metadata. G3.0.3 adds the production format capability registry, common placement controls, deterministic PNG/JPEG encoding, stale placement/format guards, and preserves all fourteen frozen bytes. ${g3_0_4Implemented ? "G3.0.4 corrects the production Geometry defaults and manifest contract while preserving G3.1 as superseded historical evidence." : g3_1Frozen ? "G3.1 freezes the explicit user acceptance and review evidence without changing runtime or Golden outputs." : "G3.1 remains the next acceptance phase."} M1 implements the three project output presets,
+  The latest phase is ${g3_0_5Implemented ? "G3.0.5 Google Static Preview Fit and review-pack hardening" : g3_0_4Implemented ? "G3.0.4 Google Static Geometry placement and manifest revision" : g3_1Frozen ? "G3.1 Google Static Desktop User QA and Freeze" : "G3.0.3 Google Static Transform & Raster Export Parity"} and the canonical document is v${canonicalDocument.documentVersion.current}. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen historical candidate artifacts; G2.1 freezes the fourteen explicitly accepted byte-identical Google Goldens. G3 exposes those frozen profiles in the additive Desktop QA workflow with deterministic preview, diagnostics, Fit/Actual view, and pass-only local export. G3.0.2 aligns Preview and Export on one canonical request identity while preserving stale blocking for changed delivery metadata. G3.0.3 adds the production format capability registry, common placement controls, deterministic PNG/JPEG encoding, stale placement/format guards, and preserves all fourteen frozen bytes. ${g3_0_5Implemented ? "G3.0.5 hardens view-only preview geometry, pointer semantics, Uploaded Display control locks, and future review-pack path privacy without changing raster outputs." : g3_0_4Implemented ? "G3.0.4 corrects the production Geometry defaults and manifest contract while preserving G3.1 as superseded historical evidence." : g3_1Frozen ? "G3.1 freezes the explicit user acceptance and review evidence without changing runtime or Golden outputs." : "G3.1 remains the next acceptance phase."} M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
@@ -432,7 +437,7 @@ if (readmeEntry) readmeEntry.sha256 = await sha256(path.join(target, "README.md"
 
 const manifest = {
   packageName: "Renderer Module",
-  handoffPhase: g3_0_4Implemented ? "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" : g3_1Frozen ? "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" : g3_0_3GoogleVerificationStatus === "PASS" ? "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY" : g3GoogleVerificationStatus === "PASS" ? "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" : (g2_1GoogleVerificationStatus === "PASS" ? "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" : "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES"),
+  handoffPhase: g3_0_5Implemented ? "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" : g3_0_4Implemented ? "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" : g3_1Frozen ? "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" : g3_0_3GoogleVerificationStatus === "PASS" ? "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY" : g3GoogleVerificationStatus === "PASS" ? "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" : (g2_1GoogleVerificationStatus === "PASS" ? "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" : "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES"),
   sourceRepository: "C:/Users/Lenovo/Desktop/kakao-bizboard-renderer-spec-v1-package",
   sourceSha,
   createdAt: new Date().toISOString(),
@@ -951,6 +956,12 @@ const manifest = {
     g3_0_4GoogleVerifier: "scripts/verify-g3-0-4-google-static-geometry-placement-manifest.mjs",
     g3_0_4GoogleDefaultPlanHelper: "apps/desktop/shared/src/google-static-default-plan.ts",
     g3_0_4GoogleIntegrationTest: "tests/desktop/integration/google-static-g3-0-4.test.ts",
+    g3_0_5GoogleImplementationRecord: "docs/implementation/google-static-preview-fit-review-pack-hardening-g3-0-5.md",
+    g3_0_5GoogleReviewDocument: "docs/reviews/google-static-final-output-review-g3-2-1.md",
+    g3_0_5GoogleAdr: "docs/adr/ADR-0069-google-static-preview-fit-and-review-pack-hardening-g3-0-5.md",
+    g3_0_5GoogleVerifier: "scripts/verify-g3-0-5-google-static-preview-fit-review-pack.mjs",
+    g3_0_5GooglePathPolicy: "scripts/google-review-pack-path-policy.mjs",
+    g3_0_5GoogleE2eTest: "tests/e2e/google-static-g3-0-5.spec.ts",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -1178,7 +1189,7 @@ const manifest = {
     nextPhase: g2_1GoogleVersion.nextPhase,
   },
   g3GoogleStaticDesktopQa: {
-    phase: g3GoogleVersion.phase,
+    phase: g3GoogleCurrent.phase,
     status: g3GoogleVerificationStatus,
     registryVersion: g3GoogleQa.registryVersion,
     registry: g3GoogleVersion.desktopQaRegistry,
@@ -1200,10 +1211,10 @@ const manifest = {
     googleUploadApi: g3GoogleVersion.googleUploadApiAdded,
     oauth: g3GoogleQa.oauth,
     plumeDependencies: g3GoogleVersion.plumeDependencies,
-    implementationRecord: g3GoogleVersion.implementationDocument,
-    adr: g3GoogleVersion.adr,
-    verifier: g3GoogleVersion.verifier,
-    nextPhase: g3GoogleVersion.nextPhase,
+    implementationRecord: g3GoogleCurrent.implementationDocument,
+    adr: g3GoogleCurrent.adr,
+    verifier: g3GoogleCurrent.verifier,
+    nextPhase: g3GoogleCurrent.nextPhase,
     revision: {
       phase: g3GoogleRevision.phase,
       documentVersion: g3GoogleRevision.documentCurrent,
@@ -1295,6 +1306,36 @@ const manifest = {
     freezePerformed: g3_0_4Google.freezePerformed,
     g3_2Started: g3_0_4Google.g3_2Started,
     nextPhase: g3_0_4Google.nextPhase,
+  } : null,
+  g3_0_5GooglePreviewFitReviewPack: g3_0_5Implemented ? {
+    phase: g3_0_5Google.phase,
+    status: "IMPLEMENTED",
+    documentVersion: g3_0_5Google.documentCurrent,
+    desktopVersion: g3_0_5Google.desktopCurrent,
+    packageVersion: g3_0_5Google.packageCurrent,
+    profileCount: g3_0_5Google.profileCount,
+    geometryProfileCount: g3_0_5Google.geometryProfileCount,
+    uploadedDisplayStaticProfileCount: g3_0_5Google.uploadedDisplayStaticProfileCount,
+    fitUsesBothViewportDimensions: g3_0_5Google.fitUsesBothViewportDimensions,
+    actualPixelsOneCssPixel: g3_0_5Google.actualPixelsOneCssPixel,
+    pointerRect: g3_0_5Google.pointerRect,
+    letterboxDrag: g3_0_5Google.letterboxDrag,
+    uploadedPlacementControls: g3_0_5Google.uploadedPlacementControls,
+    viewOnlyInvariant: g3_0_5Google.viewOnlyInvariant,
+    reviewPackPathPolicy: g3_0_5Google.reviewPackPathPolicy,
+    historicalG3_2_1EvidenceSha256: g3_0_5Google.historicalG3_2_1EvidenceSha256,
+    historicalG3_2_1EvidenceClass: g3_0_5Google.historicalG3_2_1EvidenceClass,
+    userAcceptanceRequested: g3_0_5Google.userAcceptanceRequested,
+    freezePerformed: g3_0_5Google.freezePerformed,
+    g3_2_2Started: g3_0_5Google.g3_2_2Started,
+    runtimeNetworkAccess: g3_0_5Google.runtimeNetworkAccess,
+    plumeDependencies: g3_0_5Google.plumeDependencies,
+    frozenChannelOutputChanges: g3_0_5Google.frozenChannelOutputChanges,
+    implementationDocument: g3_0_5Google.implementationDocument,
+    reviewDocument: g3_0_5Google.reviewDocument,
+    adr: g3_0_5Google.adr,
+    verifier: g3_0_5Google.verifier,
+    nextPhase: g3_0_5Google.nextPhase,
   } : null,
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

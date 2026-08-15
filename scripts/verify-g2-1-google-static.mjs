@@ -168,8 +168,9 @@ async function main() {
   check("expected_vertical_info", frozen?.entries?.find((entry) => entry.profileId === "GOOGLE_RDA_VERTICAL_9_16")?.expectedInfoDiagnostics?.includes("KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY") === true && frozen?.entries?.find((entry) => entry.profileId === "GOOGLE_DEMAND_GEN_VERTICAL_9_16")?.expectedInfoDiagnostics?.includes("KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED") === true, "RDA and Demand Gen vertical INFO diagnostics remain explicit");
 
   const versions = await readJson("contracts/contract-versions.json");
-  g304Compatibility = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION"
-    && versions?.documentVersion?.current === "1.31.0";
+  g304Compatibility = (versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION"
+    && versions?.documentVersion?.current === "1.31.0") || (versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING"
+    && versions?.documentVersion?.current === "1.31.1");
   if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
   const packageJson = await readJson("package.json");
   const renderSource = await readFile(path.join(root, "src/core/google-static-render.ts"), "utf8").catch(() => "");

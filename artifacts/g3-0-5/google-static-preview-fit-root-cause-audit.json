@@ -1,0 +1,42 @@
+{
+  "phase": "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING",
+  "status": "PASS",
+  "execution": {
+    "mode": "ELECTRON_PRODUCTION_UI_IPC_PREVIEW",
+    "build": "dist-desktop",
+    "source": "fixtures/google/g2/source/g2-GOOGLE_MARKETING_LANDSCAPE_1_91.png",
+    "devicePixelRatio": 2
+  },
+  "baselineObservation": {
+    "previewSurfaceCss": { "width": 858, "height": 475 },
+    "fitWrapper": "16/9 aspect-ratio with no definite height constraint",
+    "landscapeImageCss": { "width": 856, "height": 448 },
+    "squareImageCss": { "width": 841, "height": 841 },
+    "portraitImageCss": { "width": 841, "height": 1051.2 },
+    "verticalImageCss": { "width": 841, "height": 1495.1 },
+    "pointerRect": "outer google-placement-surface",
+    "overflow": "auto",
+    "cause": "width-constrained image and unresolved parent height allowed square/portrait/vertical content to exceed the visible surface"
+  },
+  "profilesAudited": [
+    "GOOGLE_MARKETING_LANDSCAPE_1_91",
+    "GOOGLE_MARKETING_SQUARE_1_1",
+    "GOOGLE_MARKETING_PORTRAIT_4_5",
+    "GOOGLE_RDA_VERTICAL_9_16",
+    "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+    "GOOGLE_LOGO_SQUARE_1_1",
+    "GOOGLE_LOGO_LANDSCAPE_4_1",
+    "GOOGLE_DG_UPLOAD_160X600",
+    "GOOGLE_DG_UPLOAD_320X50",
+    "GOOGLE_DG_UPLOAD_970X90"
+  ],
+  "fixedContract": {
+    "fitScale": "min(viewportInnerWidth/canvasPixelWidth, viewportInnerHeight/canvasPixelHeight)",
+    "contentRect": "google-preview-content.getBoundingClientRect()",
+    "letterboxDrag": "NO_OP",
+    "fitOverflow": "HIDDEN_AFTER_CONTAIN",
+    "actualPixels": "OUTPUT_WIDTH_X_OUTPUT_HEIGHT_CSS_PIXELS_SCROLLABLE",
+    "resizeRecalculation": "ResizeObserver",
+    "exportBytesChanged": false
+  }
+}

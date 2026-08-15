@@ -97,16 +97,19 @@ async function main() {
   const goldenSha = await sha256("contracts/google/goldens.g2.1.json");
   const objectSha = await sha256("reference/kakao-tool/OBJECT_RIGHT.png");
   const phase = versions?.canonicalPhaseG3_0_3Google;
-  const g3_1Frozen = versions?.canonicalPhaseG3_1Google?.phase === "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" && versions?.canonicalPhaseG3_1Google?.status === "FROZEN";
-  const g3_0_4Implemented = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION";
+const g3_1Frozen = versions?.canonicalPhaseG3_1Google?.phase === "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" && versions?.canonicalPhaseG3_1Google?.status === "FROZEN";
+const g3_0_4Implemented = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION";
+const g3_0_5Implemented = versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING";
 
   check("baseline_lineage", isAncestor(baselineCommit), baselineCommit);
   check("phase_record", (phase?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY" && phase?.g3_1ArtifactsCreated === false) || (g3_1Frozen && versions?.canonicalPhaseG3_1Google?.acceptance === "USER_ACCEPTED"), JSON.stringify({ phase: phase?.phase, g3_1Frozen }));
-  check("canonical_version", g3_0_4Implemented
+  check("canonical_version", g3_0_5Implemented
+    ? versions?.documentVersion?.previous === "1.31.0" && versions?.documentVersion?.current === "1.31.1" && versions?.documentVersion?.bump === "patch"
+    : g3_0_4Implemented
     ? versions?.documentVersion?.previous === "1.30.0" && versions?.documentVersion?.current === "1.31.0" && versions?.documentVersion?.bump === "minor"
     : g3_1Frozen ? versions?.documentVersion?.previous === "1.29.0" && versions?.documentVersion?.current === "1.30.0" && versions?.documentVersion?.bump === "minor" : versions?.documentVersion?.previous === "1.28.1" && versions?.documentVersion?.current === "1.29.0" && versions?.documentVersion?.bump === "minor", JSON.stringify(versions?.documentVersion));
-  check("canonical_hash", (g3_0_4Implemented ? versions?.canonicalPhaseG3_0_4Google?.canonicalDocumentSha256 : g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.canonicalDocumentSha256 : phase?.canonicalDocumentSha256) === canonicalSha && (expectedCanonicalSha256 === null || g3_0_4Implemented || g3_1Frozen || canonicalSha === expectedCanonicalSha256), canonicalSha);
-  check("desktop_version", g3_0_4Implemented ? packageJson?.version === "0.13.0" && versions?.desktopAppVersion === "0.13.0" : packageJson?.version === "0.12.0" && versions?.desktopAppVersion === "0.12.0", JSON.stringify({ package: packageJson?.version, desktop: versions?.desktopAppVersion }));
+  check("canonical_hash", (g3_0_5Implemented ? versions?.canonicalPhaseG3_0_5Google?.canonicalDocumentSha256 : g3_0_4Implemented ? versions?.canonicalPhaseG3_0_4Google?.canonicalDocumentSha256 : g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.canonicalDocumentSha256 : phase?.canonicalDocumentSha256) === canonicalSha && (expectedCanonicalSha256 === null || g3_0_5Implemented || g3_0_4Implemented || g3_1Frozen || canonicalSha === expectedCanonicalSha256), canonicalSha);
+  check("desktop_version", g3_0_5Implemented ? packageJson?.version === "0.13.1" && versions?.desktopAppVersion === "0.13.1" : g3_0_4Implemented ? packageJson?.version === "0.13.0" && versions?.desktopAppVersion === "0.13.0" : packageJson?.version === "0.12.0" && versions?.desktopAppVersion === "0.12.0", JSON.stringify({ package: packageJson?.version, desktop: versions?.desktopAppVersion }));
   check("reused_core_validator_schemas", phase?.rendererCoreVersion === "0.11.0" && phase?.validatorCurrent === "1.11.0" && phase?.inputSchemaVersion === "1.2.0" && phase?.outputSchemaVersion === "2.0.0", JSON.stringify({ core: phase?.rendererCoreVersion, validator: phase?.validatorCurrent, input: phase?.inputSchemaVersion, output: phase?.outputSchemaVersion }));
   check("template_and_canvas_frozen", phase?.templateCoordinatesChanged === false && versions?.templateContractVersion === "1.9.0", JSON.stringify({ template: versions?.templateContractVersion, coordinatesChanged: phase?.templateCoordinatesChanged }));
   check("frozen_golden_registry", goldenSha === expectedGoldenSha256 && goldens?.status === "FROZEN" && goldens?.entries?.length === 14, goldenSha);
@@ -119,7 +122,7 @@ async function main() {
     ...git(["diff", "--name-only", "--cached"]).split(/\r?\n/u),
   ].map((entry) => entry.replaceAll("\\", "/")).filter(Boolean));
   const changedProduction = [...changed].filter((entry) => entry.startsWith("apps/desktop/") || entry.startsWith("src/") || entry.startsWith("packages/") || entry.startsWith("fixtures/golden/"));
-  const unexpectedProduction = changedProduction.filter((entry) => !productionPaths.has(entry) && !entry.startsWith("fixtures/golden/google/") && !(g3_0_4Implemented && entry.startsWith("apps/desktop/shared/src/google-static-default-plan.ts")) && !(g3_0_4Implemented && entry.startsWith("apps/desktop/shared/src/index.ts")) && !(g3_0_4Implemented && entry.startsWith("apps/desktop/shared/src/types.ts")) && !(g3_0_4Implemented && entry.startsWith("packages/renderer-contract/src/google-static.ts")) && !(g3_0_4Implemented && entry.startsWith("src/core/google-static.ts")));
+  const unexpectedProduction = changedProduction.filter((entry) => !productionPaths.has(entry) && !entry.startsWith("fixtures/golden/google/") && !(g3_0_5Implemented && ["apps/desktop/renderer-ui/src/app/App.tsx", "apps/desktop/renderer-ui/src/features/google/google-preview-geometry.ts"].includes(entry)) && !(g3_0_4Implemented && entry.startsWith("apps/desktop/shared/src/google-static-default-plan.ts")) && !(g3_0_4Implemented && entry.startsWith("apps/desktop/shared/src/index.ts")) && !(g3_0_4Implemented && entry.startsWith("apps/desktop/shared/src/types.ts")) && !(g3_0_4Implemented && entry.startsWith("packages/renderer-contract/src/google-static.ts")) && !(g3_0_4Implemented && entry.startsWith("src/core/google-static.ts")));
   check("production_scope", unexpectedProduction.length === 0, unexpectedProduction.join(",") || "only approved Google production paths changed");
 
   const editor = await readText("apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx");
