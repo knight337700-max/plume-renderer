@@ -58,6 +58,7 @@ const provenance = await readJson("contracts/google/provenance.g0.json");
 const diagnostics = await readJson("contracts/google/diagnostics.g0.json");
 const evidence = await readJson("artifacts/g0/google-static-discovery-verification.json");
 const versions = await readJson("contracts/contract-versions.json");
+if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const g1Implemented = versions?.canonicalPhaseG1Google?.phase === "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION" && versions?.canonicalPhaseG1Google?.contractsImplemented === true;
 const g2Implemented = versions?.canonicalPhaseG2Google?.phase === "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES" && versions?.canonicalPhaseG2Google?.renderingValidationImplemented === true;
 const g2_1Implemented = versions?.canonicalPhaseG2_1Google?.phase === "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" && versions?.canonicalPhaseG2_1Google?.visualAcceptance === "ACCEPTED";

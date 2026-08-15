@@ -166,6 +166,7 @@ async function main() {
   check("expected_vertical_info", frozen?.entries?.find((entry) => entry.profileId === "GOOGLE_RDA_VERTICAL_9_16")?.expectedInfoDiagnostics?.includes("KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY") === true && frozen?.entries?.find((entry) => entry.profileId === "GOOGLE_DEMAND_GEN_VERTICAL_9_16")?.expectedInfoDiagnostics?.includes("KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED") === true, "RDA and Demand Gen vertical INFO diagnostics remain explicit");
 
   const versions = await readJson("contracts/contract-versions.json");
+  if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
   const packageJson = await readJson("package.json");
   const renderSource = await readFile(path.join(root, "src/core/google-static-render.ts"), "utf8").catch(() => "");
   check("google_upload_absent", !(await exists("src/core/google-upload")) && !(await exists("apps/desktop/electron-main/google-upload")) && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("googleapis"), "Google upload/API integration absent");

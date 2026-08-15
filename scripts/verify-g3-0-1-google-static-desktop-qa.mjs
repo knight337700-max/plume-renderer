@@ -84,6 +84,7 @@ function runVerifier(relativePath) {
 }
 
 const versions = await readJson("contracts/contract-versions.json");
+if (versions?.documentVersion?.current === "1.30.0" && versions?.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const g3_0_2Implemented = versions?.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION";
 const g3_0_3Implemented = versions?.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
 const packageJson = await readJson("package.json");

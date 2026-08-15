@@ -1,0 +1,326 @@
+{
+  "phase": "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE",
+  "status": "REVIEW_MATRIX",
+  "runtimeProfiles": 14,
+  "groups": {
+    "GEOMETRY": 7,
+    "UPLOADED_DISPLAY_STATIC": 7
+  },
+  "legacyDisplayRuntimeProfiles": 0,
+  "profiles": [
+    {
+      "groupId": "GEOMETRY",
+      "groupLabel": "Geometry",
+      "profileId": "GOOGLE_MARKETING_LANDSCAPE_1_91",
+      "role": "MARKETING_IMAGE",
+      "canvas": {
+        "width": 1200,
+        "height": 628
+      },
+      "defaultPlacementPolicy": "CENTER_CONTAIN",
+      "allowedPlacementPolicies": [
+        "CENTER_CONTAIN",
+        "MANUAL_CROP",
+        "SEMANTIC_CROP_COVER"
+      ],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "PNG",
+      "maxBytesByTarget": {
+        "RDA": 5120000,
+        "PMAX": 5120000,
+        "DEMAND_GEN": 5000000
+      }
+    },
+    {
+      "groupId": "GEOMETRY",
+      "groupLabel": "Geometry",
+      "profileId": "GOOGLE_MARKETING_SQUARE_1_1",
+      "role": "SQUARE_MARKETING_IMAGE",
+      "canvas": {
+        "width": 1200,
+        "height": 1200
+      },
+      "defaultPlacementPolicy": "CENTER_CONTAIN",
+      "allowedPlacementPolicies": [
+        "CENTER_CONTAIN",
+        "MANUAL_CROP",
+        "SEMANTIC_CROP_COVER"
+      ],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "JPEG",
+      "maxBytesByTarget": {
+        "RDA": 5120000,
+        "PMAX": 5120000,
+        "DEMAND_GEN": 5000000
+      }
+    },
+    {
+      "groupId": "GEOMETRY",
+      "groupLabel": "Geometry",
+      "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5",
+      "role": "PORTRAIT_MARKETING_IMAGE",
+      "canvas": {
+        "width": 960,
+        "height": 1200
+      },
+      "defaultPlacementPolicy": "CENTER_CONTAIN",
+      "allowedPlacementPolicies": [
+        "CENTER_CONTAIN",
+        "MANUAL_CROP",
+        "SEMANTIC_CROP_COVER"
+      ],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "PNG",
+      "maxBytesByTarget": {
+        "PMAX": 5120000,
+        "DEMAND_GEN": 5000000
+      }
+    },
+    {
+      "groupId": "GEOMETRY",
+      "groupLabel": "Geometry",
+      "profileId": "GOOGLE_RDA_VERTICAL_9_16",
+      "role": "TALL_PORTRAIT_MARKETING_IMAGE",
+      "canvas": {
+        "width": 900,
+        "height": 1600
+      },
+      "defaultPlacementPolicy": "CENTER_CONTAIN",
+      "allowedPlacementPolicies": [
+        "CENTER_CONTAIN",
+        "MANUAL_CROP",
+        "SEMANTIC_CROP_COVER"
+      ],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "PNG",
+      "maxBytesByTarget": {
+        "RDA": 5120000
+      }
+    },
+    {
+      "groupId": "GEOMETRY",
+      "groupLabel": "Geometry",
+      "profileId": "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+      "role": "TALL_PORTRAIT_MARKETING_IMAGE",
+      "canvas": {
+        "width": 1080,
+        "height": 1920
+      },
+      "defaultPlacementPolicy": "CENTER_CONTAIN",
+      "allowedPlacementPolicies": [
+        "CENTER_CONTAIN",
+        "MANUAL_CROP",
+        "SEMANTIC_CROP_COVER"
+      ],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "JPEG",
+      "maxBytesByTarget": {
+        "DEMAND_GEN": 5000000
+      }
+    },
+    {
+      "groupId": "GEOMETRY",
+      "groupLabel": "Geometry",
+      "profileId": "GOOGLE_LOGO_SQUARE_1_1",
+      "role": "LOGO",
+      "canvas": {
+        "width": 1200,
+        "height": 1200
+      },
+      "defaultPlacementPolicy": "ALPHA_TRIM_CONTAIN",
+      "allowedPlacementPolicies": [
+        "CENTER_CONTAIN",
+        "ALPHA_TRIM_CONTAIN"
+      ],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "PNG",
+      "maxBytesByTarget": {
+        "RDA": 5120000,
+        "PMAX": 5120000,
+        "DEMAND_GEN": 150000
+      }
+    },
+    {
+      "groupId": "GEOMETRY",
+      "groupLabel": "Geometry",
+      "profileId": "GOOGLE_LOGO_LANDSCAPE_4_1",
+      "role": "LANDSCAPE_LOGO",
+      "canvas": {
+        "width": 1200,
+        "height": 300
+      },
+      "defaultPlacementPolicy": "ALPHA_TRIM_CONTAIN",
+      "allowedPlacementPolicies": [
+        "CENTER_CONTAIN",
+        "ALPHA_TRIM_CONTAIN"
+      ],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "PNG",
+      "maxBytesByTarget": {
+        "RDA": 5120000,
+        "PMAX": 5120000
+      }
+    },
+    {
+      "groupId": "UPLOADED_DISPLAY_STATIC",
+      "groupLabel": "Uploaded Display Static",
+      "profileId": "GOOGLE_DG_UPLOAD_300X250",
+      "role": "UPLOADED_DISPLAY_STATIC",
+      "canvas": {
+        "width": 300,
+        "height": 250
+      },
+      "defaultPlacementPolicy": "NONE",
+      "allowedPlacementPolicies": [],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "PNG",
+      "maxBytesByTarget": {
+        "DEMAND_GEN_UPLOADED_DISPLAY_STATIC": 150000
+      }
+    },
+    {
+      "groupId": "UPLOADED_DISPLAY_STATIC",
+      "groupLabel": "Uploaded Display Static",
+      "profileId": "GOOGLE_DG_UPLOAD_336X280",
+      "role": "UPLOADED_DISPLAY_STATIC",
+      "canvas": {
+        "width": 336,
+        "height": 280
+      },
+      "defaultPlacementPolicy": "NONE",
+      "allowedPlacementPolicies": [],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "JPEG",
+      "maxBytesByTarget": {
+        "DEMAND_GEN_UPLOADED_DISPLAY_STATIC": 150000
+      }
+    },
+    {
+      "groupId": "UPLOADED_DISPLAY_STATIC",
+      "groupLabel": "Uploaded Display Static",
+      "profileId": "GOOGLE_DG_UPLOAD_728X90",
+      "role": "UPLOADED_DISPLAY_STATIC",
+      "canvas": {
+        "width": 728,
+        "height": 90
+      },
+      "defaultPlacementPolicy": "NONE",
+      "allowedPlacementPolicies": [],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "PNG",
+      "maxBytesByTarget": {
+        "DEMAND_GEN_UPLOADED_DISPLAY_STATIC": 150000
+      }
+    },
+    {
+      "groupId": "UPLOADED_DISPLAY_STATIC",
+      "groupLabel": "Uploaded Display Static",
+      "profileId": "GOOGLE_DG_UPLOAD_970X90",
+      "role": "UPLOADED_DISPLAY_STATIC",
+      "canvas": {
+        "width": 970,
+        "height": 90
+      },
+      "defaultPlacementPolicy": "NONE",
+      "allowedPlacementPolicies": [],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "JPEG",
+      "maxBytesByTarget": {
+        "DEMAND_GEN_UPLOADED_DISPLAY_STATIC": 150000
+      }
+    },
+    {
+      "groupId": "UPLOADED_DISPLAY_STATIC",
+      "groupLabel": "Uploaded Display Static",
+      "profileId": "GOOGLE_DG_UPLOAD_160X600",
+      "role": "UPLOADED_DISPLAY_STATIC",
+      "canvas": {
+        "width": 160,
+        "height": 600
+      },
+      "defaultPlacementPolicy": "NONE",
+      "allowedPlacementPolicies": [],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "PNG",
+      "maxBytesByTarget": {
+        "DEMAND_GEN_UPLOADED_DISPLAY_STATIC": 150000
+      }
+    },
+    {
+      "groupId": "UPLOADED_DISPLAY_STATIC",
+      "groupLabel": "Uploaded Display Static",
+      "profileId": "GOOGLE_DG_UPLOAD_300X600",
+      "role": "UPLOADED_DISPLAY_STATIC",
+      "canvas": {
+        "width": 300,
+        "height": 600
+      },
+      "defaultPlacementPolicy": "NONE",
+      "allowedPlacementPolicies": [],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "JPEG",
+      "maxBytesByTarget": {
+        "DEMAND_GEN_UPLOADED_DISPLAY_STATIC": 150000
+      }
+    },
+    {
+      "groupId": "UPLOADED_DISPLAY_STATIC",
+      "groupLabel": "Uploaded Display Static",
+      "profileId": "GOOGLE_DG_UPLOAD_320X50",
+      "role": "UPLOADED_DISPLAY_STATIC",
+      "canvas": {
+        "width": 320,
+        "height": 50
+      },
+      "defaultPlacementPolicy": "NONE",
+      "allowedPlacementPolicies": [],
+      "allowedFormats": [
+        "PNG",
+        "JPEG"
+      ],
+      "defaultFormat": "PNG",
+      "maxBytesByTarget": {
+        "DEMAND_GEN_UPLOADED_DISPLAY_STATIC": 150000
+      }
+    }
+  ]
+}

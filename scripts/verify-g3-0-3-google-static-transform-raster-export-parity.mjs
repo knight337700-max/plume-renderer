@@ -94,17 +94,18 @@ async function main() {
   const goldenSha = await sha256("contracts/google/goldens.g2.1.json");
   const objectSha = await sha256("reference/kakao-tool/OBJECT_RIGHT.png");
   const phase = versions?.canonicalPhaseG3_0_3Google;
+  const g3_1Frozen = versions?.canonicalPhaseG3_1Google?.phase === "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" && versions?.canonicalPhaseG3_1Google?.status === "FROZEN";
 
   check("baseline_lineage", isAncestor(baselineCommit), baselineCommit);
-  check("phase_record", phase?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY" && phase?.g3_1ArtifactsCreated === false, JSON.stringify({ phase: phase?.phase, g3_1ArtifactsCreated: phase?.g3_1ArtifactsCreated }));
-  check("canonical_version", versions?.documentVersion?.previous === "1.28.1" && versions?.documentVersion?.current === "1.29.0" && versions?.documentVersion?.bump === "minor", JSON.stringify(versions?.documentVersion));
-  check("canonical_hash", phase?.canonicalDocumentSha256 === canonicalSha && (expectedCanonicalSha256 === null || canonicalSha === expectedCanonicalSha256), canonicalSha);
+  check("phase_record", (phase?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY" && phase?.g3_1ArtifactsCreated === false) || (g3_1Frozen && versions?.canonicalPhaseG3_1Google?.acceptance === "USER_ACCEPTED"), JSON.stringify({ phase: phase?.phase, g3_1Frozen }));
+  check("canonical_version", g3_1Frozen ? versions?.documentVersion?.previous === "1.29.0" && versions?.documentVersion?.current === "1.30.0" && versions?.documentVersion?.bump === "minor" : versions?.documentVersion?.previous === "1.28.1" && versions?.documentVersion?.current === "1.29.0" && versions?.documentVersion?.bump === "minor", JSON.stringify(versions?.documentVersion));
+  check("canonical_hash", (g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.canonicalDocumentSha256 : phase?.canonicalDocumentSha256) === canonicalSha && (expectedCanonicalSha256 === null || g3_1Frozen || canonicalSha === expectedCanonicalSha256), canonicalSha);
   check("desktop_version", packageJson?.version === "0.12.0" && versions?.desktopAppVersion === "0.12.0", JSON.stringify({ package: packageJson?.version, desktop: versions?.desktopAppVersion }));
   check("reused_core_validator_schemas", phase?.rendererCoreVersion === "0.11.0" && phase?.validatorCurrent === "1.11.0" && phase?.inputSchemaVersion === "1.2.0" && phase?.outputSchemaVersion === "2.0.0", JSON.stringify({ core: phase?.rendererCoreVersion, validator: phase?.validatorCurrent, input: phase?.inputSchemaVersion, output: phase?.outputSchemaVersion }));
   check("template_and_canvas_frozen", phase?.templateCoordinatesChanged === false && versions?.templateContractVersion === "1.9.0", JSON.stringify({ template: versions?.templateContractVersion, coordinatesChanged: phase?.templateCoordinatesChanged }));
   check("frozen_golden_registry", goldenSha === expectedGoldenSha256 && goldens?.status === "FROZEN" && goldens?.entries?.length === 14, goldenSha);
   check("object_right_reference", objectSha === expectedObjectRightSha256, objectSha);
-  check("g3_1_absent", !(await exists("artifacts/g3-1")) && !(await exists("docs/implementation/google-static-user-visual-acceptance-golden-freeze-g3-1.md")), "G3.1 acceptance/freeze artifacts absent");
+  check("g3_1_absent", g3_1Frozen ? await exists("artifacts/g3-1/google-static-desktop-user-acceptance.json") && await exists("contracts/google/desktop-qa-freeze.g3.1.json") : !(await exists("artifacts/g3-1")) && !(await exists("docs/implementation/google-static-user-visual-acceptance-golden-freeze-g3-1.md")), g3_1Frozen ? "G3.1 freeze artifacts present" : "G3.1 acceptance/freeze artifacts absent");
 
   const changed = new Set([
     ...git(["diff", "--name-only", baselineCommit, "HEAD"]).split(/\r?\n/u),

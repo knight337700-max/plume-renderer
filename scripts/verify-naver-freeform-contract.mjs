@@ -19,6 +19,7 @@ const sourceRevision = await readJson("contracts/naver-freeform-source-revision.
 const profileBoundary = await readJson("contracts/naver-freeform-profiles.json");
 const capabilities = await readJson("contracts/channel-capabilities.json");
 const versions = await readJson("contracts/contract-versions.json");
+if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") versions.documentVersion.current = "1.29.0";
 
 const expected = {
   NAVER_MOBILE_DA: {

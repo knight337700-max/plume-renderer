@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.29.0
-- **Status:** Frozen Implementation Contract — Phase G3.0.3 Google Static transform/raster export parity
+- **Document version:** 1.30.0
+- **Status:** Frozen Implementation Contract — Phase G3.1 Google Static Desktop user QA and freeze
 - **Checked date:** 2026-08-15 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **60. Phase G3.0.3 Google Static transform/raster export parity**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **61. Phase G3.1 Google Static Desktop user QA and freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
 
 ---
 
@@ -5581,6 +5581,39 @@ record is `docs/implementation/google-static-desktop-qa-enablement-g3.md`; the A
 inputs and are not regenerated or rewritten. **[PROJECT]**
 
 `nextPhase`: `G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE`. **[PROJECT]**
+
+## 61. Phase G3.1 — Google Static Desktop user QA and freeze [PROJECT] [MANUAL]
+
+The exact user acceptance statement `ACCEPT_GOOGLE_G3_DESKTOP_QA` was received for
+the complete `GOOGLE_STATIC_DESKTOP_QA` scope. The accepted review identity is source
+`6b89c468c580c3078cb992138538565d43159588`, with the Windows 10/11 x64 Electron
+Desktop path, 14 runtime profiles (7 Geometry and 7 Uploaded Display Static), 11
+diagnostics, Fit/Actual preview, DRAG/ZOOM/NUMERIC_X/NUMERIC_Y/NUMERIC_SCALE/RESET
+placement controls, and actual local PNG/JPEG export. Review material is stored under
+`artifacts/g3-1/` and is non-normative evidence; it does not promote new Goldens.
+
+The machine-readable acceptance evidence is
+`artifacts/g3-1/google-static-desktop-user-acceptance.json` (SHA-256
+`855b6f14bde6ae42a747e4f5101bbc89cadc8faae68b1fd223e8fd03bf96e4a3`) and the frozen
+registry is `contracts/google/desktop-qa-freeze.g3.1.json` (SHA-256
+`1dc779a4feb83b7df5c6b06966d74492f2e5c682ea32b19dcd87813b3ea218ef`). The registry
+records shared Preview/Validator/Export request identity, pass-only export, stale
+invalidation, PNG/JPEG encoder policy, runtime network requests `0`, no Google Ads
+API/OAuth/remote assets, and no Plume dependencies. **[PROJECT]**
+
+The Canonical document advances from `1.29.0` to `1.30.0` (minor) solely to record
+the explicit user acceptance and freeze. Desktop/package `0.12.0`, Renderer Core
+`0.11.0`, Validator `1.11.0`, Template `1.9.0`, Input `1.2.0`, Output `2.0.0`,
+manifest `1.0.0`, response envelope `1.0.0`, Google architecture `1.0.0`, and G2.1
+Golden registry `1.0.0` remain unchanged. Coordinates and all 14 frozen Golden bytes
+remain unchanged; no runtime source or package dependency is changed by this freeze.
+The implementation record is
+`docs/implementation/google-static-desktop-user-qa-freeze-g3-1.md`, the ADR is
+`docs/adr/ADR-0067-google-static-desktop-qa-freeze-g3-1.md`, and the deterministic
+acceptance verifier is `scripts/verify-g3-1-google-static-desktop-freeze.mjs`.
+**[PROJECT]**
+
+`nextPhase`: `G4_GOOGLE_STATIC_CHANNEL_COMPLETENESS_AND_RELEASE_FREEZE`. **[PROJECT]**
 
 ## 60. Phase G3.0.3 — Google Static transform and raster export parity [PROJECT]
 

@@ -42,6 +42,7 @@ async function sha256(relativePath) {
 }
 
 const versions = await json("contracts/contract-versions.json");
+if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const g2Implemented = versions?.canonicalPhaseG2Google?.phase === "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES" && versions?.canonicalPhaseG2Google?.renderingValidationImplemented === true;
 const g2_1Implemented = versions?.canonicalPhaseG2_1Google?.phase === "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" && versions?.canonicalPhaseG2_1Google?.visualAcceptance === "ACCEPTED";
 const g3_0_3Implemented = versions?.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";

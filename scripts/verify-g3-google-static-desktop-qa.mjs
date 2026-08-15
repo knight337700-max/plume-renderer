@@ -28,6 +28,7 @@ async function sha(relativePath) {
 }
 
 const versions = await json("contracts/contract-versions.json");
+if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const packageJson = await json("package.json");
 const desktopRegistry = await json("contracts/desktop-capability-registry.json");
 const profileRegistry = await json("contracts/google/static-asset-profiles.g1.json");

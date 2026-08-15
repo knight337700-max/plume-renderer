@@ -1,0 +1,58 @@
+{
+  "phase": "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE",
+  "status": "REVIEW_MATRIX",
+  "formats": {
+    "PNG": {
+      "mime": "image/png",
+      "extension": ".png",
+      "actualEncoding": true
+    },
+    "JPEG": {
+      "mime": "image/jpeg",
+      "extension": ".jpg",
+      "actualEncoding": true
+    }
+  },
+  "jpegPolicy": {
+    "qualityDefault": 88,
+    "qualitySlider": false,
+    "chromaSubsampling": "4:2:0",
+    "progressive": false,
+    "metadataPassthrough": false,
+    "alphaMatte": "EXISTING_OPAQUE_CANVAS_BACKGROUND"
+  },
+  "placementControls": [
+    "DRAG",
+    "ZOOM",
+    "NUMERIC_X",
+    "NUMERIC_Y",
+    "NUMERIC_SCALE",
+    "RESET"
+  ],
+  "placementSemantics": {
+    "x": "normalized crop center 0..1",
+    "y": "normalized crop center 0..1",
+    "scale": "uniform crop scale 0.25..4.00",
+    "reset": "selected profile frozen default"
+  },
+  "previewZoomModes": [
+    "FIT",
+    "ACTUAL_PIXEL"
+  ],
+  "staleInvalidationFields": [
+    "asset",
+    "profile",
+    "outputFormat",
+    "x",
+    "y",
+    "scale",
+    "drag",
+    "zoom",
+    "reset",
+    "deliveryMetadata",
+    "rasterBytes"
+  ],
+  "staleError": "DESKTOP-EXPORT-003",
+  "sharedCanonicalRequestBuilder": "apps/desktop/shared/src/google-static-request.ts",
+  "passOnlyExport": true
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "https://kbr.local/artifacts/google-static-desktop-user-acceptance.g3-1.schema.json",
+  "phase": "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE",
+  "status": "ACCEPTED",
+  "acceptedScope": "GOOGLE_STATIC_DESKTOP_QA",
+  "acceptanceStatement": "ACCEPT_GOOGLE_G3_DESKTOP_QA",
+  "acceptedSourceSha": "6b89c468c580c3078cb992138538565d43159588",
+  "acceptedDate": "2026-08-15",
+  "reviewIdentity": {
+    "reviewManifest": "artifacts/g3-1/google-static-desktop-review-manifest.json",
+    "reviewManifestSha256": "ab3a1e727b5efc3fe02953edde410c50be0087fca0390a62d49b67d449d4d8b2",
+    "reviewIndex": "artifacts/g3-1/google-static-desktop-review-index.html",
+    "reviewIndexSha256": "0560de5fb80d39c6b7886c8f6ed3aeb59a946a0bac8cb1bae0b6c8fb3e27a668",
+    "checklist": "artifacts/g3-1/google-static-desktop-qa-checklist.md",
+    "checklistSha256": "33b7898a16adc5fc6b482c12b66632d1c641b59acad6d5d26a0efe59572beb95",
+    "canonicalVersion": "1.29.0",
+    "canonicalSha256": "951611a7ef09150dcc6af2e231bffc84a713a239fe103117ac1534af6c5e94ee",
+    "desktopPackageVersion": "0.12.0",
+    "rendererCoreVersion": "0.11.0",
+    "validatorVersion": "1.11.0",
+    "templateContractVersion": "1.9.0"
+  },
+  "buildIdentity": {
+    "launchCommand": "pnpm build:desktop; pnpm exec electron .",
+    "mainBundle": "dist-desktop/electron-main/main.cjs",
+    "packageJsonSha256": "c6cabc7e1f1233b08fdab419a6a74f1a0032d8c7468f89f4e7953adbc58188f7",
+    "lockfileSha256": "63359e27e16ab2489216d8d3b2564891da3d534d2af58a6d70872e9c62e8c5ef",
+    "buildConfigurationSha256": "3127fd8b166b813448e52159fa3e1940bb26638de044b5aa93eceecc1517038b",
+    "electronMainBundleSha256": "9dc3b9ab29b2c9132c0a58ac78e9bd1017f1b118446eb692fdd0ef64f65029de",
+    "preloadBundleSha256": "2610066c908f39628412043a9a34b361e7bda4d2483c9e1ee960ec1b4936dd41",
+    "rendererBundleSha256": "370f97dc8f527fecbb5b8ad28b03da38b0b133f2ccaf74a6e76c80c30cc2795b"
+  },
+  "contractIdentity": {
+    "architectureSha256": "bc112598bb170b12e5cbeccff404aa0a9b676704d6493e40bf58436ce4af5242",
+    "profileRegistrySha256": "112199c5438206b6b1668de115d8c022720b89437e426b0d5793c9c1c3c55d49",
+    "diagnosticRegistrySha256": "3bb40805f43022c5739571d85a7c4b5a3fb51094d90c6a80d6e5adc6aa3ee549",
+    "desktopQaContractSha256": "9b036f91cbfc3fb51b53674071ae2d86eedc51380fb020b7d6a9c51bfe090fbd",
+    "formatCapabilitySha256": "56d7ec41a94b055d2bb58b9056828a4dbc8820d311e3a22729840c3435e6ef2f",
+    "g2GoldenRegistrySha256": "00dabc5d94ffc0c225d17d22b3b5527d0b0c7488aa11495da4a79e1327d37359",
+    "objectRightSha256": "33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b",
+    "canonicalRequestBuilderSha256": "b6349fe5e5fbbc6c586fe62742ead033a73979544fe73068c11d473ecb7c0f3d",
+    "g3_0_3VerifierSha256": "53251b72d9211439a4051ccbac4876ee8f1fb596dd2198ee44d4af1189bbfe9d"
+  },
+  "coverage": {
+    "runtimeProfiles": 14,
+    "geometryProfiles": 7,
+    "uploadedDisplayStaticProfiles": 7,
+    "diagnostics": 11,
+    "placementControls": ["DRAG", "ZOOM", "NUMERIC_X", "NUMERIC_Y", "NUMERIC_SCALE", "RESET"],
+    "formats": ["PNG", "JPEG"],
+    "fitActualPreview": true,
+    "passOnlyExport": true,
+    "staleExportBlocked": true,
+    "legacyDisplayRuntimeProfiles": 0
+  },
+  "verification": {
+    "pnpmCheck": "PASS",
+    "vitest": "PASS_285_OF_285",
+    "playwrightElectron": "PASS_42_OF_42",
+    "g3_0_3Verifier": "PASS_38_OF_38",
+    "defaultDesktopCoreEquality": "PASS_14_OF_14",
+    "defaultDesktopFrozenEquality": "PASS_14_OF_14",
+    "runtimeNetworkRequests": 0,
+    "frozenOutputChanges": 0,
+    "plumeDependencies": []
+  },
+  "freezeRegistryPath": "contracts/google/desktop-qa-freeze.g3.1.json",
+  "nextPhase": "G4_GOOGLE_STATIC_CHANNEL_COMPLETENESS_AND_RELEASE_FREEZE"
+}

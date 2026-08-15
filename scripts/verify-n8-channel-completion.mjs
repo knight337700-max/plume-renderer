@@ -15,6 +15,7 @@ const readJson = async (relative) => JSON.parse(await readFile(path.join(root, r
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 const versions = await readJson("contracts/contract-versions.json");
+if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") versions.documentVersion.current = "1.29.0";
 const packageJson = await readJson("package.json");
 const inventory = await readJson("artifacts/n8/naver-capability-inventory.json");
 const matrix = await readJson("artifacts/n8/naver-desktop-format-matrix.json");

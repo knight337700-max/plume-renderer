@@ -1,0 +1,557 @@
+{
+  "status": "PASS",
+  "evidenceClass": "NON_NORMATIVE_REVIEW_EVIDENCE",
+  "actualDesktopPath": "dist-desktop/electron-main/main.cjs via pnpm exec electron .",
+  "productPath": "fixtures/google/g2/source/g2-GOOGLE_MARKETING_LANDSCAPE_1_91.png",
+  "scenarios": {
+    "png": {
+      "format": "PNG",
+      "profileCount": 14,
+      "screenshots": {
+        "profile-groups": "C:\\Users\\Lenovo\\Desktop\\kakao-bizboard-renderer-spec-v1-package\\artifacts\\g3-1\\evidence\\png-profile-groups.png",
+        "png-asset-and-controls": "C:\\Users\\Lenovo\\Desktop\\kakao-bizboard-renderer-spec-v1-package\\artifacts\\g3-1\\evidence\\png-png-asset-and-controls.png",
+        "png-pass-fit-view": "C:\\Users\\Lenovo\\Desktop\\kakao-bizboard-renderer-spec-v1-package\\artifacts\\g3-1\\evidence\\png-png-pass-fit-view.png"
+      },
+      "tracePath": "C:\\Users\\Lenovo\\Desktop\\kakao-bizboard-renderer-spec-v1-package\\artifacts\\g3-1\\evidence\\google-static-desktop-qa-png-trace.zip",
+      "outputRoot": "artifacts/g3-1/evidence/runtime-output/png",
+      "exportedPath": "artifacts/g3-1/evidence/google-default-output.png",
+      "exportResultVisible": true,
+      "appInfo": {
+        "name": "카카오 비즈보드 로컬 Renderer",
+        "version": "0.12.0",
+        "template": "OBJECT_RIGHT",
+        "canvas": {
+          "width": 1029,
+          "height": 258
+        },
+        "ctaMode": "NONE",
+        "runtimeNetworkAccess": "PROHIBITED",
+        "signed": false,
+        "limits": {
+          "advertiser": 40,
+          "headline": 80,
+          "subcopy": 100,
+          "jobName": 120
+        },
+        "blockedNetworkRequestCount": 0,
+        "channels": [
+          {
+            "id": "KAKAO",
+            "label": "KAKAO",
+            "placements": [
+              {
+                "id": "KAKAO_BIZBOARD",
+                "label": "Bizboard",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "TEMPLATE_LOCKED",
+                "artifactCardinality": "SINGLE",
+                "editorType": "TEMPLATE_LOCKED_EDITOR",
+                "renderable": true,
+                "templateRegistry": "KAKAO_BIZBOARD_TEMPLATE_REGISTRY"
+              },
+              {
+                "id": "KAKAO_FREEFORM",
+                "label": "Freeform",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "editorType": "FREEFORM_EDITOR",
+                "renderable": true,
+                "freeformProfileRegistry": "contracts/freeform-format-profiles.json"
+              }
+            ]
+          },
+          {
+            "id": "NAVER",
+            "label": "NAVER",
+            "placements": [
+              {
+                "id": "NAVER_SMARTCHANNEL",
+                "label": "SmartChannel",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "TEMPLATE_LOCKED",
+                "artifactCardinality": "SINGLE",
+                "editorType": "TEMPLATE_LOCKED_EDITOR",
+                "renderable": true,
+                "templateRegistry": "contracts/naver-smartchannel-template-contract.json",
+                "fontPreflight": true
+              },
+              {
+                "id": "NAVER_MOBILE_DA",
+                "label": "Mobile DA",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "editorType": "FREEFORM_EDITOR",
+                "renderable": true,
+                "freeformProfileId": "NAVER_MOBILE_DA"
+              },
+              {
+                "id": "NAVER_IMAGE_BANNER_1_1",
+                "label": "Image Banner 1:1",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "editorType": "FREEFORM_EDITOR",
+                "renderable": true,
+                "freeformProfileId": "NAVER_IMAGE_BANNER_1_1"
+              },
+              {
+                "id": "NAVER_MOBILE_NATIVE",
+                "label": "Mobile Native",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileId": "NAVER_MOBILE_NATIVE_SOURCE_V1"
+              },
+              {
+                "id": "NAVER_PC_NATIVE",
+                "label": "PC Native",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileId": "NAVER_PC_NATIVE_SOURCE_V1"
+              },
+              {
+                "id": "NAVER_SHOPPING_NEWS",
+                "label": "Shopping News",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileId": "NAVER_SHOPPING_NEWS_SOURCE_V1",
+                "platformOwnedFields": [
+                  "notificationState",
+                  "presentationVariant",
+                  "adMute"
+                ]
+              },
+              {
+                "id": "NAVER_COMMUNICATION_AD",
+                "label": "Communication Ad",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileIds": [
+                  "NAVER_COMMUNICATION_AD_LIST_SOURCE_V1",
+                  "NAVER_COMMUNICATION_AD_COMMENT_SOURCE_V1"
+                ]
+              },
+              {
+                "id": "NAVER_MOBILE_DA_FEED",
+                "label": "Mobile DA Feed",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE_OR_COLLECTION",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileIds": [
+                  "NAVER_FEED_IMAGE_SOURCE_V1",
+                  "NAVER_FEED_2_3_IMAGE_SOURCE_V1",
+                  "NAVER_FEED_COLLECTION_SOURCE_V1",
+                  "NAVER_FEED_VIDEO_SOURCE_V1"
+                ],
+                "feedSubtypes": [
+                  {
+                    "id": "IMAGE",
+                    "enabled": true,
+                    "sourceProfileId": "NAVER_FEED_IMAGE_SOURCE_V1"
+                  },
+                  {
+                    "id": "COLLECTION",
+                    "enabled": true,
+                    "sourceProfileId": "NAVER_FEED_COLLECTION_SOURCE_V1"
+                  },
+                  {
+                    "id": "VIDEO",
+                    "enabled": false,
+                    "sourceProfileId": "NAVER_FEED_VIDEO_SOURCE_V1",
+                    "disabledReason": "Out of static renderer scope"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "META",
+            "label": "META",
+            "placements": [
+              {
+                "id": "META_STATIC_IMAGE",
+                "label": "Static Image",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE_OR_COLLECTION",
+                "editorType": "FREEFORM_EDITOR",
+                "renderable": true,
+                "freeformProfileIds": [
+                  "META_STATIC_FEED_SQUARE",
+                  "META_STATIC_FEED_PORTRAIT",
+                  "META_STATIC_VERTICAL_FULL"
+                ],
+                "freeformProfileRegistry": "contracts/freeform-format-profiles.json",
+                "platformOwnedFields": [
+                  "primaryText",
+                  "headline",
+                  "description",
+                  "callToAction",
+                  "destinationUrl"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "GOOGLE",
+            "label": "GOOGLE ADS STATIC",
+            "placements": [
+              {
+                "id": "GOOGLE_STATIC_GEOMETRY",
+                "label": "Geometry",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "deliveryCardinality": "COLLECTION",
+                "editorType": "GOOGLE_STATIC_EDITOR",
+                "renderable": true,
+                "sourceProfileIds": [
+                  "GOOGLE_MARKETING_LANDSCAPE_1_91",
+                  "GOOGLE_MARKETING_SQUARE_1_1",
+                  "GOOGLE_MARKETING_PORTRAIT_4_5",
+                  "GOOGLE_RDA_VERTICAL_9_16",
+                  "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+                  "GOOGLE_LOGO_SQUARE_1_1",
+                  "GOOGLE_LOGO_LANDSCAPE_4_1"
+                ],
+                "sourceProfileRegistry": "contracts/google/static-asset-profiles.g1.json",
+                "capabilityRegistry": "contracts/google/capability-asset-role-mapping.g1.json",
+                "diagnosticRegistry": "contracts/google/diagnostics.g1.json"
+              },
+              {
+                "id": "GOOGLE_STATIC_UPLOADED_DISPLAY",
+                "label": "Uploaded Display Static",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "deliveryCardinality": "COLLECTION",
+                "editorType": "GOOGLE_STATIC_EDITOR",
+                "renderable": true,
+                "sourceProfileIds": [
+                  "GOOGLE_DG_UPLOAD_300X250",
+                  "GOOGLE_DG_UPLOAD_336X280",
+                  "GOOGLE_DG_UPLOAD_728X90",
+                  "GOOGLE_DG_UPLOAD_970X90",
+                  "GOOGLE_DG_UPLOAD_160X600",
+                  "GOOGLE_DG_UPLOAD_300X600",
+                  "GOOGLE_DG_UPLOAD_320X50"
+                ],
+                "sourceProfileRegistry": "contracts/google/static-asset-profiles.g1.json",
+                "capabilityRegistry": "contracts/google/capability-asset-role-mapping.g1.json",
+                "diagnosticRegistry": "contracts/google/diagnostics.g1.json"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jpeg": {
+      "format": "JPEG",
+      "profileCount": 14,
+      "screenshots": {
+        "profile-groups": "C:\\Users\\Lenovo\\Desktop\\kakao-bizboard-renderer-spec-v1-package\\artifacts\\g3-1\\evidence\\jpeg-profile-groups.png",
+        "jpeg-stale-transform": "C:\\Users\\Lenovo\\Desktop\\kakao-bizboard-renderer-spec-v1-package\\artifacts\\g3-1\\evidence\\jpeg-jpeg-stale-transform.png",
+        "jpeg-pass-transform": "C:\\Users\\Lenovo\\Desktop\\kakao-bizboard-renderer-spec-v1-package\\artifacts\\g3-1\\evidence\\jpeg-jpeg-pass-transform.png"
+      },
+      "tracePath": "C:\\Users\\Lenovo\\Desktop\\kakao-bizboard-renderer-spec-v1-package\\artifacts\\g3-1\\evidence\\google-static-desktop-qa-jpeg-trace.zip",
+      "outputRoot": "artifacts/g3-1/evidence/runtime-output/jpeg",
+      "exportedPath": "artifacts/g3-1/evidence/google-transformed-output.jpg",
+      "exportResultVisible": true,
+      "appInfo": {
+        "name": "카카오 비즈보드 로컬 Renderer",
+        "version": "0.12.0",
+        "template": "OBJECT_RIGHT",
+        "canvas": {
+          "width": 1029,
+          "height": 258
+        },
+        "ctaMode": "NONE",
+        "runtimeNetworkAccess": "PROHIBITED",
+        "signed": false,
+        "limits": {
+          "advertiser": 40,
+          "headline": 80,
+          "subcopy": 100,
+          "jobName": 120
+        },
+        "blockedNetworkRequestCount": 0,
+        "channels": [
+          {
+            "id": "KAKAO",
+            "label": "KAKAO",
+            "placements": [
+              {
+                "id": "KAKAO_BIZBOARD",
+                "label": "Bizboard",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "TEMPLATE_LOCKED",
+                "artifactCardinality": "SINGLE",
+                "editorType": "TEMPLATE_LOCKED_EDITOR",
+                "renderable": true,
+                "templateRegistry": "KAKAO_BIZBOARD_TEMPLATE_REGISTRY"
+              },
+              {
+                "id": "KAKAO_FREEFORM",
+                "label": "Freeform",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "editorType": "FREEFORM_EDITOR",
+                "renderable": true,
+                "freeformProfileRegistry": "contracts/freeform-format-profiles.json"
+              }
+            ]
+          },
+          {
+            "id": "NAVER",
+            "label": "NAVER",
+            "placements": [
+              {
+                "id": "NAVER_SMARTCHANNEL",
+                "label": "SmartChannel",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "TEMPLATE_LOCKED",
+                "artifactCardinality": "SINGLE",
+                "editorType": "TEMPLATE_LOCKED_EDITOR",
+                "renderable": true,
+                "templateRegistry": "contracts/naver-smartchannel-template-contract.json",
+                "fontPreflight": true
+              },
+              {
+                "id": "NAVER_MOBILE_DA",
+                "label": "Mobile DA",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "editorType": "FREEFORM_EDITOR",
+                "renderable": true,
+                "freeformProfileId": "NAVER_MOBILE_DA"
+              },
+              {
+                "id": "NAVER_IMAGE_BANNER_1_1",
+                "label": "Image Banner 1:1",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "editorType": "FREEFORM_EDITOR",
+                "renderable": true,
+                "freeformProfileId": "NAVER_IMAGE_BANNER_1_1"
+              },
+              {
+                "id": "NAVER_MOBILE_NATIVE",
+                "label": "Mobile Native",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileId": "NAVER_MOBILE_NATIVE_SOURCE_V1"
+              },
+              {
+                "id": "NAVER_PC_NATIVE",
+                "label": "PC Native",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileId": "NAVER_PC_NATIVE_SOURCE_V1"
+              },
+              {
+                "id": "NAVER_SHOPPING_NEWS",
+                "label": "Shopping News",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileId": "NAVER_SHOPPING_NEWS_SOURCE_V1",
+                "platformOwnedFields": [
+                  "notificationState",
+                  "presentationVariant",
+                  "adMute"
+                ]
+              },
+              {
+                "id": "NAVER_COMMUNICATION_AD",
+                "label": "Communication Ad",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileIds": [
+                  "NAVER_COMMUNICATION_AD_LIST_SOURCE_V1",
+                  "NAVER_COMMUNICATION_AD_COMMENT_SOURCE_V1"
+                ]
+              },
+              {
+                "id": "NAVER_MOBILE_DA_FEED",
+                "label": "Mobile DA Feed",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "PLATFORM_SOURCE",
+                "artifactCardinality": "SINGLE_OR_COLLECTION",
+                "editorType": "PLATFORM_SOURCE_EDITOR",
+                "renderable": true,
+                "sourceProfileIds": [
+                  "NAVER_FEED_IMAGE_SOURCE_V1",
+                  "NAVER_FEED_2_3_IMAGE_SOURCE_V1",
+                  "NAVER_FEED_COLLECTION_SOURCE_V1",
+                  "NAVER_FEED_VIDEO_SOURCE_V1"
+                ],
+                "feedSubtypes": [
+                  {
+                    "id": "IMAGE",
+                    "enabled": true,
+                    "sourceProfileId": "NAVER_FEED_IMAGE_SOURCE_V1"
+                  },
+                  {
+                    "id": "COLLECTION",
+                    "enabled": true,
+                    "sourceProfileId": "NAVER_FEED_COLLECTION_SOURCE_V1"
+                  },
+                  {
+                    "id": "VIDEO",
+                    "enabled": false,
+                    "sourceProfileId": "NAVER_FEED_VIDEO_SOURCE_V1",
+                    "disabledReason": "Out of static renderer scope"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "META",
+            "label": "META",
+            "placements": [
+              {
+                "id": "META_STATIC_IMAGE",
+                "label": "Static Image",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE_OR_COLLECTION",
+                "editorType": "FREEFORM_EDITOR",
+                "renderable": true,
+                "freeformProfileIds": [
+                  "META_STATIC_FEED_SQUARE",
+                  "META_STATIC_FEED_PORTRAIT",
+                  "META_STATIC_VERTICAL_FULL"
+                ],
+                "freeformProfileRegistry": "contracts/freeform-format-profiles.json",
+                "platformOwnedFields": [
+                  "primaryText",
+                  "headline",
+                  "description",
+                  "callToAction",
+                  "destinationUrl"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "GOOGLE",
+            "label": "GOOGLE ADS STATIC",
+            "placements": [
+              {
+                "id": "GOOGLE_STATIC_GEOMETRY",
+                "label": "Geometry",
+                "compositionMode": "PLATFORM_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "deliveryCardinality": "COLLECTION",
+                "editorType": "GOOGLE_STATIC_EDITOR",
+                "renderable": true,
+                "sourceProfileIds": [
+                  "GOOGLE_MARKETING_LANDSCAPE_1_91",
+                  "GOOGLE_MARKETING_SQUARE_1_1",
+                  "GOOGLE_MARKETING_PORTRAIT_4_5",
+                  "GOOGLE_RDA_VERTICAL_9_16",
+                  "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+                  "GOOGLE_LOGO_SQUARE_1_1",
+                  "GOOGLE_LOGO_LANDSCAPE_4_1"
+                ],
+                "sourceProfileRegistry": "contracts/google/static-asset-profiles.g1.json",
+                "capabilityRegistry": "contracts/google/capability-asset-role-mapping.g1.json",
+                "diagnosticRegistry": "contracts/google/diagnostics.g1.json"
+              },
+              {
+                "id": "GOOGLE_STATIC_UPLOADED_DISPLAY",
+                "label": "Uploaded Display Static",
+                "compositionMode": "RENDERER_COMPOSED",
+                "layoutMode": "FREEFORM",
+                "artifactCardinality": "SINGLE",
+                "deliveryCardinality": "COLLECTION",
+                "editorType": "GOOGLE_STATIC_EDITOR",
+                "renderable": true,
+                "sourceProfileIds": [
+                  "GOOGLE_DG_UPLOAD_300X250",
+                  "GOOGLE_DG_UPLOAD_336X280",
+                  "GOOGLE_DG_UPLOAD_728X90",
+                  "GOOGLE_DG_UPLOAD_970X90",
+                  "GOOGLE_DG_UPLOAD_160X600",
+                  "GOOGLE_DG_UPLOAD_300X600",
+                  "GOOGLE_DG_UPLOAD_320X50"
+                ],
+                "sourceProfileRegistry": "contracts/google/static-asset-profiles.g1.json",
+                "capabilityRegistry": "contracts/google/capability-asset-role-mapping.g1.json",
+                "diagnosticRegistry": "contracts/google/diagnostics.g1.json"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "outputFiles": {
+    "png": {
+      "path": "artifacts/g3-1/evidence/google-default-output.png",
+      "sha256": "ac5bfac137f957f51b6e5f7646f49b418599fb18d9449fb19040d5ce0ee0cf3a",
+      "signature": "89504e470d0a1a0a",
+      "width": 1200,
+      "height": 628,
+      "format": "png",
+      "hasAlpha": true
+    },
+    "jpeg": {
+      "path": "artifacts/g3-1/evidence/google-transformed-output.jpg",
+      "sha256": "5f390955d8d65ccbcbbfbb02ed4c769b54b11764dc46c26d5170f4c4a14fe66a",
+      "signature": "ffd8ff",
+      "trailer": "ffd9",
+      "width": 1200,
+      "height": 628,
+      "format": "jpeg",
+      "hasAlpha": false
+    }
+  },
+  "observed": {
+    "runtimeProfiles": 14,
+    "staleAfterFormatAndPlacement": true,
+    "passAfterPreviewRefresh": true,
+    "placementControlsExercised": [
+      "NUMERIC_X",
+      "NUMERIC_Y",
+      "NUMERIC_SCALE",
+      "ZOOM"
+    ],
+    "outputExtensions": [
+      ".png",
+      ".jpg"
+    ],
+    "blockedNetworkRequestCount": 0
+  }
+}

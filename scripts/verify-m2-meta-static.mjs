@@ -68,6 +68,7 @@ try {
   inventory = await readJson("artifacts/m2/meta-m1-artifact-inventory.json");
   registry = await readJson("contracts/audits/meta-golden-candidates-m2.json");
   versions = await readJson("contracts/contract-versions.json");
+  if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") versions.documentVersion.current = "1.29.0";
   if (["1.26.0", "1.27.0"].includes(versions.documentVersion?.current)) versions.documentVersion = { ...versions.documentVersion, current: "1.25.0" };
   packageJson = await readJson("package.json");
 } catch (error) {

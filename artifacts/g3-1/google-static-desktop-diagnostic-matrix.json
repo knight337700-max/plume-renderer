@@ -1,0 +1,107 @@
+{
+  "phase": "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE",
+  "status": "REVIEW_MATRIX",
+  "count": 11,
+  "globalRegistry": "contracts/error-registry.json",
+  "diagnostics": [
+    {
+      "code": "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN",
+      "severity": "ERROR",
+      "layer": "artifact",
+      "blocking": true,
+      "messageKey": "google.asset_profile_unknown",
+      "globalRegistryCondition": "A Google static asset references an unknown or target-incompatible asset profile",
+      "globalRegistrySeverity": "ERROR"
+    },
+    {
+      "code": "KBR-GOOGLE-ASSET-CANVAS-MISMATCH",
+      "severity": "ERROR",
+      "layer": "artifact",
+      "blocking": true,
+      "messageKey": "google.asset_canvas_mismatch",
+      "globalRegistryCondition": "A Google static asset canvas differs from the selected profile project output preset",
+      "globalRegistrySeverity": "ERROR"
+    },
+    {
+      "code": "KBR-GOOGLE-ASSET-MIME-UNSUPPORTED",
+      "severity": "ERROR",
+      "layer": "artifact",
+      "blocking": true,
+      "messageKey": "google.asset_mime_unsupported",
+      "globalRegistryCondition": "A Google static asset has an unsupported MIME type or animation",
+      "globalRegistrySeverity": "ERROR"
+    },
+    {
+      "code": "KBR-GOOGLE-ASSET-BYTES-EXCEEDED",
+      "severity": "ERROR",
+      "layer": "artifact",
+      "blocking": true,
+      "messageKey": "google.asset_bytes_exceeded",
+      "globalRegistryCondition": "A Google static asset exceeds the selected target decimal-byte limit",
+      "globalRegistrySeverity": "ERROR"
+    },
+    {
+      "code": "KBR-GOOGLE-SET-REQUIRED-ROLE-MISSING",
+      "severity": "ERROR",
+      "layer": "deliverySet",
+      "blocking": true,
+      "messageKey": "google.required_role_missing",
+      "globalRegistryCondition": "A Google delivery set is missing a required role or text value",
+      "globalRegistrySeverity": "ERROR"
+    },
+    {
+      "code": "KBR-GOOGLE-SET-ROLE-CARDINALITY-EXCEEDED",
+      "severity": "ERROR",
+      "layer": "deliverySet",
+      "blocking": true,
+      "messageKey": "google.role_cardinality_exceeded",
+      "globalRegistryCondition": "A Google delivery set exceeds a contracted role cardinality",
+      "globalRegistrySeverity": "ERROR"
+    },
+    {
+      "code": "KBR-GOOGLE-TEXT-LIMIT-EXCEEDED",
+      "severity": "ERROR",
+      "layer": "deliverySet",
+      "blocking": true,
+      "messageKey": "google.text_limit_exceeded",
+      "globalRegistryCondition": "A Google delivery text value exceeds its contracted character limit",
+      "globalRegistrySeverity": "ERROR"
+    },
+    {
+      "code": "KBR-GOOGLE-PMAX-BRAND-ASSOCIATION-MODE-MISMATCH",
+      "severity": "ERROR",
+      "layer": "deliverySet",
+      "blocking": true,
+      "messageKey": "google.pmax_brand_association_mode_mismatch",
+      "globalRegistryCondition": "Performance Max brand association fields do not match the selected mode",
+      "globalRegistrySeverity": "ERROR"
+    },
+    {
+      "code": "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY",
+      "severity": "INFO",
+      "layer": "platformIntegration",
+      "blocking": false,
+      "messageKey": "google.rda_vertical_source_discrepancy",
+      "globalRegistryCondition": "An RDA vertical source discrepancy is present for informational review",
+      "globalRegistrySeverity": "INFO"
+    },
+    {
+      "code": "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED",
+      "severity": "INFO",
+      "layer": "platformIntegration",
+      "blocking": false,
+      "messageKey": "google.demandgen_safe_zone_source_required",
+      "globalRegistryCondition": "A Demand Gen tall portrait source requires a safe-zone source note",
+      "globalRegistrySeverity": "INFO"
+    },
+    {
+      "code": "KBR-GOOGLE-LIFECYCLE-TRANSITIONAL",
+      "severity": "INFO",
+      "layer": "platformIntegration",
+      "blocking": false,
+      "messageKey": "google.lifecycle_transitional",
+      "globalRegistryCondition": "A Google capability is marked transitional by its source contract",
+      "globalRegistrySeverity": "INFO"
+    }
+  ]
+}

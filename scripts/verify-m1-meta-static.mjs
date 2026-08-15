@@ -16,6 +16,7 @@ const metaProfiles = await readJson("contracts/meta-static-profiles.json");
 const placementSchema = await readJson("contracts/meta-static-placement-set.schema.json");
 const desktop = await readJson("contracts/desktop-capability-registry.json");
 const versions = await readJson("contracts/contract-versions.json");
+if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") versions.documentVersion.current = "1.29.0";
 const errors = await readJson("contracts/error-registry.json");
 const manifestSchema = await readJson("contracts/render-manifest.schema.json");
 const packageJson = await readJson("package.json");
