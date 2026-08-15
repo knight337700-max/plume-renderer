@@ -99,6 +99,12 @@ describe("Google Static Desktop QA controller", () => {
     const first = await context.controller.requestPreview(base);
     expect(first.validationStatus).toBe("PASS");
     const firstDigest = first.previewPngDigest;
+    if (!first.previewToken) throw new Error("Google preview token missing");
+    const output = await context.controller.registerOutputDirectory(context.outputRoot);
+    const exported = await context.controller.exportRender({ ...base, previewToken: first.previewToken, outputDirectoryToken: output.token });
+    expect(exported.status).toBe("EXPORTED");
+    const stale = await context.controller.exportRender({ ...base, googleStatic: { ...googleStatic, deliveryMetadata: { targetName: "B" } }, previewToken: first.previewToken, outputDirectoryToken: output.token });
+    expect(stale).toMatchObject({ status: "BLOCKED", code: "DESKTOP-EXPORT-003" });
     const second = await context.controller.requestPreview({ ...base, requestSequence: 2, googleStatic: { ...googleStatic, deliveryMetadata: { targetName: "B", fieldOnly: true } } });
     expect(second.validationStatus).toBe("PASS");
     expect(second.previewPngDigest).toBe(firstDigest);
@@ -107,7 +113,6 @@ describe("Google Static Desktop QA controller", () => {
     expect(invalid.validationStatus).toBe("ERROR");
     expect(invalid.previewToken).toBeNull();
     expect(invalid.errors.map((issue) => issue.code)).toContain("KBR-GOOGLE-ASSET-PROFILE-UNKNOWN");
-    const output = await context.controller.registerOutputDirectory(context.outputRoot);
     const blocked = await context.controller.exportRender({ ...base, previewToken: invalid.previewToken ?? "00000000-0000-4000-8000-000000000000", outputDirectoryToken: output.token });
     expect(blocked.status).not.toBe("EXPORTED");
     expect(await stat(context.outputRoot).then(() => true)).toBe(true);

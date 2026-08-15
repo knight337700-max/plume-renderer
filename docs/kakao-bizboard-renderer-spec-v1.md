@@ -1,9 +1,9 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.27.0
-- **Status:** Frozen Implementation Contract — Phase G2.1 Google Static user visual acceptance and Golden freeze
-- **Checked date:** 2026-08-14 (KST)
+- **Document version:** 1.28.1
+- **Status:** Frozen Implementation Contract — Phase G3.0.2 Google Static Desktop QA Preview/Export identity revision
+- **Checked date:** 2026-08-15 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
 
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **57. Phase G2.1 Google Static user visual acceptance and Golden freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **59. Phase G3.0.2 Google Static Desktop QA Preview/Export identity revision**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
 
 ---
 
@@ -5579,5 +5579,52 @@ record is `docs/implementation/google-static-desktop-qa-enablement-g3.md`; the A
 `docs/adr/ADR-0063-google-static-desktop-qa-enablement-g3.md`; and the deterministic verifier is
 `scripts/verify-g3-google-static-desktop-qa.mjs`. Frozen G2.1 bytes and registry are evidence-only
 inputs and are not regenerated or rewritten. **[PROJECT]**
+
+`nextPhase`: `G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE`. **[PROJECT]**
+
+## 59. Phase G3.0.2 — Google Static Desktop QA Preview/Export identity revision [PROJECT]
+
+G3.0.2 corrects a Desktop runtime defect in which the Google Static Preview request included
+`deliveryMetadata` while the Export request reconstructed the same plan without that metadata.
+The Main/Core stale-preview guard correctly includes delivery metadata in the request fingerprint;
+therefore an unchanged Preview followed by Export was incorrectly rejected with
+`DESKTOP-EXPORT-003`. This phase records the defect and its deterministic correction; it does not
+change the Google raster, Validator, frozen Golden files, or upload boundary. **[PROJECT]**
+
+### 59.1 Canonical request identity [PROJECT]
+
+Preview and Export MUST call the shared `buildCanonicalGoogleStaticRequest` builder from
+`apps/desktop/shared/src/google-static-request.ts`. The builder preserves the explicit Google
+Static plan, normalizes metadata recursively (object keys are deterministic and strings are NFC),
+preserves array order, and never passes metadata into rasterization. The trusted Main/Core boundary
+uses the same builder before resolving a profile, rendering, and computing the request fingerprint.
+An unchanged input—including unchanged delivery metadata—therefore has one identity and may be
+exported. A changed asset, profile, plan, output encoding, or delivery metadata remains a stale
+input and MUST be blocked with `DESKTOP-EXPORT-003`; no stale check is weakened or removed.
+**[PROJECT]**
+
+### 59.2 Regression and scope [PROJECT]
+
+The regression is covered through the actual Electron Renderer UI → preload IPC → Main/Core
+controller path and through the Desktop controller integration test. The UI test proves that a PASS
+Preview with non-empty delivery metadata exports `output.png` and `render-manifest.json`; the
+integration test proves that changing metadata after Preview remains blocked. Existing Google
+Golden bytes and render fingerprints remain unchanged. G3.1 user-acceptance, Desktop freeze,
+review-package, and approval artifacts are not created by this phase. **[PROJECT] [MANUAL]**
+
+### 59.3 Version and implementation record [PROJECT]
+
+The Canonical document advances from `1.28.0` to `1.28.1` (patch). Desktop/package advance from
+`0.11.0` to `0.11.1` (patch). Renderer Core `0.11.0`, Validator `1.11.0`, template `1.9.0`,
+Input `1.2.0`, Output `2.0.0`, manifest `1.0.0`, response envelope `1.0.0`, Google architecture
+`1.0.0`, and the frozen Golden registry `1.0.0` remain unchanged. Coordinates and all frozen
+PNG bytes remain unchanged. **[PROJECT]**
+
+The implementation record is
+`docs/implementation/google-static-preview-export-fingerprint-revision-g3-0-2.md`; the ADR is
+`docs/adr/ADR-0065-google-static-preview-export-fingerprint-revision-g3-0-2.md`; and the
+deterministic verifier is `scripts/verify-g3-0-2-google-static-preview-export.mjs`. Runtime
+network access, Google upload/API, OAuth, telemetry, and Plume dependencies remain prohibited.
+**[PROJECT]**
 
 `nextPhase`: `G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE`. **[PROJECT]**

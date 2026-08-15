@@ -77,6 +77,34 @@ test("Google Static Desktop QA exposes the frozen profile groups and pixel-view 
   }
 });
 
+test("Google Static Preview with delivery metadata exports without a false stale block", async () => {
+  const launched = await launch(
+    path.join(projectRoot, "fixtures", "google", "g2", "source", "g2-GOOGLE_MARKETING_LANDSCAPE_1_91.png"),
+  );
+  try {
+    await launched.page.getByTestId("channel-google").click();
+    await launched.page.getByTestId("google-select-asset").click();
+    await expect(launched.page.getByTestId("google-asset-metadata")).toContainText("g2-GOOGLE_MARKETING_LANDSCAPE_1_91.png");
+    await launched.page.getByTestId("google-delivery-metadata").locator("textarea").fill(JSON.stringify({ targetName: "RDA", fieldOnly: true }));
+    await launched.page.getByTestId("google-select-output").click();
+    await launched.page.getByTestId("google-request-preview").click();
+    await expect(launched.page.getByTestId("google-status")).toHaveText("PASS");
+    await expect(launched.page.getByTestId("google-download")).toBeEnabled();
+    await launched.page.getByTestId("google-download").click();
+    await expect(launched.page.getByTestId("google-export-result")).toBeVisible();
+    await expect(launched.page.getByTestId("google-local-error")).toHaveCount(0);
+    await expect.poll(async () => {
+      try {
+        return await readdir(path.join(launched.outputRoot, "google-static"));
+      } catch {
+        return [];
+      }
+    }).toEqual(expect.arrayContaining(["output.png", "render-manifest.json"]));
+  } finally {
+    await close(launched);
+  }
+});
+
 test("valid Desktop workflow renders Preview and atomically exports the Golden PNG", async () => {
   const launched = await launch(
     path.join(projectRoot, "fixtures", "valid", "object-right__product__basic__pass.png"),

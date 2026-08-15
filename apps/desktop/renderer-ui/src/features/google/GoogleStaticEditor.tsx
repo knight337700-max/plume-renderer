@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { buildCanonicalGoogleStaticRequest } from "../../../../shared/src/index.js";
 import type { ExportRequest, GoogleStaticUiRequest, PreviewResult, ProductSelectionResult } from "../../../../shared/src/index.js";
 import profilesRegistry from "../../../../../../contracts/google/static-asset-profiles.g1.json" with { type: "json" };
 import desktopQaRegistry from "../../../../../../contracts/google/desktop-qa.g3.json" with { type: "json" };
@@ -115,56 +116,63 @@ export function GoogleStaticEditor() {
     }
   }
 
+  function readDeliveryMetadata(): Readonly<Record<string, unknown>> {
+    return buildCanonicalGoogleStaticRequest(plan, JSON.parse(deliveryMetadataText)).deliveryMetadata ?? {};
+  }
+
   async function requestPreview() {
     if (!asset) {
       setLocalError("먼저 제품 또는 Google Static Asset을 선택하세요.");
       return;
     }
-    let deliveryMetadata: Readonly<Record<string, unknown>> = {};
     try {
-      deliveryMetadata = JSON.parse(deliveryMetadataText) as Readonly<Record<string, unknown>>;
-      if (!deliveryMetadata || Array.isArray(deliveryMetadata) || typeof deliveryMetadata !== "object") throw new Error("Delivery metadata는 JSON object여야 합니다.");
+      const deliveryMetadata = readDeliveryMetadata();
+      const canonicalGoogleStaticRequest = buildCanonicalGoogleStaticRequest(plan, deliveryMetadata);
+      const requestSequence = ++sequence.current;
+      setBusy(true);
+      setPreview(null);
+      setExported(null);
+      try {
+        const result = await window.kbrDesktop.requestPreview({
+          assetToken: asset.assetToken,
+          advertiser: "",
+          headline: "",
+          subcopy: "",
+          jobName: "google-static",
+          requestSequence,
+          googleStatic: canonicalGoogleStaticRequest,
+        });
+        if (result.requestSequence === sequence.current) setPreview(result);
+      } finally {
+        setBusy(false);
+      }
     } catch (error) {
       setLocalError(error instanceof Error ? error.message : "Delivery metadata JSON을 해석할 수 없습니다.");
-      return;
-    }
-    const requestSequence = ++sequence.current;
-    setBusy(true);
-    setPreview(null);
-    setExported(null);
-    try {
-      const result = await window.kbrDesktop.requestPreview({
-        assetToken: asset.assetToken,
-        advertiser: "",
-        headline: "",
-        subcopy: "",
-        jobName: "google-static",
-        requestSequence,
-        googleStatic: { ...plan, deliveryMetadata },
-      });
-      if (result.requestSequence === sequence.current) setPreview(result);
-    } finally {
-      setBusy(false);
     }
   }
 
   async function exportRender() {
     if (!asset || !output || !preview?.previewToken || preview.validationStatus === "ERROR") return;
-    const request: ExportRequest = {
-      assetToken: asset.assetToken,
-      advertiser: "",
-      headline: "",
-      subcopy: "",
-      jobName: "google-static",
-      previewToken: preview.previewToken,
-      outputDirectoryToken: output.outputDirectoryToken,
-      googleStatic: plan,
-    };
-    setBusy(true);
-    const result = await window.kbrDesktop.exportRender(request);
-    setBusy(false);
-    if (result.status === "EXPORTED") setExported(result);
-    else setLocalError(result.message);
+    try {
+      const request: ExportRequest = {
+        assetToken: asset.assetToken,
+        advertiser: "",
+        headline: "",
+        subcopy: "",
+        jobName: "google-static",
+        previewToken: preview.previewToken,
+        outputDirectoryToken: output.outputDirectoryToken,
+        googleStatic: buildCanonicalGoogleStaticRequest(plan, JSON.parse(deliveryMetadataText)),
+      };
+      setBusy(true);
+      const result = await window.kbrDesktop.exportRender(request);
+      setBusy(false);
+      if (result.status === "EXPORTED") setExported(result);
+      else setLocalError(result.message);
+    } catch (error) {
+      setBusy(false);
+      setLocalError(error instanceof Error ? error.message : "Delivery metadata JSON을 해석할 수 없습니다.");
+    }
   }
 
   const metadata = preview?.pngMetadata;

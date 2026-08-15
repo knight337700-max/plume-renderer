@@ -236,6 +236,7 @@ const g2_1GoogleVersion = canonicalDocument.canonicalPhaseG2_1Google;
 const g2_1GoogleVerificationStatus = g2_1GoogleRegistry.status === "FROZEN" && g2_1GoogleRegistry.visualAcceptance === "ACCEPTED" && g2_1GoogleRegistry.frozen === true && g2_1GoogleRegistry.entries?.length === 14 && g2_1GoogleAcceptance.status === "ACCEPTED" && g2_1GoogleAcceptance.userAcceptanceStatement === "ACCEPT_ALL_GOOGLE_G2_CANDIDATES" ? "PASS" : "FAIL";
 const g3GoogleQa = JSON.parse(await readFile(path.join(root, "contracts/google/desktop-qa.g3.json"), "utf8"));
 const g3GoogleVersion = canonicalDocument.canonicalPhaseG3Google;
+const g3GoogleRevision = canonicalDocument.canonicalPhaseG3_0_2Google ?? g3GoogleVersion;
 const g3GoogleVerificationStatus = g3GoogleQa.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT"
   && g3GoogleQa.registryVersion === "1.0.0"
   && g3GoogleQa.groups?.length === 2
@@ -317,7 +318,7 @@ build, test, and later phase development. The source repository remains unchange
 - Google G1 (historical): static contracts/profile implementation: ${g1GoogleVerificationStatus}, architecture version ${g1GoogleVersion.googleArchitectureVersion}, profile registry ${g1GoogleProfiles.profileCount} (${g1GoogleProfiles.geometryProfileCount} geometry + ${g1GoogleProfiles.uploadedDisplayStaticProfileCount} uploaded static), capability mapping ${g1GoogleMapping.capabilityCount}, legacy runtime profiles ${g1GoogleMapping.compositionBoundary.legacyRuntimeProfiles}, diagnostics ${g1GoogleDiagnostics.count}, and target constraints ${g1GoogleConstraints.byteUnit}. RDA/PMax/Demand Gen single-image remain PLATFORM_COMPOSED; Demand Gen uploaded static is RENDERER_COMPOSED; every artifact is SINGLE and delivery sets are COLLECTION manifests. No Google upload/API, Desktop UI, Golden, carousel, Search image, or runtime network integration was added.
 - Google G2 (historical): deterministic static rendering validation: ${g2GoogleVerificationStatus}, architecture version ${g2GoogleVersion.googleArchitectureVersion}, ${g2GoogleRegistry.geometryCandidateCount} geometry candidates + ${g2GoogleRegistry.demandGenUploadedStaticCandidateCount} uploaded-display-static candidates (${g2GoogleRegistry.candidates?.length} total), registry status ${g2GoogleRegistry.status}. Repeat-render byte equality, exact canvas/MIME, decimal-byte caps, placement policies, thirty delivery scenarios, and five negative placement cases are verified.
 - Google G2.1 (historical freeze): user visual acceptance and Golden freeze: ${g2_1GoogleVerificationStatus}, exact statement ${g2_1GoogleAcceptance.userAcceptanceStatement}, ${g2_1GoogleRegistry.geometryGoldenCount} geometry + ${g2_1GoogleRegistry.demandGenUploadedDisplayStaticGoldenCount} uploaded-display-static Goldens (${g2_1GoogleRegistry.artifactCount} total), registry ${g2_1GoogleRegistry.status}, byte-identical promotion ${g2_1GoogleRegistry.entries?.every((entry) => entry.candidateToFrozenByteEquality) === true}. The fourteen Goldens remain frozen and unchanged.
-- Google G3 (current): Desktop Static QA enablement: ${g3GoogleVerificationStatus}, two profile groups (7 Geometry + 7 Uploaded Display Static), fourteen profile selectors sourced from the G1 registry, deterministic local preview, validator diagnostics, Fit/Actual pixel view, and pass-only local export. Platform fields remain metadata-only; no Google upload/API, OAuth, runtime network access, or Plume dependency is present. Next phase: ${g3GoogleVersion.nextPhase}.
+- Google G3 (current): Desktop Static QA enablement: ${g3GoogleVerificationStatus}, two profile groups (7 Geometry + 7 Uploaded Display Static), fourteen profile selectors sourced from the G1 registry, deterministic local preview, validator diagnostics, Fit/Actual pixel view, and pass-only local export. Platform fields remain metadata-only; no Google upload/API, OAuth, runtime network access, or Plume dependency is present. G3.0.2 aligns Preview and Export on one canonical request identity and preserves stale blocking for changed metadata. Next phase: ${g3GoogleRevision.nextPhase}.
 
 ## Directories
 
@@ -355,7 +356,7 @@ Kakao Spoqa assets remain governed by their OFL notice under assets/fonts/.
 
 ## Source of truth and next phase
 
-  The latest phase is G3 Google Static Desktop QA enablement and the canonical document is v1.28.0. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen historical candidate artifacts; G2.1 freezes the fourteen explicitly accepted byte-identical Google Goldens. G3 exposes those frozen profiles in the additive Desktop QA workflow with deterministic preview, diagnostics, Fit/Actual view, and pass-only local export. M1 implements the three project output presets,
+  The latest phase is G3.0.2 Google Static Desktop QA Preview/Export identity revision and the canonical document is v1.28.1. G0 remains the historical architecture-only discovery record; G0.1 freezes the same six authoritative machine-readable Google records under contracts/google/ through contracts/google/architecture-freeze.g0.1.json, with verification evidence under artifacts/g0-1/. G1 adds the dedicated fourteen-profile registry, CreativeAssetSetManifest schema, and deterministic RDA/PMax/Demand Gen delivery validators without changing the frozen composition boundary. G2 adds deterministic local raster validation and fourteen historical candidate artifacts; G2.1 freezes the fourteen explicitly accepted byte-identical Google Goldens. G3 exposes those frozen profiles in the additive Desktop QA workflow with deterministic preview, diagnostics, Fit/Actual view, and pass-only local export. G3.0.2 aligns Preview and Export on one canonical request identity while preserving stale blocking for changed delivery metadata. M1 implements the three project output presets,
 FREEFORM-backed static media rendering, metadata-only platform copy, and the renderer-composed placement set.
 The official Meta pixel-size and file-size claims remain separate from project output presets; M2 audits real META artifacts and creates
 historical non-approved candidates; M2.1 corrects visual candidate geometry to independent full-bleed MANUAL_CROP, removes the unpinned META 300000-byte hard error, and records current-source uncertainty without inventing a replacement. M2.2 moves context ownership to the Render Request, removes the vertical FACEBOOK_FEED hidden default, and preserves imported placement/crop semantics. M2.3 records the four user-approved META static Goldens as APPROVED_FROZEN, keeps Stories/Reels contextual identity distinct even when artifacts are byte-identical, and retains Reels SOURCE_REQUIRED INFO without guessed geometry. N8 remains the
@@ -424,10 +425,10 @@ const manifest = {
     inputSchema: canonicalDocument.inputSchemaVersion.current,
     outputSchema: canonicalDocument.outputSchemaVersion.current,
     integration: canonicalDocument.integrationContract.current,
-    rendererCore: g3GoogleVersion.rendererCoreVersion,
-    validator: g3GoogleVersion.validatorCurrent,
-    desktop: g3GoogleVersion.desktopCurrent,
-    package: g3GoogleVersion.packageCurrent,
+    rendererCore: g3GoogleRevision.rendererCoreVersion,
+    validator: g3GoogleRevision.validatorCurrent,
+    desktop: g3GoogleRevision.desktopCurrent,
+    package: g3GoogleRevision.packageCurrent,
     googleStatic: {
       architectureVersion: g0_1GoogleVersion.googleArchitectureVersion,
       architectureVersionPrevious: g0_1GoogleVersion.googleArchitecturePrevious,
@@ -876,6 +877,10 @@ const manifest = {
     g3GoogleDesktopEditor: "apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx",
     g3GoogleIntegrationTest: "tests/desktop/integration/google-static-session-controller.test.ts",
     g3GoogleE2eTest: "tests/e2e/desktop.spec.ts",
+    g3_0_2GoogleImplementationRecord: "docs/implementation/google-static-preview-export-fingerprint-revision-g3-0-2.md",
+    g3_0_2GoogleAdr: "docs/adr/ADR-0065-google-static-preview-export-fingerprint-revision-g3-0-2.md",
+    g3_0_2GoogleVerifier: "scripts/verify-g3-0-2-google-static-preview-export.mjs",
+    g3_0_2GoogleSharedRequestBuilder: "apps/desktop/shared/src/google-static-request.ts",
   },
   m2MetaArtifactAudit: {
     status: m2ArtifactAudit.status,
@@ -1129,6 +1134,19 @@ const manifest = {
     adr: g3GoogleVersion.adr,
     verifier: g3GoogleVersion.verifier,
     nextPhase: g3GoogleVersion.nextPhase,
+    revision: {
+      phase: g3GoogleRevision.phase,
+      documentVersion: g3GoogleRevision.documentCurrent,
+      desktopVersion: g3GoogleRevision.desktopCurrent,
+      packageVersion: g3GoogleRevision.packageCurrent,
+      staleErrorCode: g3GoogleRevision.staleErrorCode,
+      previewExportIdentity: g3GoogleRevision.previewExportIdentity,
+      productionPaths: g3GoogleRevision.productionPaths,
+      implementationRecord: g3GoogleRevision.implementationDocument,
+      adr: g3GoogleRevision.adr,
+      verifier: g3GoogleRevision.verifier,
+      g3_1ArtifactsCreated: g3GoogleRevision.g3_1ArtifactsCreated,
+    },
   },
   externalRuntimeDependencies: [],
   excludedGeneratedDependencies: ["node_modules", "dist", "dist-desktop", "release", "coverage", "test-results", ".cache", ".out-staging", ".git"],

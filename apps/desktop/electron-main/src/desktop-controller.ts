@@ -52,7 +52,7 @@ import { sha256Bytes, sha256File } from "../../../../src/core/hash.js";
 import { publishArtifacts, publishCollectionArtifacts, PublishError } from "../../../../src/core/publish.js";
 import { resolveTrustedJobDirectory } from "../../../../src/core/path-security.js";
 import type { KakaoBizboardInputV1, ValidationIssue } from "../../../../src/core/types.js";
-import { previewMimeType, resolvePreviewEligibility } from "../../shared/src/index.js";
+import { buildCanonicalGoogleStaticRequest, previewMimeType, resolvePreviewEligibility } from "../../shared/src/index.js";
 import type {
   AppInfo,
   DesktopCapability,
@@ -1475,11 +1475,12 @@ export class DesktopController {
     warnings: ValidationIssue[];
     info: ValidationIssue[];
   }> {
-    const request = input.googleStatic;
+    const requestInput = input.googleStatic;
     const contracts = await loadGoogleStaticContracts(this.#projectRoot);
-    if (!request) {
+    if (!requestInput) {
       return { contracts, profile: null, plan: null, rendered: null, requestFingerprint: null, errors: [{ code: "KBR-INPUT-002", severity: "ERROR", messageKey: "input.schema_mismatch", path: "/googleStatic" }], warnings: [], info: [] };
     }
+    const request = buildCanonicalGoogleStaticRequest(requestInput);
     const profile = resolveGoogleStaticProfile(request.profileId, contracts) ?? null;
     const profileIssue = profile
       ? []

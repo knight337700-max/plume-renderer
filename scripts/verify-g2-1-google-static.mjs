@@ -170,6 +170,7 @@ async function main() {
   const renderSource = await readFile(path.join(root, "src/core/google-static-render.ts"), "utf8").catch(() => "");
   check("google_upload_absent", !(await exists("src/core/google-upload")) && !(await exists("apps/desktop/electron-main/google-upload")) && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("googleapis"), "Google upload/API integration absent");
   const g3Implemented = versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT";
+  const g3RevisionImplemented = versions?.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION";
   check("desktop_google_ui_absent", g3Implemented ? await exists("apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx") : !(await exists("apps/desktop/renderer-ui/src/google")), g3Implemented ? "G3 Google Desktop UI is present at the additive feature path" : "Google Desktop UI absent");
   check("runtime_network_and_plume_absent", !JSON.stringify(packageJson ?? {}).toLowerCase().includes("plume") && !renderSource.toLowerCase().includes("plume") && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("axios"), "no Plume or remote runtime dependency");
   check("legacy_display_runtime_zero", !(candidates?.candidates ?? []).some((entry) => entry.profileId.includes("LEGACY")), "legacy Display runtime profile absent");
@@ -181,7 +182,9 @@ async function main() {
   } catch { frozenDiff = "ERROR"; }
   check("frozen_kakao_naver_meta_outputs", frozenDiff === "", frozenDiff || "KAKAO/NAVER/META frozen output paths unchanged");
 
-  check("canonical_version_1_27", (g3Implemented
+  check("canonical_version_1_27", (g3RevisionImplemented
+    ? versions?.documentVersion?.current === "1.28.1" && versions?.documentVersion?.previous === "1.28.0" && versions?.canonicalPhaseG3_0_2Google?.templateCoordinatesChanged === false
+    : g3Implemented
     ? versions?.documentVersion?.current === "1.28.0" && versions?.documentVersion?.previous === "1.27.0" && versions?.canonicalPhaseG3Google?.templateCoordinatesChanged === false
     : versions?.canonicalPhaseG2_1Google?.documentCurrent === "1.27.0" && versions?.canonicalPhaseG2_1Google?.documentPrevious === "1.26.0" && versions?.canonicalPhaseG2_1Google?.googleStaticGoldenStatus === "FROZEN"), JSON.stringify(g3Implemented ? versions?.canonicalPhaseG3Google : versions?.canonicalPhaseG2_1Google));
   const canonicalText = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");

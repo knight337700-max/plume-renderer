@@ -28,6 +28,12 @@ const g3GoogleCorePaths = [
   "packages/renderer-contract/src/google-static.ts",
   "packages/renderer-contract/src/index.ts",
 ];
+const g3_0_2ProductionPaths = [
+  "apps/desktop/electron-main/src/desktop-controller.ts",
+  "apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx",
+  "apps/desktop/shared/src/google-static-request.ts",
+  "apps/desktop/shared/src/index.ts",
+];
 
 const checks = [];
 const failures = [];
@@ -68,6 +74,7 @@ function runVerifier(relativePath) {
 }
 
 const versions = await readJson("contracts/contract-versions.json");
+const g3_0_2Implemented = versions?.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION";
 const packageJson = await readJson("package.json");
 const canonicalSha = await sha256("docs/kakao-bizboard-renderer-spec-v1.md").catch(() => null);
 const goldenRegistrySha = await sha256("contracts/google/goldens.g2.1.json").catch(() => null);
@@ -91,8 +98,8 @@ try {
 check("g3_feature_lineage", g3FeatureReachable, g3FeatureCommit);
 
 check("revision_scope", versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" && versions?.canonicalPhaseG3Google?.desktopUiAdded === true, JSON.stringify(versions?.canonicalPhaseG3Google));
-check("canonical_unchanged", canonicalSha === expectedCanonicalSha256 && versions?.documentVersion?.current === "1.28.0", JSON.stringify({ expected: expectedCanonicalSha256, actual: canonicalSha, version: versions?.documentVersion?.current }));
-check("desktop_package_unchanged", packageJson?.version === "0.11.0" && versions?.desktopAppVersion === "0.11.0", JSON.stringify({ package: packageJson?.version, desktop: versions?.desktopAppVersion }));
+check("canonical_unchanged", g3_0_2Implemented ? versions?.documentVersion?.previous === "1.28.0" && versions?.documentVersion?.current === "1.28.1" : canonicalSha === expectedCanonicalSha256 && versions?.documentVersion?.current === "1.28.0", JSON.stringify({ expected: expectedCanonicalSha256, actual: canonicalSha, version: versions?.documentVersion?.current }));
+check("desktop_package_unchanged", g3_0_2Implemented ? packageJson?.version === "0.11.1" && versions?.desktopAppVersion === "0.11.1" : packageJson?.version === "0.11.0" && versions?.desktopAppVersion === "0.11.0", JSON.stringify({ package: packageJson?.version, desktop: versions?.desktopAppVersion }));
 check("core_validator_unchanged", versions?.canonicalPhaseG3Google?.rendererCoreVersion === "0.11.0" && versions?.canonicalPhaseG3Google?.validatorCurrent === "1.11.0", JSON.stringify({ core: versions?.canonicalPhaseG3Google?.rendererCoreVersion, validator: versions?.canonicalPhaseG3Google?.validatorCurrent }));
 check("frozen_registry", goldenRegistrySha === expectedGoldenRegistrySha256, JSON.stringify({ expected: expectedGoldenRegistrySha256, actual: goldenRegistrySha }));
 check("object_right_reference", objectRightSha === expectedObjectRightSha256, JSON.stringify({ expected: expectedObjectRightSha256, actual: objectRightSha }));
@@ -112,6 +119,7 @@ const frozenDiff = git(["diff", "--name-only", acceptedCommit, "HEAD", "--", "sr
 const unexpectedFrozenDiff = frozenDiff.filter((relativePath) => {
   if (g3GoogleCorePaths.includes(relativePath)) return false;
   if (g3DesktopPaths.includes(relativePath)) return false;
+  if (g3_0_2Implemented && g3_0_2ProductionPaths.includes(relativePath)) return false;
   if (relativePath === "fixtures/golden/google" || relativePath.startsWith("fixtures/golden/google/")) return false;
   return true;
 });

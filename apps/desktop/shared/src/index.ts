@@ -2,6 +2,7 @@ export { DESKTOP_CHANNEL_ALLOWLIST, DESKTOP_CHANNELS } from "./channels.js";
 export type { DesktopChannel } from "./channels.js";
 export { previewMimeType, resolvePreviewEligibility } from "./preview-artifact.js";
 export { deriveNaverSmartChannelTextInputFields } from "./smartchannel-text-input-fields.js";
+export { buildCanonicalGoogleStaticRequest } from "./google-static-request.js";
 export type {
   PreviewArtifact,
   PreviewEligibility,
