@@ -6,7 +6,9 @@ import { afterEach, describe, expect, it } from "vitest";
 import type { ImagePlacementPlan } from "@kbr/renderer-contract";
 import { DesktopController } from "../../../apps/desktop/electron-main/src/desktop-controller.js";
 import { DesktopSessionManager } from "../../../apps/desktop/electron-main/src/session/session-manager.js";
-import type { GoogleStaticUiRequest, UiRenderInput } from "../../../apps/desktop/shared/src/index.js";
+import { defaultGoogleStaticRequest } from "../../../apps/desktop/shared/src/index.js";
+import type { ProductSelectionResult, UiRenderInput } from "../../../apps/desktop/shared/src/index.js";
+import profilesRegistry from "../../../contracts/google/static-asset-profiles.g1.json" with { type: "json" };
 import { sha256Bytes, sha256File } from "../../../src/core/hash.js";
 import { createTempRoot, projectRoot, removeTempRoot } from "../../helpers.js";
 
@@ -32,9 +34,10 @@ async function selectSource(context: Context, profileId: string) {
   return selected;
 }
 
-async function readPlan(profileId: string) {
-  const plan = JSON.parse(await readFile(path.join(projectRoot, "fixtures/google/g2/plans", `g2-${profileId}.json`), "utf8")) as Record<string, unknown>;
-  return Object.fromEntries(Object.entries(plan).filter(([key]) => key !== "schemaVersion" && key !== "sourceFixturePath")) as unknown as GoogleStaticUiRequest;
+async function readPlan(profileId: string, selected: Extract<ProductSelectionResult, { status: "SELECTED" }>) {
+  const profile = [...profilesRegistry.geometryProfiles, ...profilesRegistry.uploadedDisplayStaticProfiles].find((entry) => entry.profileId === profileId);
+  if (!profile) throw new Error(`Profile missing: ${profileId}`);
+  return defaultGoogleStaticRequest(profile, selected);
 }
 
 afterEach(async () => {
@@ -49,7 +52,7 @@ describe("Google Static Desktop QA controller", () => {
     const context = await setup("golden");
     const profileId = "GOOGLE_MARKETING_LANDSCAPE_1_91";
     const selected = await selectSource(context, profileId);
-    const plan = await readPlan(profileId);
+    const plan = await readPlan(profileId, selected);
     const googleStatic: NonNullable<UiRenderInput["googleStatic"]> = { ...plan, profileId, capabilityId: "GOOGLE_RDA_ASSET_SET" };
     const input: UiRenderInput = {
       assetToken: selected.assetToken,
@@ -84,7 +87,7 @@ describe("Google Static Desktop QA controller", () => {
     const context = await setup("metadata-boundary");
     const profileId = "GOOGLE_DG_UPLOAD_300X250";
     const selected = await selectSource(context, profileId);
-    const plan = await readPlan(profileId);
+    const plan = await readPlan(profileId, selected);
     const googleStaticRequest: NonNullable<UiRenderInput["googleStatic"]> = { ...plan, profileId, capabilityId: "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC", deliveryMetadata: { targetName: "A" } };
     const base: UiRenderInput = {
       assetToken: selected.assetToken,
@@ -124,7 +127,7 @@ describe("Google Static Desktop QA controller", () => {
     const context = await setup("format-parity");
     const profileId = "GOOGLE_MARKETING_LANDSCAPE_1_91";
     const selected = await selectSource(context, profileId);
-    const plan = await readPlan(profileId);
+    const plan = await readPlan(profileId, selected);
     const base: UiRenderInput = {
       assetToken: selected.assetToken,
       advertiser: "",
@@ -166,7 +169,7 @@ describe("Google Static Desktop QA controller", () => {
     const context = await setup("placement-parity");
     const profileId = "GOOGLE_MARKETING_LANDSCAPE_1_91";
     const selected = await selectSource(context, profileId);
-    const plan = await readPlan(profileId);
+    const plan = await readPlan(profileId, selected);
     const base: UiRenderInput = {
       assetToken: selected.assetToken,
       advertiser: "",

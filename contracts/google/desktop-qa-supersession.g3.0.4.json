@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kakao-bizboard-local-renderer.invalid/contracts/google/desktop-qa-supersession.g3.0.4.json",
+  "phase": "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION",
+  "status": "SUPERSEDED_PENDING_REACCEPTANCE",
+  "supersedes": {
+    "phase": "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE",
+    "freezeRegistry": "contracts/google/desktop-qa-freeze.g3.1.json",
+    "freezeRegistryVersion": "1.0.0",
+    "freezeRegistrySha256": "1dc779a4feb83b7df5c6b06966d74492f2e5c682ea32b19dcd87813b3ea218ef",
+    "reviewManifest": "artifacts/g3-1/google-static-desktop-review-manifest.json",
+    "reviewManifestSha256": "ab3a1e727b5efc3fe02953edde410c50be0087fca0390a62d49b67d449d4d8b2",
+    "acceptanceEvidence": "artifacts/g3-1/google-static-desktop-user-acceptance.json",
+    "acceptanceEvidenceSha256": "855b6f14bde6ae42a747e4f5101bbc89cadc8faae68b1fd223e8fd03bf96e4a3",
+    "historicalAcceptance": true,
+    "historicalFreezePreserved": true
+  },
+  "correction": {
+    "geometryProfiles": 7,
+    "geometryDefaultPolicy": "G2.1_FROZEN_PLACEMENT_PLAN",
+    "uploadedDisplayStaticProfiles": 7,
+    "uploadedDefaultPolicy": "NONE_EXACT_CANVAS",
+    "placementPlanRequired": true,
+    "identityTransform": { "x": 0.5, "y": 0.5, "scale": 1 },
+    "defaultGoldenByteEquality": true,
+    "defaultGoldenChanges": 0,
+    "coordinatesChanged": false,
+    "manifestSchemaPrevious": "1.0.0",
+    "manifestSchemaCurrent": "1.1.0",
+    "jpegOutputPngDigestOmitted": true
+  },
+  "evidence": {
+    "g3_2OutputPackGenerated": false,
+    "g3_2OutputPack": null,
+    "g3_2_1Required": true,
+    "userAcceptanceRecorded": false,
+    "freezePerformed": false,
+    "releaseBasisStatus": "SUPERSEDED_PENDING_REACCEPTANCE"
+  },
+  "runtime": {
+    "sourceOfTruth": "contracts/google/default-placement-plans.g3.0.4.json",
+    "runtimeReadsFixtures": false,
+    "runtimeReadsArtifacts": false,
+    "runtimeNetworkAccess": "PROHIBITED",
+    "googleUploadApi": false,
+    "plumeDependencies": []
+  },
+  "nextPhase": "G3_2_1_GOOGLE_STATIC_FINAL_OUTPUT_QA_PACK_REVIEW"
+}

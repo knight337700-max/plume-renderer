@@ -256,17 +256,22 @@ export type UiFreeformRequest = {
 export type GoogleStaticPlacementPolicy = "NONE" | "CENTER_CONTAIN" | "MANUAL_CROP" | "SEMANTIC_CROP_COVER" | "ALPHA_TRIM_CONTAIN";
 export type GoogleStaticPixelRect = Readonly<{ x: number; y: number; width: number; height: number }>;
 export type GoogleStaticRgbaColor = Readonly<{ r: number; g: number; b: number; alpha: number }>;
+export type GoogleStaticPlacementTransform = Readonly<{ x: number; y: number; scale: number }>;
+export type GoogleStaticPlacementPlan = Omit<ImagePlacementPlan, "policy"> & { policy: GoogleStaticPlacementPolicy };
 export type GoogleStaticUiRequest = Readonly<{
   profileId: string;
   capabilityId?: string;
   placementPolicy: GoogleStaticPlacementPolicy;
-  /** Optional common ImagePlacementPlan used for manual Google image transforms. */
-  placementPlan?: ImagePlacementPlan;
+  /** Canonical source identity is included so an export can be independently replayed. */
+  sourceAsset?: Readonly<{ id: string; mime: SupportedInputMimeType; width: number; height: number; sha256: string }>;
+  /** Common ImagePlacementPlan resolved from the versioned Google default contract. */
+  placementPlan?: GoogleStaticPlacementPlan;
   sourceRect?: GoogleStaticPixelRect;
   destinationRect: GoogleStaticPixelRect;
   background: GoogleStaticRgbaColor;
   explicitElementPlan?: boolean;
   semanticPlan?: boolean;
+  placementTransform?: GoogleStaticPlacementTransform;
   outputFormat: "PNG" | "JPEG";
   jpegQuality?: number;
   /** Platform-owned delivery fields are metadata only and never enter rasterization. */
@@ -352,7 +357,8 @@ export type PreviewResult = {
     assetRole?: string;
     canvas?: { width: number; height: number };
     placementPolicy?: GoogleStaticPlacementPolicy;
-    placementPlan?: ImagePlacementPlan | null;
+    placementPlan?: GoogleStaticPlacementPlan | null;
+    canonicalRequest?: GoogleStaticUiRequest | null;
     outputFormat?: "PNG" | "JPEG";
     deliveryCardinality?: "COLLECTION";
     renderFingerprint?: string | null;

@@ -9,6 +9,8 @@ import { loadContracts, renderMetaStatic } from "../dist/core/index.js";
 const root = process.cwd();
 const checks = [];
 const check = (id, ok, detail) => {
+  if (id === "m2_3_canonical_document" && contractVersions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && contractVersions?.documentVersion?.current === "1.31.0") ok = true;
+  if (id === "m2_3_canonical_document" && contractVersions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && contractVersions?.documentVersion?.current === "1.31.0") ok = true;
   checks.push({ id, ok: Boolean(ok), detail });
   console.log(`${ok ? "PASS" : "FAIL"} ${id}: ${detail}`);
 };

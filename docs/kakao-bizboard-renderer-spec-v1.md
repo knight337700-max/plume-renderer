@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.30.0
-- **Status:** Frozen Implementation Contract — Phase G3.1 Google Static Desktop user QA and freeze
+- **Document version:** 1.31.0
+- **Status:** Frozen Implementation Contract — Phase G3.0.4 Google Static Geometry placement and manifest revision
 - **Checked date:** 2026-08-15 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **61. Phase G3.1 Google Static Desktop user QA and freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **62. Phase G3.0.4 Google Static Geometry placement and manifest revision**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
 
 ---
 
@@ -5581,6 +5581,100 @@ record is `docs/implementation/google-static-desktop-qa-enablement-g3.md`; the A
 inputs and are not regenerated or rewritten. **[PROJECT]**
 
 `nextPhase`: `G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE`. **[PROJECT]**
+
+## 62. Phase G3.0.4 — Google Static Geometry placement and manifest revision [PROJECT] [INFERRED]
+
+G3.0.4 corrects the production Desktop default path for the seven Google Geometry profiles. The
+runtime MUST load `contracts/google/default-placement-plans.g3.0.4.json` through the packaged
+contract loader. It MUST NOT read `contracts/google/goldens.g2.1.json`, `artifacts/`, or test
+fixtures to decide a runtime default. The registry is an implementation reference derived from
+the frozen G2.1 placement plans; it does not change the G2.1 Golden registry, reference assets, or
+template coordinates. **[PROJECT] [DERIVED]**
+
+### 62.1 Default placement policy [PROJECT]
+
+Each of the fourteen runtime profiles has a non-null `placementPlan`. Geometry profiles use the
+exact policy, source crop, destination rectangle, opaque background, output format, and encoder
+settings declared by the registry. Their default request therefore renders byte-identically to the
+corresponding G2.1 Golden. Uploaded Display Static profiles use `policy: NONE`, an exact-canvas
+source and destination, and the registry's frozen output format. Their placement controls are
+hidden or disabled because v1 does not permit a transform on an exact-canvas passthrough.
+
+The canonical transform extension is deterministic and profile-independent:
+
+```yaml
+placementTransform:
+  x: 0.5
+  y: 0.5
+  scale: 1
+```
+
+`x` and `y` are normalized focal coordinates in `[0,1]`; `scale` is a positive uniform scale.
+Reset restores the registry default and the identity transform. For Geometry profiles, changing
+the transform derives a new normalized crop or destination rectangle using the existing
+`normalizedRectToPixelRect` and contain/cover rules. For Uploaded Display Static profiles, values
+are fixed and no drag or zoom mutation is accepted. **[PROJECT] [INFERRED]**
+
+The default registry is versioned independently from the Golden registry:
+`contracts/google/default-placement-plans.g3.0.4.json`, registry version `1.0.0`, with strict
+schema `contracts/google/default-placement-plans.g3.0.4.schema.json`. The registry records source
+dimensions, source/destination pixel geometry, background, policy, format, Golden identity, and
+asset digests so a runtime request can be audited without consulting evidence files. **[PROJECT]**
+
+### 62.2 Canonical request and Desktop path [PROJECT]
+
+The shared Google request now carries the selected source asset identity, frozen placement plan,
+and placement transform. Main/Core re-validates the registry entry, profile identity, policy,
+asset digest, source dimensions, and plan before rendering. Preview, Validator, and Export use the
+same canonical request and request fingerprint. A missing or mismatched plan is a deterministic
+error; it is never silently replaced with a generic center/contain plan. **[PROJECT]**
+
+The actual production flow remains `Renderer UI → preload IPC → Electron Main → Core → Validator`.
+The Geometry default regression is covered by the controller integration test and the Electron
+Playwright suite. All fourteen profile defaults are required to match their frozen G2.1 bytes and
+fingerprints. A same-request replay and Reset are required to be byte-deterministic. **[PROJECT]**
+
+### 62.3 Google export manifest 1.1 [PROJECT]
+
+Google Desktop export manifests use additive schema `1.1.0` at
+`contracts/google/export-manifest.g3.0.4.schema.json`; the legacy shared KAKAO/NAVER/META
+`render-manifest.schema.json` remains `1.0.0`. The Google manifest records the canonical request,
+source asset identity and digest, element bounds, base and resolved placement, transform, render
+fingerprint, deterministic encoder profile, output artifact digest, output filename/MIME/extension,
+and delivery metadata. `outputArtifactDigest` is the authoritative digest for every output.
+JPEG manifests MUST omit the deprecated `outputPngDigest`; PNG manifests MAY retain it only when it
+equals the PNG artifact digest. **[PROJECT]**
+
+PNG encoding remains compression level `9`, adaptive filtering disabled, palette disabled, RGBA;
+JPEG encoding remains quality `88`, 4:2:0, progressive disabled, metadata passthrough disabled,
+and an explicit opaque canvas matte. These settings are serialized in the manifest and verified
+against the actual output bytes. **[PROJECT] [INFERRED]**
+
+### 62.4 G3.1 supersession and compatibility [PROJECT] [MANUAL]
+
+G3.1 acceptance and its freeze registry remain byte-preserved historical evidence. The additive
+record `contracts/google/desktop-qa-supersession.g3.0.4.json` links the prior registry and review
+evidence, records that the Geometry default defect is corrected, and sets the release-basis state
+to `SUPERSEDED_PENDING_REACCEPTANCE`. This phase does not record user acceptance, regenerate
+Goldens, modify the G3.1 registry, or perform a new freeze. The next phase is the separately
+reviewed G3.2.1 final output QA pack; no G3.2.1 evidence is created here. **[PROJECT] [MANUAL]**
+
+The Canonical document advances from `1.30.0` to `1.31.0` (minor) for this additive contract and
+runtime correction. Desktop/package advance from `0.12.0` to `0.13.0` (minor). Google export
+manifest advances from `1.0.0` to `1.1.0` (minor/additive fields); the shared legacy manifest
+schema remains `1.0.0`. Renderer Core `0.11.0`, Validator `1.11.0`, template `1.9.0`, Input
+`1.2.0`, Output `2.0.0`, response envelope `1.0.0`, Google architecture `1.0.0`, and G2.1
+Golden registry `1.0.0` remain unchanged. Coordinates are unchanged. **[PROJECT]**
+
+The implementation record is
+`docs/implementation/google-static-geometry-placement-manifest-revision-g3-0-4.md`; the ADR is
+`docs/adr/ADR-0068-google-static-geometry-placement-manifest-revision-g3-0-4.md`; the default
+registry is `contracts/google/default-placement-plans.g3.0.4.json`; and the deterministic verifier
+is `scripts/verify-g3-0-4-google-static-geometry-placement-manifest.mjs`. Runtime network access,
+Google upload/API, OAuth, remote assets, telemetry, Golden regeneration, G3.2.1 output-pack
+generation, and Plume dependencies remain prohibited. **[PROJECT]**
+
+`nextPhase`: `G3_2_1_GOOGLE_STATIC_FINAL_OUTPUT_QA_PACK_REVIEW`. **[PROJECT]**
 
 ## 61. Phase G3.1 — Google Static Desktop user QA and freeze [PROJECT] [MANUAL]
 

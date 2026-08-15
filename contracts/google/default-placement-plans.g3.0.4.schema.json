@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/google/default-placement-plans.g3.0.4.schema.json",
+  "title": "Google Static G3.0.4 Default Placement Plans",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "$id", "schemaVersion", "registryVersion", "phase", "status", "sourceRegistry", "geometryProfileCount", "uploadedDisplayStaticProfileCount", "entries"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "$id": { "const": "https://kbr.local/contracts/google/default-placement-plans.g3.0.4.json" },
+    "schemaVersion": { "const": "1.0.0" },
+    "registryVersion": { "const": "1.0.0" },
+    "phase": { "const": "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" },
+    "status": { "const": "IMPLEMENTED_REFERENCE_FROZEN" },
+    "sourceRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["goldenRegistry", "goldenRegistrySha256", "sourceOfTruth"],
+      "properties": {
+        "goldenRegistry": { "const": "contracts/google/goldens.g2.1.json" },
+        "goldenRegistrySha256": { "$ref": "#/$defs/sha256" },
+        "sourceOfTruth": { "type": "string", "minLength": 1 }
+      }
+    },
+    "geometryProfileCount": { "const": 7 },
+    "uploadedDisplayStaticProfileCount": { "const": 7 },
+    "entries": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "rect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "width", "height"],
+      "properties": {
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "size": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": { "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 } }
+    },
+    "color": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["r", "g", "b", "alpha"],
+      "properties": { "r": { "type": "integer", "minimum": 0, "maximum": 255 }, "g": { "type": "integer", "minimum": 0, "maximum": 255 }, "b": { "type": "integer", "minimum": 0, "maximum": 255 }, "alpha": { "type": "integer", "minimum": 0, "maximum": 255 } }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileId", "role", "sourceDimensions", "placementPolicy", "destinationRect", "background", "outputFormat", "sourceFixtureRelativePath", "sourceFixtureSha256", "layoutPlanRelativePath", "layoutPlanSha256", "frozenArtifactRelativePath", "frozenArtifactSha256", "frozenRenderFingerprint"],
+      "properties": {
+        "profileId": { "type": "string", "minLength": 1 },
+        "role": { "enum": ["MARKETING_IMAGE", "SQUARE_MARKETING_IMAGE", "PORTRAIT_MARKETING_IMAGE", "TALL_PORTRAIT_MARKETING_IMAGE", "LOGO", "LANDSCAPE_LOGO", "UPLOADED_DISPLAY_STATIC"] },
+        "sourceDimensions": { "$ref": "#/$defs/size" },
+        "placementPolicy": { "enum": ["NONE", "CENTER_CONTAIN", "MANUAL_CROP", "SEMANTIC_CROP_COVER", "ALPHA_TRIM_CONTAIN"] },
+        "sourceRect": { "$ref": "#/$defs/rect" },
+        "destinationRect": { "$ref": "#/$defs/rect" },
+        "background": { "$ref": "#/$defs/color" },
+        "semanticPlan": { "const": true },
+        "explicitElementPlan": { "const": true },
+        "outputFormat": { "enum": ["PNG", "JPEG"] },
+        "jpegQuality": { "const": 88 },
+        "sourceFixtureRelativePath": { "type": "string", "minLength": 1 },
+        "sourceFixtureSha256": { "$ref": "#/$defs/sha256" },
+        "layoutPlanRelativePath": { "type": "string", "minLength": 1 },
+        "layoutPlanSha256": { "$ref": "#/$defs/sha256" },
+        "frozenArtifactRelativePath": { "type": "string", "minLength": 1 },
+        "frozenArtifactSha256": { "$ref": "#/$defs/sha256" },
+        "frozenRenderFingerprint": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}

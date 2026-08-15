@@ -30,6 +30,9 @@ async function sha(relativePath) {
 const versions = await json("contracts/contract-versions.json");
 if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const packageJson = await json("package.json");
+const g304Compatibility = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION"
+  && versions?.documentVersion?.current === "1.31.0"
+  && packageJson?.version === "0.13.0";
 const desktopRegistry = await json("contracts/desktop-capability-registry.json");
 const profileRegistry = await json("contracts/google/static-asset-profiles.g1.json");
 const diagnostics = await json("contracts/google/diagnostics.g1.json");
@@ -47,13 +50,17 @@ check("baseline_lineage", (() => {
 })(), "bd702a0 is an ancestor of the current G3 implementation");
 const g3RevisionImplemented = versions.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION";
 const g3_0_3Implemented = versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
-check("canonical_phase", (g3_0_3Implemented
+check("canonical_phase", g304Compatibility
+  ? versions.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT"
+  : (g3_0_3Implemented
   ? versions.documentVersion?.previous === "1.28.1" && versions.documentVersion?.current === "1.29.0" && versions.documentVersion?.bump === "minor"
   : g3RevisionImplemented
     ? versions.documentVersion?.previous === "1.28.0" && versions.documentVersion?.current === "1.28.1" && versions.documentVersion?.bump === "patch"
     : versions.documentVersion?.previous === "1.27.0" && versions.documentVersion?.current === "1.28.0" && versions.documentVersion?.bump === "minor") && versions.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT", `${versions.documentVersion?.previous}->${versions.documentVersion?.current}`);
 check("template_contract_unchanged", versions.templateContractVersion === "1.9.0" && versions.canonicalPhaseG3Google?.templateCoordinatesChanged === false, versions.templateContractVersion);
-check("desktop_package_version", packageJson.version === (g3_0_3Implemented ? "0.12.0" : g3RevisionImplemented ? "0.11.1" : "0.11.0") && versions.desktopAppVersion === (g3_0_3Implemented ? "0.12.0" : g3RevisionImplemented ? "0.11.1" : "0.11.0"), packageJson.version);
+check("desktop_package_version", g304Compatibility
+  ? packageJson.version === "0.13.0" && versions.desktopAppVersion === "0.13.0"
+  : packageJson.version === (g3_0_3Implemented ? "0.12.0" : g3RevisionImplemented ? "0.11.1" : "0.11.0") && versions.desktopAppVersion === (g3_0_3Implemented ? "0.12.0" : g3RevisionImplemented ? "0.11.1" : "0.11.0"), packageJson.version);
 check("google_architecture_unchanged", versions.canonicalPhaseG3Google?.googleArchitectureVersion === "1.0.0", versions.canonicalPhaseG3Google?.googleArchitectureVersion);
 check("frozen_registry_hash", await sha("contracts/google/goldens.g2.1.json") === "00dabc5d94ffc0c225d17d22b3b5527d0b0c7488aa11495da4a79e1327d37359", await sha("contracts/google/goldens.g2.1.json"));
 check("frozen_registry_shape", goldenRegistry.status === "FROZEN" && goldenRegistry.visualAcceptance === "ACCEPTED" && goldenRegistry.artifactCount === 14 && goldenRegistry.entries?.length === 14, `entries=${goldenRegistry.entries?.length}`);

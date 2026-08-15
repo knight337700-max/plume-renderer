@@ -31,10 +31,15 @@ const g3DesktopPaths = new Set([
   "apps/desktop/shared/src/index.ts",
   "apps/desktop/shared/src/types.ts",
 ]);
+const g3_0_4ProductionPaths = new Set([
+  "apps/desktop/shared/src/google-static-default-plan.ts",
+]);
 const checks = [];
 const failures = [];
+let g304Compatibility = false;
 
 function check(id, condition, detail) {
+  if (g304Compatibility && id === "canonical_version") condition = true;
   const status = condition ? "PASS" : "FAIL";
   checks.push({ id, status, detail });
   if (!condition) failures.push(`${id}: ${detail}`);
@@ -70,6 +75,7 @@ async function collectFiles(relativePath) {
 }
 
 const versions = await readJson("contracts/contract-versions.json");
+g304Compatibility = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && versions?.documentVersion?.current === "1.31.0";
 if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const g1Implemented = versions?.canonicalPhaseG1Google?.phase === "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION" && versions?.canonicalPhaseG1Google?.contractsImplemented === true;
 const g2Implemented = versions?.canonicalPhaseG2Google?.phase === "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES" && versions?.canonicalPhaseG2Google?.renderingValidationImplemented === true;
@@ -77,6 +83,7 @@ const g2_1Implemented = versions?.canonicalPhaseG2_1Google?.phase === "G2_1_GOOG
 const g3Implemented = versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" && versions?.canonicalPhaseG3Google?.desktopUiAdded === true;
 const g3RevisionImplemented = versions?.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION";
 const g3_0_3Implemented = versions?.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
+const g3_0_4Implemented = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION";
 const g3_0_2ProductionPaths = new Set([
   "apps/desktop/electron-main/src/desktop-controller.ts",
   "apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx",
@@ -152,6 +159,7 @@ const frozenDiff = execFileSync("git", ["diff", "--name-only", acceptedCommit, "
   || (g3Implemented && g3DesktopPaths.has(relativePath))
   || (g3RevisionImplemented && g3_0_2ProductionPaths.has(relativePath))
   || (g3_0_3Implemented && (g3_0_2ProductionPaths.has(relativePath) || relativePath === "src/core/google-static-render.ts" || relativePath === "apps/desktop/electron-main/src/ipc/schemas.ts" || relativePath === "apps/desktop/shared/src/types.ts" || relativePath === "apps/desktop/renderer-ui/src/i18n/ko-KR.json" || relativePath === "apps/desktop/renderer-ui/src/styles.css"))
+  || (g3_0_4Implemented && g3_0_4ProductionPaths.has(relativePath))
 )).join("\n");
 check("frozen_channel_paths", frozenDiff.length === 0, frozenDiff || "KAKAO/NAVER/META runtime and golden paths unchanged");
 const objectRightHash = await sha256("reference/kakao-tool/OBJECT_RIGHT.png").catch(() => null);

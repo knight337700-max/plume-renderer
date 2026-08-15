@@ -62,11 +62,25 @@ const googleStaticNormalizedPointSchema = z.strictObject({
   y: z.number().finite().min(0).max(1),
 });
 
+const googleStaticSourceAssetSchema = z.strictObject({
+  id: z.string().min(1).max(200),
+  mime: z.enum(["image/png", "image/jpeg"]),
+  width: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+  height: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/u),
+});
+
+const googleStaticPlacementTransformSchema = z.strictObject({
+  x: z.number().finite().min(0).max(1),
+  y: z.number().finite().min(0).max(1),
+  scale: z.number().finite().gt(0).max(4),
+});
+
 const googleStaticPlacementPlanSchema = z.strictObject({
   schemaVersion: z.string().min(1).max(32),
   imageSlotId: z.string().min(1).max(120),
   assetId: z.string().min(1).max(200),
-  policy: z.enum(["ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"]),
+  policy: z.enum(["NONE", "ALPHA_TRIM_CONTAIN", "CENTER_CONTAIN", "SEMANTIC_CROP_COVER", "MANUAL_CROP"]),
   source: z.enum(["DETERMINISTIC", "MANUAL", "AGENT", "SAVED_CREATIVE"]),
   fitMode: z.enum(["CONTAIN", "COVER"]),
   cropRect: googleStaticNormalizedRectSchema.optional(),
@@ -87,12 +101,14 @@ const googleStaticRequestSchema = z.strictObject({
   profileId: z.string().min(1).max(200),
   capabilityId: z.string().min(1).max(200).optional(),
   placementPolicy: z.enum(["NONE", "CENTER_CONTAIN", "MANUAL_CROP", "SEMANTIC_CROP_COVER", "ALPHA_TRIM_CONTAIN"]),
+  sourceAsset: googleStaticSourceAssetSchema.optional(),
   placementPlan: googleStaticPlacementPlanSchema.optional(),
   sourceRect: googleStaticRectSchema.optional(),
   destinationRect: googleStaticRectSchema,
   background: googleStaticBackgroundSchema,
   explicitElementPlan: z.boolean().optional(),
   semanticPlan: z.boolean().optional(),
+  placementTransform: googleStaticPlacementTransformSchema.optional(),
   outputFormat: z.enum(["PNG", "JPEG"]),
   jpegQuality: z.number().int().min(1).max(100).optional(),
   deliveryMetadata: z.record(z.string().min(1).max(200), z.unknown()).optional(),

@@ -3,6 +3,14 @@ export type { DesktopChannel } from "./channels.js";
 export { previewMimeType, resolvePreviewEligibility } from "./preview-artifact.js";
 export { deriveNaverSmartChannelTextInputFields } from "./smartchannel-text-input-fields.js";
 export { buildCanonicalGoogleStaticRequest } from "./google-static-request.js";
+export {
+  applyGoogleStaticPlacementTransform,
+  defaultGoogleStaticRequest,
+  defaultPlacementRegistryForVerification,
+  GOOGLE_STATIC_DEFAULT_TRANSFORM,
+  GOOGLE_STATIC_PRIMARY_SLOT_ID,
+  resolveGoogleStaticDefaultPlacement,
+} from "./google-static-default-plan.js";
 export type {
   PreviewArtifact,
   PreviewEligibility,
@@ -28,6 +36,8 @@ export type {
   GoogleStaticPixelRect,
   GoogleStaticRgbaColor,
   GoogleStaticUiRequest,
+  GoogleStaticPlacementTransform,
+  GoogleStaticPlacementPlan,
   UiTemplate,
   UiChannel,
   NaverAssetRule,

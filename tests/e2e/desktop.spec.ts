@@ -7,6 +7,7 @@ import { _electron as electron, expect, test, type ElectronApplication, type Pag
 
 import { sha256File } from "../../src/core/hash.js";
 import { projectRoot } from "../helpers.js";
+import goldensRegistry from "../../contracts/google/goldens.g2.1.json" with { type: "json" };
 
 const GOLDEN_SHA256 = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
 const THUMBNAIL_GOLDEN_SHA256 = "f1111ee8f36fe1d8ccc7aaa445b175906e8a6432027d3e65764158ad40c52996";
@@ -146,6 +147,114 @@ test("Google Static transform controls and raster format stay in Preview/Export 
   } finally {
     await close(launched);
   }
+});
+
+type GoogleExportSnapshot = {
+  artifactDigest: string;
+  canonicalInputDigest: string;
+  renderFingerprint: string;
+  manifest: Record<string, unknown>;
+};
+
+async function exportGoogleSnapshot(
+  productPath: string,
+  options: { format?: "PNG" | "JPEG"; x?: string; y?: string; scale?: string } = {},
+): Promise<GoogleExportSnapshot> {
+  const launched = await launch(productPath);
+  try {
+    await launched.page.getByTestId("channel-google").click();
+    await launched.page.getByTestId("google-select-asset").click();
+    await expect(launched.page.getByTestId("google-asset-metadata")).toContainText("g2-GOOGLE_MARKETING_LANDSCAPE_1_91.png");
+    await launched.page.getByTestId("google-select-output").click();
+    if (options.format) await launched.page.getByTestId("google-output-format").selectOption(options.format);
+    if (options.x !== undefined) await launched.page.getByTestId("google-placement-x").fill(options.x);
+    if (options.y !== undefined) await launched.page.getByTestId("google-placement-y").fill(options.y);
+    if (options.scale !== undefined) await launched.page.getByTestId("google-placement-scale").fill(options.scale);
+    await launched.page.getByTestId("google-request-preview").click();
+    await expect(launched.page.getByTestId("google-status")).toHaveText("PASS");
+    const contractSummary = JSON.parse(await launched.page.getByTestId("google-contract-summary").textContent() ?? "{}") as Record<string, unknown>;
+    await launched.page.getByTestId("google-download").click();
+    await expect(launched.page.getByTestId("google-export-result")).toBeVisible();
+    const outputDirectory = path.join(launched.outputRoot, "google-static");
+    const outputFileName = options.format === "JPEG" ? "output.jpg" : "output.png";
+    const artifactPath = path.join(outputDirectory, outputFileName);
+    const manifestPath = path.join(outputDirectory, "render-manifest.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as Record<string, unknown>;
+    const artifactDigest = await sha256File(artifactPath);
+    expect(manifest.outputArtifactDigest).toBe(artifactDigest);
+    expect(manifest.canonicalRequest).toEqual(contractSummary.canonicalRequest);
+    expect(manifest.renderFingerprint).toBe(contractSummary.renderFingerprint);
+    return {
+      artifactDigest,
+      canonicalInputDigest: String(manifest.canonicalInputDigest),
+      renderFingerprint: String(manifest.renderFingerprint),
+      manifest,
+    };
+  } finally {
+    await close(launched);
+  }
+}
+
+test("G3.0.4 actual Electron defaults match every frozen Google Golden", async () => {
+  test.setTimeout(240_000);
+  const profileIds = [...goldensRegistry.entries].map((entry) => entry.profileId).sort();
+  for (const profileId of profileIds) {
+    const launched = await launch(path.join(projectRoot, "fixtures", "google", "g2", "source", `g2-${profileId}.png`));
+    try {
+      await launched.page.getByTestId("channel-google").click();
+      await launched.page.getByTestId("google-profile-select").selectOption(profileId);
+      await launched.page.getByTestId("google-select-asset").click();
+      await launched.page.getByTestId("google-select-output").click();
+      const profileGolden = goldensRegistry.entries.find((entry) => entry.profileId === profileId);
+      if (!profileGolden) throw new Error(`Golden missing for ${profileId}`);
+      const outputFileName = profileGolden.frozenArtifactRelativePath.endsWith(".jpg") ? "output.jpg" : "output.png";
+      if (profileId.startsWith("GOOGLE_DG_UPLOAD_")) {
+        await expect(launched.page.getByTestId("google-placement-x")).toBeDisabled();
+        await expect(launched.page.getByTestId("google-placement-y")).toBeDisabled();
+        await expect(launched.page.getByTestId("google-placement-scale")).toBeDisabled();
+      }
+      await launched.page.getByTestId("google-request-preview").click();
+      await expect(launched.page.getByTestId("google-status")).toHaveText("PASS");
+      await launched.page.getByTestId("google-download").click();
+      await expect(launched.page.getByTestId("google-export-result")).toBeVisible();
+      const outputDirectory = path.join(launched.outputRoot, "google-static");
+      const artifactPath = path.join(outputDirectory, outputFileName);
+      const manifest = JSON.parse(await readFile(path.join(outputDirectory, "render-manifest.json"), "utf8")) as Record<string, unknown>;
+      const artifactDigest = await sha256File(artifactPath);
+      expect(artifactDigest, profileId).toBe(profileGolden.artifactSha256);
+      expect(manifest.schemaVersion, profileId).toBe("1.1.0");
+      expect(manifest.outputArtifactDigest, profileId).toBe(artifactDigest);
+      expect(manifest.canonicalRequest, profileId).toEqual(expect.objectContaining({ profileId, placementPlan: expect.any(Object) }));
+      expect(manifest.resolvedPlacement, profileId).toEqual(expect.objectContaining({ placementPlan: expect.any(Object) }));
+      if (outputFileName === "output.jpg") expect(manifest, profileId).not.toHaveProperty("outputPngDigest");
+    } finally {
+      await close(launched);
+    }
+  }
+});
+
+test("G3.0.4 actual Electron transforms change canonical output and Reset restores the Golden", async () => {
+  test.setTimeout(240_000);
+  const source = path.join(projectRoot, "fixtures", "google", "g2", "source", "g2-GOOGLE_MARKETING_LANDSCAPE_1_91.png");
+  const golden = goldensRegistry.entries.find((entry) => entry.profileId === "GOOGLE_MARKETING_LANDSCAPE_1_91");
+  if (!golden) throw new Error("Landscape Golden missing");
+  const base = await exportGoogleSnapshot(source);
+  expect(base.artifactDigest).toBe(golden.artifactSha256);
+  const transformed = await exportGoogleSnapshot(source, { x: "0.42", y: "0.58", scale: "1.20" });
+  expect(transformed.canonicalInputDigest).not.toBe(base.canonicalInputDigest);
+  expect(transformed.renderFingerprint).not.toBe(base.renderFingerprint);
+  expect(transformed.artifactDigest).not.toBe(base.artifactDigest);
+  const replay = await exportGoogleSnapshot(source, { x: "0.42", y: "0.58", scale: "1.20" });
+  expect(replay.canonicalInputDigest).toBe(transformed.canonicalInputDigest);
+  expect(replay.renderFingerprint).toBe(transformed.renderFingerprint);
+  expect(replay.artifactDigest).toBe(transformed.artifactDigest);
+  const jpeg = await exportGoogleSnapshot(source, { format: "JPEG", x: "0.58", y: "0.42", scale: "1.35" });
+  expect(jpeg.manifest.outputEncoding).toEqual(expect.objectContaining({ format: "JPEG", mime: "image/jpeg", extension: ".jpg", quality: 88, chromaSubsampling: "4:2:0", progressive: false, metadataPassthrough: false }));
+  expect(jpeg.manifest).not.toHaveProperty("outputPngDigest");
+  const reset = await exportGoogleSnapshot(source);
+  expect(reset.artifactDigest).toBe(base.artifactDigest);
+  expect(reset.canonicalInputDigest).toBe(base.canonicalInputDigest);
+  expect(reset.renderFingerprint).toBe(base.renderFingerprint);
 });
 
 test("valid Desktop workflow renders Preview and atomically exports the Golden PNG", async () => {

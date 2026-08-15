@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 
-import { buildCanonicalGoogleStaticRequest } from "../../../../shared/src/index.js";
+import {
+  applyGoogleStaticPlacementTransform,
+  buildCanonicalGoogleStaticRequest,
+  defaultGoogleStaticRequest,
+  GOOGLE_STATIC_DEFAULT_TRANSFORM,
+} from "../../../../shared/src/index.js";
 import type { ExportRequest, GoogleStaticUiRequest, PreviewResult, ProductSelectionResult } from "../../../../shared/src/index.js";
 import profilesRegistry from "../../../../../../contracts/google/static-asset-profiles.g1.json" with { type: "json" };
 import desktopQaRegistry from "../../../../../../contracts/google/desktop-qa.g3.json" with { type: "json" };
-import goldensRegistry from "../../../../../../contracts/google/goldens.g2.1.json" with { type: "json" };
-import { INTEGRATION_SCHEMA_VERSION, type ImagePlacementPlan } from "../../../../../../packages/renderer-contract/src/index.js";
 import { issueMessage, localizedMessage } from "../validation/messages.js";
 import { formatProductMetadata } from "../product-file/format.js";
 
@@ -13,46 +16,15 @@ type Profile = (typeof profilesRegistry.geometryProfiles)[number] | (typeof prof
 type SelectedProduct = Extract<ProductSelectionResult, { status: "SELECTED" }>;
 type PreviewView = "FIT" | "ACTUAL";
 
-const background = { r: 245, g: 247, b: 250, alpha: 255 } as const;
-const DEFAULT_PLACEMENT = Object.freeze({ x: 0.5, y: 0.5, scale: 1 });
+const DEFAULT_PLACEMENT = GOOGLE_STATIC_DEFAULT_TRANSFORM;
 type PlacementValues = { x: number; y: number; scale: number };
 
 function profileList(): Profile[] {
   return [...profilesRegistry.geometryProfiles, ...profilesRegistry.uploadedDisplayStaticProfiles] as Profile[];
 }
 
-function capabilityFor(profile: Profile): string {
-  if (profile.role === "UPLOADED_DISPLAY_STATIC") return "GOOGLE_DEMAND_GEN_UPLOADED_DISPLAY_STATIC";
-  if (profile.targetIds.includes("RDA")) return "GOOGLE_RDA_ASSET_SET";
-  if (profile.targetIds.includes("PMAX")) return "GOOGLE_PMAX_ASSET_GROUP_STATIC";
-  return "GOOGLE_DEMAND_GEN_SINGLE_IMAGE";
-}
-
-function defaultOutputFormat(profileId: string): "PNG" | "JPEG" {
-  const entry = goldensRegistry.entries.find((candidate) => candidate.profileId === profileId);
-  return entry?.mime === "image/jpeg" ? "JPEG" : "PNG";
-}
-
 function formatLabel(format: "PNG" | "JPEG"): string {
   return format === "JPEG" ? "JPG (image/jpeg)" : "PNG (image/png)";
-}
-
-function coverCrop(sourceWidth: number, sourceHeight: number, canvasWidth: number, canvasHeight: number, scale: number): { width: number; height: number } {
-  const sourceRatio = sourceWidth / sourceHeight;
-  const canvasRatio = canvasWidth / canvasHeight;
-  const baseWidth = sourceRatio > canvasRatio ? canvasRatio / sourceRatio : 1;
-  const baseHeight = sourceRatio > canvasRatio ? 1 : sourceRatio / canvasRatio;
-  return { width: Math.min(1, baseWidth / scale), height: Math.min(1, baseHeight / scale) };
-}
-
-function manualCrop(sourceWidth: number, sourceHeight: number, canvasWidth: number, canvasHeight: number, values: PlacementValues) {
-  const size = coverCrop(sourceWidth, sourceHeight, canvasWidth, canvasHeight, values.scale);
-  return {
-    x: Math.min(1 - size.width, Math.max(0, values.x - size.width / 2)),
-    y: Math.min(1 - size.height, Math.max(0, values.y - size.height / 2)),
-    width: size.width,
-    height: size.height,
-  };
 }
 
 function quantize(value: number): number {
@@ -60,68 +32,12 @@ function quantize(value: number): number {
   return Object.is(rounded, -0) ? 0 : rounded;
 }
 
-function withoutPlacementFields(current: GoogleStaticUiRequest): GoogleStaticUiRequest {
-  return Object.fromEntries(Object.entries(current).filter(([key]) => !["sourceRect", "semanticPlan", "placementPlan"].includes(key))) as GoogleStaticUiRequest;
+function defaultPlan(profile: Profile, asset?: SelectedProduct): GoogleStaticUiRequest {
+  return defaultGoogleStaticRequest(profile, asset);
 }
 
-function placementPlanFor(profile: Profile, asset: SelectedProduct, values: PlacementValues, current: GoogleStaticUiRequest): GoogleStaticUiRequest {
-  const canvas = profile.projectOutputPreset;
-  if (profile.role !== "LOGO" && profile.role !== "LANDSCAPE_LOGO" && profile.role !== "UPLOADED_DISPLAY_STATIC") {
-    const rest = withoutPlacementFields(current);
-    const cropRect = manualCrop(asset.width, asset.height, canvas.width, canvas.height, values);
-    const placementPlan: ImagePlacementPlan = {
-      schemaVersion: INTEGRATION_SCHEMA_VERSION,
-      imageSlotId: "GOOGLE_STATIC_PRIMARY",
-      assetId: asset.checksumSha256,
-      policy: "MANUAL_CROP",
-      source: "MANUAL",
-      fitMode: "COVER",
-      cropRect: Object.fromEntries(Object.entries(cropRect).map(([key, value]) => [key, quantize(value)])) as typeof cropRect,
-      anchor: "CENTER",
-      subjectProtection: "NONE",
-    };
-    return { ...rest, placementPolicy: "MANUAL_CROP", placementPlan };
-  }
-
-  const rest = withoutPlacementFields(current);
-  const fitScale = profile.role === "UPLOADED_DISPLAY_STATIC"
-    ? { width: canvas.width, height: canvas.height }
-    : (() => {
-      const ratio = Math.min(canvas.width / asset.width, canvas.height / asset.height);
-      return { width: Math.max(1, Math.round(asset.width * ratio)), height: Math.max(1, Math.round(asset.height * ratio)) };
-    })();
-  const width = Math.min(canvas.width, Math.max(1, Math.round(fitScale.width * values.scale)));
-  const height = Math.min(canvas.height, Math.max(1, Math.round(fitScale.height * values.scale)));
-  const x = Math.min(canvas.width - width, Math.max(0, Math.round(values.x * canvas.width - width / 2)));
-  const y = Math.min(canvas.height - height, Math.max(0, Math.round(values.y * canvas.height - height / 2)));
-  return { ...rest, destinationRect: { x, y, width, height } };
-}
-
-function valuesFromPlan(profile: Profile, asset: SelectedProduct | null, plan: GoogleStaticUiRequest): PlacementValues {
-  const crop = plan.placementPlan?.cropRect;
-  if (!asset || !crop) return { ...DEFAULT_PLACEMENT };
-  const size = coverCrop(asset.width, asset.height, profile.projectOutputPreset.width, profile.projectOutputPreset.height, 1);
-  return {
-    x: quantize(crop.x + crop.width / 2),
-    y: quantize(crop.y + crop.height / 2),
-    scale: quantize(Math.max(size.width / crop.width, size.height / crop.height)),
-  };
-}
-
-function defaultPlan(profile: Profile): GoogleStaticUiRequest {
-  const uploaded = profile.role === "UPLOADED_DISPLAY_STATIC";
-  const logo = profile.role === "LOGO" || profile.role === "LANDSCAPE_LOGO";
-  const policy: GoogleStaticUiRequest["placementPolicy"] = uploaded ? "NONE" : logo ? "ALPHA_TRIM_CONTAIN" : "CENTER_CONTAIN";
-  return {
-    profileId: profile.profileId,
-    capabilityId: capabilityFor(profile),
-    placementPolicy: policy,
-    destinationRect: { x: 0, y: 0, width: profile.projectOutputPreset.width, height: profile.projectOutputPreset.height },
-    background,
-    ...(uploaded ? { explicitElementPlan: true } : {}),
-    outputFormat: defaultOutputFormat(profile.profileId),
-    ...(defaultOutputFormat(profile.profileId) === "JPEG" ? { jpegQuality: 88 } : {}),
-  };
+function valuesFromPlan(plan: GoogleStaticUiRequest): PlacementValues {
+  return plan.placementTransform ? { ...plan.placementTransform } : { ...DEFAULT_PLACEMENT };
 }
 
 function pretty(value: unknown): string {
@@ -162,7 +78,7 @@ export function GoogleStaticEditor() {
 
   useEffect(() => {
     if (!profile) return;
-    const next = defaultPlan(profile);
+    const next = defaultPlan(profile, asset ?? undefined);
     setPlan(next);
     setPlanText(pretty(next));
     setPlacementValues({ ...DEFAULT_PLACEMENT });
@@ -170,7 +86,7 @@ export function GoogleStaticEditor() {
     setExported(null);
     setStale(false);
     setLocalError(null);
-  }, [profileId]);
+  }, [profileId, asset?.checksumSha256]);
 
   function markDirty() {
     sequence.current += 1;
@@ -184,7 +100,7 @@ export function GoogleStaticEditor() {
     const result = await window.kbrDesktop.selectProductPng();
     if (result.status === "SELECTED") {
       setAsset(result);
-      const next = defaultPlan(profile);
+      const next = defaultPlan(profile, result);
       setPlan(next);
       setPlanText(pretty(next));
       setPlacementValues({ ...DEFAULT_PLACEMENT });
@@ -205,7 +121,7 @@ export function GoogleStaticEditor() {
       const next = JSON.parse(planText) as GoogleStaticUiRequest;
       if (!next || next.profileId !== profile.profileId) throw new Error("Plan profileId가 선택한 profile과 다릅니다.");
       setPlan(next);
-      setPlacementValues(valuesFromPlan(profile, asset, next));
+      setPlacementValues(valuesFromPlan(next));
       markDirty();
     } catch (error) {
       setLocalError(error instanceof Error ? error.message : "Plan JSON을 해석할 수 없습니다.");
@@ -220,16 +136,18 @@ export function GoogleStaticEditor() {
     }
     const normalized = { x: quantize(next.x), y: quantize(next.y), scale: quantize(next.scale) };
     setPlacementValues(normalized);
-    if (asset) {
-      const nextPlan = placementPlanFor(profile, asset, normalized, plan);
-      setPlan(nextPlan);
-      setPlanText(pretty(nextPlan));
+    if (asset && profile.role !== "UPLOADED_DISPLAY_STATIC") {
+      setPlan((currentPlan) => {
+        const nextPlan = applyGoogleStaticPlacementTransform(profile, asset, normalized, currentPlan);
+        setPlanText(pretty(nextPlan));
+        return nextPlan;
+      });
     }
     markDirty();
   }
 
   function resetPlacement() {
-    const defaults = defaultPlan(profile);
+    const defaults = defaultPlan(profile, asset ?? undefined);
     const next = {
       ...defaults,
       outputFormat: plan.outputFormat,
@@ -251,7 +169,7 @@ export function GoogleStaticEditor() {
   }
 
   function pointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (!asset) return;
+    if (!asset || profile.role === "UPLOADED_DISPLAY_STATIC") return;
     event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, values: placementValues };
   }
@@ -380,13 +298,13 @@ export function GoogleStaticEditor() {
 
         <div className="google-card">
           <div className="section-heading"><h3>Image placement</h3><span className="capability-pill">{plan.placementPolicy}</span></div>
-          <p className="hint" data-testid="google-placement-status">{stale ? localizedMessage("google.placement_stale") : localizedMessage("google.placement_hint")}</p>
+          <p className="hint" data-testid="google-placement-status">{profile.role === "UPLOADED_DISPLAY_STATIC" ? "이 프로필은 원본 규격을 그대로 출력합니다. 배치 조정은 비활성화됩니다." : stale ? localizedMessage("google.placement_stale") : localizedMessage("google.placement_hint")}</p>
           <div className="google-placement-controls">
-            <label><span>{localizedMessage("google.placement_x")}</span><input data-testid="google-placement-x" type="number" min="0" max="1" step="0.01" value={placementValues.x} onChange={(event) => updatePlacement({ ...placementValues, x: Number(event.currentTarget.value) })} /></label>
-            <label><span>{localizedMessage("google.placement_y")}</span><input data-testid="google-placement-y" type="number" min="0" max="1" step="0.01" value={placementValues.y} onChange={(event) => updatePlacement({ ...placementValues, y: Number(event.currentTarget.value) })} /></label>
-            <label><span>{localizedMessage("google.placement_scale")}</span><input data-testid="google-placement-scale" type="number" min="0.25" max="4" step="0.01" value={placementValues.scale} onChange={(event) => updatePlacement({ ...placementValues, scale: Number(event.currentTarget.value) })} /></label>
+            <label><span>{localizedMessage("google.placement_x")}</span><input disabled={profile.role === "UPLOADED_DISPLAY_STATIC" || !asset} data-testid="google-placement-x" type="number" min="0" max="1" step="0.01" value={placementValues.x} onChange={(event) => updatePlacement({ ...placementValues, x: Number(event.currentTarget.value) })} /></label>
+            <label><span>{localizedMessage("google.placement_y")}</span><input disabled={profile.role === "UPLOADED_DISPLAY_STATIC" || !asset} data-testid="google-placement-y" type="number" min="0" max="1" step="0.01" value={placementValues.y} onChange={(event) => updatePlacement({ ...placementValues, y: Number(event.currentTarget.value) })} /></label>
+            <label><span>{localizedMessage("google.placement_scale")}</span><input disabled={profile.role === "UPLOADED_DISPLAY_STATIC" || !asset} data-testid="google-placement-scale" type="number" min="0.25" max="4" step="0.01" value={placementValues.scale} onChange={(event) => updatePlacement({ ...placementValues, scale: Number(event.currentTarget.value) })} /></label>
           </div>
-          <div className="button-row google-placement-buttons"><button type="button" className="secondary" onClick={() => updatePlacement({ ...placementValues, scale: Math.max(0.25, quantize(placementValues.scale - 0.1)) })} disabled={!asset} data-testid="google-placement-zoom-out">−</button><button type="button" className="secondary" onClick={() => updatePlacement({ ...placementValues, scale: Math.min(4, quantize(placementValues.scale + 0.1)) })} disabled={!asset} data-testid="google-placement-zoom-in">+</button><button type="button" className="secondary" onClick={resetPlacement} data-testid="google-reset-placement">{localizedMessage("google.reset_placement")}</button></div>
+          <div className="button-row google-placement-buttons"><button type="button" className="secondary" onClick={() => updatePlacement({ ...placementValues, scale: Math.max(0.25, quantize(placementValues.scale - 0.1)) })} disabled={!asset || profile.role === "UPLOADED_DISPLAY_STATIC"} data-testid="google-placement-zoom-out">−</button><button type="button" className="secondary" onClick={() => updatePlacement({ ...placementValues, scale: Math.min(4, quantize(placementValues.scale + 0.1)) })} disabled={!asset || profile.role === "UPLOADED_DISPLAY_STATIC"} data-testid="google-placement-zoom-in">+</button><button type="button" className="secondary" onClick={resetPlacement} data-testid="google-reset-placement">{localizedMessage("google.reset_placement")}</button></div>
           <small className="hint">{localizedMessage("google.placement_normalized_hint")}</small>
         </div>
 

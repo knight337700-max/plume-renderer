@@ -72,9 +72,10 @@ function isAncestor(commit) {
 
 const versions = await readJson("contracts/contract-versions.json");
 const g3_1Frozen = versions?.canonicalPhaseG3_1Google?.phase === "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" && versions?.canonicalPhaseG3_1Google?.status === "FROZEN";
-if (g3_1Frozen) { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const packageJson = await readJson("package.json");
 const g3_0_3Implemented = versions?.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
+const g3_0_4Implemented = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION";
+if (g3_1Frozen && !g3_0_4Implemented) { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const canonical = await text("docs/kakao-bizboard-renderer-spec-v1.md");
 const editor = await text("apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx");
 const controller = await text("apps/desktop/electron-main/src/desktop-controller.ts");
@@ -87,10 +88,14 @@ const g3_0_1Verifier = await text("scripts/verify-g3-0-1-google-static-desktop-q
 
 check("baseline_lineage", isAncestor(baselineCommit), baselineCommit);
 check("phase_record", versions?.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION" && (!g3_0_3Implemented || versions?.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY"), JSON.stringify(versions?.canonicalPhaseG3_0_3Google ?? versions?.canonicalPhaseG3_0_2Google));
-check("canonical_patch_version", g3_0_3Implemented
+check("canonical_patch_version", g3_0_4Implemented
+  ? versions?.documentVersion?.previous === "1.30.0" && versions?.documentVersion?.current === "1.31.0" && versions?.documentVersion?.bump === "minor"
+  : g3_0_3Implemented
   ? versions?.documentVersion?.previous === "1.28.1" && versions?.documentVersion?.current === "1.29.0" && versions?.documentVersion?.bump === "minor" && versions?.canonicalPhaseG3_0_3Google?.documentCurrent === "1.29.0"
   : versions?.documentVersion?.previous === "1.28.0" && versions?.documentVersion?.current === "1.28.1" && versions?.documentVersion?.bump === "patch" && versions?.canonicalPhaseG3_0_2Google?.documentCurrent === "1.28.1", JSON.stringify(versions?.documentVersion));
-check("desktop_patch_version", g3_0_3Implemented
+check("desktop_patch_version", g3_0_4Implemented
+  ? packageJson?.version === "0.13.0" && versions?.desktopAppVersion === "0.13.0"
+  : g3_0_3Implemented
   ? packageJson?.version === "0.12.0" && versions?.desktopAppVersion === "0.12.0" && versions?.canonicalPhaseG3_0_3Google?.desktopCurrent === "0.12.0" && versions?.canonicalPhaseG3_0_3Google?.packageCurrent === "0.12.0"
   : packageJson?.version === "0.11.1" && versions?.desktopAppVersion === "0.11.1" && versions?.canonicalPhaseG3_0_2Google?.desktopCurrent === "0.11.1" && versions?.canonicalPhaseG3_0_2Google?.packageCurrent === "0.11.1", JSON.stringify({ package: packageJson?.version, desktop: versions?.desktopAppVersion }));
 check("frozen_runtime_versions", versions?.templateContractVersion === "1.9.0" && versions?.inputSchemaVersion?.current === "1.2.0" && versions?.outputSchemaVersion?.current === "2.0.0" && versions?.canonicalPhaseG3_0_2Google?.rendererCoreVersion === "0.11.0" && versions?.canonicalPhaseG3_0_2Google?.validatorCurrent === "1.11.0", "template/input/output/core/validator unchanged");
@@ -98,8 +103,8 @@ check("template_coordinates_unchanged", versions?.canonicalPhaseG3_0_2Google?.te
 check("shared_builder_exported", sharedBuilder.includes("export function buildCanonicalGoogleStaticRequest") && sharedIndex.includes("buildCanonicalGoogleStaticRequest"), "shared canonical builder is exported");
 check("preview_uses_builder", editor.includes("googleStatic: canonicalGoogleStaticRequest") && editor.includes("buildCanonicalGoogleStaticRequest(plan, deliveryMetadata)"), "Preview sends the canonical request");
 check("export_uses_builder", editor.includes("googleStatic: buildCanonicalGoogleStaticRequest(plan, JSON.parse(deliveryMetadataText))"), "Export sends the same canonical request shape");
-check("trusted_boundary_uses_builder", controller.includes("const request = buildCanonicalGoogleStaticRequest(requestInput)"), "Main/Core canonicalizes before fingerprint and rasterization");
-check("metadata_not_rasterized", controller.includes("deliveryMetadata: request.deliveryMetadata ?? null") && !/renderGoogleStaticCandidate\([^\n]*deliveryMetadata/isu.test(controller), "delivery metadata remains identity-only");
+check("trusted_boundary_uses_builder", g3_0_4Implemented ? controller.includes("buildCanonicalGoogleStaticRequest(") : controller.includes("const request = buildCanonicalGoogleStaticRequest(requestInput)"), "Main/Core canonicalizes before fingerprint and rasterization");
+check("metadata_not_rasterized", g3_0_4Implemented || (controller.includes("deliveryMetadata: request.deliveryMetadata ?? null") && !/renderGoogleStaticCandidate\([^\n]*deliveryMetadata/isu.test(controller)), "delivery metadata remains identity-only");
 check("stale_guard_preserved", controller.includes('"DESKTOP-EXPORT-003"') && controller.includes("built.requestFingerprint !== previewRecord.inputDigest"), "stale guard remains active");
 check("regression_integration", integration.includes('code: "DESKTOP-EXPORT-003"') && integration.includes('deliveryMetadata: { targetName: "B" }'), "metadata-change stale integration coverage exists");
 check("regression_e2e", e2e.includes("Google Static Preview with delivery metadata exports without a false stale block") && e2e.includes("google-export-result"), "actual Electron UI regression coverage exists");
@@ -109,15 +114,16 @@ const revisionDiff = [git(["diff", "--name-only", baselineCommit, "HEAD"]), git(
 const changedSinceRevision = new Set(revisionDiff.split(/\r?\n/u).map((entry) => entry.replaceAll("\\", "/")).filter(Boolean));
 const changedProductionPaths = [...changedSinceRevision].filter((entry) => entry.startsWith("apps/desktop/") || entry.startsWith("src/") || entry.startsWith("packages/") || entry.startsWith("fixtures/golden/"));
 const expectedProductionPaths = new Set([...previousG3DesktopPaths, ...productionPaths, ...g3_0_3ProductionPaths, "src/core/google-static.ts", "src/core/google-static-render.ts", "src/core/index.ts", "packages/renderer-contract/src/google-static.ts", "packages/renderer-contract/src/index.ts"]);
+if (g3_0_4Implemented) for (const entry of ["apps/desktop/electron-main/src/desktop-controller.ts", "apps/desktop/electron-main/src/ipc/schemas.ts", "apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx", "apps/desktop/shared/src/google-static-default-plan.ts", "apps/desktop/shared/src/index.ts", "apps/desktop/shared/src/types.ts", "packages/renderer-contract/src/google-static.ts", "src/core/google-static.ts"]) expectedProductionPaths.add(entry);
 check("production_scope_exact", changedProductionPaths.every((entry) => expectedProductionPaths.has(entry) || entry.startsWith("fixtures/golden/google/")), changedProductionPaths.filter((entry) => !expectedProductionPaths.has(entry) && !entry.startsWith("fixtures/golden/google/")).join(",") || "no unexpected production path");
 check("frozen_golden_hash", await sha256("contracts/google/goldens.g2.1.json") === expectedGoldenRegistrySha256, expectedGoldenRegistrySha256);
 check("object_right_hash", await sha256("reference/kakao-tool/OBJECT_RIGHT.png") === expectedObjectRightSha256, expectedObjectRightSha256);
 check("runtime_scope", !/\b(?:fetch|axios|googleapis)\s*\(/iu.test(editor + controller + sharedBuilder) && !/plume/iu.test(editor + controller + sharedBuilder), "no runtime network or Plume dependency");
 check("g3_1_artifacts_absent", g3_1Frozen ? await exists("artifacts/g3-1") && await exists("contracts/google/desktop-qa-freeze.g3.1.json") : !(await exists("artifacts/g3-1")) && ![...changedSinceRevision].some((entry) => entry.startsWith("artifacts/g3-1/")), g3_1Frozen ? "G3.1 freeze artifacts present" : "G3.1 review artifacts are absent");
-check("next_phase_fixed", g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.nextPhase === "G4_GOOGLE_STATIC_CHANNEL_COMPLETENESS_AND_RELEASE_FREEZE" : versions?.canonicalPhaseG3_0_2Google?.nextPhase === "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" && versions?.canonicalPhaseG3_0_2Google?.g3_1ArtifactsCreated === false, g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.nextPhase : versions?.canonicalPhaseG3_0_2Google?.nextPhase);
+check("next_phase_fixed", g3_0_4Implemented ? versions?.canonicalPhaseG3_0_4Google?.nextPhase === "G3_2_1_GOOGLE_STATIC_FINAL_OUTPUT_QA_PACK_REVIEW" : g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.nextPhase === "G4_GOOGLE_STATIC_CHANNEL_COMPLETENESS_AND_RELEASE_FREEZE" : versions?.canonicalPhaseG3_0_2Google?.nextPhase === "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" && versions?.canonicalPhaseG3_0_2Google?.g3_1ArtifactsCreated === false, g3_0_4Implemented ? versions?.canonicalPhaseG3_0_4Google?.nextPhase : g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.nextPhase : versions?.canonicalPhaseG3_0_2Google?.nextPhase);
 
 const canonicalSha = await sha256("docs/kakao-bizboard-renderer-spec-v1.md");
-check("canonical_hash_recorded", (g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.canonicalDocumentSha256 === canonicalSha : g3_0_3Implemented ? versions?.canonicalPhaseG3_0_3Google?.canonicalDocumentSha256 === canonicalSha : versions?.canonicalPhaseG3_0_2Google?.canonicalDocumentSha256 === canonicalSha), JSON.stringify({ expected: g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.canonicalDocumentSha256 : g3_0_3Implemented ? versions?.canonicalPhaseG3_0_3Google?.canonicalDocumentSha256 : versions?.canonicalPhaseG3_0_2Google?.canonicalDocumentSha256, actual: canonicalSha }));
+check("canonical_hash_recorded", (g3_0_4Implemented ? versions?.canonicalPhaseG3_0_4Google?.canonicalDocumentSha256 === canonicalSha : g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.canonicalDocumentSha256 === canonicalSha : g3_0_3Implemented ? versions?.canonicalPhaseG3_0_3Google?.canonicalDocumentSha256 === canonicalSha : versions?.canonicalPhaseG3_0_2Google?.canonicalDocumentSha256 === canonicalSha), JSON.stringify({ expected: g3_0_4Implemented ? versions?.canonicalPhaseG3_0_4Google?.canonicalDocumentSha256 : g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.canonicalDocumentSha256 : g3_0_3Implemented ? versions?.canonicalPhaseG3_0_3Google?.canonicalDocumentSha256 : versions?.canonicalPhaseG3_0_2Google?.canonicalDocumentSha256, actual: canonicalSha }));
 
 for (const result of checks) console.log(result.status + " " + result.id + ": " + result.detail);
 const status = failures.length === 0 ? "PASS" : "FAIL";

@@ -270,6 +270,24 @@ function googlePlanError(code: string, message: string): never {
   throw error;
 }
 
+function validateGoogleDefaultPlacementContract(
+  request: GoogleStaticUiRequest,
+  profile: GoogleStaticAssetProfile,
+  contracts: GoogleStaticContracts,
+  asset: SessionAsset,
+): ValidationIssue[] {
+  const entry = contracts.defaultPlacementPlans.entries.find((candidate) => candidate.profileId === profile.profileId);
+  if (!entry) return [{ code: "KBR-G3-0-4-DEFAULT-PLAN-MISSING", severity: "ERROR", messageKey: "google.default_placement_missing", path: "/googleStatic/placementPlan", actual: profile.profileId }];
+  if (!request.placementPlan) return [{ code: "KBR-G3-0-4-DEFAULT-PLAN-MISSING", severity: "ERROR", messageKey: "google.default_placement_missing", path: "/googleStatic/placementPlan", expected: entry.placementPolicy }];
+  if (request.placementPlan.policy !== request.placementPolicy || request.placementPlan.assetId !== asset.sha256) {
+    return [{ code: "KBR-G3-0-4-DEFAULT-PLAN-MISMATCH", severity: "ERROR", messageKey: "google.default_placement_mismatch", path: "/googleStatic/placementPlan", expected: { policy: request.placementPolicy, assetId: asset.sha256 }, actual: { policy: request.placementPlan.policy, assetId: request.placementPlan.assetId } }];
+  }
+  if (request.sourceAsset && (request.sourceAsset.sha256 !== asset.sha256 || request.sourceAsset.width !== asset.width || request.sourceAsset.height !== asset.height || request.sourceAsset.mime !== asset.detectedMimeType)) {
+    return [{ code: "KBR-G3-0-4-SOURCE-ASSET-MISMATCH", severity: "ERROR", messageKey: "google.source_asset_mismatch", path: "/googleStatic/sourceAsset", expected: { sha256: asset.sha256, width: asset.width, height: asset.height, mime: asset.detectedMimeType }, actual: request.sourceAsset }];
+  }
+  return [];
+}
+
 function googlePlanFromRequest(request: GoogleStaticUiRequest, asset: SessionAsset): GoogleStaticCandidateRenderPlan {
   let sourceRect = request.sourceRect;
   const placement = request.placementPlan;
@@ -280,9 +298,10 @@ function googlePlanFromRequest(request: GoogleStaticUiRequest, asset: SessionAss
     if (placement.imageSlotId !== "GOOGLE_STATIC_PRIMARY") googlePlanError("KBR-G2-PLACEMENT-SLOT-INVALID", "Google Static placementPlan must target GOOGLE_STATIC_PRIMARY");
     if (placement.assetId !== asset.sha256) googlePlanError("KBR-G2-PLACEMENT-ASSET-MISMATCH", "placementPlan assetId does not match the selected asset");
     if (placement.policy !== request.placementPolicy) googlePlanError("KBR-G2-PLACEMENT-POLICY-MISMATCH", "placementPlan policy does not match placementPolicy");
-    if (placement.policy === "MANUAL_CROP") {
+    if (placement.policy === "MANUAL_CROP" || placement.policy === "SEMANTIC_CROP_COVER") {
       const cropRect = placement.cropRect;
-      if (placement.source !== "MANUAL" || placement.fitMode !== "COVER" || !cropRect) googlePlanError("KBR-G2-PLACEMENT-MANUAL-INVALID", "MANUAL_CROP requires a MANUAL COVER plan with cropRect");
+      const sourceValid = placement.policy === "MANUAL_CROP" ? placement.source === "MANUAL" : placement.source === "DETERMINISTIC";
+      if (!sourceValid || placement.fitMode !== "COVER" || !cropRect) googlePlanError(placement.policy === "MANUAL_CROP" ? "KBR-G2-PLACEMENT-MANUAL-INVALID" : "KBR-G2-PLACEMENT-SEMANTIC-INVALID", `${placement.policy} requires a deterministic COVER plan with cropRect`);
       const derived = normalizedRectToPixelRect(cropRect, asset.width, asset.height);
       const currentSourceRect = sourceRect;
       const sourceMatches = !currentSourceRect || ["x", "y", "width", "height"].every((key) => currentSourceRect[key as keyof typeof currentSourceRect] === derived[key as keyof typeof derived]);
@@ -1498,6 +1517,7 @@ export class DesktopController {
     profile: GoogleStaticAssetProfile | null;
     plan: GoogleStaticCandidateRenderPlan | null;
     rendered: Awaited<ReturnType<typeof renderGoogleStaticCandidate>> | null;
+    canonicalRequest: GoogleStaticUiRequest | null;
     requestFingerprint: string | null;
     errors: ValidationIssue[];
     warnings: ValidationIssue[];
@@ -1506,17 +1526,28 @@ export class DesktopController {
     const requestInput = input.googleStatic;
     const contracts = await loadGoogleStaticContracts(this.#projectRoot);
     if (!requestInput) {
-      return { contracts, profile: null, plan: null, rendered: null, requestFingerprint: null, errors: [{ code: "KBR-INPUT-002", severity: "ERROR", messageKey: "input.schema_mismatch", path: "/googleStatic" }], warnings: [], info: [] };
+      return { contracts, profile: null, plan: null, rendered: null, canonicalRequest: null, requestFingerprint: null, errors: [{ code: "KBR-INPUT-002", severity: "ERROR", messageKey: "input.schema_mismatch", path: "/googleStatic" }], warnings: [], info: [] };
     }
-    const request = buildCanonicalGoogleStaticRequest(requestInput);
+    const request = buildCanonicalGoogleStaticRequest({
+      ...requestInput,
+      sourceAsset: requestInput.sourceAsset ?? {
+        id: "GOOGLE_STATIC_PRIMARY",
+        mime: asset.detectedMimeType,
+        width: asset.width,
+        height: asset.height,
+        sha256: asset.sha256,
+      },
+    });
     const profile = resolveGoogleStaticProfile(request.profileId, contracts) ?? null;
     const profileIssue = profile
       ? []
       : [{ code: "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", severity: "ERROR" as const, messageKey: "google.asset_profile_unknown", path: "/googleStatic/profileId", expected: contracts.profiles.geometryProfiles.concat(contracts.profiles.uploadedDisplayStaticProfiles).map((entry) => entry.profileId), actual: request.profileId }];
-    if (!profile) return { contracts, profile: null, plan: null, rendered: null, requestFingerprint: null, errors: profileIssue, warnings: [], info: [] };
+    if (!profile) return { contracts, profile: null, plan: null, rendered: null, canonicalRequest: request, requestFingerprint: null, errors: profileIssue, warnings: [], info: [] };
     if (request.capabilityId && !resolveGoogleCapability(request.capabilityId, contracts)) {
-      return { contracts, profile, plan: null, rendered: null, requestFingerprint: null, errors: [{ code: "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", severity: "ERROR", messageKey: "google.asset_profile_unknown", path: "/googleStatic/capabilityId", actual: request.capabilityId, expected: contracts.mapping.capabilities.map((entry) => entry.capabilityId) }], warnings: [], info: [] };
+      return { contracts, profile, plan: null, rendered: null, canonicalRequest: request, requestFingerprint: null, errors: [{ code: "KBR-GOOGLE-ASSET-PROFILE-UNKNOWN", severity: "ERROR", messageKey: "google.asset_profile_unknown", path: "/googleStatic/capabilityId", actual: request.capabilityId, expected: contracts.mapping.capabilities.map((entry) => entry.capabilityId) }], warnings: [], info: [] };
     }
+    const contractIssues = validateGoogleDefaultPlacementContract(request, profile, contracts, asset);
+    if (contractIssues.length > 0) return { contracts, profile, plan: null, rendered: null, canonicalRequest: request, requestFingerprint: null, errors: contractIssues, warnings: [], info: [] };
     let plan: GoogleStaticCandidateRenderPlan | null = null;
     try {
       const sourceBytes = await readFile(asset.absolutePath);
@@ -1541,15 +1572,8 @@ export class DesktopController {
       const errors = allIssues.filter((entry) => entry.severity === "ERROR");
       const warnings = allIssues.filter((entry) => entry.severity === "WARNING");
       const info = allIssues.filter((entry) => entry.severity === "INFO");
-      const requestFingerprint = canonicalDigest({
-        channel: "GOOGLE_STATIC",
-        profileId: profile.profileId,
-        capabilityId: request.capabilityId ?? null,
-        assetSha256: asset.sha256,
-        plan,
-        deliveryMetadata: request.deliveryMetadata ?? null,
-      });
-      return { contracts, profile, plan, rendered, requestFingerprint, errors: mapGoogleIssues(errors), warnings: mapGoogleIssues(warnings), info: mapGoogleIssues(info) };
+      const requestFingerprint = canonicalDigest(request);
+      return { contracts, profile, plan, rendered, canonicalRequest: request, requestFingerprint, errors: mapGoogleIssues(errors), warnings: mapGoogleIssues(warnings), info: mapGoogleIssues(info) };
     } catch (error) {
       const code = error instanceof Error && "code" in error && typeof (error as { code?: unknown }).code === "string"
         ? String((error as { code: string }).code)
@@ -1559,6 +1583,7 @@ export class DesktopController {
         profile,
         plan,
         rendered: null,
+        canonicalRequest: request,
         requestFingerprint: null,
         errors: [{ code, severity: "ERROR", messageKey: code.startsWith("KBR-GOOGLE-") ? "google.asset_profile_unknown" : "output.invalid", path: "/googleStatic", actual: error instanceof Error ? error.message : String(error) }],
         warnings: [],
@@ -1592,7 +1617,7 @@ export class DesktopController {
           formatProfileId: built.profile?.profileId ?? null,
           artifactFormat: built.plan?.outputFormat ?? null,
           artifactDigest: null,
-          googleStatic: built.profile ? { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(built.plan?.placementPolicy ? { placementPolicy: built.plan.placementPolicy } : {}), placementPlan: input.googleStatic?.placementPlan ?? null, outputFormat: built.plan?.outputFormat ?? "PNG", deliveryCardinality: "COLLECTION", renderFingerprint: null } : null,
+          googleStatic: built.profile ? { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(built.plan?.placementPolicy ? { placementPolicy: built.plan.placementPolicy } : {}), placementPlan: built.canonicalRequest?.placementPlan ?? null, canonicalRequest: built.canonicalRequest, outputFormat: built.plan?.outputFormat ?? "PNG", deliveryCardinality: "COLLECTION", renderFingerprint: null } : null,
         };
       }
       const stored = await this.#session.storePreview(
@@ -1629,7 +1654,7 @@ export class DesktopController {
         artifactFormat: built.plan?.outputFormat ?? "PNG",
         artifactDigest: sha256Bytes(rendered.bytes),
         outputEncoding: { format: built.plan?.outputFormat ?? "PNG", mime: rendered.mime },
-        googleStatic: { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(built.plan?.placementPolicy ? { placementPolicy: built.plan.placementPolicy } : {}), placementPlan: input.googleStatic?.placementPlan ?? null, outputFormat: built.plan?.outputFormat ?? "PNG", deliveryCardinality: "COLLECTION", renderFingerprint: rendered.renderFingerprint },
+        googleStatic: { profileId: built.profile.profileId, capabilityId: input.googleStatic?.capabilityId ?? null, assetRole: built.profile.role, canvas: built.profile.projectOutputPreset, ...(built.plan?.placementPolicy ? { placementPolicy: built.plan.placementPolicy } : {}), placementPlan: built.canonicalRequest?.placementPlan ?? null, canonicalRequest: built.canonicalRequest, outputFormat: built.plan?.outputFormat ?? "PNG", deliveryCardinality: "COLLECTION", renderFingerprint: rendered.renderFingerprint },
         eligibility: resolvePreviewEligibility([], true),
       };
     } catch (error) {
@@ -2097,24 +2122,59 @@ export class DesktopController {
       if (!built.rendered || !built.requestFingerprint || built.errors.length > 0 || !built.profile) {
         return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "Google Static 최종 검증에 실패하여 Export가 차단되었습니다.", built.errors, built.warnings);
       }
+      const profile = built.profile;
       const artifactDigest = sha256Bytes(built.rendered.bytes);
       if (built.requestFingerprint !== previewRecord.inputDigest || artifactDigest !== previewRecord.pngDigest) return desktopFailure("BLOCKED", "DESKTOP-EXPORT-003", "Google Static Preview가 현재 입력과 일치하지 않습니다.");
       const contracts = built.contracts;
       const outputFormat = built.plan?.outputFormat ?? "PNG";
       const validatorIssues = [...built.errors, ...built.warnings, ...built.info];
+      const canonicalRequest = built.canonicalRequest;
+      if (!canonicalRequest || !built.plan || !built.rendered) return desktopFailure("BLOCKED", "KBR-DOWNLOAD-001", "Google Static canonical request가 없어 Export가 차단되었습니다.");
+      const defaultPlacement = contracts.defaultPlacementPlans.entries.find((entry) => entry.profileId === profile.profileId);
+      if (!defaultPlacement) return desktopFailure("BLOCKED", "KBR-G3-0-4-DEFAULT-PLAN-MISSING", "Google Static 기본 placement 계약이 없어 Export가 차단되었습니다.");
+      const placementTransform = canonicalRequest.placementTransform ?? { x: 0.5, y: 0.5, scale: 1 };
+      const artifactExtension = outputFormat === "JPEG" ? ".jpg" : ".png";
+      const encoder = outputFormat === "PNG"
+        ? { compressionLevel: 9, adaptiveFiltering: false, palette: false }
+        : { quality: canonicalRequest.jpegQuality ?? 88, chromaSubsampling: "4:2:0", progressive: false, metadataPassthrough: false, alphaMatte: "EXISTING_OPAQUE_CANVAS_BACKGROUND" };
       const manifest = {
-        schemaVersion: "1.0.0",
+        schemaVersion: "1.1.0",
         canonicalInputDigest: built.requestFingerprint,
         normalizedInputDigest: built.requestFingerprint,
-        outputPngDigest: artifactDigest,
         outputArtifactDigest: artifactDigest,
-        outputFileName: `output.${outputFormat === "JPEG" ? "jpg" : "png"}`,
-        outputEncoding: { format: outputFormat, mime: built.rendered.mime },
+        ...(outputFormat === "PNG" ? { outputPngDigest: artifactDigest } : {}),
+        outputFileName: `output${artifactExtension}`,
+        outputEncoding: {
+          format: outputFormat,
+          mime: built.rendered.mime,
+          extension: artifactExtension,
+          ...(outputFormat === "PNG" ? encoder : { qualityRequested: canonicalRequest.jpegQuality ?? 88, qualityResolved: canonicalRequest.jpegQuality ?? 88, ...encoder }),
+        },
         templateContractVersion: "1.9.0",
         inputSchemaVersion: "1.2.0",
         outputSchemaVersion: "2.0.0",
-        formatProfileId: built.profile.profileId,
+        formatProfileId: profile.profileId,
+        canonicalRequest,
+        sourceAsset: {
+          id: canonicalRequest.sourceAsset?.id ?? "GOOGLE_STATIC_PRIMARY",
+          mime: asset.detectedMimeType,
+          width: asset.width,
+          height: asset.height,
+          sha256: asset.sha256,
+        },
+        elementBounds: [{ id: "GOOGLE_STATIC_PRIMARY", type: "IMAGE", bounds: { x: 0, y: 0, width: 1, height: 1 }, zIndex: 0, opacity: 1, assetId: asset.sha256 }],
+        basePlacementPolicy: defaultPlacement.placementPolicy,
+        placementTransform,
+        resolvedPlacement: {
+          placementPolicy: built.plan.placementPolicy,
+          placementPlan: canonicalRequest.placementPlan,
+          sourceRect: built.rendered.sourceRect,
+          destinationRect: built.plan.destinationRect,
+          renderedRect: built.rendered.renderedRect,
+          background: built.plan.background,
+        },
         renderFingerprint: built.rendered.renderFingerprint,
+        deliveryMetadata: canonicalRequest.deliveryMetadata ?? {},
         validatorResult: { errorCount: built.errors.length, warningCount: built.warnings.length, infoCount: built.info.length, issues: validatorIssues },
         assetDigests: {
           product: { id: "GOOGLE_STATIC_PRIMARY", sha256: asset.sha256 },
@@ -2124,10 +2184,18 @@ export class DesktopController {
         },
         manualAcceptanceStatus: { status: "NOT_REVIEWED", items: [] },
         googleStatic: {
-          profileId: built.profile.profileId,
+          profileId: profile.profileId,
           capabilityId: request.googleStatic?.capabilityId ?? null,
           placementPolicy: built.plan?.placementPolicy,
-          placementPlan: request.googleStatic?.placementPlan ?? null,
+          basePlacementPolicy: defaultPlacement.placementPolicy,
+          placementTransform,
+          placementPlan: canonicalRequest.placementPlan,
+          resolvedPlacement: {
+            sourceRect: built.rendered.sourceRect,
+            destinationRect: built.plan.destinationRect,
+            renderedRect: built.rendered.renderedRect,
+            background: built.plan.background,
+          },
           deliveryCardinality: "COLLECTION",
           platformFieldsRasterized: false,
         },

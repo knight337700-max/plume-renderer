@@ -9,6 +9,7 @@ import type {
   GoogleDiagnosticRegistry,
   GoogleStaticAssetProfile,
   GoogleStaticContracts,
+  GoogleStaticDefaultPlacementRegistry,
   GoogleStaticMime,
   GoogleStaticProfileRegistry,
   GoogleStaticTarget,
@@ -30,20 +31,21 @@ const RDA_VERTICAL_INFO = "KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY";
 const DG_SAFE_ZONE_INFO = "KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED";
 const LIFECYCLE_INFO = "KBR-GOOGLE-LIFECYCLE-TRANSITIONAL";
 
-type G1Json = GoogleStaticProfileRegistry | GoogleCapabilityRoleMappingRegistry | GoogleTargetConstraintRegistry | GoogleDiagnosticRegistry;
+type G1Json = GoogleStaticProfileRegistry | GoogleCapabilityRoleMappingRegistry | GoogleTargetConstraintRegistry | GoogleDiagnosticRegistry | GoogleStaticDefaultPlacementRegistry;
 
 async function readJson<T extends G1Json>(projectRoot: string, relativePath: string): Promise<T> {
   return JSON.parse(await readFile(path.join(projectRoot, ...relativePath.split("/")), "utf8")) as T;
 }
 
 export async function loadGoogleStaticContracts(projectRoot: string): Promise<GoogleStaticContracts> {
-  const [profiles, mapping, constraints, diagnostics] = await Promise.all([
+  const [profiles, mapping, constraints, diagnostics, defaultPlacementPlans] = await Promise.all([
     readJson<GoogleStaticProfileRegistry>(projectRoot, "contracts/google/static-asset-profiles.g1.json"),
     readJson<GoogleCapabilityRoleMappingRegistry>(projectRoot, "contracts/google/capability-asset-role-mapping.g1.json"),
     readJson<GoogleTargetConstraintRegistry>(projectRoot, "contracts/google/target-constraints.g1.json"),
     readJson<GoogleDiagnosticRegistry>(projectRoot, "contracts/google/diagnostics.g1.json"),
+    readJson<GoogleStaticDefaultPlacementRegistry>(projectRoot, "contracts/google/default-placement-plans.g3.0.4.json"),
   ]);
-  return { profiles, mapping, constraints, diagnostics };
+  return { profiles, mapping, constraints, diagnostics, defaultPlacementPlans };
 }
 
 export function listGoogleStaticProfiles(contracts: GoogleStaticContracts): GoogleStaticAssetProfile[] {

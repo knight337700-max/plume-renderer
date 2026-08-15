@@ -15,12 +15,15 @@ const productionPaths = new Set([
   "apps/desktop/renderer-ui/src/i18n/ko-KR.json",
   "apps/desktop/renderer-ui/src/styles.css",
   "apps/desktop/shared/src/google-static-request.ts",
+  "apps/desktop/shared/src/google-static-default-plan.ts",
+  "apps/desktop/shared/src/index.ts",
   "apps/desktop/shared/src/types.ts",
   "src/core/google-static-render.ts",
   "src/core/google-static.ts",
   "src/core/index.ts",
   "packages/renderer-contract/src/google-static.ts",
   "packages/renderer-contract/src/index.ts",
+  "src/core/google-static.ts",
 ]);
 const checks = [];
 const failures = [];
@@ -95,12 +98,15 @@ async function main() {
   const objectSha = await sha256("reference/kakao-tool/OBJECT_RIGHT.png");
   const phase = versions?.canonicalPhaseG3_0_3Google;
   const g3_1Frozen = versions?.canonicalPhaseG3_1Google?.phase === "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" && versions?.canonicalPhaseG3_1Google?.status === "FROZEN";
+  const g3_0_4Implemented = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION";
 
   check("baseline_lineage", isAncestor(baselineCommit), baselineCommit);
   check("phase_record", (phase?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY" && phase?.g3_1ArtifactsCreated === false) || (g3_1Frozen && versions?.canonicalPhaseG3_1Google?.acceptance === "USER_ACCEPTED"), JSON.stringify({ phase: phase?.phase, g3_1Frozen }));
-  check("canonical_version", g3_1Frozen ? versions?.documentVersion?.previous === "1.29.0" && versions?.documentVersion?.current === "1.30.0" && versions?.documentVersion?.bump === "minor" : versions?.documentVersion?.previous === "1.28.1" && versions?.documentVersion?.current === "1.29.0" && versions?.documentVersion?.bump === "minor", JSON.stringify(versions?.documentVersion));
-  check("canonical_hash", (g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.canonicalDocumentSha256 : phase?.canonicalDocumentSha256) === canonicalSha && (expectedCanonicalSha256 === null || g3_1Frozen || canonicalSha === expectedCanonicalSha256), canonicalSha);
-  check("desktop_version", packageJson?.version === "0.12.0" && versions?.desktopAppVersion === "0.12.0", JSON.stringify({ package: packageJson?.version, desktop: versions?.desktopAppVersion }));
+  check("canonical_version", g3_0_4Implemented
+    ? versions?.documentVersion?.previous === "1.30.0" && versions?.documentVersion?.current === "1.31.0" && versions?.documentVersion?.bump === "minor"
+    : g3_1Frozen ? versions?.documentVersion?.previous === "1.29.0" && versions?.documentVersion?.current === "1.30.0" && versions?.documentVersion?.bump === "minor" : versions?.documentVersion?.previous === "1.28.1" && versions?.documentVersion?.current === "1.29.0" && versions?.documentVersion?.bump === "minor", JSON.stringify(versions?.documentVersion));
+  check("canonical_hash", (g3_0_4Implemented ? versions?.canonicalPhaseG3_0_4Google?.canonicalDocumentSha256 : g3_1Frozen ? versions?.canonicalPhaseG3_1Google?.canonicalDocumentSha256 : phase?.canonicalDocumentSha256) === canonicalSha && (expectedCanonicalSha256 === null || g3_0_4Implemented || g3_1Frozen || canonicalSha === expectedCanonicalSha256), canonicalSha);
+  check("desktop_version", g3_0_4Implemented ? packageJson?.version === "0.13.0" && versions?.desktopAppVersion === "0.13.0" : packageJson?.version === "0.12.0" && versions?.desktopAppVersion === "0.12.0", JSON.stringify({ package: packageJson?.version, desktop: versions?.desktopAppVersion }));
   check("reused_core_validator_schemas", phase?.rendererCoreVersion === "0.11.0" && phase?.validatorCurrent === "1.11.0" && phase?.inputSchemaVersion === "1.2.0" && phase?.outputSchemaVersion === "2.0.0", JSON.stringify({ core: phase?.rendererCoreVersion, validator: phase?.validatorCurrent, input: phase?.inputSchemaVersion, output: phase?.outputSchemaVersion }));
   check("template_and_canvas_frozen", phase?.templateCoordinatesChanged === false && versions?.templateContractVersion === "1.9.0", JSON.stringify({ template: versions?.templateContractVersion, coordinatesChanged: phase?.templateCoordinatesChanged }));
   check("frozen_golden_registry", goldenSha === expectedGoldenSha256 && goldens?.status === "FROZEN" && goldens?.entries?.length === 14, goldenSha);
@@ -113,7 +119,7 @@ async function main() {
     ...git(["diff", "--name-only", "--cached"]).split(/\r?\n/u),
   ].map((entry) => entry.replaceAll("\\", "/")).filter(Boolean));
   const changedProduction = [...changed].filter((entry) => entry.startsWith("apps/desktop/") || entry.startsWith("src/") || entry.startsWith("packages/") || entry.startsWith("fixtures/golden/"));
-  const unexpectedProduction = changedProduction.filter((entry) => !productionPaths.has(entry) && !entry.startsWith("fixtures/golden/google/"));
+  const unexpectedProduction = changedProduction.filter((entry) => !productionPaths.has(entry) && !entry.startsWith("fixtures/golden/google/") && !(g3_0_4Implemented && entry.startsWith("apps/desktop/shared/src/google-static-default-plan.ts")) && !(g3_0_4Implemented && entry.startsWith("apps/desktop/shared/src/index.ts")) && !(g3_0_4Implemented && entry.startsWith("apps/desktop/shared/src/types.ts")) && !(g3_0_4Implemented && entry.startsWith("packages/renderer-contract/src/google-static.ts")) && !(g3_0_4Implemented && entry.startsWith("src/core/google-static.ts")));
   check("production_scope", unexpectedProduction.length === 0, unexpectedProduction.join(",") || "only approved Google production paths changed");
 
   const editor = await readText("apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx");
@@ -122,14 +128,14 @@ async function main() {
   const coreSource = await readText("src/core/google-static-render.ts");
   const forbiddenRuntime = /(?:toDataURL|html2canvas|capturePage|fetch\s*\(|googleapis|plume|cdn\.|https?:\/\/)/iu;
   check("production_transform_controls", ["google-output-format", "google-placement-x", "google-placement-y", "google-placement-scale", "google-placement-zoom-in", "google-placement-zoom-out", "google-reset-placement"].every((id) => editor.includes(id)), "format, numeric, zoom, and reset controls are in the production UI");
-  check("canonical_builder_path", editor.includes("buildCanonicalGoogleStaticRequest") && controller.includes("buildCanonicalGoogleStaticRequest(requestInput)") && controller.includes("built.requestFingerprint !== previewRecord.inputDigest"), "Preview/Export share canonical builder and stale guard");
+  check("canonical_builder_path", editor.includes("buildCanonicalGoogleStaticRequest") && (g3_0_4Implemented ? controller.includes("buildCanonicalGoogleStaticRequest({") : controller.includes("buildCanonicalGoogleStaticRequest(requestInput)")) && controller.includes("built.requestFingerprint !== previewRecord.inputDigest"), "Preview/Export share canonical builder and stale guard");
   check("runtime_boundary", !forbiddenRuntime.test(editor + controller + sharedBuilder + coreSource), "no screenshot capture, remote network, Plume, or CDN path");
   const googleExportStart = controller.indexOf("async #exportGoogle");
   const googleManifestStart = controller.indexOf("const manifest = {", googleExportStart);
   const googleManifestEnd = controller.indexOf("const manifestText", googleManifestStart);
   const googleManifestSource = googleManifestStart >= 0 && googleManifestEnd > googleManifestStart ? controller.slice(googleManifestStart, googleManifestEnd) : "";
   check("manifest_self_digest_absent", googleManifestSource.length > 0 && !googleManifestSource.includes("manifestDigest"), "stored manifest is not self-referential");
-  check("output_extension_and_encoder", controller.includes("output.${outputFormat === \"JPEG\" ? \"jpg\" : \"png\"}") && coreSource.includes("outputFormat === \"PNG\" ? \"image/png\" : \"image/jpeg\""), "PNG/JPEG extension and MIME are selected by the same plan");
+  check("output_extension_and_encoder", (g3_0_4Implemented ? controller.includes("const artifactExtension = outputFormat === \"JPEG\" ? \".jpg\" : \".png\"") && controller.includes("compressionLevel: 9") && controller.includes("qualityResolved") : controller.includes("output.${outputFormat === \"JPEG\" ? \"jpg\" : \"png\"}")) && coreSource.includes("outputFormat === \"PNG\" ? \"image/png\" : \"image/jpeg\""), "PNG/JPEG extension and MIME are selected by the same plan");
 
   const profileIds = new Set([
     ...(profiles?.geometryProfiles ?? []).map((entry) => entry.profileId),

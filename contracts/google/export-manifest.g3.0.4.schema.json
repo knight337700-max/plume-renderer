@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kbr.local/contracts/google/export-manifest.g3.0.4.schema.json",
+  "title": "Google Static Desktop Export Manifest 1.1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "outputEncoding": { "properties": { "format": { "const": "JPEG" } } } } },
+      "then": { "not": { "required": ["outputPngDigest"] } }
+    },
+    {
+      "if": { "properties": { "outputEncoding": { "properties": { "format": { "const": "PNG" } } } } },
+      "then": { "properties": { "outputPngDigest": { "$ref": "#/$defs/sha256" } } }
+    }
+  ],
+  "required": ["schemaVersion", "canonicalInputDigest", "normalizedInputDigest", "outputArtifactDigest", "outputFileName", "outputEncoding", "templateContractVersion", "inputSchemaVersion", "outputSchemaVersion", "formatProfileId", "canonicalRequest", "sourceAsset", "elementBounds", "basePlacementPolicy", "placementTransform", "resolvedPlacement", "renderFingerprint", "deliveryMetadata", "validatorResult", "assetDigests", "manualAcceptanceStatus", "googleStatic"],
+  "properties": {
+    "schemaVersion": { "const": "1.1.0" },
+    "canonicalInputDigest": { "$ref": "#/$defs/sha256" },
+    "normalizedInputDigest": { "$ref": "#/$defs/sha256" },
+    "outputArtifactDigest": { "$ref": "#/$defs/sha256" },
+    "outputPngDigest": { "$ref": "#/$defs/sha256", "description": "Deprecated; permitted only for PNG and equal to outputArtifactDigest." },
+    "outputFileName": { "type": "string", "pattern": "^output\\.(png|jpg)$" },
+    "outputEncoding": { "$ref": "#/$defs/outputEncoding" },
+    "templateContractVersion": { "const": "1.9.0" },
+    "inputSchemaVersion": { "const": "1.2.0" },
+    "outputSchemaVersion": { "const": "2.0.0" },
+    "formatProfileId": { "type": "string", "minLength": 1 },
+    "canonicalRequest": { "type": "object", "additionalProperties": true },
+    "sourceAsset": { "$ref": "#/$defs/sourceAsset" },
+    "elementBounds": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/element" } },
+    "basePlacementPolicy": { "enum": ["NONE", "CENTER_CONTAIN", "MANUAL_CROP", "SEMANTIC_CROP_COVER", "ALPHA_TRIM_CONTAIN"] },
+    "placementTransform": { "$ref": "#/$defs/transform" },
+    "resolvedPlacement": { "$ref": "#/$defs/resolvedPlacement" },
+    "renderFingerprint": { "$ref": "#/$defs/sha256" },
+    "deliveryMetadata": { "type": "object" },
+    "validatorResult": { "$ref": "#/$defs/validatorResult" },
+    "assetDigests": { "type": "object" },
+    "manualAcceptanceStatus": { "type": "object" },
+    "googleStatic": { "type": "object" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "sourceAsset": {
+      "type": "object", "additionalProperties": false, "required": ["id", "mime", "width", "height", "sha256"],
+      "properties": { "id": { "type": "string", "minLength": 1 }, "mime": { "enum": ["image/png", "image/jpeg"] }, "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }, "sha256": { "$ref": "#/$defs/sha256" } }
+    },
+    "transform": {
+      "type": "object", "additionalProperties": false, "required": ["x", "y", "scale"],
+      "properties": { "x": { "type": "number", "minimum": 0, "maximum": 1 }, "y": { "type": "number", "minimum": 0, "maximum": 1 }, "scale": { "type": "number", "exclusiveMinimum": 0, "maximum": 4 } }
+    },
+    "rect": {
+      "type": "object", "additionalProperties": false, "required": ["x", "y", "width", "height"],
+      "properties": { "x": { "type": "integer", "minimum": 0 }, "y": { "type": "integer", "minimum": 0 }, "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 } }
+    },
+    "element": {
+      "type": "object", "additionalProperties": false, "required": ["id", "type", "bounds", "zIndex", "opacity", "assetId"],
+      "properties": { "id": { "type": "string", "minLength": 1 }, "type": { "const": "IMAGE" }, "bounds": { "type": "object", "additionalProperties": false, "required": ["x", "y", "width", "height"], "properties": { "x": { "const": 0 }, "y": { "const": 0 }, "width": { "const": 1 }, "height": { "const": 1 } } }, "zIndex": { "const": 0 }, "opacity": { "const": 1 }, "assetId": { "type": "string", "minLength": 1 } }
+    },
+    "resolvedPlacement": {
+      "type": "object", "additionalProperties": false, "required": ["placementPolicy", "placementPlan", "sourceRect", "destinationRect", "renderedRect", "background"],
+      "properties": { "placementPolicy": { "enum": ["NONE", "CENTER_CONTAIN", "MANUAL_CROP", "SEMANTIC_CROP_COVER", "ALPHA_TRIM_CONTAIN"] }, "placementPlan": { "type": "object", "minProperties": 1 }, "sourceRect": { "$ref": "#/$defs/rect" }, "destinationRect": { "$ref": "#/$defs/rect" }, "renderedRect": { "$ref": "#/$defs/rect" }, "background": { "type": "object" } }
+    },
+    "outputEncoding": {
+      "type": "object", "additionalProperties": false, "required": ["format", "mime", "extension"],
+      "properties": { "format": { "enum": ["PNG", "JPEG"] }, "mime": { "enum": ["image/png", "image/jpeg"] }, "extension": { "enum": [".png", ".jpg"] }, "compressionLevel": { "const": 9 }, "adaptiveFiltering": { "const": false }, "palette": { "const": false }, "qualityRequested": { "const": 88 }, "qualityResolved": { "const": 88 }, "quality": { "const": 88 }, "chromaSubsampling": { "const": "4:2:0" }, "progressive": { "const": false }, "metadataPassthrough": { "const": false }, "alphaMatte": { "const": "EXISTING_OPAQUE_CANVAS_BACKGROUND" } },
+      "allOf": [
+        {
+          "if": { "properties": { "format": { "const": "PNG" } } },
+          "then": {
+            "properties": { "mime": { "const": "image/png" }, "extension": { "const": ".png" } },
+            "required": ["compressionLevel", "adaptiveFiltering", "palette"]
+          }
+        },
+        {
+          "if": { "properties": { "format": { "const": "JPEG" } } },
+          "then": {
+            "properties": { "mime": { "const": "image/jpeg" }, "extension": { "const": ".jpg" } },
+            "required": ["qualityRequested", "qualityResolved", "quality", "chromaSubsampling", "progressive", "metadataPassthrough", "alphaMatte"]
+          }
+        }
+      ]
+    },
+    "validatorResult": {
+      "type": "object", "additionalProperties": false, "required": ["errorCount", "warningCount", "infoCount", "issues"],
+      "properties": { "errorCount": { "const": 0 }, "warningCount": { "type": "integer", "minimum": 0 }, "infoCount": { "type": "integer", "minimum": 0 }, "issues": { "type": "array" } }
+    }
+  }
+}

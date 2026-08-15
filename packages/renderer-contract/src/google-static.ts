@@ -7,6 +7,7 @@
 export const GOOGLE_STATIC_CONTRACT_VERSION = "1.0.0" as const;
 export const GOOGLE_STATIC_PROFILE_REGISTRY_VERSION = "1.0.0" as const;
 export const GOOGLE_CREATIVE_ASSET_SET_MANIFEST_VERSION = "1.0.0" as const;
+export const GOOGLE_STATIC_DEFAULT_PLACEMENT_REGISTRY_VERSION = "1.0.0" as const;
 
 export type GoogleStaticLayoutMode = "FREEFORM";
 export type GoogleStaticCompositionMode = "PLATFORM_COMPOSED" | "RENDERER_COMPOSED";
@@ -49,6 +50,8 @@ export type GoogleStaticPlacementPolicy = "NONE" | "CENTER_CONTAIN" | "MANUAL_CR
 export type GoogleStaticSeverity = "ERROR" | "WARNING" | "INFO";
 
 export type GooglePixelSize = Readonly<{ width: number; height: number }>;
+export type GoogleStaticPixelRect = Readonly<{ x: number; y: number; width: number; height: number }>;
+export type GoogleStaticRgbaColor = Readonly<{ r: number; g: number; b: number; alpha: number }>;
 
 export type GoogleStaticAssetProfile = Readonly<{
   profileId: string;
@@ -152,6 +155,42 @@ export type GoogleDiagnosticRegistry = Readonly<{
   count: number;
 }>;
 
+export type GoogleStaticDefaultPlacementEntry = Readonly<{
+  profileId: string;
+  role: GoogleStaticAssetRole;
+  sourceDimensions: GooglePixelSize;
+  placementPolicy: GoogleStaticPlacementPolicy;
+  sourceRect?: GoogleStaticPixelRect;
+  destinationRect: GoogleStaticPixelRect;
+  background: GoogleStaticRgbaColor;
+  semanticPlan?: true;
+  explicitElementPlan?: true;
+  outputFormat: "PNG" | "JPEG";
+  jpegQuality?: number;
+  sourceFixtureRelativePath: string;
+  sourceFixtureSha256: string;
+  layoutPlanRelativePath: string;
+  layoutPlanSha256: string;
+  frozenArtifactRelativePath: string;
+  frozenArtifactSha256: string;
+  frozenRenderFingerprint: string;
+}>;
+
+export type GoogleStaticDefaultPlacementRegistry = Readonly<{
+  schemaVersion: string;
+  registryVersion: typeof GOOGLE_STATIC_DEFAULT_PLACEMENT_REGISTRY_VERSION;
+  phase: string;
+  status: string;
+  sourceRegistry: Readonly<{
+    goldenRegistry: string;
+    goldenRegistrySha256: string;
+    sourceOfTruth: string;
+  }>;
+  geometryProfileCount: 7;
+  uploadedDisplayStaticProfileCount: 7;
+  entries: readonly GoogleStaticDefaultPlacementEntry[];
+}>;
+
 export type GoogleAssetArtifact = Readonly<{
   artifactId: string;
   assetProfileId: string;
@@ -201,6 +240,7 @@ export type GoogleStaticContracts = Readonly<{
   mapping: GoogleCapabilityRoleMappingRegistry;
   constraints: GoogleTargetConstraintRegistry;
   diagnostics: GoogleDiagnosticRegistry;
+  defaultPlacementPlans: GoogleStaticDefaultPlacementRegistry;
 }>;
 
 export function isGoogleStaticAssetRole(value: unknown): value is GoogleStaticAssetRole {
