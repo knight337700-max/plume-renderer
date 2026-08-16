@@ -7,6 +7,7 @@ import { _electron as electron, expect, test, type ElectronApplication, type Pag
 import sharp from "sharp";
 
 import { projectRoot } from "../helpers.js";
+import { closeElectronTree } from "./electron-cleanup.js";
 
 type Launched = {
   app: ElectronApplication;
@@ -38,18 +39,26 @@ async function launch(productPathOrAssets: string | LaunchAssets): Promise<Launc
   const sessionRoot = path.join(root, "sessions");
   const rendererErrors: string[] = [];
   await Promise.all([mkdir(outputRoot, { recursive: true }), mkdir(sessionRoot, { recursive: true })]);
+  const launchEnv: Record<string, string> = Object.fromEntries(
+    Object.entries(process.env).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+  );
+  Object.assign(launchEnv, {
+    // Playwright may set FORCE_COLOR for its own reporter. Normalize the
+    // Electron child environment so stderr contains renderer diagnostics,
+    // not the Node NO_COLOR/FORCE_COLOR warning.
+    FORCE_COLOR: "0",
+    KBR_E2E_MODE: "1",
+    KBR_E2E_PRODUCT: assets.primary,
+    ...(assets.secondary ? { KBR_E2E_SECONDARY: assets.secondary } : {}),
+    ...(assets.third ? { KBR_E2E_TERTIARY: assets.third } : {}),
+    KBR_E2E_OUTPUT: outputRoot,
+    KBR_E2E_SESSION_BASE: sessionRoot,
+  });
+  delete launchEnv.NO_COLOR;
   const app = await electron.launch({
-    args: [projectRoot],
+    args: ["--disable-gpu", `--user-data-dir=${path.join(root, "electron-user-data")}`, projectRoot],
     cwd: projectRoot,
-    env: {
-      ...process.env,
-      KBR_E2E_MODE: "1",
-      KBR_E2E_PRODUCT: assets.primary,
-      ...(assets.secondary ? { KBR_E2E_SECONDARY: assets.secondary } : {}),
-      ...(assets.third ? { KBR_E2E_TERTIARY: assets.third } : {}),
-      KBR_E2E_OUTPUT: outputRoot,
-      KBR_E2E_SESSION_BASE: sessionRoot,
-    },
+    env: launchEnv,
   });
   app.process().stdout?.on("data", (data: Buffer | string) => rendererErrors.push(`main stdout: ${String(data).trim()}`));
   app.process().stderr?.on("data", (data: Buffer | string) => rendererErrors.push(`main stderr: ${String(data).trim()}`));
@@ -68,7 +77,7 @@ async function launch(productPathOrAssets: string | LaunchAssets): Promise<Launc
 }
 
 async function close(launched: Launched): Promise<void> {
-  await launched.app.close();
+  await closeElectronTree(launched.app);
   await expect.poll(async () => (await readdir(launched.sessionRoot)).length).toBe(0);
   await rm(launched.root, { recursive: true, force: true });
 }
@@ -448,8 +457,16 @@ test("NAVER Feed IMAGE validates all canonical source assets and exports no synt
   try {
     await launched.page.getByTestId("naver-placement-select").selectOption("NAVER_MOBILE_DA_FEED");
     await expect(launched.page.getByTestId("naver-feed-subtype")).toHaveValue("IMAGE");
-    for (const id of ["NAVER_FEED_PROFILE_IMAGE_300X300", "NAVER_FEED_IMAGE_1_1", "NAVER_FEED_IMAGE_16_9"]) {
-      await launched.page.getByTestId(`naver-source-asset-${id}`).getByRole("button").click();
+    for (const [id, dimensions] of [
+      ["NAVER_FEED_PROFILE_IMAGE_300X300", "300×300"],
+      ["NAVER_FEED_IMAGE_1_1", "1200×1200"],
+      ["NAVER_FEED_IMAGE_16_9", "1200×628"],
+    ] as const) {
+      const card = launched.page.getByTestId(`naver-source-asset-${id}`);
+      await card.getByRole("button").click();
+      // Wait for the async Main-process asset selection to commit before
+      // requesting validation; otherwise the previous token can be rendered.
+      await expect(card.locator("span").first()).toContainText(dimensions);
     }
     const jobDirectory = await previewAndExportPlatformSource(launched, "SOURCE");
     await captureN8FormatEvidence("mobile-da-feed-image", jobDirectory);

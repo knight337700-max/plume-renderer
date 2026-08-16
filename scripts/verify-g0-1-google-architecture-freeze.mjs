@@ -34,6 +34,11 @@ const g3DesktopPaths = new Set([
 const g3_0_4ProductionPaths = new Set([
   "apps/desktop/shared/src/google-static-default-plan.ts",
 ]);
+// G3.0.5 adds one production geometry helper. Keep the historical exception
+// exact: no glob or directory-prefix match is accepted.
+const g3_0_5ProductionPaths = new Set([
+  "apps/desktop/renderer-ui/src/features/google/google-preview-geometry.ts",
+]);
 const checks = [];
 const failures = [];
 let g304Compatibility = false;
@@ -84,6 +89,7 @@ const g3Implemented = versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STA
 const g3RevisionImplemented = versions?.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION";
 const g3_0_3Implemented = versions?.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
 const g3_0_4Implemented = versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION";
+const g3_0_5Implemented = versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING";
 const g3_0_2ProductionPaths = new Set([
   "apps/desktop/electron-main/src/desktop-controller.ts",
   "apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx",
@@ -160,6 +166,7 @@ const frozenDiff = execFileSync("git", ["diff", "--name-only", acceptedCommit, "
   || (g3RevisionImplemented && g3_0_2ProductionPaths.has(relativePath))
   || (g3_0_3Implemented && (g3_0_2ProductionPaths.has(relativePath) || relativePath === "src/core/google-static-render.ts" || relativePath === "apps/desktop/electron-main/src/ipc/schemas.ts" || relativePath === "apps/desktop/shared/src/types.ts" || relativePath === "apps/desktop/renderer-ui/src/i18n/ko-KR.json" || relativePath === "apps/desktop/renderer-ui/src/styles.css"))
   || (g3_0_4Implemented && g3_0_4ProductionPaths.has(relativePath))
+  || (g3_0_5Implemented && g3_0_5ProductionPaths.has(relativePath))
 )).join("\n");
 check("frozen_channel_paths", frozenDiff.length === 0, frozenDiff || "KAKAO/NAVER/META runtime and golden paths unchanged");
 const objectRightHash = await sha256("reference/kakao-tool/OBJECT_RIGHT.png").catch(() => null);

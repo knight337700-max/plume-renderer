@@ -1,0 +1,611 @@
+{
+  "schemaVersion": "1.1.0",
+  "phase": "G3_0_6_GOOGLE_STATIC_VERIFICATION_GATE_AND_CROSS_CHANNEL_REGRESSION_REPAIR",
+  "status": "PASS",
+  "normative": false,
+  "authorityScope": "CASE_ID_AND_EXECUTED_INPUT_TRACEABILITY_ONLY",
+  "evidenceClass": "NON_NORMATIVE_REVIEW_EVIDENCE",
+  "sourceArchive": {
+    "path": "C:/Users/Lenovo/Desktop/google-g3-2-1-final-output-pack-d23bd344-2.zip",
+    "bytes": 15391331,
+    "sha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+    "frozenHead": "d23bd3447b1242b4773c06ea85c0f4a72b313c1d",
+    "evidenceClass": "NON_NORMATIVE_REVIEW_EVIDENCE",
+    "normative": false,
+    "integrityStatus": "PASS"
+  },
+  "integrity": {
+    "centralDirectory": "PASS",
+    "zipEntryCountIncludingDirectories": 261,
+    "payloadEntryCount": 257,
+    "packManifest": {
+      "path": "pack-manifest.json",
+      "sha256": "6511e678b55b887e17098852a8990bfecaea6a829370e3ba5a8d82b5145bdabb",
+      "entryCount": 257,
+      "status": "PASS"
+    },
+    "sha256Sums": {
+      "path": "SHA256SUMS.txt",
+      "sha256": "739d1b82c546de76fecfe469615b6423c2dfb3f51a671835fd1f9b86b5bd8155",
+      "entryCount": 258,
+      "status": "PASS"
+    },
+    "finalSummary": {
+      "path": "verification/final-summary.json",
+      "sha256": "316771bd45f359bb1927efbee6c3c53c0d0ef9bc84b11b91cb3b9b8d271186ac",
+      "status": "PASS"
+    },
+    "caseJsonChecks": {
+      "passed": 11,
+      "total": 11
+    },
+    "renderRequestChecks": {
+      "passed": 11,
+      "total": 11
+    },
+    "canonicalRequestChecks": {
+      "passed": 11,
+      "total": 11
+    },
+    "manifestDigestChecks": {
+      "passed": 11,
+      "total": 11
+    },
+    "sourceDigestChecks": {
+      "passed": 11,
+      "total": 11
+    },
+    "crossReferenceChecks": {
+      "passed": 11,
+      "total": 11
+    },
+    "prohibitedEntries": 0
+  },
+  "requiredCaseIds": {
+    "constrained": [
+      "D02",
+      "D03",
+      "D04",
+      "D05",
+      "D06"
+    ],
+    "transform": [
+      "T03",
+      "T04",
+      "T05",
+      "T06",
+      "T07",
+      "T08"
+    ],
+    "pointerParity": [
+      "T03",
+      "T05",
+      "T08"
+    ]
+  },
+  "resolvedCases": [
+    {
+      "caseId": "D02",
+      "kind": "DEFAULT",
+      "coverage": "CONSTRAINED_VIEWPORT",
+      "profileId": "GOOGLE_MARKETING_SQUARE_1_1",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_MARKETING_SQUARE_1_1.png",
+        "packPath": "sources/g2/g2-GOOGLE_MARKETING_SQUARE_1_1.png",
+        "sha256": "5285877c0fdc5a0d20defc5e06b9eb6d5dca0fd712858c5ed5c98e0cee20fcbf",
+        "internalFileSha256": "5285877c0fdc5a0d20defc5e06b9eb6d5dca0fd712858c5ed5c98e0cee20fcbf",
+        "bytes": 4752
+      },
+      "format": "JPEG",
+      "placement": {
+        "x": 0.5,
+        "y": 0.5,
+        "scale": 1
+      },
+      "canonicalRequest": {
+        "path": "cases/D02/canonical-request.json",
+        "sha256": "38c6f1a147e1e9ca33f902c89e008954538d35f066adf72f785fdfb418a07375"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/D02.json",
+        "sha256": "38c6f1a147e1e9ca33f902c89e008954538d35f066adf72f785fdfb418a07375"
+      },
+      "caseEvidence": {
+        "path": "cases/D02/case.json",
+        "sha256": "8886d4c2e89cbfa86541b5670f55863a590bbaab1ac9cfa1c2b049c9200b5cb3"
+      },
+      "outputManifest": {
+        "path": "cases/D02/export-manifest.json",
+        "sha256": "ca33fedc1ab16f1d679c19d9388f1a00d6f43600bc7cd440e2070d7f7f08327d"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/google-static-g3-0-5.spec.ts",
+          "title": "Fit contains every profile across resize and constrained-height viewport",
+          "coverage": "CONSTRAINED_VIEWPORT"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "D03",
+      "kind": "DEFAULT",
+      "coverage": "CONSTRAINED_VIEWPORT",
+      "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_MARKETING_PORTRAIT_4_5.png",
+        "packPath": "sources/g2/g2-GOOGLE_MARKETING_PORTRAIT_4_5.png",
+        "sha256": "d8f4aaa79b5b740bd6b153eeb636ac130e0becf0e613c5930932d8150f9b6f76",
+        "internalFileSha256": "d8f4aaa79b5b740bd6b153eeb636ac130e0becf0e613c5930932d8150f9b6f76",
+        "bytes": 4301
+      },
+      "format": "PNG",
+      "placement": {
+        "x": 0.5,
+        "y": 0.5,
+        "scale": 1
+      },
+      "canonicalRequest": {
+        "path": "cases/D03/canonical-request.json",
+        "sha256": "a6014fa12ca896c3df39914a6eae04d252fefc7904d19f9e747f9d5f5dcfab2c"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/D03.json",
+        "sha256": "a6014fa12ca896c3df39914a6eae04d252fefc7904d19f9e747f9d5f5dcfab2c"
+      },
+      "caseEvidence": {
+        "path": "cases/D03/case.json",
+        "sha256": "654acad8f4259eedce9c20428b3944f2ddeea30dea6db1d33a1f74f8765221ca"
+      },
+      "outputManifest": {
+        "path": "cases/D03/export-manifest.json",
+        "sha256": "4dcf0eaa152ddf16a078f378aadf75d04c9d6dc434ee6811a17a2da4383eaf75"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/google-static-g3-0-5.spec.ts",
+          "title": "Fit contains every profile across resize and constrained-height viewport",
+          "coverage": "CONSTRAINED_VIEWPORT"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "D04",
+      "kind": "DEFAULT",
+      "coverage": "CONSTRAINED_VIEWPORT",
+      "profileId": "GOOGLE_RDA_VERTICAL_9_16",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_RDA_VERTICAL_9_16.png",
+        "packPath": "sources/g2/g2-GOOGLE_RDA_VERTICAL_9_16.png",
+        "sha256": "c12d8a57d340f173f674fc92924821a1b31b6292c0a15d6cf89d13cbd2121928",
+        "internalFileSha256": "c12d8a57d340f173f674fc92924821a1b31b6292c0a15d6cf89d13cbd2121928",
+        "bytes": 4301
+      },
+      "format": "PNG",
+      "placement": {
+        "x": 0.5,
+        "y": 0.5,
+        "scale": 1
+      },
+      "canonicalRequest": {
+        "path": "cases/D04/canonical-request.json",
+        "sha256": "378aaaeb588dc043fb2422b45c520d00b8166b37f402768dbcc84a26bbdd6314"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/D04.json",
+        "sha256": "378aaaeb588dc043fb2422b45c520d00b8166b37f402768dbcc84a26bbdd6314"
+      },
+      "caseEvidence": {
+        "path": "cases/D04/case.json",
+        "sha256": "8c3f1eb971c42ca0b3657e7512864e4bbf861c90422383873163af05aca6e005"
+      },
+      "outputManifest": {
+        "path": "cases/D04/export-manifest.json",
+        "sha256": "eb4bcf590acac4ebac3f273e99d15231cc9af8294096b6fd75e25893d69c0215"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/google-static-g3-0-5.spec.ts",
+          "title": "Fit contains every profile across resize and constrained-height viewport",
+          "coverage": "CONSTRAINED_VIEWPORT"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "D05",
+      "kind": "DEFAULT",
+      "coverage": "CONSTRAINED_VIEWPORT",
+      "profileId": "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_DEMAND_GEN_VERTICAL_9_16.png",
+        "packPath": "sources/g2/g2-GOOGLE_DEMAND_GEN_VERTICAL_9_16.png",
+        "sha256": "ebbc82070f97879447cd705987a9e8bb873283d6ea85275ea83398334af49214",
+        "internalFileSha256": "ebbc82070f97879447cd705987a9e8bb873283d6ea85275ea83398334af49214",
+        "bytes": 4300
+      },
+      "format": "JPEG",
+      "placement": {
+        "x": 0.5,
+        "y": 0.5,
+        "scale": 1
+      },
+      "canonicalRequest": {
+        "path": "cases/D05/canonical-request.json",
+        "sha256": "3a79e23264241ee7147dcf5246a1c106e426c46dbe6d2332ea646ccb001122f5"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/D05.json",
+        "sha256": "3a79e23264241ee7147dcf5246a1c106e426c46dbe6d2332ea646ccb001122f5"
+      },
+      "caseEvidence": {
+        "path": "cases/D05/case.json",
+        "sha256": "499463042855bb624fc51494d759293c3d7f95e6ea55997fc151ba72ad00518d"
+      },
+      "outputManifest": {
+        "path": "cases/D05/export-manifest.json",
+        "sha256": "57003bee74fadd6cca39d5303f8f9fe3eeef6abd4353769981345158e61ab664"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/google-static-g3-0-5.spec.ts",
+          "title": "Fit contains every profile across resize and constrained-height viewport",
+          "coverage": "CONSTRAINED_VIEWPORT"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "D06",
+      "kind": "DEFAULT",
+      "coverage": "CONSTRAINED_VIEWPORT",
+      "profileId": "GOOGLE_LOGO_SQUARE_1_1",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_LOGO_SQUARE_1_1.png",
+        "packPath": "sources/g2/g2-GOOGLE_LOGO_SQUARE_1_1.png",
+        "sha256": "cf9ea4ecb65de98815d82e1eb4e82fe4695a8823542fc39ca7c5a41b6c1515c4",
+        "internalFileSha256": "cf9ea4ecb65de98815d82e1eb4e82fe4695a8823542fc39ca7c5a41b6c1515c4",
+        "bytes": 4595
+      },
+      "format": "PNG",
+      "placement": {
+        "x": 0.5,
+        "y": 0.5,
+        "scale": 1
+      },
+      "canonicalRequest": {
+        "path": "cases/D06/canonical-request.json",
+        "sha256": "3afb951eaf6f6fb11db5786d95c8ca2f1a01535eb79c743a1e8ff936146881fc"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/D06.json",
+        "sha256": "3afb951eaf6f6fb11db5786d95c8ca2f1a01535eb79c743a1e8ff936146881fc"
+      },
+      "caseEvidence": {
+        "path": "cases/D06/case.json",
+        "sha256": "dccd3f194566d0209910d7b4c3e0064936ab7742ee7b0fdf6ceb015fd5c7b02f"
+      },
+      "outputManifest": {
+        "path": "cases/D06/export-manifest.json",
+        "sha256": "d6f1e706fc95365d4b94398b988a3ae98e211b6930b13a2daacfc3f7d9a39876"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/google-static-g3-0-5.spec.ts",
+          "title": "Fit contains every profile across resize and constrained-height viewport",
+          "coverage": "CONSTRAINED_VIEWPORT"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "T03",
+      "kind": "TRANSFORM",
+      "coverage": "TRANSFORM",
+      "profileId": "GOOGLE_MARKETING_SQUARE_1_1",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_MARKETING_SQUARE_1_1.png",
+        "packPath": "sources/g2/g2-GOOGLE_MARKETING_SQUARE_1_1.png",
+        "sha256": "5285877c0fdc5a0d20defc5e06b9eb6d5dca0fd712858c5ed5c98e0cee20fcbf",
+        "internalFileSha256": "5285877c0fdc5a0d20defc5e06b9eb6d5dca0fd712858c5ed5c98e0cee20fcbf",
+        "bytes": 4752
+      },
+      "format": "PNG",
+      "target": {
+        "x": 0.62,
+        "y": 0.38,
+        "scale": 1.22
+      },
+      "interaction": "drag + zoom",
+      "canonicalRequest": {
+        "path": "cases/T03/canonical-request.json",
+        "sha256": "49fe6348b56f58061622241ff47645a728a672c213d35cb2f08e0fd1a0005c19"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/T03.json",
+        "sha256": "49fe6348b56f58061622241ff47645a728a672c213d35cb2f08e0fd1a0005c19"
+      },
+      "caseEvidence": {
+        "path": "cases/T03/case.json",
+        "sha256": "7eaaa20c6079901e6eba204f68f189ca73effa714dca7ee9ace5cc2e159aa02e"
+      },
+      "outputManifest": {
+        "path": "cases/T03/transformed-output-export-manifest.json",
+        "sha256": "fde8ff418695c8a961c25046ac836bd6e2b8c566334567415dc2df7b521ed97b"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/desktop.spec.ts",
+          "title": "G3.0.4 actual Electron transforms change canonical output and Reset restores the Golden",
+          "coverage": "TRANSFORM"
+        },
+        {
+          "file": "tests/e2e/google-static-g3-0-5.spec.ts",
+          "title": "pointer uses displayed content rect and letterbox is a no-op",
+          "coverage": "POINTER_PARITY"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "T04",
+      "kind": "TRANSFORM",
+      "coverage": "TRANSFORM",
+      "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_MARKETING_PORTRAIT_4_5.png",
+        "packPath": "sources/g2/g2-GOOGLE_MARKETING_PORTRAIT_4_5.png",
+        "sha256": "d8f4aaa79b5b740bd6b153eeb636ac130e0becf0e613c5930932d8150f9b6f76",
+        "internalFileSha256": "d8f4aaa79b5b740bd6b153eeb636ac130e0becf0e613c5930932d8150f9b6f76",
+        "bytes": 4301
+      },
+      "format": "JPEG",
+      "target": {
+        "x": 0.44,
+        "y": 0.6,
+        "scale": 1.15
+      },
+      "interaction": "numeric",
+      "canonicalRequest": {
+        "path": "cases/T04/canonical-request.json",
+        "sha256": "dafabb429ec1e39f6efa526e4c5318ca5ae5f1f6c82ba071ed8fe0b761c0b9a5"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/T04.json",
+        "sha256": "dafabb429ec1e39f6efa526e4c5318ca5ae5f1f6c82ba071ed8fe0b761c0b9a5"
+      },
+      "caseEvidence": {
+        "path": "cases/T04/case.json",
+        "sha256": "99a1587c9a198843c7dd73b7adc0dfd4dc6da19e5b7946a1d12c30613d9885f5"
+      },
+      "outputManifest": {
+        "path": "cases/T04/transformed-output-export-manifest.json",
+        "sha256": "18a5e8bdcd648184e17a8e62add2ba7c231920ce60186b6455868e6f73f34271"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/desktop.spec.ts",
+          "title": "G3.0.4 actual Electron transforms change canonical output and Reset restores the Golden",
+          "coverage": "TRANSFORM"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "T05",
+      "kind": "TRANSFORM",
+      "coverage": "TRANSFORM",
+      "profileId": "GOOGLE_RDA_VERTICAL_9_16",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_RDA_VERTICAL_9_16.png",
+        "packPath": "sources/g2/g2-GOOGLE_RDA_VERTICAL_9_16.png",
+        "sha256": "c12d8a57d340f173f674fc92924821a1b31b6292c0a15d6cf89d13cbd2121928",
+        "internalFileSha256": "c12d8a57d340f173f674fc92924821a1b31b6292c0a15d6cf89d13cbd2121928",
+        "bytes": 4301
+      },
+      "format": "PNG",
+      "target": {
+        "x": 0.56,
+        "y": 0.44,
+        "scale": 1.18
+      },
+      "interaction": "drag + numeric scale",
+      "canonicalRequest": {
+        "path": "cases/T05/canonical-request.json",
+        "sha256": "0729efab5b13605715c63be0c92ac0f6c39b974bdbf5eea7e12f2b5b37de01ae"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/T05.json",
+        "sha256": "0729efab5b13605715c63be0c92ac0f6c39b974bdbf5eea7e12f2b5b37de01ae"
+      },
+      "caseEvidence": {
+        "path": "cases/T05/case.json",
+        "sha256": "6bc7191afffcd1137725676af718e3bff7b40698e4ab34b1b0105306245d1512"
+      },
+      "outputManifest": {
+        "path": "cases/T05/transformed-output-export-manifest.json",
+        "sha256": "b5cf933fbf575b1959c31fe075f9fc32a4c4365c5d85205c72f9cb7df0838bb4"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/desktop.spec.ts",
+          "title": "G3.0.4 actual Electron transforms change canonical output and Reset restores the Golden",
+          "coverage": "TRANSFORM"
+        },
+        {
+          "file": "tests/e2e/google-static-g3-0-5.spec.ts",
+          "title": "pointer uses displayed content rect and letterbox is a no-op",
+          "coverage": "POINTER_PARITY"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "T06",
+      "kind": "TRANSFORM",
+      "coverage": "TRANSFORM",
+      "profileId": "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_DEMAND_GEN_VERTICAL_9_16.png",
+        "packPath": "sources/g2/g2-GOOGLE_DEMAND_GEN_VERTICAL_9_16.png",
+        "sha256": "ebbc82070f97879447cd705987a9e8bb873283d6ea85275ea83398334af49214",
+        "internalFileSha256": "ebbc82070f97879447cd705987a9e8bb873283d6ea85275ea83398334af49214",
+        "bytes": 4300
+      },
+      "format": "JPEG",
+      "target": {
+        "x": 0.48,
+        "y": 0.35,
+        "scale": 1.25
+      },
+      "interaction": "numeric",
+      "canonicalRequest": {
+        "path": "cases/T06/canonical-request.json",
+        "sha256": "45815f384291dd96d52214d031eab41cc09ed1860c59cde83487c6f0300847a5"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/T06.json",
+        "sha256": "45815f384291dd96d52214d031eab41cc09ed1860c59cde83487c6f0300847a5"
+      },
+      "caseEvidence": {
+        "path": "cases/T06/case.json",
+        "sha256": "a367a2e079abf088b38ad591e9219c4492fd6139f1d4507242815836a2a05ad8"
+      },
+      "outputManifest": {
+        "path": "cases/T06/transformed-output-export-manifest.json",
+        "sha256": "f69bb09cc2a96630f34ebfde1eb97847dfa0a9c7c1d2d01fa3897d673a599ce9"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/desktop.spec.ts",
+          "title": "G3.0.4 actual Electron transforms change canonical output and Reset restores the Golden",
+          "coverage": "TRANSFORM"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "T07",
+      "kind": "TRANSFORM",
+      "coverage": "TRANSFORM",
+      "profileId": "GOOGLE_LOGO_SQUARE_1_1",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_LOGO_SQUARE_1_1.png",
+        "packPath": "sources/g2/g2-GOOGLE_LOGO_SQUARE_1_1.png",
+        "sha256": "cf9ea4ecb65de98815d82e1eb4e82fe4695a8823542fc39ca7c5a41b6c1515c4",
+        "internalFileSha256": "cf9ea4ecb65de98815d82e1eb4e82fe4695a8823542fc39ca7c5a41b6c1515c4",
+        "bytes": 4595
+      },
+      "format": "PNG",
+      "target": {
+        "x": 0.5,
+        "y": 0.5,
+        "scale": 1.1
+      },
+      "interaction": "zoom",
+      "canonicalRequest": {
+        "path": "cases/T07/canonical-request.json",
+        "sha256": "5ce4a28104e70da1ae58b349d20c7189fb147a5e4ba3d360ab2dcf2e7ed36cc4"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/T07.json",
+        "sha256": "5ce4a28104e70da1ae58b349d20c7189fb147a5e4ba3d360ab2dcf2e7ed36cc4"
+      },
+      "caseEvidence": {
+        "path": "cases/T07/case.json",
+        "sha256": "6f418144e66bdc78985fcaa761b581c82ed88e9074b311726e5a897457a36fcb"
+      },
+      "outputManifest": {
+        "path": "cases/T07/transformed-output-export-manifest.json",
+        "sha256": "20c7ee41484624965598310264998ad6e52834be84c89f118dd565eaa02e1176"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/desktop.spec.ts",
+          "title": "G3.0.4 actual Electron transforms change canonical output and Reset restores the Golden",
+          "coverage": "TRANSFORM"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    },
+    {
+      "caseId": "T08",
+      "kind": "TRANSFORM",
+      "coverage": "TRANSFORM",
+      "profileId": "GOOGLE_LOGO_LANDSCAPE_4_1",
+      "source": {
+        "repositoryPath": "fixtures/google/g2/source/g2-GOOGLE_LOGO_LANDSCAPE_4_1.png",
+        "packPath": "sources/g2/g2-GOOGLE_LOGO_LANDSCAPE_4_1.png",
+        "sha256": "606cef044bb081c3339bd32a2f9cf55b56d1c5b5db115c2cb433129048e7b146",
+        "internalFileSha256": "606cef044bb081c3339bd32a2f9cf55b56d1c5b5db115c2cb433129048e7b146",
+        "bytes": 1661
+      },
+      "format": "JPEG",
+      "target": {
+        "x": 0.57,
+        "y": 0.5,
+        "scale": 1.12
+      },
+      "interaction": "drag + zoom",
+      "canonicalRequest": {
+        "path": "cases/T08/canonical-request.json",
+        "sha256": "ff5822bff97f05c55e1f4584a3b162bbcb434e0b70bf68ba31e5b9cf4b6abd84"
+      },
+      "renderRequest": {
+        "path": "manifests/render-requests/T08.json",
+        "sha256": "ff5822bff97f05c55e1f4584a3b162bbcb434e0b70bf68ba31e5b9cf4b6abd84"
+      },
+      "caseEvidence": {
+        "path": "cases/T08/case.json",
+        "sha256": "4053c374544f06438ae647adc5639aa8a1e089e23cb133111884d273e45c874b"
+      },
+      "outputManifest": {
+        "path": "cases/T08/transformed-output-export-manifest.json",
+        "sha256": "0400aea9193e171866db7682e60daab12db62ed4f4de18840443dd82835f0524"
+      },
+      "connectedAutomatedTests": [
+        {
+          "file": "tests/e2e/desktop.spec.ts",
+          "title": "G3.0.4 actual Electron transforms change canonical output and Reset restores the Golden",
+          "coverage": "TRANSFORM"
+        },
+        {
+          "file": "tests/e2e/google-static-g3-0-5.spec.ts",
+          "title": "pointer uses displayed content rect and letterbox is a no-op",
+          "coverage": "POINTER_PARITY"
+        }
+      ],
+      "sourceArchiveSha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+      "normative": false,
+      "verifiedAgainstExpectedMapping": true
+    }
+  ],
+  "missingCaseIds": [],
+  "blocker": {
+    "status": "NONE",
+    "code": "NONE",
+    "message": ""
+  }
+}
+

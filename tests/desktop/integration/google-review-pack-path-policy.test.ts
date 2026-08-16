@@ -37,4 +37,27 @@ describe("G3.2.2 review-pack path privacy policy", () => {
     });
     expect(scanReviewPackPayload([{ path: "case.json", text: '{"root":"DESKTOP_ROOT","uri":"https://example.test"}' }])[0]?.externalUrls).toEqual(["https://"]);
   });
+
+  it("accepts a canonical-request fixture with zero path/privacy findings", () => {
+    const entries = [
+      { path: "README.md", text: "Review evidence · canonicalRequest included · links: manifests/D01.json" },
+      { path: "manifests/D01.json", text: JSON.stringify({
+        schemaVersion: "1.0.0",
+        canonicalRequest: { formatProfileId: "GOOGLE_MARKETING_LANDSCAPE_1_91", placement: { x: 0.5, y: 0.5, scale: 1 } },
+        links: ["../outputs/D01.png"],
+      }) },
+      { path: "outputs/D01.png", text: "binary-placeholder" },
+    ];
+    expect(scanReviewPackPayload(entries)).toEqual([]);
+    expect(entries.every((entry) => assertPackRelativePath(entry.path))).toBe(true);
+    const entryPaths = new Set(entries.map((entry) => entry.path));
+    expect(entryPaths.has("manifests/D01.json")).toBe(true);
+    expect(entryPaths.has("outputs/D01.png")).toBe(true);
+    const manifestEntry = entries.find((entry) => entry.path === "manifests/D01.json");
+    if (!manifestEntry) throw new Error("canonical manifest fixture missing");
+    const manifest = JSON.parse(manifestEntry.text) as { links: string[]; canonicalRequest: unknown };
+    expect(manifest.canonicalRequest).toBeTruthy();
+    expect(manifest.links.map((link) => link.replace("../", "")).every((link) => entryPaths.has(link))).toBe(true);
+    expect(() => assertPackRelativePath("../outside.json")).toThrow();
+  });
 });

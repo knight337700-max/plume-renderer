@@ -58,6 +58,7 @@
     "verify:g3-0-3-google": "node scripts/verify-g3-0-3-google-static-transform-raster-export-parity.mjs",
     "verify:g3-0-4-google": "node scripts/verify-g3-0-4-google-static-geometry-placement-manifest.mjs",
     "verify:g3-0-5-google": "node scripts/verify-g3-0-5-google-static-preview-fit-review-pack.mjs",
+    "verify:g3-0-6-google": "node scripts/verify-g3-0-6-google-static-verification-gate.mjs",
     "verify:g3-2-2-pack-hygiene": "node scripts/verify-g3-2-2-google-static-review-pack-hygiene.mjs",
     "verify:g3-google": "node scripts/verify-g3-google-static-desktop-qa.mjs",
     "promote:g2-1-google": "node scripts/promote-g2-1-google-goldens.mjs",
@@ -103,7 +104,7 @@
     "smoke:desktop": "node scripts/smoke-naver-desktop.mjs",
     "smoke:naver-fixed-components": "node scripts/smoke-naver-smartchannel-fixed-components.mjs",
     "evidence:package": "node scripts/capture-packaged-evidence.mjs",
-    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-actual-asset && pnpm verify:naver-inventory && pnpm verify:naver-fixed-components && pnpm verify:n7-7-5-typography && pnpm verify:n7-7-6-ui-fields && pnpm verify:naver-desktop && pnpm verify:n8-channel && pnpm verify:m0-meta && pnpm verify:m1-meta && pnpm verify:m2-meta && pnpm verify:m2-1-meta && pnpm verify:m2-2-meta && pnpm verify:m2-2a-meta && pnpm verify:m2-3-meta && pnpm verify:g0-google && pnpm verify:g0-1-google && pnpm verify:g1-google && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && pnpm exec vitest run && pnpm build:desktop && pnpm exec playwright test --retries=1 && pnpm verify:g2-google && pnpm verify:g2-1-google && pnpm verify:g3-google && pnpm verify:g3-0-4-google",
+    "check": "pnpm verify:contract && pnpm verify:integration-contract && pnpm verify:freeform-contract && pnpm verify:naver-freeform && pnpm verify:naver-platform && pnpm verify:naver-contract && pnpm verify:naver-object-placement && pnpm verify:naver-font-policy && pnpm verify:naver-font-compatibility && pnpm verify:naver-actual-asset && pnpm verify:naver-inventory && pnpm verify:naver-fixed-components && pnpm verify:n7-7-5-typography && pnpm verify:n7-7-6-ui-fields && pnpm verify:naver-desktop && pnpm verify:n8-channel && pnpm verify:m0-meta && pnpm verify:m1-meta && pnpm verify:m2-meta && pnpm verify:m2-1-meta && pnpm verify:m2-2-meta && pnpm verify:m2-2a-meta && pnpm verify:m2-3-meta && pnpm verify:g0-google && pnpm verify:g0-1-google && pnpm verify:g1-google && pnpm verify:naver-runtime && pnpm verify:naver-exhaustive && pnpm typecheck && pnpm typecheck:contract && pnpm lint && pnpm build:contract && pnpm build && pnpm exec vitest run && pnpm build:desktop && pnpm exec playwright test --retries=1 && pnpm verify:g2-google && pnpm verify:g2-1-google && pnpm verify:g3-google && pnpm verify:g3-0-4-google && pnpm verify:g3-0-6-google",
     "render": "node dist/cli/index.js"
   },
   "dependencies": {

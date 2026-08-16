@@ -7,6 +7,7 @@ import { _electron as electron, expect, test, type ElectronApplication, type Pag
 
 import { sha256File } from "../../src/core/hash.js";
 import { projectRoot } from "../helpers.js";
+import { closeElectronTree } from "./electron-cleanup.js";
 import goldensRegistry from "../../contracts/google/goldens.g2.1.json" with { type: "json" };
 
 const GOLDEN_SHA256 = "20dc9d62b8650a72115a8d584846399d9cd6dd2c8a0996b4889edb596feb68b1";
@@ -27,7 +28,7 @@ async function launch(productPath: string, logoPath?: string): Promise<Launched>
   const sessionRoot = path.join(root, "sessions");
   await Promise.all([mkdir(outputRoot, { recursive: true }), mkdir(sessionRoot, { recursive: true })]);
   const app = await electron.launch({
-    args: [projectRoot],
+    args: ["--disable-gpu", `--user-data-dir=${path.join(root, "electron-user-data")}`, projectRoot],
     cwd: projectRoot,
     env: {
       ...process.env,
@@ -44,7 +45,7 @@ async function launch(productPath: string, logoPath?: string): Promise<Launched>
 }
 
 async function close(launched: Launched): Promise<void> {
-  await launched.app.close();
+  await closeElectronTree(launched.app);
   await expect.poll(async () => (await readdir(launched.sessionRoot)).length).toBe(0);
   await rm(launched.root, { recursive: true, force: true });
 }

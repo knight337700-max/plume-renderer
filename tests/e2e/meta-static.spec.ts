@@ -6,6 +6,7 @@ import path from "node:path";
 import { _electron as electron, expect, test, type ElectronApplication, type Page } from "@playwright/test";
 
 import { projectRoot } from "../helpers.js";
+import { closeElectronTree } from "./electron-cleanup.js";
 
 type Launched = { app: ElectronApplication; page: Page; root: string; outputRoot: string; sessionRoot: string };
 
@@ -16,7 +17,7 @@ async function launch(): Promise<Launched> {
   const product = path.join(projectRoot, "fixtures", "valid", "object-right__product__basic__pass.png");
   await Promise.all([mkdir(outputRoot, { recursive: true }), mkdir(sessionRoot, { recursive: true })]);
   const app = await electron.launch({
-    args: [projectRoot],
+    args: ["--disable-gpu", `--user-data-dir=${path.join(root, "electron-user-data")}`, projectRoot],
     cwd: projectRoot,
     env: { ...process.env, KBR_E2E_MODE: "1", KBR_E2E_PRODUCT: product, KBR_E2E_OUTPUT: outputRoot, KBR_E2E_SESSION_BASE: sessionRoot },
   });
@@ -26,7 +27,7 @@ async function launch(): Promise<Launched> {
 }
 
 async function close(launched: Launched): Promise<void> {
-  await launched.app.close();
+  await closeElectronTree(launched.app);
   await expect.poll(async () => (await readdir(launched.sessionRoot)).length).toBe(0);
   await rm(launched.root, { recursive: true, force: true });
 }

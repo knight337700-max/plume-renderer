@@ -159,9 +159,25 @@ async function main() {
   check("electron_desktop_g304_e2e", /2 passed/u.test(desktopE2eOutput), desktopE2eOutput.trim().slice(-800) || "G3.0.4 Electron E2E did not run");
 
   const changed = new Set([git(["diff", "--name-only", expectedBaselineHead, "HEAD"]), git(["diff", "--name-only"]), git(["diff", "--name-only", "--cached"])].join("\n").split(/\r?\n/u).map((value) => value.replaceAll("\\", "/")).filter(Boolean));
-  const forbidden = [...changed].filter((entry) => entry === "contracts/google/goldens.g2.1.json" || entry.startsWith("artifacts/g3-1/") || entry === "contracts/google/desktop-qa-freeze.g3.1.json" || entry.startsWith("fixtures/golden/google/"));
+  // Resolve frozen targets to an exact path set from the accepted baseline.
+  // This intentionally avoids glob, regex, and directory-prefix allowlists;
+  // the G3.0.5 evidence file is therefore not mistaken for a channel Golden.
+  const exactTreePaths = (relativeRoot) => git(["ls-tree", "-r", "--name-only", expectedBaselineHead, relativeRoot])
+    .split(/\r?\n/u).map((value) => value.replaceAll("\\", "/")).filter(Boolean);
+  const frozenGoogleArtifactPaths = new Set([
+    ...exactTreePaths("artifacts/g3-1"),
+    "contracts/google/goldens.g2.1.json",
+    "contracts/google/desktop-qa-freeze.g3.1.json",
+    ...exactTreePaths("fixtures/golden/google"),
+  ]);
+  const frozenChannelPaths = new Set([
+    ...exactTreePaths("fixtures/golden"),
+    "contracts/goldens/meta-static-goldens.json",
+  ]);
+  const forbidden = [...changed].filter((entry) => frozenGoogleArtifactPaths.has(entry));
   check("frozen_artifacts_unchanged", forbidden.length === 0, forbidden.join(",") || "G2.1/G3.1 frozen artifacts unchanged");
-  check("frozen_channel_paths_unchanged", ![...changed].some((entry) => /^(fixtures\/golden\/(?!google\/)|artifacts\/(?!g3-1\/)|contracts\/goldens)/u.test(entry)), "KAKAO/NAVER/META frozen paths unchanged");
+  const frozenChannelChanges = [...changed].filter((entry) => frozenChannelPaths.has(entry) && !frozenGoogleArtifactPaths.has(entry));
+  check("frozen_channel_paths_unchanged", frozenChannelChanges.length === 0, frozenChannelChanges.join(",") || "KAKAO/NAVER/META frozen paths unchanged");
 
   const status = failures.length === 0 ? "PASS" : "FAIL";
   console.log(JSON.stringify({ status, checks: checks.length, passed: checks.filter((entry) => entry.status === "PASS").length, failed: failures, head, canonicalDocumentVersion: versions?.documentVersion?.current }, null, 2));

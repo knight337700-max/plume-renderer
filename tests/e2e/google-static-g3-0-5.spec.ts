@@ -6,6 +6,7 @@ import path from "node:path";
 import { _electron as electron, expect, test, type ElectronApplication, type Page } from "@playwright/test";
 
 import { projectRoot } from "../helpers.js";
+import { closeElectronTree } from "./electron-cleanup.js";
 
 const profileIds = [
   "GOOGLE_MARKETING_LANDSCAPE_1_91",
@@ -49,7 +50,7 @@ async function launch(): Promise<Launched> {
   const sessionRoot = path.join(root, "sessions");
   await Promise.all([mkdir(outputRoot, { recursive: true }), mkdir(sessionRoot, { recursive: true })]);
   const app = await electron.launch({
-    args: [projectRoot],
+    args: ["--disable-gpu", `--user-data-dir=${path.join(root, "electron-user-data")}`, projectRoot],
     cwd: projectRoot,
     env: {
       ...process.env,
@@ -66,7 +67,7 @@ async function launch(): Promise<Launched> {
 }
 
 async function close(launched: Launched): Promise<void> {
-  await launched.app.close();
+  await closeElectronTree(launched.app);
   await expect.poll(async () => (await readdir(launched.sessionRoot)).length).toBe(0);
   await rm(launched.root, { recursive: true, force: true });
 }
@@ -157,6 +158,11 @@ test.describe("G3.0.5 Google Static production preview", () => {
         needsAsset = false;
         const before = await launched.page.getByTestId("google-plan-json").inputValue();
         const statusBefore = await launched.page.getByTestId("google-status").textContent();
+        const summaryBefore = JSON.parse(await launched.page.getByTestId("google-contract-summary").textContent() ?? "{}") as {
+          canonicalRequest?: unknown;
+          renderFingerprint?: string | null;
+          placementPlan?: unknown;
+        };
         await launched.page.getByTestId("google-actual-view").click();
         const actual = await geometry(launched.page);
         const expected = canvasDimensions[profileId];
@@ -168,6 +174,17 @@ test.describe("G3.0.5 Google Static production preview", () => {
         await launched.page.getByTestId("google-fit-view").click();
         expect(await launched.page.getByTestId("google-plan-json").inputValue()).toBe(before);
         expect(await launched.page.getByTestId("google-status").textContent()).toBe(statusBefore);
+        const summaryAfterFit = JSON.parse(await launched.page.getByTestId("google-contract-summary").textContent() ?? "{}") as typeof summaryBefore;
+        expect(summaryAfterFit.canonicalRequest).toEqual(summaryBefore.canonicalRequest);
+        expect(summaryAfterFit.renderFingerprint).toBe(summaryBefore.renderFingerprint);
+        expect(summaryAfterFit.placementPlan).toEqual(summaryBefore.placementPlan);
+        const browserWindow = await launched.app.browserWindow(launched.page);
+        await browserWindow.evaluate((window) => window.setSize(1380, 820));
+        await launched.page.waitForTimeout(100);
+        const summaryAfterResize = JSON.parse(await launched.page.getByTestId("google-contract-summary").textContent() ?? "{}") as typeof summaryBefore;
+        expect(summaryAfterResize.canonicalRequest).toEqual(summaryBefore.canonicalRequest);
+        expect(summaryAfterResize.renderFingerprint).toBe(summaryBefore.renderFingerprint);
+        expect(summaryAfterResize.placementPlan).toEqual(summaryBefore.placementPlan);
       }
     } finally {
       await close(launched);
@@ -224,6 +241,10 @@ test.describe("G3.0.5 Google Static production preview", () => {
         await launched.page.mouse.down();
         await launched.page.mouse.move((box.canvas.left + box.canvas.right) / 2 + 20, (box.canvas.top + box.canvas.bottom) / 2 + 20);
         await launched.page.mouse.up();
+        expect(await launched.page.getByTestId("google-plan-json").inputValue()).toBe(planBefore);
+        // WHEEL_ZOOM is a placement input and must be a no-op for locked
+        // Uploaded Display Static profiles.
+        await launched.page.mouse.wheel(0, -240);
         expect(await launched.page.getByTestId("google-plan-json").inputValue()).toBe(planBefore);
       }
     } finally {

@@ -7,6 +7,7 @@ import { _electron as electron, expect, test, type ElectronApplication, type Pag
 
 import { deterministicOversizePng } from "../fixtures/freeform-preview-fixtures.js";
 import { projectRoot } from "../helpers.js";
+import { closeElectronTree } from "./electron-cleanup.js";
 
 type Launched = { app: ElectronApplication; page: Page; root: string; outputRoot: string; sessionRoot: string };
 
@@ -21,7 +22,7 @@ async function launch(options: Readonly<{ oversizedProduct?: boolean }> = {}): P
   await Promise.all([mkdir(outputRoot, { recursive: true }), mkdir(sessionRoot, { recursive: true })]);
   if (options.oversizedProduct) await writeFile(product, await deterministicOversizePng());
   const app = await electron.launch({
-    args: [projectRoot],
+    args: ["--disable-gpu", `--user-data-dir=${path.join(root, "electron-user-data")}`, projectRoot],
     cwd: projectRoot,
     env: { ...process.env, KBR_E2E_MODE: "1", KBR_E2E_PRODUCT: product, KBR_E2E_LOGO: logo, KBR_E2E_OUTPUT: outputRoot, KBR_E2E_SESSION_BASE: sessionRoot },
   });
@@ -31,7 +32,7 @@ async function launch(options: Readonly<{ oversizedProduct?: boolean }> = {}): P
 }
 
 async function close(launched: Launched): Promise<void> {
-  await launched.app.close();
+  await closeElectronTree(launched.app);
   await expect.poll(async () => (await readdir(launched.sessionRoot)).length).toBe(0);
   await rm(launched.root, { recursive: true, force: true });
 }
@@ -46,7 +47,7 @@ test("FREEFORM mode is registry-driven and renders native 2:1 through Core", asy
     await launched.page.getByTestId("freeform-select-image").click();
     await launched.page.getByTestId("freeform-select-logo").click();
     await expect(launched.page.getByText("object-right__product__basic__pass.png", { exact: true })).toBeVisible();
-    await expect(launched.page.getByText("mask-semicircle-right__logo__colored__pass.png", { exact: false })).toBeVisible();
+    await expect(launched.page.getByText("mask-semicircle-right__logo__colored__pass.png", { exact: true })).toBeVisible();
     await launched.page.getByTestId("freeform-add-text").click();
     await launched.page.getByTestId("freeform-render-preview").click();
     await expect(launched.page.getByTestId("freeform-preview-image")).toBeVisible();
