@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "1.0.0",
+  "phase": "G3_0_7_GOOGLE_STATIC_REVIEW_PACK_PATH_HYGIENE_VERIFIER_CORRECTION",
+  "status": "PASS",
+  "normative": false,
+  "evidenceClass": "AUTOMATED_CONTRACT_TEST",
+  "rootCause": {
+    "category": "FINAL_PAYLOAD_SCAN_ORDER_AND_ABSOLUTE_PATH_REDACTION",
+    "affectedFile": "manifests/g3-0-6-completion-evidence.json",
+    "affectedField": "sourceArchive.path",
+    "priorRepresentation": "ABSOLUTE_LOCAL_PATH_REDACTED",
+    "correctedRepresentation": "google-g3-2-1-final-output-pack-d23bd344-2.zip",
+    "violationClasses": [
+      "WINDOWS_ABSOLUTE_PATH",
+      "LOCAL_USERNAME_TOKEN"
+    ],
+    "falseNegative": true,
+    "sourceArchiveIntegrityPreserved": true
+  },
+  "sourceGenerator": {
+    "path": "scripts/generate-g3-0-7-google-static-review-pack-evidence.mjs",
+    "archiveReferenceRepresentation": "BASENAME_ONLY",
+    "usesPackRelativePathAssertion": true
+  },
+  "verifier": {
+    "path": "scripts/verify-g3-0-7-google-static-review-pack-path-hygiene.mjs",
+    "scansAuthoritativeStagingAfterFinalPayload": true,
+    "scansPostExtractionPayload": true,
+    "scansFinalSummaryAndIntegrity": true,
+    "textExtensions": [
+      "json",
+      "md",
+      "html",
+      "txt",
+      "yaml",
+      "yml",
+      "csv"
+    ],
+    "failClosed": true
+  },
+  "pathPolicy": {
+    "windowsDrivePaths": "REJECT",
+    "uncPaths": "REJECT",
+    "userHomes": "REJECT",
+    "posixRuntimePaths": "REJECT",
+    "fileUrls": "REJECT",
+    "usernameTokens": "REJECT",
+    "parentTraversalSegments": "REJECT",
+    "externalUrls": "REJECT",
+    "notExposedEntries": "REJECT",
+    "zipAbsoluteEntries": "REJECT",
+    "zipBackslashEntries": "REJECT",
+    "zipTraversalEntries": "REJECT",
+    "repositoryRelativeAndPackRelativePaths": "ALLOW",
+    "excludedFiles": []
+  },
+  "sourceArchive": {
+    "path": "google-g3-2-1-final-output-pack-d23bd344-2.zip",
+    "bytes": 15391331,
+    "sha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
+    "frozenHead": "d23bd3447b1242b4773c06ea85c0f4a72b313c1d",
+    "evidenceClass": "NON_NORMATIVE_REVIEW_EVIDENCE",
+    "integrityStatus": "PASS"
+  },
+  "regression": {
+    "lateAddedCompletionEvidence": "MUST_FAIL_NON_ZERO",
+    "internalReportCountsMustMatchIndependentScan": true,
+    "finalReviewStatusRequiresCleanIntegrity": true
+  },
+  "invariants": {
+    "rendererOutputChanged": false,
+    "frozenGoldensRegenerated": false,
+    "canonicalRequestChanged": false,
+    "frozenChannelOutputChanges": 0,
+    "runtimeNetworkRequests": 0,
+    "plumeDependencies": [],
+    "g3_2_3Started": false,
+    "userAcceptanceRecorded": false,
+    "freezePerformed": false
+  },
+  "implementationRecord": "docs/implementation/google-static-review-pack-path-hygiene-verifier-correction-g3-0-7.md",
+  "nextPhase": "G3_2_3_GOOGLE_STATIC_FINAL_OUTPUT_PACK_REGENERATION"
+}

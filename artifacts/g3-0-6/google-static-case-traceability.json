@@ -6,7 +6,8 @@
   "authorityScope": "CASE_ID_AND_EXECUTED_INPUT_TRACEABILITY_ONLY",
   "evidenceClass": "NON_NORMATIVE_REVIEW_EVIDENCE",
   "sourceArchive": {
-    "path": "C:/Users/Lenovo/Desktop/google-g3-2-1-final-output-pack-d23bd344-2.zip",
+    "path": "google-g3-2-1-final-output-pack-d23bd344-2.zip",
+    "locationClass": "EXTERNAL_REVIEW_INPUT",
     "bytes": 15391331,
     "sha256": "eaba20cbfe073a2166b6be6738be62862f8acad8dcea5bb9cc1d141c4083075c",
     "frozenHead": "d23bd3447b1242b4773c06ea85c0f4a72b313c1d",
@@ -608,4 +609,3 @@
     "message": ""
   }
 }
-

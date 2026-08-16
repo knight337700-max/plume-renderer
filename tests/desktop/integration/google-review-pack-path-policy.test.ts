@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { assertPackRelativePath, buildPathNeutralExecutionIdentity, logicalRootLabel, scanReviewPackPayload, scanReviewPackText } from "../../../scripts/google-review-pack-path-policy.mjs";
+import { assertPackRelativePath, buildPathNeutralExecutionIdentity, logicalRootLabel, scanReviewPackPayload, scanReviewPackText, scanZipEntryNames } from "../../../scripts/google-review-pack-path-policy.mjs";
 
 describe("G3.2.2 review-pack path privacy policy", () => {
   it("rejects drive, UNC, home and temp paths while allowing relative paths and hashes", () => {
@@ -44,7 +44,7 @@ describe("G3.2.2 review-pack path privacy policy", () => {
       { path: "manifests/D01.json", text: JSON.stringify({
         schemaVersion: "1.0.0",
         canonicalRequest: { formatProfileId: "GOOGLE_MARKETING_LANDSCAPE_1_91", placement: { x: 0.5, y: 0.5, scale: 1 } },
-        links: ["../outputs/D01.png"],
+        links: ["outputs/D01.png"],
       }) },
       { path: "outputs/D01.png", text: "binary-placeholder" },
     ];
@@ -57,7 +57,58 @@ describe("G3.2.2 review-pack path privacy policy", () => {
     if (!manifestEntry) throw new Error("canonical manifest fixture missing");
     const manifest = JSON.parse(manifestEntry.text) as { links: string[]; canonicalRequest: unknown };
     expect(manifest.canonicalRequest).toBeTruthy();
-    expect(manifest.links.map((link) => link.replace("../", "")).every((link) => entryPaths.has(link))).toBe(true);
+    expect(manifest.links.every((link) => entryPaths.has(link))).toBe(true);
     expect(() => assertPackRelativePath("../outside.json")).toThrow();
+  });
+
+  it("detects every required local path, privacy, traversal, and URL class", () => {
+    const text = [
+      "C:/Users/Lenovo/Desktop/example.zip",
+      "C:\\Users\\Lenovo\\Desktop\\example.zip",
+      "\\\\server\\share\\example.zip",
+      "file://C:/Users/Lenovo/example.zip",
+      "/home/user/example.zip",
+      "/workspace/build/example.json",
+      "/tmp/render/example.json",
+      "../outside.json",
+      "https://example.test/review",
+      "NOT_EXPOSED",
+    ].join(" ");
+    const result = scanReviewPackText(text, { usernameTokens: ["Lenovo"] });
+    expect(result.absoluteLocalPaths.length).toBeGreaterThanOrEqual(6);
+    expect(result.usernameTokens).toContain("lenovo");
+    expect(result.parentTraversalSegments).toContain("../");
+    expect(result.externalUrls).toContain("https://");
+    expect(result.notExposedPlaceholders).toEqual(["NOT_EXPOSED"]);
+  });
+
+  it("rejects absolute, backslash, and traversal ZIP entry names", () => {
+    const result = scanZipEntryNames([
+      "google-g3-2-2-final-output-pack/README.md",
+      "C:/Users/Lenovo/Desktop/leak.txt",
+      "\\\\server\\share\\leak.txt",
+      "google-g3-2-2-final-output-pack\\outputs\\D01.png",
+      "google-g3-2-2-final-output-pack/../outside.txt",
+    ]);
+    expect(result.zipAbsoluteEntries.length).toBe(2);
+    expect(result.zipBackslashEntries.length).toBe(2);
+    expect(result.zipTraversalEntries.length).toBe(1);
+  });
+
+  it("catches an absolute path injected by late-added completion evidence", () => {
+    const initial = [
+      { path: "README.md", text: "clean review pack" },
+      { path: "verification/automated-summary.json", text: JSON.stringify({ absoluteWindowsPaths: 0 }) },
+    ];
+    expect(scanReviewPackPayload(initial)).toEqual([]);
+    const finalStaging = [
+      ...initial,
+      { path: "manifests/g3-0-6-completion-evidence.json", text: JSON.stringify({ sourceArchive: { path: "C:/Users/Lenovo/Desktop/example.zip" } }) },
+    ];
+    const findings = scanReviewPackPayload(finalStaging);
+    expect(findings).toHaveLength(1);
+    expect(findings[0]?.path).toBe("manifests/g3-0-6-completion-evidence.json");
+    expect(findings[0]?.absoluteLocalPaths.length).toBeGreaterThan(0);
+    expect(findings[0]?.usernameTokens).toContain("lenovo");
   });
 });

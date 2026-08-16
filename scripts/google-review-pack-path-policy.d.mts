@@ -1,5 +1,7 @@
 export interface ReviewPackTextScan {
   absoluteLocalPaths: string[];
+  usernameTokens: string[];
+  parentTraversalSegments: string[];
   externalUrls: string[];
   notExposedPlaceholders: string[];
 }
@@ -7,6 +9,22 @@ export interface ReviewPackTextScan {
 export interface ReviewPackPayloadFile {
   path: string;
   text: string;
+  options?: { usernameTokens?: string[] };
+}
+
+export interface ZipEntryScan {
+  zipAbsoluteEntries: string[];
+  zipBackslashEntries: string[];
+  zipTraversalEntries: string[];
+}
+
+export interface ReviewPackFindingSummary extends ZipEntryScan {
+  absoluteWindowsPaths: number;
+  usernameTokens: number;
+  parentTraversalSegments: number;
+  externalUrls: number;
+  notExposedEntries: number;
+  clean: boolean;
 }
 
 export interface PathNeutralExecutionIdentity {
@@ -18,7 +36,9 @@ export interface PathNeutralExecutionIdentity {
   buildArtifacts: Array<{ repositoryRelativePath: string; sha256?: string }>;
 }
 
-export declare function scanReviewPackText(text: string): ReviewPackTextScan;
+export declare function localUsernameTokens(extra?: string[]): string[];
+export declare function scanReviewPackText(text: string, options?: { usernameTokens?: string[] }): ReviewPackTextScan;
+export declare function scanZipEntryNames(entryNames: string[]): ZipEntryScan;
 export declare function assertPackRelativePath(value: string, label?: string): string;
 export declare function logicalRootLabel(value: string, label?: string): string;
 export declare function buildPathNeutralExecutionIdentity(input: {
@@ -29,3 +49,5 @@ export declare function buildPathNeutralExecutionIdentity(input: {
   buildArtifacts?: Array<{ repositoryRelativePath: string; sha256?: string }>;
 }): PathNeutralExecutionIdentity;
 export declare function scanReviewPackPayload(files: ReviewPackPayloadFile[]): Array<ReviewPackTextScan & { path: string }>;
+export declare function summarizeReviewPackFindings(findings: Array<ReviewPackTextScan & { path: string }>, zipFindings?: Partial<ZipEntryScan>): ReviewPackFindingSummary;
+export declare function assertCleanReviewPackPayload(files: ReviewPackPayloadFile[], zipEntryNames?: string[]): { findings: Array<ReviewPackTextScan & { path: string }>; zipFindings: ZipEntryScan; summary: ReviewPackFindingSummary };
