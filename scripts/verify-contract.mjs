@@ -4,6 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(scriptDir, "..");
 const contractsDir = path.join(root, "contracts");
@@ -132,6 +134,8 @@ check(
 );
 
 const versions = contracts.get("contract-versions.json");
+const canonicalDocument = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");
+const canonicalDocumentSha256 = await sha256(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md")).catch(() => null);
 check(
   "template_contract_version",
   versions?.templateContractVersion === "1.9.0" &&
@@ -469,22 +473,37 @@ check(
   versions?.integrationContract?.current === "1.8.0" && versions?.canonicalPhaseC4JpegSupport?.documentCurrent === "1.5.1" && versions?.canonicalPhaseC4JpegSupport?.templateContractVersion === "1.3.0",
   JSON.stringify(versions?.integrationContract),
 );
-const historicalDocumentVersionValid =
-  (versions?.documentVersion?.previous === "1.23.0" && versions?.documentVersion?.current === "1.23.1")
-  || (versions?.documentVersion?.previous === "1.23.1" && versions?.documentVersion?.current === "1.24.0" && versions?.canonicalPhaseG0_1Google?.architectureStatus === "FROZEN")
-  || (versions?.documentVersion?.previous === "1.24.0" && versions?.documentVersion?.current === "1.25.0" && versions?.canonicalPhaseG1Google?.phase === "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION" && versions?.canonicalPhaseG1Google?.contractsImplemented === true)
-  || (versions?.documentVersion?.previous === "1.25.0" && versions?.documentVersion?.current === "1.26.0" && versions?.canonicalPhaseG2Google?.phase === "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES" && versions?.canonicalPhaseG2Google?.renderingValidationImplemented === true)
-  || (versions?.documentVersion?.previous === "1.26.0" && versions?.documentVersion?.current === "1.27.0" && versions?.canonicalPhaseG2_1Google?.phase === "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE")
-  || (versions?.documentVersion?.previous === "1.27.0" && versions?.documentVersion?.current === "1.28.0" && versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" && versions?.canonicalPhaseG3Google?.desktopUiAdded === true)
-  || (versions?.documentVersion?.previous === "1.28.0" && versions?.documentVersion?.current === "1.28.1" && versions?.documentVersion?.bump === "patch" && versions?.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION")
-  || (versions?.documentVersion?.previous === "1.28.1" && versions?.documentVersion?.current === "1.29.0" && versions?.documentVersion?.bump === "minor" && versions?.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY")
-  || (versions?.documentVersion?.previous === "1.29.0" && versions?.documentVersion?.current === "1.30.0" && versions?.documentVersion?.bump === "minor" && versions?.canonicalPhaseG3_1Google?.phase === "G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE" && versions?.canonicalPhaseG3_1Google?.status === "FROZEN")
-  || (versions?.documentVersion?.previous === "1.30.0" && versions?.documentVersion?.current === "1.31.0" && versions?.documentVersion?.bump === "minor" && versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION")
-  || (versions?.documentVersion?.previous === "1.31.0" && versions?.documentVersion?.current === "1.31.1" && versions?.documentVersion?.bump === "patch" && versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING")
-  || (versions?.documentVersion?.previous === "1.31.1" && versions?.documentVersion?.current === "1.32.0" && versions?.documentVersion?.bump === "minor" && versions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions?.canonicalPhaseG4Google?.status === "FROZEN");
+const historicalPhaseTransitions = [
+  ["canonicalPhaseG0Google", "1.23.1", "1.23.1", "none"],
+  ["canonicalPhaseG0_1Google", "1.23.1", "1.24.0", "minor"],
+  ["canonicalPhaseG1Google", "1.24.0", "1.25.0", "minor"],
+  ["canonicalPhaseG2Google", "1.25.0", "1.26.0", "minor"],
+  ["canonicalPhaseG2_1Google", "1.26.0", "1.27.0", "minor"],
+  ["canonicalPhaseG3Google", "1.27.0", "1.28.0", "minor"],
+  ["canonicalPhaseG3_0_2Google", "1.28.0", "1.28.1", "patch"],
+  ["canonicalPhaseG3_0_3Google", "1.28.1", "1.29.0", "minor"],
+  ["canonicalPhaseG3_1Google", "1.29.0", "1.30.0", "minor"],
+  ["canonicalPhaseG3_0_4Google", "1.30.0", "1.31.0", "minor"],
+  ["canonicalPhaseG3_0_5Google", "1.31.0", "1.31.1", "patch"],
+  ["canonicalPhaseG4Google", "1.31.1", "1.32.0", "minor"],
+];
+const historicalDocumentVersionValid = historicalPhaseTransitions.every(([key, previous, current, bump]) => {
+  const record = versions?.[key];
+  return record?.documentPrevious === previous && record?.documentCurrent === current && record?.documentBump === bump;
+});
+const currentCanonicalFallback = versions?.canonicalPhaseG4Google?.documentCurrent && versions?.canonicalPhaseG4Google?.canonicalDocumentSha256
+  ? { version: versions.canonicalPhaseG4Google.documentCurrent, sha256: versions.canonicalPhaseG4Google.canonicalDocumentSha256 }
+  : null;
+const activeCanonicalValidation = validateActiveCanonicalState({
+  versions,
+  canonical: canonicalDocument,
+  currentCanonicalSha: canonicalDocumentSha256,
+  historicalMinimumVersion: versions?.canonicalPhaseG0_1Google?.documentCurrent,
+  historicalFallback: currentCanonicalFallback,
+});
 check(
   "canonical_document_version",
-  historicalDocumentVersionValid && versions?.canonicalPhaseN7_7_5?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_7_6?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.rendererCoreVersion === "0.8.6" && versions?.canonicalPhaseN8?.desktopCurrent === "0.9.12" && versions?.canonicalPhaseN8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseM1?.documentPrevious === "1.21.4" && versions?.canonicalPhaseM1?.documentCurrent === "1.22.0" && versions?.canonicalPhaseM1?.rendererCoreVersion === "0.9.0" && versions?.canonicalPhaseM1?.desktopCurrent === "0.10.0" && versions?.canonicalPhaseM2_1?.documentPrevious === "1.22.0" && versions?.canonicalPhaseM2_1?.documentCurrent === "1.23.0" && versions?.canonicalPhaseM2_1?.rendererCoreVersion === "0.9.0" && versions?.canonicalPhaseM2_1?.validatorCurrent === "1.9.0" && versions?.canonicalPhaseM2_2?.documentPrevious === "1.23.0" && versions?.canonicalPhaseM2_2?.documentCurrent === "1.23.1" && versions?.freeformFormatProfileRegistryVersion === "1.4.0" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
+  historicalDocumentVersionValid && activeCanonicalValidation.valid && versions?.canonicalPhaseN7_7_5?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN7_7_6?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseN8?.rendererCoreVersion === "0.8.6" && versions?.canonicalPhaseN8?.desktopCurrent === "0.9.12" && versions?.canonicalPhaseN8?.documentCurrent === "1.21.4" && versions?.canonicalPhaseM1?.documentPrevious === "1.21.4" && versions?.canonicalPhaseM1?.documentCurrent === "1.22.0" && versions?.canonicalPhaseM1?.rendererCoreVersion === "0.9.0" && versions?.canonicalPhaseM1?.desktopCurrent === "0.10.0" && versions?.canonicalPhaseM2_1?.documentPrevious === "1.22.0" && versions?.canonicalPhaseM2_1?.documentCurrent === "1.23.0" && versions?.canonicalPhaseM2_1?.rendererCoreVersion === "0.9.0" && versions?.canonicalPhaseM2_1?.validatorCurrent === "1.9.0" && versions?.canonicalPhaseM2_2?.documentPrevious === "1.23.0" && versions?.canonicalPhaseM2_2?.documentCurrent === "1.23.1" && versions?.freeformFormatProfileRegistryVersion === "1.4.0" && versions?.templateContractVersion === "1.9.0" && versions?.smartChannelTemplateContractVersion === "1.10.0",
   `document=${versions?.documentVersion?.previous}->${versions?.documentVersion?.current}; template=${versions?.templateContractVersion}`,
 );
 

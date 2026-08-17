@@ -4,6 +4,11 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  validateActiveCanonicalState,
+  validateG01HistoricalSnapshot,
+} from "./lib/canonical-semver-compatibility.mjs";
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootArg = process.argv.find((arg) => arg.startsWith("--root="))?.slice("--root=".length);
 const root = path.resolve(rootArg ?? path.join(scriptDir, ".."));
@@ -41,10 +46,8 @@ const g3_0_5ProductionPaths = new Set([
 ]);
 const checks = [];
 const failures = [];
-let g304Compatibility = false;
 
 function check(id, condition, detail) {
-  if (g304Compatibility && id === "canonical_version") condition = true;
   const status = condition ? "PASS" : "FAIL";
   checks.push({ id, status, detail });
   if (!condition) failures.push(`${id}: ${detail}`);
@@ -80,8 +83,6 @@ async function collectFiles(relativePath) {
 }
 
 const versions = await readJson("contracts/contract-versions.json");
-g304Compatibility = (versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && versions?.documentVersion?.current === "1.31.0") || (versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" && versions?.documentVersion?.current === "1.31.1") || (versions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions?.canonicalPhaseG4Google?.status === "FROZEN" && versions?.documentVersion?.current === "1.32.0");
-if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const g1Implemented = versions?.canonicalPhaseG1Google?.phase === "G1_GOOGLE_STATIC_CONTRACTS_AND_PROFILE_IMPLEMENTATION" && versions?.canonicalPhaseG1Google?.contractsImplemented === true;
 const g2Implemented = versions?.canonicalPhaseG2Google?.phase === "G2_GOOGLE_STATIC_RENDERING_VALIDATION_AND_GOLDEN_CANDIDATES" && versions?.canonicalPhaseG2Google?.renderingValidationImplemented === true;
 const g2_1Implemented = versions?.canonicalPhaseG2_1Google?.phase === "G2_1_GOOGLE_STATIC_USER_VISUAL_ACCEPTANCE_AND_GOLDEN_FREEZE" && versions?.canonicalPhaseG2_1Google?.visualAcceptance === "ACCEPTED";
@@ -107,14 +108,47 @@ const g0Evidence = await readJson("artifacts/g0/google-static-discovery-verifica
 const g0_1Evidence = await readJson("artifacts/g0-1/google-static-architecture-freeze-verification.json");
 const packageJson = await readJson("package.json");
 const canonical = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");
+const canonicalSha256 = await sha256("docs/kakao-bizboard-renderer-spec-v1.md").catch(() => null);
 const g0Implementation = await readFile(path.join(root, "docs/implementation/google-ads-static-discovery-architecture-g0.md"), "utf8").catch(() => "");
+
+const activeCanonical = versions?.activeCanonical ?? versions?.currentCanonical ?? null;
+const historicalCanonicalFallback = versions?.canonicalPhaseG4Google?.documentCurrent && versions?.canonicalPhaseG4Google?.canonicalDocumentSha256
+  ? { version: versions.canonicalPhaseG4Google.documentCurrent, sha256: versions.canonicalPhaseG4Google.canonicalDocumentSha256 }
+  : null;
+const currentCanonicalValidation = validateActiveCanonicalState({
+  versions,
+  canonical,
+  currentCanonicalSha: canonicalSha256,
+  activeCanonical,
+  historicalMinimumVersion: versions?.canonicalPhaseG0_1Google?.documentCurrent,
+  historicalFallback: historicalCanonicalFallback,
+});
+const historicalCanonicalRecords = [
+  [versions?.canonicalPhaseG0Google, "1.23.1", "1.23.1", "none"],
+  [versions?.canonicalPhaseG0_1Google, "1.23.1", "1.24.0", "minor"],
+  [versions?.canonicalPhaseG1Google, "1.24.0", "1.25.0", "minor"],
+  [versions?.canonicalPhaseG2Google, "1.25.0", "1.26.0", "minor"],
+  [versions?.canonicalPhaseG2_1Google, "1.26.0", "1.27.0", "minor"],
+  [versions?.canonicalPhaseG3Google, "1.27.0", "1.28.0", "minor"],
+  [versions?.canonicalPhaseG3_0_2Google, "1.28.0", "1.28.1", "patch"],
+  [versions?.canonicalPhaseG3_0_3Google, "1.28.1", "1.29.0", "minor"],
+  [versions?.canonicalPhaseG3_1Google, "1.29.0", "1.30.0", "minor"],
+  [versions?.canonicalPhaseG3_0_4Google, "1.30.0", "1.31.0", "minor"],
+  [versions?.canonicalPhaseG3_0_5Google, "1.31.0", "1.31.1", "patch"],
+  [versions?.canonicalPhaseG4Google, "1.31.1", "1.32.0", "minor"],
+].every(([record, previous, current, bump]) => record?.documentPrevious === previous && record?.documentCurrent === current && record?.documentBump === bump);
 
 let baselineReachable = true;
 try { execFileSync("git", ["merge-base", "--is-ancestor", acceptedCommit, "HEAD"], { cwd: root, stdio: "ignore" }); }
 catch { baselineReachable = false; }
 check("accepted_baseline_lineage", baselineReachable, acceptedCommit);
 
-check("canonical_version", g3_0_3Implemented ? versions?.documentVersion?.previous === "1.28.1" && versions?.documentVersion?.current === "1.29.0" && versions?.documentVersion?.bump === "minor" : g3RevisionImplemented ? versions?.documentVersion?.previous === "1.28.0" && versions?.documentVersion?.current === "1.28.1" && versions?.documentVersion?.bump === "patch" : g3Implemented ? versions?.documentVersion?.previous === "1.27.0" && versions?.documentVersion?.current === "1.28.0" && versions?.documentVersion?.bump === "minor" : g2_1Implemented ? versions?.documentVersion?.previous === "1.26.0" && versions?.documentVersion?.current === "1.27.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.27\.0/u.test(canonical) : g2Implemented ? versions?.documentVersion?.previous === "1.25.0" && versions?.documentVersion?.current === "1.26.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.26\.0/u.test(canonical) : g1Implemented ? versions?.documentVersion?.previous === "1.24.0" && versions?.documentVersion?.current === "1.25.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.25\.0/u.test(canonical) : versions?.documentVersion?.previous === "1.23.1" && versions?.documentVersion?.current === "1.24.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.24\.0/u.test(canonical), JSON.stringify(versions?.documentVersion));
+const g0_1HistoricalSnapshot = validateG01HistoricalSnapshot({
+  phase: versions?.canonicalPhaseG0_1Google,
+  registry,
+  evidence: g0_1Evidence,
+});
+check("canonical_version", currentCanonicalValidation.valid && historicalCanonicalRecords && g0_1HistoricalSnapshot.valid, JSON.stringify({ current: versions?.documentVersion, activeCanonical: activeCanonical ?? historicalCanonicalFallback ?? "missing", errors: currentCanonicalValidation.errors }));
 check("google_architecture_version", versions?.canonicalPhaseG0_1Google?.googleArchitecturePrevious === "0.1.0" && versions?.canonicalPhaseG0_1Google?.googleArchitectureVersion === "1.0.0" && versions?.canonicalPhaseG0_1Google?.googleArchitectureBump === "major", JSON.stringify(versions?.canonicalPhaseG0_1Google));
 check("current_architecture_frozen", versions?.canonicalPhaseG0_1Google?.architectureStatusPrevious === "FREEZE_CANDIDATE" && versions?.canonicalPhaseG0_1Google?.architectureStatus === "FROZEN" && registry?.status === "FROZEN" && registry?.googleArchitectureVersion === "1.0.0" && architecture?.architectureStatus === "FROZEN" && architecture?.freezeStatus === "FROZEN" && capabilities?.architectureStatus === "FROZEN" && capabilities?.freezeStatus === "FROZEN", JSON.stringify({ version: versions?.canonicalPhaseG0_1Google?.architectureStatus, registry: registry?.status, architecture: architecture?.architectureStatus }));
 check("historical_g0_record_preserved", versions?.canonicalPhaseG0Google?.documentCurrent === "1.23.1" && versions?.canonicalPhaseG0Google?.googleArchitectureVersion === "0.1.0" && versions?.canonicalPhaseG0Google?.architectureStatus === "FREEZE_CANDIDATE" && architecture?.status === "FREEZE_CANDIDATE" && g0Evidence?.phase === "G0_GOOGLE_ADS_STATIC_CAPABILITY_DISCOVERY_AND_ARCHITECTURE", JSON.stringify({ g0: versions?.canonicalPhaseG0Google, sourceStatus: architecture?.status, evidencePhase: g0Evidence?.phase }));
