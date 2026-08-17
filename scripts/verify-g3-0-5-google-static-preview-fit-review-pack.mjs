@@ -24,8 +24,11 @@ const run = (command, args, timeout = 300_000) => {
 const versions = await readJson("contracts/contract-versions.json");
 const packageJson = await readJson("package.json");
 const profiles = await readJson("contracts/google/static-asset-profiles.g1.json");
-check("version_policy", versions.documentVersion?.current === "1.31.1" && versions.desktopAppVersion === "0.13.1" && packageJson.version === "0.13.1" && versions.googleExportManifestSchemaVersion === "1.1.0", JSON.stringify({ document: versions.documentVersion, desktop: versions.desktopAppVersion, package: packageJson.version, googleManifest: versions.googleExportManifestSchemaVersion }));
-check("canonical_hash_recorded", versions.canonicalPhaseG3_0_5Google?.canonicalDocumentSha256 === await sha256("docs/kakao-bizboard-renderer-spec-v1.md"), versions.canonicalPhaseG3_0_5Google?.canonicalDocumentSha256);
+const g4Frozen = versions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions?.canonicalPhaseG4Google?.status === "FROZEN";
+const canonicalVersionCompatible = versions.documentVersion?.current === "1.31.1" || (versions.documentVersion?.current === "1.32.0" && g4Frozen);
+check("version_policy", canonicalVersionCompatible && versions.desktopAppVersion === "0.13.1" && packageJson.version === "0.13.1" && versions.googleExportManifestSchemaVersion === "1.1.0", JSON.stringify({ document: versions.documentVersion, desktop: versions.desktopAppVersion, package: packageJson.version, googleManifest: versions.googleExportManifestSchemaVersion }));
+const canonicalSha = await sha256("docs/kakao-bizboard-renderer-spec-v1.md");
+check("canonical_hash_recorded", versions.canonicalPhaseG3_0_5Google?.canonicalDocumentSha256 === canonicalSha || (g4Frozen && versions.canonicalPhaseG4Google?.canonicalDocumentSha256 === canonicalSha), versions.canonicalPhaseG4Google?.canonicalDocumentSha256 ?? versions.canonicalPhaseG3_0_5Google?.canonicalDocumentSha256);
 check("profile_matrix", profiles.profileCount === 14 && profiles.geometryProfileCount === 7 && profiles.uploadedDisplayStaticProfileCount === 7 && profiles.legacyDisplayRuntimeProfiles.length === 0, JSON.stringify({ profileCount: profiles.profileCount, geometry: profiles.geometryProfileCount, uploaded: profiles.uploadedDisplayStaticProfileCount }));
 check("frozen_g2_registry", await sha256("contracts/google/goldens.g2.1.json") === "00dabc5d94ffc0c225d17d22b3b5527d0b0c7488aa11495da4a79e1327d37359");
 check("frozen_g3_1_registry", await sha256("contracts/google/desktop-qa-freeze.g3.1.json") === "1dc779a4feb83b7df5c6b06966d74492f2e5c682ea32b19dcd87813b3ea218ef");

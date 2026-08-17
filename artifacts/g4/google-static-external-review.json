@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0.0",
+  "phase": "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE",
+  "evidenceClass": "INDEPENDENT_EXTERNAL_REVIEW",
+  "status": "PASS",
+  "selectedPack": {
+    "fileName": "google-g3-2-3-final-output-pack-a6ca251b-20260816T150151284Z-final.zip",
+    "sha256": "8ea80cda80f53347a08d89cadaaf5501a73fb5b687e2724fc90e111ac32d8ffa",
+    "bytes": 9220434,
+    "zipEntries": 255,
+    "payloadFiles": 213,
+    "sourceHead": "a6ca251b400033c413a079248eeeea1756a6bc0a",
+    "generationId": "g3-2-3-working-20260816T150151284Z"
+  },
+  "independentChecks": {
+    "passed": 3044,
+    "total": 3044
+  },
+  "requiredCases": { "passed": 24, "total": 24 },
+  "outputArtifacts": { "passed": 32, "total": 32 },
+  "payloadChecksumAndManifest": { "passed": 213, "total": 213 },
+  "defaultGoldenByteEquality": { "passed": 14, "total": 14 },
+  "transforms": { "passed": 8, "total": 8 },
+  "resets": { "passed": 8, "total": 8 },
+  "deterministicReplays": { "passed": 2, "total": 2 },
+  "exportManifestVersion1_1": { "passed": 32, "total": 32 },
+  "canonicalDigestRecalculation": { "passed": 32, "total": 32 },
+  "internalHtmlLinks": { "passed": 4, "total": 4 },
+  "runtimeNetworkRequests": 0,
+  "pathHygiene": {
+    "absoluteWindowsPaths": 0,
+    "fileUrls": 0,
+    "externalUrls": 0,
+    "notExposedEntries": 0,
+    "pathTraversalEntries": 0,
+    "prohibitedEntries": 0
+  },
+  "visualReview": {
+    "defaultPreview": { "passed": 14, "total": 14 },
+    "transformPreview": { "passed": 8, "total": 8 },
+    "resetPreview": { "passed": 8, "total": 8 },
+    "replayPreview": { "passed": 2, "total": 2 },
+    "canvasClipping": 0,
+    "fitProfiles": "PASS"
+  },
+  "generationIdCorrection": "PASS",
+  "blockingReasons": []
+}

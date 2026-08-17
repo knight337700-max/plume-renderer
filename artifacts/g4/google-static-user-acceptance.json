@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0.0",
+  "phase": "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE",
+  "decision": "ACCEPT_GOOGLE_G3_2_3_FINAL_OUTPUT_PACK",
+  "authorizedAction": "PROCEED_TO_G4_RELEASE_FREEZE",
+  "recordedBy": "USER",
+  "recordedAtUtc": "2026-08-17T01:55:28.509Z",
+  "acceptedPack": {
+    "fileName": "google-g3-2-3-final-output-pack-a6ca251b-20260816T150151284Z-final.zip",
+    "sha256": "8ea80cda80f53347a08d89cadaaf5501a73fb5b687e2724fc90e111ac32d8ffa",
+    "bytes": 9220434,
+    "zipEntries": 255,
+    "payloadFiles": 213,
+    "generationId": "g3-2-3-working-20260816T150151284Z"
+  },
+  "sourceHead": "a6ca251b400033c413a079248eeeea1756a6bc0a",
+  "generationId": "g3-2-3-working-20260816T150151284Z",
+  "externalReviewStatus": "PASS",
+  "acceptanceScope": "GOOGLE_STATIC_RELEASE_BASELINE",
+  "userAcceptanceRecorded": true,
+  "freezeAuthorization": true
+}

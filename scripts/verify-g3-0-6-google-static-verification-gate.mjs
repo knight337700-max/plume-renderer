@@ -42,7 +42,8 @@ const hasExactTransform = (actual, expected) => actual && expected && actual.x =
 const hasExactPlacement = (actual, expected) => hasExactTransform(actual, expected);
 const hasTest = (entry, file, title, coverage) => Array.isArray(entry?.connectedAutomatedTests) && entry.connectedAutomatedTests.some((test) => test?.file === file && test?.title === title && test?.coverage === coverage);
 
-check("version_policy_unchanged", versions?.documentVersion?.current === "1.31.1" && versions?.desktopAppVersion === "0.13.1" && packageJson?.version === "0.13.1", JSON.stringify({ document: versions?.documentVersion?.current, desktop: versions?.desktopAppVersion, package: packageJson?.version }));
+const g4Frozen = versions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions?.canonicalPhaseG4Google?.status === "FROZEN";
+check("version_policy_unchanged", (versions?.documentVersion?.current === "1.31.1" || (versions?.documentVersion?.current === "1.32.0" && g4Frozen)) && versions?.desktopAppVersion === "0.13.1" && packageJson?.version === "0.13.1", JSON.stringify({ document: versions?.documentVersion?.current, desktop: versions?.desktopAppVersion, package: packageJson?.version }));
 check("exact_g3_0_5_source_allowlist", g0.includes(`const g3_0_5ProductionPaths = new Set([\n  \"${g3_0_5ProductionPath}\",\n]);`) && g0.includes("g3_0_5ProductionPaths.has(relativePath)"), g3_0_5ProductionPath);
 check("no_g3_0_5_allowlist_wildcards", !g0.includes("g3_0_5ProductionPaths = new Set([\"*\"]") && !g0.includes("g3_0_5ProductionPaths = new Set([\"**\"]") && !g0.includes("g3_0_5ProductionPaths.has(relativePath +"), "exact Set membership only");
 check("historical_verifier_exact_frozen_sets", g304.includes("const exactTreePaths") && g304.includes("const frozenChannelPaths = new Set") && !g304.includes("frozen_channel_paths_unchanged\", ![...changed].some((entry) => /"), "no regex/prefix frozen-channel assertion");

@@ -65,13 +65,16 @@ async function main() {
   const versions = await readJson("contracts/contract-versions.json");
   const packageJson = await readJson("package.json");
   const g3_0_5Implemented = versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING";
+  const g4Frozen = versions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions?.canonicalPhaseG4Google?.status === "FROZEN";
   const registry = await readJson("contracts/google/default-placement-plans.g3.0.4.json");
   const registrySchema = await readJson("contracts/google/default-placement-plans.g3.0.4.schema.json");
   const goldens = await readJson("contracts/google/goldens.g2.1.json");
   const supersession = await readJson("contracts/google/desktop-qa-supersession.g3.0.4.json");
   check("phase_record", versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION", JSON.stringify(versions?.canonicalPhaseG3_0_4Google));
   check("version_policy", (g3_0_5Implemented
-    ? versions?.documentVersion?.previous === "1.31.0" && versions?.documentVersion?.current === "1.31.1" && versions?.documentVersion?.bump === "patch" && packageJson?.version === "0.13.1" && versions?.desktopAppVersion === "0.13.1"
+    ? (g4Frozen
+      ? versions?.documentVersion?.previous === "1.31.1" && versions?.documentVersion?.current === "1.32.0" && versions?.documentVersion?.bump === "minor"
+      : versions?.documentVersion?.previous === "1.31.0" && versions?.documentVersion?.current === "1.31.1" && versions?.documentVersion?.bump === "patch") && packageJson?.version === "0.13.1" && versions?.desktopAppVersion === "0.13.1"
     : versions?.documentVersion?.previous === "1.30.0" && versions?.documentVersion?.current === "1.31.0" && versions?.documentVersion?.bump === "minor" && packageJson?.version === "0.13.0" && versions?.desktopAppVersion === "0.13.0") && versions?.googleExportManifestSchemaVersion === "1.1.0", JSON.stringify({ document: versions?.documentVersion, package: packageJson?.version, desktop: versions?.desktopAppVersion, googleManifest: versions?.googleExportManifestSchemaVersion }));
   check("reused_versions", versions?.templateContractVersion === "1.9.0" && versions?.inputSchemaVersion?.current === "1.2.0" && versions?.outputSchemaVersion?.current === "2.0.0" && versions?.renderManifestSchemaVersion === "1.0.0" && versions?.responseEnvelopeSchemaVersion === "1.0.0", "template/input/output/legacy manifest/response versions remain frozen");
   check("template_coordinates", versions?.canonicalPhaseG3_0_4Google?.templateCoordinatesChanged === false, "coordinates unchanged");

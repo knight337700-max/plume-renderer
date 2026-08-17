@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "1.0.0",
+  "registryVersion": "1.0.0",
+  "phase": "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE",
+  "status": "FROZEN",
+  "candidateSourceHead": "a6ca251b400033c413a079248eeeea1756a6bc0a",
+  "acceptedPack": {
+    "fileName": "google-g3-2-3-final-output-pack-a6ca251b-20260816T150151284Z-final.zip",
+    "sha256": "8ea80cda80f53347a08d89cadaaf5501a73fb5b687e2724fc90e111ac32d8ffa",
+    "bytes": 9220434,
+    "zipEntries": 255,
+    "payloadFiles": 213,
+    "generationId": "g3-2-3-working-20260816T150151284Z",
+    "evidenceClass": "NON_NORMATIVE_REVIEW_EVIDENCE"
+  },
+  "userAcceptance": {
+    "path": "artifacts/g4/google-static-user-acceptance.json",
+    "sha256": "4fa53e5d22b1390f19418716c7592a483175f13813c3960fdc604b56f86cda4c"
+  },
+  "externalReview": {
+    "path": "artifacts/g4/google-static-external-review.json",
+    "sha256": "c4abda81143b966f18380761a16e1d229b212b8f0d4361f838665e66a2768a7e"
+  },
+  "canonical": {
+    "beforeVersion": "1.31.1",
+    "beforeSha256": "bfd497124b36645f45efa73d77ef1eef1fd58e5547d973088738bae7c6612051",
+    "frozenVersion": "1.32.0"
+  },
+  "versions": {
+    "desktopPackage": "0.13.1",
+    "rendererCore": "0.11.0",
+    "validator": "1.11.0",
+    "googleExportManifest": "1.1.0",
+    "templateContract": "1.9.0",
+    "googleGoldenRegistry": "1.0.0"
+  },
+  "frozenProfiles": [
+    "GOOGLE_MARKETING_LANDSCAPE_1_91",
+    "GOOGLE_MARKETING_SQUARE_1_1",
+    "GOOGLE_MARKETING_PORTRAIT_4_5",
+    "GOOGLE_RDA_VERTICAL_9_16",
+    "GOOGLE_DEMAND_GEN_VERTICAL_9_16",
+    "GOOGLE_LOGO_SQUARE_1_1",
+    "GOOGLE_LOGO_LANDSCAPE_4_1",
+    "GOOGLE_DG_UPLOAD_300X250",
+    "GOOGLE_DG_UPLOAD_336X280",
+    "GOOGLE_DG_UPLOAD_728X90",
+    "GOOGLE_DG_UPLOAD_970X90",
+    "GOOGLE_DG_UPLOAD_160X600",
+    "GOOGLE_DG_UPLOAD_300X600",
+    "GOOGLE_DG_UPLOAD_320X50"
+  ],
+  "frozenGoldens": [
+    { "profileId": "GOOGLE_MARKETING_LANDSCAPE_1_91", "path": "fixtures/golden/google/GOOGLE_MARKETING_LANDSCAPE_1_91.png", "sha256": "04cd7330f288ee37f701edef3f030ae1d682a7a77da71ddccef990eefb048658" },
+    { "profileId": "GOOGLE_MARKETING_SQUARE_1_1", "path": "fixtures/golden/google/GOOGLE_MARKETING_SQUARE_1_1.jpg", "sha256": "19afaa7bdf6310a1283cdb141749d8c2f620318b2d2646b01ff5b49bc6ba0aed" },
+    { "profileId": "GOOGLE_MARKETING_PORTRAIT_4_5", "path": "fixtures/golden/google/GOOGLE_MARKETING_PORTRAIT_4_5.png", "sha256": "57fb072aa6317661c51a7a5cea06b98a47dd20f593f6db689d5fab066b39f17d" },
+    { "profileId": "GOOGLE_RDA_VERTICAL_9_16", "path": "fixtures/golden/google/GOOGLE_RDA_VERTICAL_9_16.png", "sha256": "608605fbb6fa2e85819f7ea810eec8c15c9e19404f489adc2aec99b88a8c172f" },
+    { "profileId": "GOOGLE_DEMAND_GEN_VERTICAL_9_16", "path": "fixtures/golden/google/GOOGLE_DEMAND_GEN_VERTICAL_9_16.jpg", "sha256": "11d76d9ccfa5494cc08ad0fe094032ff1d0a2d926e7606f2bbb21acd64702d26" },
+    { "profileId": "GOOGLE_LOGO_SQUARE_1_1", "path": "fixtures/golden/google/GOOGLE_LOGO_SQUARE_1_1.png", "sha256": "561577d2c1376df2ec4546c6b0c5049cc735c31c76ab62eb8771cdb37f28db95" },
+    { "profileId": "GOOGLE_LOGO_LANDSCAPE_4_1", "path": "fixtures/golden/google/GOOGLE_LOGO_LANDSCAPE_4_1.png", "sha256": "3ecc97df70521a6cf7247506fe404eb4de62be92535d7057e2c63055329515c2" },
+    { "profileId": "GOOGLE_DG_UPLOAD_300X250", "path": "fixtures/golden/google/GOOGLE_DG_UPLOAD_300X250.png", "sha256": "9d93311e54454b5a2a862aa65c8a11ea29afae9f7e9f0a550fd5367d00b8b6c9" },
+    { "profileId": "GOOGLE_DG_UPLOAD_336X280", "path": "fixtures/golden/google/GOOGLE_DG_UPLOAD_336X280.jpg", "sha256": "e3247f470d73b8c65f1c9d17009c819d437bfb0920b7089de9a9331740c0ae3d" },
+    { "profileId": "GOOGLE_DG_UPLOAD_728X90", "path": "fixtures/golden/google/GOOGLE_DG_UPLOAD_728X90.png", "sha256": "73fd409f002067c27f1ff8015041a18d022f81decad77ff788023a810d1502e6" },
+    { "profileId": "GOOGLE_DG_UPLOAD_970X90", "path": "fixtures/golden/google/GOOGLE_DG_UPLOAD_970X90.jpg", "sha256": "f24f8990226ed3160e6a9c323923910513da93e7eec389af762a09dadf461a4a" },
+    { "profileId": "GOOGLE_DG_UPLOAD_160X600", "path": "fixtures/golden/google/GOOGLE_DG_UPLOAD_160X600.png", "sha256": "d536e55f1bf6bc0bb00e986696499aeebe762a3fae123161582c61e647e52793" },
+    { "profileId": "GOOGLE_DG_UPLOAD_300X600", "path": "fixtures/golden/google/GOOGLE_DG_UPLOAD_300X600.jpg", "sha256": "6a94c2cc074602c7a70588cdb1a34748edc243ae8543f0f40429ad6d932f9d6e" },
+    { "profileId": "GOOGLE_DG_UPLOAD_320X50", "path": "fixtures/golden/google/GOOGLE_DG_UPLOAD_320X50.png", "sha256": "64c48ad49564ecfc0acba22b68fd8222c0180c2d57bcc99ec29c00ef90489bfc" }
+  ],
+  "references": {
+    "g3_1FreezeRegistry": { "path": "contracts/google/desktop-qa-freeze.g3.1.json", "sha256": "1dc779a4feb83b7df5c6b06966d74492f2e5c682ea32b19dcd87813b3ea218ef" },
+    "googleGoldenRegistry": { "path": "contracts/google/goldens.g2.1.json", "sha256": "00dabc5d94ffc0c225d17d22b3b5527d0b0c7488aa11495da4a79e1327d37359" },
+    "objectRight": { "path": "reference/kakao-tool/OBJECT_RIGHT.png", "sha256": "33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b" }
+  },
+  "runtimePolicy": {
+    "runtimeNetworkRequests": 0,
+    "allowedExportFormats": ["PNG", "JPEG"],
+    "placementControls": ["DRAG", "ZOOM", "NUMERIC_X", "NUMERIC_Y", "NUMERIC_SCALE", "RESET"],
+    "uploadedDisplayStaticControlLock": true,
+    "fitActualPreview": true,
+    "passOnlyExport": true,
+    "staleExportBlocked": true,
+    "plumeDependencies": []
+  },
+  "evidencePolicy": {
+    "acceptedPackClassification": "NON_NORMATIVE_REVIEW_EVIDENCE",
+    "acceptedPackReclassified": false,
+    "changeRequires": ["new canonical version", "new candidate", "full regression", "new user acceptance"]
+  }
+}

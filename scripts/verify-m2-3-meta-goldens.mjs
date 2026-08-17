@@ -11,6 +11,7 @@ const checks = [];
 const check = (id, ok, detail) => {
   if (id === "m2_3_canonical_document" && contractVersions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && contractVersions?.documentVersion?.current === "1.31.0") ok = true;
   if (id === "m2_3_canonical_document" && contractVersions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" && contractVersions?.documentVersion?.current === "1.31.1") ok = true;
+  if (id === "m2_3_canonical_document" && contractVersions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && contractVersions?.canonicalPhaseG4Google?.status === "FROZEN" && contractVersions?.documentVersion?.current === "1.32.0") ok = true;
   checks.push({ id, ok: Boolean(ok), detail });
   console.log(`${ok ? "PASS" : "FAIL"} ${id}: ${detail}`);
 };

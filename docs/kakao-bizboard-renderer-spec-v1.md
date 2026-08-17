@@ -1,8 +1,8 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.31.1
-- **Status:** Frozen Implementation Contract — Phase G3.0.5 Google Static Preview Fit and review-pack path hardening
+- **Document version:** 1.32.0
+- **Status:** Frozen Implementation Contract — Phase G4 Google Static User Acceptance and Release Freeze
 - **Checked date:** 2026-08-15 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **63. Phase G3.0.5 Google Static Preview Fit and review-pack path hardening**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **64. Phase G4 Google Static User Acceptance and Release Freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
 
 ---
 
@@ -5581,6 +5581,44 @@ record is `docs/implementation/google-static-desktop-qa-enablement-g3.md`; the A
 inputs and are not regenerated or rewritten. **[PROJECT]**
 
 `nextPhase`: `G3_1_GOOGLE_STATIC_DESKTOP_USER_QA_AND_FREEZE`. **[PROJECT]**
+
+## 64. Phase G4 — Google Static User Acceptance and Release Freeze [PROJECT] [MANUAL]
+
+G4는 G3.2.3에서 생성되고 독립 검토된 Google Static 최종 출력 pack에 대한 사용자의
+명시적 승인을 기록하고, 현재 Google Static Renderer의 release baseline을 동결한다. 승인
+결정은 `ACCEPT_GOOGLE_G3_2_3_FINAL_OUTPUT_PACK`이며, 승인된 candidate source HEAD는
+`a6ca251b400033c413a079248eeeea1756a6bc0a`이다. 승인 대상 pack은
+`google-g3-2-3-final-output-pack-a6ca251b-20260816T150151284Z-final.zip`이고 SHA-256은
+`8ea80cda80f53347a08d89cadaaf5501a73fb5b687e2724fc90e111ac32d8ffa`, 크기는
+`9220434` bytes, ZIP entry는 `255`, payload file은 `213`, generation ID는
+`g3-2-3-working-20260816T150151284Z`이다. **[PROJECT] [MANUAL]**
+
+사용자 승인 기록은 `artifacts/g4/google-static-user-acceptance.json`, 독립 외부 검토
+기록은 `artifacts/g4/google-static-external-review.json`, 규범적 freeze registry는
+`contracts/google/release-freeze.g4.json`이다. 기록의 SHA-256은 각각
+`4fa53e5d22b1390f19418716c7592a483175f13813c3960fdc604b56f86cda4c`,
+`c4abda81143b966f18380761a16e1d229b212b8f0d4361f838665e66a2768a7e`,
+`6198af1c6d1f78f0ea7df21aac96587cbb5fd76cd3f751adff778018575f9680`이다. G3.2.3 pack은
+계속 `NON_NORMATIVE_REVIEW_EVIDENCE`이며 G4 registry만 승인과 고정 상태를 규범적으로
+표현한다. **[PROJECT]**
+
+G4는 기존 14개 Google profile(7 Geometry, 7 Uploaded Display Static), G2.1의 14개
+Frozen Golden, PNG/JPEG deterministic encoder 정책, Preview Fit/Actual view, shared
+Preview/Validator/Export request identity, pass-only export, stale invalidation,
+Uploaded Display Static control lock을 변경 없이 고정한다. PNG/JPEG만 허용하며 runtime
+network requests는 `0`, Google Ads API/OAuth/원격 asset과 Plume dependency는 없다.
+KAKAO/NAVER/META frozen output과 Google Golden bytes의 변경도 `0`이다. **[PROJECT]**
+
+Canonical 문서 버전은 `1.31.1`에서 `1.32.0`으로 minor 증가한다. Desktop/package
+`0.13.1`, Renderer Core `0.11.0`, Validator `1.11.0`, Google export manifest `1.1.0`,
+Template `1.9.0`, Google Golden registry `1.0.0`은 유지한다. 향후 baseline 변경에는
+새 Canonical 버전, 새 candidate, 전체 회귀 검증, 새 사용자 승인이 필요하며 G5는 이
+freeze에서 시작하지 않는다. 구현 기록은
+`docs/implementation/google-static-user-acceptance-release-freeze-g4.md`, ADR은
+`docs/adr/ADR-0070-google-static-user-acceptance-release-freeze-g4.md`, 전용 verifier는
+`scripts/verify-g4-google-static-release-freeze.mjs`이다. **[PROJECT]**
+
+`nextPhase`: `AWAIT_NEXT_PHASE_INSTRUCTION`. **[PROJECT]**
 
 ## 63. Phase G3.0.5 — Google Static Preview Fit and review-pack path hardening [PROJECT] [INFERRED]
 
