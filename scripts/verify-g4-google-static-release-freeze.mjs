@@ -6,6 +6,40 @@ import { fileURLToPath } from "node:url";
 
 const root = process.cwd();
 const candidateHead = "a6ca251b400033c413a079248eeeea1756a6bc0a";
+const g4FreezeCommit = "bb7b622ec65180872f7fa934cd86774b30707ee2";
+const historicalChangedPaths = Object.freeze([
+  "artifacts/g4/google-static-external-review.json",
+  "artifacts/g4/google-static-user-acceptance.json",
+  "contracts/contract-versions.json",
+  "contracts/google/release-freeze.g4.json",
+  "docs/adr/ADR-0070-google-static-user-acceptance-release-freeze-g4.md",
+  "docs/implementation/google-static-user-acceptance-release-freeze-g4.md",
+  "docs/kakao-bizboard-renderer-spec-v1.md",
+  "package.json",
+  "scripts/verify-contract.mjs",
+  "scripts/verify-freeform-contract.mjs",
+  "scripts/verify-g0-1-google-architecture-freeze.mjs",
+  "scripts/verify-g1-google-static.mjs",
+  "scripts/verify-g2-1-google-static.mjs",
+  "scripts/verify-g3-0-4-google-static-geometry-placement-manifest.mjs",
+  "scripts/verify-g3-0-5-google-static-preview-fit-review-pack.mjs",
+  "scripts/verify-g3-0-6-google-static-verification-gate.mjs",
+  "scripts/verify-g3-google-static-desktop-qa.mjs",
+  "scripts/verify-g4-google-static-release-freeze.mjs",
+  "scripts/verify-m1-meta-static.mjs",
+  "scripts/verify-m2-1-meta.mjs",
+  "scripts/verify-m2-2a-meta.mjs",
+  "scripts/verify-m2-3-meta-goldens.mjs",
+  "scripts/verify-m2-meta-static.mjs",
+  "scripts/verify-n8-channel-completion.mjs",
+  "scripts/verify-naver-freeform-contract.mjs",
+  "tests/google-static/google-static-g4-freeze.test.ts",
+]);
+const protectedArtifactDigests = Object.freeze({
+  "artifacts/g4/google-static-user-acceptance.json": "4fa53e5d22b1390f19418716c7592a483175f13813c3960fdc604b56f86cda4c",
+  "artifacts/g4/google-static-external-review.json": "c4abda81143b966f18380761a16e1d229b212b8f0d4361f838665e66a2768a7e",
+  "contracts/google/release-freeze.g4.json": "6198af1c6d1f78f0ea7df21aac96587cbb5fd76cd3f751adff778018575f9680",
+});
 const frozenCanonicalVersion = "1.32.0";
 const frozenCanonicalSha256 = "413a23a9a4f1f95af1126fc96d17484d02bc69d547588dd17f55dd23778ab64e";
 const expectedPack = {
@@ -50,8 +84,8 @@ function git(args) {
   catch { return ""; }
 }
 
-function isAncestor(commit) {
-  try { execFileSync("git", ["merge-base", "--is-ancestor", commit, "HEAD"], { cwd: root, stdio: "ignore" }); return true; }
+function isAncestor(commit, descendant = "HEAD") {
+  try { execFileSync("git", ["merge-base", "--is-ancestor", commit, descendant], { cwd: root, stdio: "ignore" }); return true; }
   catch { return false; }
 }
 
@@ -69,6 +103,53 @@ async function exists(relativePath) {
 }
 
 function stable(value) { return JSON.stringify(value); }
+function normalizeChangedPaths(paths = []) {
+  return [...new Set(paths.map((entry) => String(entry).replaceAll("\\", "/")).filter(Boolean))].sort();
+}
+
+export function validateHistoricalChangeScope({
+  changedPaths,
+  expectedPaths = historicalChangedPaths,
+  expectedCount = expectedPaths.length,
+} = {}) {
+  const actual = normalizeChangedPaths(changedPaths);
+  const expected = normalizeChangedPaths(expectedPaths);
+  const errors = [];
+  if (actual.length !== expectedCount) errors.push(`historical changed file count mismatch: ${actual.length} !== ${expectedCount}`);
+  if (stable(actual) !== stable(expected)) errors.push("historical changed path set mismatch");
+  throwValidationErrors(errors);
+  return true;
+}
+
+export function validateCurrentAncestry({
+  candidateSourceHead = candidateHead,
+  freezeCommit = g4FreezeCommit,
+  currentHead,
+  candidateAncestorOfFreeze,
+  freezeAncestorOfCurrent,
+} = {}) {
+  const errors = [];
+  if (candidateSourceHead !== candidateHead) errors.push("candidate source HEAD mismatch");
+  if (freezeCommit !== g4FreezeCommit) errors.push("G4 freeze commit mismatch");
+  if (typeof currentHead !== "string" || !/^[0-9a-f]{40}$/u.test(currentHead)) errors.push("current HEAD is not a full commit SHA");
+  if (candidateAncestorOfFreeze !== true) errors.push("candidate source HEAD is not an ancestor of G4 freeze commit");
+  if (freezeAncestorOfCurrent !== true) errors.push("current HEAD is not a descendant of G4 freeze commit");
+  throwValidationErrors(errors);
+  return true;
+}
+
+export function validateProtectedArtifacts({
+  actualDigests,
+  expectedDigests = protectedArtifactDigests,
+} = {}) {
+  const errors = [];
+  for (const [relativePath, expectedDigest] of Object.entries(expectedDigests)) {
+    if (actualDigests?.[relativePath] !== expectedDigest) errors.push(`protected artifact digest mismatch: ${relativePath}`);
+  }
+  throwValidationErrors(errors);
+  return true;
+}
+
 function packMatches(actual, expected, sourceHead = undefined) {
   return actual?.fileName === expected.fileName
     && actual?.sha256 === expected.sha256
@@ -159,7 +240,16 @@ export function validateCurrentCanonicalState({
   return true;
 }
 
-export { candidateHead, expectedPack, frozenCanonicalVersion, frozenCanonicalSha256, packMatches };
+export {
+  candidateHead,
+  g4FreezeCommit,
+  historicalChangedPaths,
+  protectedArtifactDigests,
+  expectedPack,
+  frozenCanonicalVersion,
+  frozenCanonicalSha256,
+  packMatches,
+};
 
 async function main() {
   const versions = await readJson("contracts/contract-versions.json");
@@ -174,8 +264,16 @@ async function main() {
   const acceptanceSha = await sha256("artifacts/g4/google-static-user-acceptance.json").catch(() => null);
   const reviewSha = await sha256("artifacts/g4/google-static-external-review.json").catch(() => null);
   const registrySha = await sha256("contracts/google/release-freeze.g4.json").catch(() => null);
+  const historicalChanged = normalizeChangedPaths(git(["diff", "--name-only", "--no-renames", candidateHead, g4FreezeCommit]).split(/\r?\n/u));
+  const ancestryValid = validateCurrentAncestry({
+    candidateSourceHead: review?.selectedPack?.sourceHead,
+    currentHead,
+    candidateAncestorOfFreeze: isAncestor(candidateHead, g4FreezeCommit),
+    freezeAncestorOfCurrent: isAncestor(g4FreezeCommit, currentHead),
+  });
 
-  check("candidate_head_ancestor", currentHead === candidateHead || isAncestor(candidateHead), candidateHead);
+  check("candidate_head_historical_ancestor", ancestryValid, JSON.stringify({ candidateHead, g4FreezeCommit }));
+  check("current_head_descendant_of_g4_freeze", ancestryValid, JSON.stringify({ g4FreezeCommit, currentHead }));
   check("phase_record", registry?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && registry?.status === "FROZEN" && versions?.canonicalPhaseG4Google?.status === "FROZEN", JSON.stringify({ phase: registry?.phase, status: registry?.status }));
   let historicalSnapshotValid = false;
   try {
@@ -228,19 +326,21 @@ async function main() {
   check("g4_files_exist", g4FilesExist, g4Files.join(","));
   const forbiddenPattern = /(?:[A-Za-z]:\\|\\\\|file:\/\/|https?:\/\/(?!kbr\.local))/u;
   const g4Text = (await Promise.all(g4Files.filter((file) => !file.endsWith(".mjs")).map((file) => readFile(path.join(root, file), "utf8").catch(() => "")))).join("\n");
+  const verifierSource = await readFile(path.join(root, "scripts/verify-g4-google-static-release-freeze.mjs"), "utf8").catch(() => "");
   check("g4_path_privacy", !forbiddenPattern.test(g4Text) && !g4Text.includes("__CANONICAL_SHA256__") && !g4Text.includes("__USER_ACCEPTANCE_SHA256__") && !g4Text.includes("__EXTERNAL_REVIEW_SHA256__"), "no absolute paths, external URLs, or placeholders");
-  const changed = git(["diff", "--name-only", candidateHead, "HEAD"]).split(/\r?\n/u).filter(Boolean).map((entry) => entry.replaceAll("\\", "/"));
-  const allowed = new Set([
-    "docs/kakao-bizboard-renderer-spec-v1.md", "contracts/contract-versions.json", "contracts/google/release-freeze.g4.json",
-    "artifacts/g4/google-static-user-acceptance.json", "artifacts/g4/google-static-external-review.json",
-    "docs/implementation/google-static-user-acceptance-release-freeze-g4.md", "docs/adr/ADR-0070-google-static-user-acceptance-release-freeze-g4.md",
-    "scripts/verify-g4-google-static-release-freeze.mjs", "scripts/verify-contract.mjs", "scripts/verify-freeform-contract.mjs", "scripts/verify-naver-freeform-contract.mjs", "scripts/verify-g3-google-static-desktop-qa.mjs",
-    "scripts/verify-g3-0-4-google-static-geometry-placement-manifest.mjs", "scripts/verify-g3-0-5-google-static-preview-fit-review-pack.mjs",
-    "scripts/verify-g3-0-6-google-static-verification-gate.mjs", "scripts/verify-g0-1-google-architecture-freeze.mjs", "scripts/verify-g1-google-static.mjs", "scripts/verify-g2-1-google-static.mjs", "scripts/verify-n8-channel-completion.mjs", "scripts/verify-m1-meta-static.mjs", "scripts/verify-m2-meta-static.mjs", "scripts/verify-m2-1-meta.mjs", "scripts/verify-m2-2a-meta.mjs", "scripts/verify-m2-3-meta-goldens.mjs", "scripts/verify-p0-0-1-g4-forward-compatibility.mjs", "docs/adr/ADR-0071-g4-historical-verifier-forward-compatibility-p0-0-1.md", "docs/implementation/g4-historical-verifier-forward-compatibility-p0-0-1.md", "tests/google-static/google-static-g4-verifier-forward-compatibility.test.ts", "tests/google-static/google-static-g4-freeze.test.ts", "package.json",
-  ]);
-  const disallowed = changed.filter((entry) => !allowed.has(entry));
-  const runtimeChanged = changed.filter((entry) => /^(?:apps|src|packages|fixtures|reference)\//u.test(entry));
-  check("allowed_change_boundary", disallowed.length === 0 && runtimeChanged.length === 0, JSON.stringify({ disallowed, runtimeChanged }));
+  let historicalScopeValid = false;
+  try { historicalScopeValid = validateHistoricalChangeScope({ changedPaths: historicalChanged }); } catch { historicalScopeValid = false; }
+  check("historical_change_scope", historicalScopeValid, JSON.stringify({ from: candidateHead, to: g4FreezeCommit, count: historicalChanged.length }));
+  check("historical_change_scope_count", historicalChanged.length === historicalChangedPaths.length && historicalChangedPaths.length === 26, `expected=26 actual=${historicalChanged.length}`);
+  const historicalPathSetMatches = stable(historicalChanged) === stable(normalizeChangedPaths(historicalChangedPaths));
+  check("historical_change_scope_exact_paths", historicalPathSetMatches, JSON.stringify(historicalChanged));
+  const protectedDigests = {};
+  for (const relativePath of Object.keys(protectedArtifactDigests)) protectedDigests[relativePath] = await sha256(relativePath).catch(() => null);
+  let protectedArtifactsValid = false;
+  try { protectedArtifactsValid = validateProtectedArtifacts({ actualDigests: protectedDigests }); } catch { protectedArtifactsValid = false; }
+  check("protected_g4_artifacts_byte_exact", protectedArtifactsValid, JSON.stringify(protectedDigests));
+  const currentHeadDiffPattern = /git\(\["diff",\s*"--name-only"(?:,\s*"--no-renames")?,\s*candidateHead,\s*"HEAD"\]\)/u;
+  check("no_current_head_allowlist", !currentHeadDiffPattern.test(verifierSource) && !verifierSource.includes(["allowed", "change", "boundary"].join("_")), "future descendants are not gated by a current-head path allowlist");
   check("frozen_output_invariants", registry?.runtimePolicy?.runtimeNetworkRequests === 0 && registry?.frozenGoldens?.length === 14 && registry?.evidencePolicy?.acceptedPackReclassified === false, "KAKAO/NAVER/META/Google frozen outputs unchanged");
   const passed = checks.filter((entry) => entry.status === "PASS").length;
   console.log(JSON.stringify({ phase: "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE", status: failures.length === 0 ? "PASS" : "FAIL", checks: checks.length, passed, failed: failures, candidateHead, currentHead }, null, 2));
