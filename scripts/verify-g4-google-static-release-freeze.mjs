@@ -2,9 +2,12 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const root = process.cwd();
 const candidateHead = "a6ca251b400033c413a079248eeeea1756a6bc0a";
+const frozenCanonicalVersion = "1.32.0";
+const frozenCanonicalSha256 = "413a23a9a4f1f95af1126fc96d17484d02bc69d547588dd17f55dd23778ab64e";
 const expectedPack = {
   fileName: "google-g3-2-3-final-output-pack-a6ca251b-20260816T150151284Z-final.zip",
   sha256: "8ea80cda80f53347a08d89cadaaf5501a73fb5b687e2724fc90e111ac32d8ffa",
@@ -76,6 +79,88 @@ function packMatches(actual, expected, sourceHead = undefined) {
     && (sourceHead === undefined || actual?.sourceHead === sourceHead);
 }
 
+function parseSemver(value) {
+  if (typeof value !== "string") return null;
+  const match = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/u.exec(value);
+  if (!match) return null;
+  const prerelease = match[4] ? match[4].split(".").map((identifier) => (/^\d+$/u.test(identifier) ? Number(identifier) : identifier)) : [];
+  if (prerelease.some((identifier) => typeof identifier === "number" && !Number.isSafeInteger(identifier))) return null;
+  return { major: Number(match[1]), minor: Number(match[2]), patch: Number(match[3]), prerelease };
+}
+
+function compareSemver(left, right) {
+  const a = parseSemver(left);
+  const b = parseSemver(right);
+  if (!a || !b) throw new Error("invalid semver");
+  for (const key of ["major", "minor", "patch"]) {
+    if (a[key] !== b[key]) return a[key] > b[key] ? 1 : -1;
+  }
+  if (a.prerelease.length === 0 && b.prerelease.length > 0) return 1;
+  if (a.prerelease.length > 0 && b.prerelease.length === 0) return -1;
+  for (let index = 0; index < Math.max(a.prerelease.length, b.prerelease.length); index += 1) {
+    if (index >= a.prerelease.length) return -1;
+    if (index >= b.prerelease.length) return 1;
+    const leftId = a.prerelease[index];
+    const rightId = b.prerelease[index];
+    if (leftId === rightId) continue;
+    if (typeof leftId === "number" && typeof rightId === "number") return leftId > rightId ? 1 : -1;
+    if (typeof leftId === "number") return -1;
+    if (typeof rightId === "number") return 1;
+    return leftId > rightId ? 1 : -1;
+  }
+  return 0;
+}
+
+function throwValidationErrors(errors) {
+  if (errors.length > 0) throw new Error(errors.join("; "));
+}
+
+export function validateHistoricalSnapshot({
+  versions,
+  registry,
+  candidateSourceHead,
+  expectedCandidateSourceHead = candidateHead,
+  acceptedPack,
+  expectedAcceptedPack = expectedPack,
+  frozenProfileCount = 14,
+  frozenGoldenCount = 14,
+} = {}) {
+  const errors = [];
+  const historical = versions?.canonicalPhaseG4Google;
+  if (historical?.documentCurrent !== frozenCanonicalVersion || registry?.canonical?.frozenVersion !== frozenCanonicalVersion) errors.push("historical frozen canonical version mismatch");
+  if (historical?.canonicalDocumentSha256 !== frozenCanonicalSha256) errors.push("historical frozen canonical SHA-256 mismatch");
+  if (candidateSourceHead !== undefined && candidateSourceHead !== expectedCandidateSourceHead) errors.push("historical candidate source HEAD mismatch");
+  if (acceptedPack !== undefined && !packMatches(acceptedPack, expectedAcceptedPack)) errors.push("historical accepted pack mismatch");
+  if (registry?.frozenProfiles?.length !== frozenProfileCount) errors.push("historical frozen profile count mismatch");
+  if (registry?.frozenGoldens?.length !== frozenGoldenCount) errors.push("historical frozen golden count mismatch");
+  throwValidationErrors(errors);
+  return true;
+}
+
+export function validateCurrentCanonicalState({
+  versions,
+  canonical,
+  currentCanonicalSha,
+  activeCanonical,
+  frozenVersion = frozenCanonicalVersion,
+  frozenSha256 = frozenCanonicalSha256,
+} = {}) {
+  const errors = [];
+  const currentVersion = versions?.documentVersion?.current;
+  const parsedCurrent = parseSemver(currentVersion);
+  if (!parsedCurrent) errors.push("current canonical version is not valid semver");
+  else if (compareSemver(currentVersion, frozenVersion) < 0) errors.push("current canonical version is below frozen G4 version");
+  if (typeof canonical !== "string" || !canonical.includes(`Document version:** ${currentVersion}`) || !canonical.includes("Phase G4")) errors.push("current canonical document version marker mismatch");
+  const resolvedActive = activeCanonical ?? (currentVersion === frozenVersion && currentCanonicalSha === frozenSha256 ? { version: frozenVersion, sha256: frozenSha256 } : null);
+  if (!resolvedActive || resolvedActive.version !== currentVersion) errors.push("current canonical version and active registry version mismatch");
+  if (!resolvedActive || typeof resolvedActive.sha256 !== "string" || resolvedActive.sha256 !== currentCanonicalSha || currentCanonicalSha === "__CANONICAL_SHA256__") errors.push("current canonical digest and active registry digest mismatch");
+  if (currentVersion === frozenVersion && currentCanonicalSha !== frozenSha256) errors.push("frozen-version current canonical digest mismatch");
+  throwValidationErrors(errors);
+  return true;
+}
+
+export { candidateHead, expectedPack, frozenCanonicalVersion, frozenCanonicalSha256, packMatches };
+
 async function main() {
   const versions = await readJson("contracts/contract-versions.json");
   const canonical = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");
@@ -92,8 +177,24 @@ async function main() {
 
   check("candidate_head_ancestor", currentHead === candidateHead || isAncestor(candidateHead), candidateHead);
   check("phase_record", registry?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && registry?.status === "FROZEN" && versions?.canonicalPhaseG4Google?.status === "FROZEN", JSON.stringify({ phase: registry?.phase, status: registry?.status }));
-  check("canonical_version", versions?.documentVersion?.previous === "1.31.1" && versions?.documentVersion?.current === "1.32.0" && versions?.documentVersion?.bump === "minor" && /Document version:\*\* 1\.32\.0/u.test(canonical) && canonical.includes("Phase G4"), JSON.stringify(versions?.documentVersion));
-  check("canonical_hash_recorded", currentCanonicalSha === versions?.canonicalPhaseG4Google?.canonicalDocumentSha256 && currentCanonicalSha !== "__CANONICAL_SHA256__", currentCanonicalSha ?? "missing");
+  let historicalSnapshotValid = false;
+  try {
+    historicalSnapshotValid = validateHistoricalSnapshot({
+      versions,
+      registry,
+      candidateSourceHead: review?.selectedPack?.sourceHead,
+      acceptedPack: registry?.acceptedPack,
+    });
+  } catch { historicalSnapshotValid = false; }
+  check("historical_canonical_snapshot", historicalSnapshotValid, JSON.stringify({ frozenVersion: registry?.canonical?.frozenVersion, frozenSha256: versions?.canonicalPhaseG4Google?.canonicalDocumentSha256 }));
+  const activeCanonical = versions?.activeCanonical ?? versions?.currentCanonical ?? null;
+  let currentCanonicalValid = false;
+  try {
+    currentCanonicalValid = validateCurrentCanonicalState({ versions, canonical, currentCanonicalSha, activeCanonical });
+  } catch { currentCanonicalValid = false; }
+  check("canonical_version", currentCanonicalValid, JSON.stringify({ current: versions?.documentVersion, activeCanonical: activeCanonical ?? "baseline-fallback-to-historical-snapshot" }));
+  const currentDigestValid = currentCanonicalSha !== null && (activeCanonical?.sha256 === currentCanonicalSha || (!activeCanonical && versions?.documentVersion?.current === frozenCanonicalVersion && currentCanonicalSha === frozenCanonicalSha256));
+  check("canonical_hash_recorded", currentDigestValid && currentCanonicalSha !== "__CANONICAL_SHA256__", currentCanonicalSha ?? "missing");
   check("acceptance_record", acceptance?.schemaVersion === "1.0.0" && acceptance?.decision === "ACCEPT_GOOGLE_G3_2_3_FINAL_OUTPUT_PACK" && acceptance?.authorizedAction === "PROCEED_TO_G4_RELEASE_FREEZE" && acceptance?.recordedBy === "USER" && acceptance?.userAcceptanceRecorded === true && acceptance?.freezeAuthorization === true && acceptance?.externalReviewStatus === "PASS", JSON.stringify({ decision: acceptance?.decision, recorded: acceptance?.userAcceptanceRecorded }));
   check("external_review_record", review?.schemaVersion === "1.0.0" && review?.evidenceClass === "INDEPENDENT_EXTERNAL_REVIEW" && review?.status === "PASS" && review?.independentChecks?.passed === 3044 && review?.independentChecks?.total === 3044 && review?.blockingReasons?.length === 0, JSON.stringify(review?.independentChecks));
   check("pack_identity", packMatches(acceptance?.acceptedPack, expectedPack) && packMatches(review?.selectedPack, expectedPack, candidateHead), JSON.stringify(acceptance?.acceptedPack));
@@ -135,7 +236,7 @@ async function main() {
     "docs/implementation/google-static-user-acceptance-release-freeze-g4.md", "docs/adr/ADR-0070-google-static-user-acceptance-release-freeze-g4.md",
     "scripts/verify-g4-google-static-release-freeze.mjs", "scripts/verify-contract.mjs", "scripts/verify-freeform-contract.mjs", "scripts/verify-naver-freeform-contract.mjs", "scripts/verify-g3-google-static-desktop-qa.mjs",
     "scripts/verify-g3-0-4-google-static-geometry-placement-manifest.mjs", "scripts/verify-g3-0-5-google-static-preview-fit-review-pack.mjs",
-    "scripts/verify-g3-0-6-google-static-verification-gate.mjs", "scripts/verify-g0-1-google-architecture-freeze.mjs", "scripts/verify-g1-google-static.mjs", "scripts/verify-g2-1-google-static.mjs", "scripts/verify-n8-channel-completion.mjs", "scripts/verify-m1-meta-static.mjs", "scripts/verify-m2-meta-static.mjs", "scripts/verify-m2-1-meta.mjs", "scripts/verify-m2-2a-meta.mjs", "scripts/verify-m2-3-meta-goldens.mjs", "tests/google-static/google-static-g4-freeze.test.ts", "package.json",
+    "scripts/verify-g3-0-6-google-static-verification-gate.mjs", "scripts/verify-g0-1-google-architecture-freeze.mjs", "scripts/verify-g1-google-static.mjs", "scripts/verify-g2-1-google-static.mjs", "scripts/verify-n8-channel-completion.mjs", "scripts/verify-m1-meta-static.mjs", "scripts/verify-m2-meta-static.mjs", "scripts/verify-m2-1-meta.mjs", "scripts/verify-m2-2a-meta.mjs", "scripts/verify-m2-3-meta-goldens.mjs", "scripts/verify-p0-0-1-g4-forward-compatibility.mjs", "docs/adr/ADR-0071-g4-historical-verifier-forward-compatibility-p0-0-1.md", "docs/implementation/g4-historical-verifier-forward-compatibility-p0-0-1.md", "tests/google-static/google-static-g4-verifier-forward-compatibility.test.ts", "tests/google-static/google-static-g4-freeze.test.ts", "package.json",
   ]);
   const disallowed = changed.filter((entry) => !allowed.has(entry));
   const runtimeChanged = changed.filter((entry) => /^(?:apps|src|packages|fixtures|reference)\//u.test(entry));
@@ -146,4 +247,4 @@ async function main() {
   if (failures.length > 0) process.exitCode = 1;
 }
 
-await main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();

@@ -63,6 +63,7 @@
     "generate:g3-0-7-review-pack-evidence": "node scripts/generate-g3-0-7-google-static-review-pack-evidence.mjs",
     "verify:g3-0-7-google": "node scripts/verify-g3-0-7-google-static-review-pack-path-hygiene.mjs",
     "verify:g4-google": "node scripts/verify-g4-google-static-release-freeze.mjs",
+    "verify:p0-0-1": "node scripts/verify-p0-0-1-g4-forward-compatibility.mjs",
     "verify:g3-google": "node scripts/verify-g3-google-static-desktop-qa.mjs",
     "promote:g2-1-google": "node scripts/promote-g2-1-google-goldens.mjs",
     "evidence:m2-meta": "pnpm build && node scripts/generate-m2-meta-audit.mjs",
