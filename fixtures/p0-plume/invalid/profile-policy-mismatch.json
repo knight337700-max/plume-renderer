@@ -1,0 +1,15 @@
+{
+  "fixtureId": "P0_INVALID_PROFILE_POLICY_MISMATCH",
+  "valid": false,
+  "input": {
+    "profileId": "KAKAO_BIZBOARD_OBJECT_RIGHT",
+    "placementPolicy": "ALPHA_TRIM_CONTAIN"
+  },
+  "expected": {
+    "rule": "PROFILE_POLICY_MISMATCH",
+    "errorCode": "KBR-PLUME-003",
+    "severity": "ERROR",
+    "publishAllowed": false,
+    "evidence": "EXPECTED_FAIL_CONFIRMED"
+  }
+}

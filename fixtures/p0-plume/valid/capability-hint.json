@@ -1,0 +1,10 @@
+{
+  "fixtureId": "P0_VALID_CAPABILITY_HINT",
+  "valid": true,
+  "schemaVersion": "1.0.0",
+  "profileId": "KAKAO_BIZBOARD_OBJECT_RIGHT",
+  "sourceContract": "contracts/template-capabilities.json",
+  "expected": {
+    "evidence": "EXECUTED"
+  }
+}

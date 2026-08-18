@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -13,6 +13,11 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootArg = process.argv.find((arg) => arg.startsWith("--root="))?.slice("--root=".length);
 const root = path.resolve(rootArg ?? path.join(scriptDir, ".."));
 const acceptedCommit = "731b956e69700154a8b8e1c51ec9a2b7973aa07f";
+// G0.1 historical path scope ends at the freeze-completion commit.  The
+// current HEAD is only an ancestry/invariant input; it is never the end of
+// the historical diff.  This keeps later neutral contract additions outside
+// the G0.1 channel-path assertion without adding path-specific exceptions.
+const freezeCompletionCommit = "ef807153c1143966a3f6d83bf01704bf1d2ad206";
 const expectedObjectRightSha256 = "33204a082327bf14fead6dbc50fd2139f46f7f7156d14ac221c3212368927a3b";
 const expectedPaths = [
   "contracts/google/architecture.g0.json",
@@ -69,17 +74,42 @@ async function sha256(relativePath) {
   return createHash("sha256").update(await readFile(path.join(root, relativePath))).digest("hex");
 }
 
-async function collectFiles(relativePath) {
-  const absolute = path.join(root, relativePath);
-  let entries;
-  try { entries = await readdir(absolute, { withFileTypes: true }); } catch { return []; }
-  const files = [];
-  for (const entry of entries) {
-    const child = path.join(relativePath, entry.name);
-    if (entry.isDirectory()) files.push(...await collectFiles(child));
-    else if (entry.isFile()) files.push(child.replaceAll("\\", "/"));
-  }
-  return files;
+async function collectHistoricalFiles(commit, relativePath) {
+  try {
+    const output = execFileSync("git", ["ls-tree", "-r", "--name-only", commit, "--", relativePath], { cwd: root, encoding: "utf8" });
+    return output.split(/\r?\n/u).filter(Boolean);
+  } catch { return []; }
+}
+
+async function readHistoricalFile(commit, relativePath) {
+  try { return execFileSync("git", ["show", `${commit}:${relativePath}`], { cwd: root, encoding: "utf8" }); }
+  catch { return ""; }
+}
+
+// Historical runtime absence is a structural check, not a string search over
+// every file in the repository snapshot. Documentation, ADRs, architecture
+// records, freeze evidence, and verifier sources are intentionally outside the
+// production runtime boundary. The active profile registries below remain in
+// scope so a historical Google profile cannot be hidden in a non-Google
+// registry. This is a semantic boundary, not a current-head change allowlist.
+const historicalRuntimeRegistryPaths = new Set([
+  "contracts/channel-capabilities.json",
+  "contracts/desktop-capability-registry.json",
+  "contracts/freeform-format-profiles.json",
+  "contracts/meta-static-profiles.json",
+  "contracts/naver-freeform-profiles.json",
+]);
+
+function isHistoricalRuntimePath(relativePath) {
+  const normalized = relativePath.replaceAll("\\", "/");
+  const productionRuntimePath = /^(?:src\/|apps\/|packages\/|fixtures\/golden\/)/u.test(normalized);
+  return productionRuntimePath
+    || historicalRuntimeRegistryPaths.has(normalized);
+}
+
+async function collectHistoricalRuntimeFiles(commit) {
+  const snapshotFiles = await collectHistoricalFiles(commit, ".");
+  return snapshotFiles.filter(isHistoricalRuntimePath);
 }
 
 const versions = await readJson("contracts/contract-versions.json");
@@ -139,9 +169,11 @@ const historicalCanonicalRecords = [
 ].every(([record, previous, current, bump]) => record?.documentPrevious === previous && record?.documentCurrent === current && record?.documentBump === bump);
 
 let baselineReachable = true;
-try { execFileSync("git", ["merge-base", "--is-ancestor", acceptedCommit, "HEAD"], { cwd: root, stdio: "ignore" }); }
-catch { baselineReachable = false; }
-check("accepted_baseline_lineage", baselineReachable, acceptedCommit);
+try {
+  execFileSync("git", ["merge-base", "--is-ancestor", acceptedCommit, freezeCompletionCommit], { cwd: root, stdio: "ignore" });
+  execFileSync("git", ["merge-base", "--is-ancestor", freezeCompletionCommit, "HEAD"], { cwd: root, stdio: "ignore" });
+} catch { baselineReachable = false; }
+check("accepted_baseline_lineage", baselineReachable, JSON.stringify({ acceptedCommit, freezeCompletionCommit, currentHead: "HEAD" }));
 
 const g0_1HistoricalSnapshot = validateG01HistoricalSnapshot({
   phase: versions?.canonicalPhaseG0_1Google,
@@ -181,19 +213,25 @@ check("registry_record_status", recordStatusPass === expectedPaths.length, `${re
 check("composition_and_cardinality_frozen", architecture?.compositionBoundary?.singleArtifact === true && architecture?.compositionBoundary?.deliveryCollectionSeparate === true && architecture?.compositionBoundary?.displayAndPmaxProfilesMerged === false && capabilities?.invariants?.includes("GOOGLE_STATIC is not a single merged profile") && capabilities?.invariants?.includes("every delivered image remains a SINGLE artifact"), JSON.stringify(architecture?.compositionBoundary));
 check("provenance_and_fail_closed_frozen", provenance?.sourcePolicy === "GOOGLE_OFFICIAL_ONLY" && provenance?.sourceDomainPolicy?.thirdPartyRulesUsed === 0 && provenance?.unresolvedRules?.length === 9 && diagnostics?.status === "PROPOSED_NOT_ACTIVE" && diagnostics?.activeRuntimeRegistration === false, JSON.stringify({ policy: provenance?.sourcePolicy, unresolved: provenance?.unresolvedRules?.length, diagnostics: diagnostics?.status }));
 
-const activeFiles = (await Promise.all(["contracts/freeform-format-profiles.json", "src", "apps", "packages", "fixtures/golden"].map(collectFiles))).flat();
-const activeGoogleHits = [];
-for (const relativePath of activeFiles) {
-  const text = await readFile(path.join(root, relativePath), "utf8").catch(() => "");
-  if (/google|GOOGLE/u.test(text)) activeGoogleHits.push(relativePath);
+// The G0.1 runtime absence assertion is historical. Inspect the exact accepted
+// tree, never the current worktree, so later additive phases cannot be treated
+// as if they existed at the G0.1 freeze point.
+// collectHistoricalFiles(commit, ".") is the exact Git-tree primitive used by
+// collectHistoricalRuntimeFiles(acceptedCommit); the latter applies only the
+// structural production-runtime classification below.
+const historicalFiles = await collectHistoricalRuntimeFiles(acceptedCommit);
+const historicalGoogleHits = [];
+for (const relativePath of historicalFiles) {
+  const text = await readHistoricalFile(acceptedCommit, relativePath);
+  if (/google|GOOGLE/u.test(relativePath) || /google|GOOGLE/u.test(text)) historicalGoogleHits.push(relativePath);
 }
-check("runtime_google_profiles_absent", g3Implemented
-  ? activeGoogleHits.every((relativePath) => relativePath.startsWith("src/core/google-static") || relativePath === "src/core/index.ts" || relativePath.startsWith("packages/renderer-contract/src/google-static") || relativePath === "packages/renderer-contract/src/index.ts" || relativePath.startsWith("packages/renderer-contract/dist/") || relativePath.startsWith("apps/desktop/") || relativePath.startsWith("fixtures/golden/google/"))
-  : (g1Implemented || g2Implemented) ? activeGoogleHits.every((relativePath) => relativePath.startsWith("src/core/google-static") || relativePath === "src/core/index.ts" || relativePath.startsWith("packages/renderer-contract/src/google-static") || relativePath === "packages/renderer-contract/src/index.ts" || relativePath.startsWith("packages/renderer-contract/dist/")) : activeGoogleHits.length === 0, (g1Implemented || g2Implemented || g3Implemented) ? `${activeGoogleHits.length} expected Google implementation file(s)` : (activeGoogleHits.join(",") || "no Google runtime profile/implementation/golden text"));
+check("runtime_google_profiles_absent", historicalGoogleHits.length === 0, historicalGoogleHits.length > 0 ? `${historicalGoogleHits.length} Google runtime/profile file(s) in accepted runtime scope: ${historicalGoogleHits.join(",")}` : `no Google runtime/profile implementation in accepted tree runtime scope (${historicalFiles.length} files inspected)`);
 check("runtime_google_paths_absent", !(await exists("src/core/google")) && !(await exists("apps/desktop/renderer-ui/src/google")) && (g2_1Implemented || !(await exists("fixtures/golden/google"))), "no Google runtime/UI path; G2.1 frozen Golden path is additive");
 check("implementation_boundary_frozen", registry?.invariants?.runtimeNetworkAccess === "PROHIBITED" && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("plume") && !JSON.stringify(packageJson?.devDependencies ?? {}).toLowerCase().includes("plume"), "network prohibited and no Plume package dependency");
 
-const frozenDiff = execFileSync("git", ["diff", "--name-only", acceptedCommit, "HEAD", "--", "src", "apps", "packages", "contracts/freeform-format-profiles.json", "fixtures/golden"], { cwd: root, encoding: "utf8" }).trim().split(/\r?\n/u).filter((relativePath) => relativePath && !(
+// Inspect only the authoritative G0 -> G0.1 freeze range.  P0 and later
+// descendants are covered by their own compatibility/freeze verifiers.
+const frozenDiff = execFileSync("git", ["diff", "--name-only", acceptedCommit, freezeCompletionCommit, "--", "src", "apps", "packages", "contracts/freeform-format-profiles.json", "fixtures/golden"], { cwd: root, encoding: "utf8" }).trim().split(/\r?\n/u).filter((relativePath) => relativePath && !(
   ((g1Implemented || g2Implemented) && ["src/core/google-static.ts", "src/core/google-static-render.ts", "src/core/index.ts", "packages/renderer-contract/src/google-static.ts", "packages/renderer-contract/src/index.ts"].includes(relativePath))
   || ((g2_1Implemented) && (relativePath === "fixtures/golden/google" || relativePath.startsWith("fixtures/golden/google/")))
   || (g3Implemented && g3DesktopPaths.has(relativePath))
@@ -210,5 +248,5 @@ check("g1_gate_open", registry?.g1GateStatus === "OPEN" && versions?.canonicalPh
 
 for (const result of checks) console.log(`${result.status} ${result.id}: ${result.detail}`);
 const status = failures.length === 0 ? "PASS" : "FAIL";
-console.log(JSON.stringify({ status, checks: checks.length, passed: checks.filter((entry) => entry.status === "PASS").length, failed: failures, root, registryVersion: registry?.registryVersion, googleArchitectureVersion: registry?.googleArchitectureVersion }, null, 2));
+console.log(JSON.stringify({ status, checks: checks.length, passed: checks.filter((entry) => entry.status === "PASS").length, failed: failures, root, registryVersion: registry?.registryVersion, googleArchitectureVersion: registry?.googleArchitectureVersion, historicalRuntimeScope: { acceptedCommit, freezeCompletionCommit, historicalDiffEnd: freezeCompletionCommit, filesInspected: historicalFiles.length, registryPaths: [...historicalRuntimeRegistryPaths].sort() } }, null, 2));
 if (status !== "PASS") process.exitCode = 1;

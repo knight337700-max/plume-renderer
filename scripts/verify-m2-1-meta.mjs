@@ -4,6 +4,8 @@ import path from "node:path";
 
 import sharp from "sharp";
 
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
+
 const root = process.cwd();
 const checks = [];
 const failures = [];
@@ -37,6 +39,21 @@ if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_
 if (["1.26.0", "1.27.0"].includes(versions.documentVersion?.current)) versions.documentVersion = { ...versions.documentVersion, current: "1.25.0" };
 const packageJson = await readJson("package.json");
 g304Compatibility = (versions.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && versions.documentVersion?.current === "1.31.0" && packageJson.version === "0.13.0") || (versions.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" && versions.documentVersion?.current === "1.31.1" && packageJson.version === "0.13.1") || (versions.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions.canonicalPhaseG4Google?.status === "FROZEN" && versions.documentVersion?.current === "1.32.0" && packageJson.version === "0.13.1");
+const canonicalDocument = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8");
+const currentCanonicalSha = createHash("sha256").update(canonicalDocument).digest("hex");
+const activeCanonicalValidation = validateActiveCanonicalState({
+  versions,
+  canonical: canonicalDocument,
+  currentCanonicalSha,
+  activeCanonical: versions.activeCanonical,
+  historicalMinimumVersion: versions.canonicalPhaseG0_1Google?.documentCurrent ?? "1.24.0",
+});
+const activeM2_1Compatibility = activeCanonicalValidation.valid
+  && versions.canonicalPhaseM2_1?.metaRuntimeImplemented === true
+  && versions.templateContractVersion === "1.9.0"
+  && versions.freeformFormatProfileRegistryVersion === "1.4.0"
+  && versions.desktopAppVersion === "0.13.1"
+  && packageJson.version === "0.13.1";
 const provenance = await readJson("artifacts/m2-1/meta-output-constraint-provenance.json");
 const byteAudit = await readJson("artifacts/m2-1/meta-300kb-rule-audit.json");
 const cropAudit = await readJson("artifacts/m2-1/meta-manual-crop-candidate-audit.json");
@@ -49,7 +66,7 @@ const registry = await readJson("contracts/audits/meta-golden-candidates-m2-1.js
 const manualSummary = await readJson("artifacts/m2-1/manual-review-summary.json");
 
 const metaProfiles = (profilesRegistry.profiles ?? []).filter((profile) => profile.channelNamespace === "META");
-check("version_m2_1", (versions.canonicalPhaseM2_1?.documentPrevious === "1.22.0" && versions.canonicalPhaseM2_1?.documentCurrent === "1.23.0" && ["1.23.1", "1.24.0", "1.25.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current) && versions.templateContractVersion === "1.9.0" && versions.freeformFormatProfileRegistryVersion === "1.4.0" && versions.canonicalPhaseM2_1?.rendererCoreVersion === "0.9.0" && versions.canonicalPhaseM2_1?.validatorCurrent === "1.9.0" && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version)) || (versions.documentVersion?.current === "1.29.0" && versions.desktopAppVersion === "0.12.0" && packageJson.version === "0.12.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY"), JSON.stringify({ document: versions.documentVersion, template: versions.templateContractVersion, profiles: versions.freeformFormatProfileRegistryVersion, package: packageJson.version }));
+check("version_m2_1", ((versions.canonicalPhaseM2_1?.documentPrevious === "1.22.0" && versions.canonicalPhaseM2_1?.documentCurrent === "1.23.0" && ["1.23.1", "1.24.0", "1.25.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current) && versions.templateContractVersion === "1.9.0" && versions.freeformFormatProfileRegistryVersion === "1.4.0" && versions.canonicalPhaseM2_1?.rendererCoreVersion === "0.9.0" && versions.canonicalPhaseM2_1?.validatorCurrent === "1.9.0" && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version)) || (versions.documentVersion?.current === "1.29.0" && versions.desktopAppVersion === "0.12.0" && packageJson.version === "0.12.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY") || activeM2_1Compatibility), JSON.stringify({ document: versions.documentVersion, template: versions.templateContractVersion, profiles: versions.freeformFormatProfileRegistryVersion, package: packageJson.version, activeCanonicalValidation, activeM2_1Compatibility }));
 check("template_unchanged", versions.templateContractVersion === "1.9.0" && versions.canonicalPhaseM2_1?.templateCoordinatesChanged === false && versions.coordinatesChanged === false, JSON.stringify({ template: versions.templateContractVersion, coordinatesChanged: versions.coordinatesChanged }));
 check("meta_profile_count", metaProfiles.length === 3, `${metaProfiles.length}`);
 check("meta_maximum_unpinned", metaProfiles.every((profile) => profile.outputConstraints?.maximumBytes === undefined && profile.outputConstraints?.maximumBytesComparator === undefined), JSON.stringify(metaProfiles.map((profile) => ({ id: profile.formatProfileId, outputConstraints: profile.outputConstraints }))));

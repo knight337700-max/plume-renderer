@@ -226,7 +226,13 @@ check("google_upload_absent", !(await exists("src/core/google-upload")) && !(awa
 check("desktop_google_ui_absent", g3Implemented ? await exists("apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx") : !(await exists("apps/desktop/renderer-ui/src/google")), g3Implemented ? "G3 Google UI is additive and present" : "Desktop Google UI is absent");
 check("google_frozen_golden_scope", !(await exists("contracts/google/goldens.g1.json")) && (await exists("contracts/google/goldens.g2.1.json")) && (await exists("fixtures/golden/google")), "G2 candidates remain historical while G2.1 owns the additive frozen Google Golden scope");
 const renderSource = await readFile(path.join(root, "src/core/google-static-render.ts"), "utf8").catch(() => "");
-check("plume_absent", !JSON.stringify(packageJson ?? {}).toLowerCase().includes("plume") && !renderSource.toLowerCase().includes("plume"), "no Plume dependency");
+const runtimeDependencyManifest = JSON.stringify({
+  dependencies: packageJson?.dependencies ?? {},
+  devDependencies: packageJson?.devDependencies ?? {},
+  optionalDependencies: packageJson?.optionalDependencies ?? {},
+  peerDependencies: packageJson?.peerDependencies ?? {},
+}).toLowerCase();
+check("plume_absent", !runtimeDependencyManifest.includes("plume") && !renderSource.toLowerCase().includes("plume"), "no Plume dependency in runtime manifests or Google renderer");
 let frozenDiff = "";
 try {
   const rawFrozenDiff = execFileSync("git", ["diff", "--name-only", baselineCommit, "HEAD", "--", "fixtures/golden", "contracts/goldens", "artifacts/n7-8", "artifacts/n8", "artifacts/m2-3"], { cwd: root, encoding: "utf8" }).trim();

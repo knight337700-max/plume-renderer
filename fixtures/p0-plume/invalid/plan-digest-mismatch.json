@@ -1,0 +1,15 @@
+{
+  "fixtureId": "P0_INVALID_PLAN_DIGEST_MISMATCH",
+  "valid": false,
+  "input": {
+    "profileId": "KAKAO_BIZBOARD_OBJECT_RIGHT",
+    "placementPolicy": "ALPHA_TRIM_CONTAIN"
+  },
+  "expected": {
+    "rule": "PLAN_DIGEST_MISMATCH",
+    "errorCode": "KBR-PLUME-011",
+    "severity": "ERROR",
+    "publishAllowed": false,
+    "evidence": "EXPECTED_FAIL_CONFIRMED"
+  }
+}

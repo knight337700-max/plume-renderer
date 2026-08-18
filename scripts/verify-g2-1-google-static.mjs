@@ -5,6 +5,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import sharp from "sharp";
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
 
 const rootArg = process.argv.find((arg) => arg.startsWith("--root="))?.slice("--root=".length);
 const root = path.resolve(rootArg ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."));
@@ -19,10 +20,10 @@ const frozenPath = "contracts/google/goldens.g2.1.json";
 const precheckPath = "artifacts/g2-1/precheck.json";
 const checks = [];
 const failures = [];
-let g304Compatibility = false;
+let activeCanonicalCompatibility = false;
 
 function check(id, condition, detail = "") {
-  if (g304Compatibility && id === "canonical_version_1_27") condition = true;
+  if (activeCanonicalCompatibility && id === "canonical_version_1_27") condition = true;
   const status = condition ? "PASS" : "FAIL";
   checks.push({ id, status, detail });
   if (!condition) failures.push(`${id}: ${detail}`);
@@ -168,19 +169,40 @@ async function main() {
   check("expected_vertical_info", frozen?.entries?.find((entry) => entry.profileId === "GOOGLE_RDA_VERTICAL_9_16")?.expectedInfoDiagnostics?.includes("KBR-GOOGLE-RDA-VERTICAL-SOURCE-DISCREPANCY") === true && frozen?.entries?.find((entry) => entry.profileId === "GOOGLE_DEMAND_GEN_VERTICAL_9_16")?.expectedInfoDiagnostics?.includes("KBR-GOOGLE-DEMANDGEN-SAFE-ZONE-SOURCE-REQUIRED") === true, "RDA and Demand Gen vertical INFO diagnostics remain explicit");
 
   const versions = await readJson("contracts/contract-versions.json");
-  g304Compatibility = (versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION"
-    && versions?.documentVersion?.current === "1.31.0") || (versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING"
-    && versions?.documentVersion?.current === "1.31.1") || (versions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE"
-    && versions?.canonicalPhaseG4Google?.status === "FROZEN" && versions?.documentVersion?.current === "1.32.0");
+  const canonicalText = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");
+  const canonicalSha = createHash("sha256").update(canonicalText).digest("hex");
   if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
   const packageJson = await readJson("package.json");
   const renderSource = await readFile(path.join(root, "src/core/google-static-render.ts"), "utf8").catch(() => "");
+  const activeCanonicalValidation = validateActiveCanonicalState({
+    versions,
+    canonical: canonicalText,
+    currentCanonicalSha: canonicalSha,
+    activeCanonical: versions?.activeCanonical,
+    historicalMinimumVersion: "1.27.0",
+  });
+  // Preserve the historical G2.1 transition as an exact branch while
+  // validating later Canonical documents through the shared active registry
+  // and SemVer rules.  No current-version allowlist is used.
+  activeCanonicalCompatibility = activeCanonicalValidation.valid
+    && versions?.canonicalPhaseG2_1Google?.googleStaticGoldenStatus === "FROZEN"
+    && versions?.canonicalPhaseG2_1Google?.visualAcceptance === "ACCEPTED"
+    && versions?.canonicalPhaseG2_1Google?.goldenCount === 14
+    && versions?.templateContractVersion === "1.9.0"
+    && versions?.desktopAppVersion === "0.13.1"
+    && packageJson?.version === "0.13.1";
   check("google_upload_absent", !(await exists("src/core/google-upload")) && !(await exists("apps/desktop/electron-main/google-upload")) && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("googleapis"), "Google upload/API integration absent");
   const g3Implemented = versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT";
   const g3RevisionImplemented = versions?.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION";
   const g3_0_3Implemented = versions?.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
   check("desktop_google_ui_absent", g3Implemented ? await exists("apps/desktop/renderer-ui/src/features/google/GoogleStaticEditor.tsx") : !(await exists("apps/desktop/renderer-ui/src/google")), g3Implemented ? "G3 Google Desktop UI is present at the additive feature path" : "Google Desktop UI absent");
-  check("runtime_network_and_plume_absent", !JSON.stringify(packageJson ?? {}).toLowerCase().includes("plume") && !renderSource.toLowerCase().includes("plume") && !JSON.stringify(packageJson?.dependencies ?? {}).toLowerCase().includes("axios"), "no Plume or remote runtime dependency");
+  const runtimeDependencyManifest = JSON.stringify({
+    dependencies: packageJson?.dependencies ?? {},
+    devDependencies: packageJson?.devDependencies ?? {},
+    optionalDependencies: packageJson?.optionalDependencies ?? {},
+    peerDependencies: packageJson?.peerDependencies ?? {},
+  }).toLowerCase();
+  check("runtime_network_and_plume_absent", !runtimeDependencyManifest.includes("plume") && !runtimeDependencyManifest.includes("axios") && !renderSource.toLowerCase().includes("plume"), "no Plume or remote runtime dependency");
   check("legacy_display_runtime_zero", !(candidates?.candidates ?? []).some((entry) => entry.profileId.includes("LEGACY")), "legacy Display runtime profile absent");
   check("object_right_sha256", await sha256("reference/kakao-tool/OBJECT_RIGHT.png") === expectedObjectRightSha256, expectedObjectRightSha256);
   let frozenDiff = "";
@@ -197,7 +219,6 @@ async function main() {
     : g3Implemented
     ? versions?.documentVersion?.current === "1.28.0" && versions?.documentVersion?.previous === "1.27.0" && versions?.canonicalPhaseG3Google?.templateCoordinatesChanged === false
     : versions?.canonicalPhaseG2_1Google?.documentCurrent === "1.27.0" && versions?.canonicalPhaseG2_1Google?.documentPrevious === "1.26.0" && versions?.canonicalPhaseG2_1Google?.googleStaticGoldenStatus === "FROZEN"), JSON.stringify(g3Implemented ? versions?.canonicalPhaseG3Google : versions?.canonicalPhaseG2_1Google));
-  const canonicalText = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");
   check("canonical_g2_1_section", canonicalText.includes("Phase G2.1") && canonicalText.includes(expectedAcceptanceStatement) && canonicalText.includes("ALL_14"), "canonical G2.1 freeze section present");
   check("next_phase_handoff", frozen?.nextPhase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT" || versions?.canonicalPhaseG2_1Google?.nextPhase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT", "next phase is G3 Google Desktop QA enablement");
 

@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
 
 const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const readJson = async (relativePath) => JSON.parse(await readFile(path.join(root, relativePath), "utf8"));
@@ -20,6 +21,17 @@ const profileBoundary = await readJson("contracts/naver-freeform-profiles.json")
 const capabilities = await readJson("contracts/channel-capabilities.json");
 const versions = await readJson("contracts/contract-versions.json");
 if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") versions.documentVersion.current = "1.29.0";
+const canonicalDocument = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8");
+const activeCanonicalValidation = validateActiveCanonicalState({
+  versions,
+  canonical: canonicalDocument,
+  currentCanonicalSha: sha256(Buffer.from(canonicalDocument)),
+  activeCanonical: versions.activeCanonical ?? versions.currentCanonical,
+  historicalMinimumVersion: versions.canonicalPhaseG0_1Google?.documentCurrent,
+  historicalFallback: versions.canonicalPhaseG4Google?.documentCurrent && versions.canonicalPhaseG4Google?.canonicalDocumentSha256
+    ? { version: versions.canonicalPhaseG4Google.documentCurrent, sha256: versions.canonicalPhaseG4Google.canonicalDocumentSha256 }
+    : null,
+});
 
 const expected = {
   NAVER_MOBILE_DA: {
@@ -64,7 +76,9 @@ check("feed_source_boundary", feedSource?.pageUrl === "https://ads.naver.com/adg
 const naverCapabilities = (capabilities.capabilities ?? []).filter((entry) => entry.channel === "NAVER_GFA");
 check("channel_capability_boundary", naverCapabilities.some((entry) => entry.placement === "MOBILE_DA" && entry.runtimeStatus === "IMPLEMENTED") && naverCapabilities.some((entry) => entry.placement === "IMAGE_BANNER_1_1" && entry.runtimeStatus === "IMPLEMENTED") && naverCapabilities.some((entry) => entry.placement === "MOBILE_DA_FEED" && entry.runtimeStatus !== "IMPLEMENTED"), JSON.stringify(naverCapabilities.map((entry) => ({ placement: entry.placement, runtimeStatus: entry.runtimeStatus }))));
 check("profile_registry_boundary", profileBoundary.runtimeProfiles?.length === 2 && profileBoundary.runtimeProfiles.every((entry) => entry.runtimeStatus === "IMPLEMENTED") && profileBoundary.feedBoundary?.singleImageSourceProfiles === "CATALOG_ONLY", JSON.stringify(profileBoundary));
-check("version_alignment", ((["1.22.0", "1.23.0", "1.23.1", "1.24.0", "1.25.0", "1.26.0", "1.27.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current)) && (versions.freeformFormatProfileRegistryVersion === "1.3.0" || versions.freeformFormatProfileRegistryVersion === "1.4.0") && versions.canonicalPhaseN4?.rendererCoreVersion === "0.7.0" && versions.canonicalPhaseN4?.integrationContractCurrent === "1.8.0" && versions.canonicalPhaseM1?.metaRuntimeImplemented === true) || (versions.documentVersion?.current === "1.21.4" && versions.freeformFormatProfileRegistryVersion === "1.2.0" && versions.canonicalPhaseN4?.rendererCoreVersion === "0.7.0" && versions.canonicalPhaseN4?.integrationContractCurrent === "1.8.0") || (versions.documentVersion?.current === "1.29.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY" && versions.freeformFormatProfileRegistryVersion === "1.4.0") || (versions.documentVersion?.current === "1.31.0" && versions.desktopAppVersion === "0.13.0" && versions.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && versions.freeformFormatProfileRegistryVersion === "1.4.0") || (versions.documentVersion?.current === "1.31.1" && versions.desktopAppVersion === "0.13.1" && versions.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" && versions.freeformFormatProfileRegistryVersion === "1.4.0") || (versions.documentVersion?.current === "1.32.0" && versions.desktopAppVersion === "0.13.1" && versions.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions.canonicalPhaseG4Google?.status === "FROZEN" && versions.freeformFormatProfileRegistryVersion === "1.4.0"), JSON.stringify({ document: versions.documentVersion, profiles: versions.freeformFormatProfileRegistryVersion, phase: versions.canonicalPhaseN4, m1: versions.canonicalPhaseM1 }));
+const activeCanonicalVersionAlignment = activeCanonicalValidation.valid && versions.freeformFormatProfileRegistryVersion === "1.4.0" && versions.desktopAppVersion === "0.13.1";
+if (activeCanonicalVersionAlignment) check("version_alignment", true, JSON.stringify({ document: versions.documentVersion, profiles: versions.freeformFormatProfileRegistryVersion, activeCanonicalValidation }));
+else check("version_alignment", ((["1.22.0", "1.23.0", "1.23.1", "1.24.0", "1.25.0", "1.26.0", "1.27.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current)) && (versions.freeformFormatProfileRegistryVersion === "1.3.0" || versions.freeformFormatProfileRegistryVersion === "1.4.0") && versions.canonicalPhaseN4?.rendererCoreVersion === "0.7.0" && versions.canonicalPhaseN4?.integrationContractCurrent === "1.8.0" && versions.canonicalPhaseM1?.metaRuntimeImplemented === true) || (versions.documentVersion?.current === "1.21.4" && versions.freeformFormatProfileRegistryVersion === "1.2.0" && versions.canonicalPhaseN4?.rendererCoreVersion === "0.7.0" && versions.canonicalPhaseN4?.integrationContractCurrent === "1.8.0") || (versions.documentVersion?.current === "1.29.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY" && versions.freeformFormatProfileRegistryVersion === "1.4.0") || (versions.documentVersion?.current === "1.31.0" && versions.desktopAppVersion === "0.13.0" && versions.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && versions.freeformFormatProfileRegistryVersion === "1.4.0") || (versions.documentVersion?.current === "1.31.1" && versions.desktopAppVersion === "0.13.1" && versions.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" && versions.freeformFormatProfileRegistryVersion === "1.4.0") || (versions.documentVersion?.current === "1.32.0" && versions.desktopAppVersion === "0.13.1" && versions.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions.canonicalPhaseG4Google?.status === "FROZEN" && versions.freeformFormatProfileRegistryVersion === "1.4.0"), JSON.stringify({ document: versions.documentVersion, profiles: versions.freeformFormatProfileRegistryVersion, phase: versions.canonicalPhaseN4, m1: versions.canonicalPhaseM1, activeCanonicalValidation }));
 check("no_constrained_layout_mode", !(profilesRegistry.profiles ?? []).some((entry) => entry.layoutMode === "FREEFORM_CONSTRAINED"), "layoutMode axis remains TEMPLATE_LOCKED | FREEFORM");
 
 for (const golden of [

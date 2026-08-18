@@ -1,5 +1,8 @@
+import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
+
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
 
 const root = process.cwd();
 const required = [
@@ -34,6 +37,20 @@ if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_
 if (["1.26.0", "1.27.0"].includes(versions.documentVersion?.current)) versions.documentVersion = { ...versions.documentVersion, current: "1.25.0" };
 const packageJson = await readJson("package.json");
 g304Compatibility = (versions.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && versions.documentVersion?.current === "1.31.0" && packageJson.version === "0.13.0") || (versions.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" && versions.documentVersion?.current === "1.31.1" && packageJson.version === "0.13.1") || (versions.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions.canonicalPhaseG4Google?.status === "FROZEN" && versions.documentVersion?.current === "1.32.0" && packageJson.version === "0.13.1");
+const canonicalDocument = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8");
+const currentCanonicalSha = createHash("sha256").update(canonicalDocument).digest("hex");
+const activeCanonicalValidation = validateActiveCanonicalState({
+  versions,
+  canonical: canonicalDocument,
+  currentCanonicalSha,
+  activeCanonical: versions.activeCanonical,
+  historicalMinimumVersion: versions.canonicalPhaseG0_1Google?.documentCurrent ?? "1.24.0",
+});
+const activeM2_2aCompatibility = activeCanonicalValidation.valid
+  && versions.canonicalPhaseM2_2a?.metaRuntimeImplemented === true
+  && versions.templateContractVersion === "1.9.0"
+  && versions.desktopAppVersion === "0.13.1"
+  && packageJson.version === "0.13.1";
 const evidence = Object.fromEntries(await Promise.all(required.map(async (fileName) => [fileName, await readJson(`artifacts/m2-2a/${fileName}`)])));
 const requestAudit = evidence[required[0]];
 const builder = evidence[required[1]];
@@ -47,7 +64,7 @@ const controllerSource = await readFile(path.join(root, "apps/desktop/electron-m
 const planSchema = await readJson("packages/renderer-contract/schema/creative-layout-plan-v1.schema.json");
 
 check("phase_status", required.every((fileName) => evidence[fileName].phase === "M2_2A_META_DESKTOP_QA_REQUEST_CONTEXT_PREVIEW_BRIDGE_HOTFIX" && evidence[fileName].status === "PASS"), "all M2.2a evidence files are PASS");
-check("version_alignment", (["1.23.1", "1.24.0", "1.25.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current) && versions.templateContractVersion === "1.9.0" && versions.canonicalPhaseM2_2?.rendererCoreVersion === "0.9.0" && versions.canonicalPhaseM2_2a?.desktopCurrent === "0.10.1" && versions.canonicalPhaseM2_2a?.packageCurrent === "0.10.1" && ["0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion) && ["0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version)) || (versions.documentVersion?.current === "1.29.0" && versions.desktopAppVersion === "0.12.0" && packageJson.version === "0.12.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY"), JSON.stringify({ document: versions.documentVersion, template: versions.templateContractVersion, m2_2a: versions.canonicalPhaseM2_2a, package: packageJson.version }));
+check("version_alignment", (((["1.23.1", "1.24.0", "1.25.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current) && versions.templateContractVersion === "1.9.0" && versions.canonicalPhaseM2_2?.rendererCoreVersion === "0.9.0" && versions.canonicalPhaseM2_2a?.desktopCurrent === "0.10.1" && versions.canonicalPhaseM2_2a?.packageCurrent === "0.10.1" && ["0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion) && ["0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version)) || (versions.documentVersion?.current === "1.29.0" && versions.desktopAppVersion === "0.12.0" && packageJson.version === "0.12.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY")) || activeM2_2aCompatibility), JSON.stringify({ document: versions.documentVersion, template: versions.templateContractVersion, m2_2a: versions.canonicalPhaseM2_2a, package: packageJson.version, activeCanonicalValidation, activeM2_2aCompatibility }));
 check("template_and_core_unchanged", versions.templateContractVersion === "1.9.0" && versions.coordinatesChanged === false && versions.canonicalPhaseM2_2a?.rendererCoreChanged === false && versions.canonicalPhaseM2_2a?.templateContractChanged === false, JSON.stringify({ template: versions.templateContractVersion, coordinatesChanged: versions.coordinatesChanged, phase: versions.canonicalPhaseM2_2a }));
 check("request_state", requestAudit.stateOwner === "DESKTOP_QA_HARNESS" && requestAudit.planPlacementContextAllowed === false && requestAudit.requestLevel.join(",") === "formatProfileId,placementContext,creativeLayoutPlan,output", JSON.stringify(requestAudit));
 check("compatibility_matrix", JSON.stringify(requestAudit.compatibility.META_STATIC_FEED_SQUARE) === JSON.stringify(["FACEBOOK_FEED", "INSTAGRAM_FEED", null]) && JSON.stringify(requestAudit.compatibility.META_STATIC_FEED_PORTRAIT) === JSON.stringify(["FACEBOOK_FEED", "INSTAGRAM_FEED", null]) && JSON.stringify(requestAudit.compatibility.META_STATIC_VERTICAL_FULL) === JSON.stringify(["FACEBOOK_STORIES", "INSTAGRAM_STORIES", "FACEBOOK_REELS", "INSTAGRAM_REELS", null]), JSON.stringify(requestAudit.compatibility));

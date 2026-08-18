@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
-import { access, readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
 import Ajv2020 from "ajv/dist/2020.js";
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
 
 const root = process.cwd();
 const schemaRoot = path.join(root, "packages", "renderer-contract", "schema");
@@ -30,6 +31,18 @@ const pass = (name, detail) => console.log(`PASS ${name}: ${detail}`);
 const fail = (name, detail) => failures.push(`FAIL ${name}: ${detail}`);
 const readJson = async (relativePath) => JSON.parse(await readFile(path.join(root, relativePath), "utf8"));
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
+
+async function collectRuntimeSourceFiles(relativePath, result = []) {
+  const absolutePath = path.join(root, relativePath);
+  let entries;
+  try { entries = await readdir(absolutePath, { withFileTypes: true }); } catch { return result; }
+  for (const entry of entries) {
+    const childRelativePath = path.join(relativePath, entry.name);
+    if (entry.isDirectory()) await collectRuntimeSourceFiles(childRelativePath, result);
+    else if (/\.(?:c|m)?jsx?$|\.tsx?$/iu.test(entry.name)) result.push(childRelativePath);
+  }
+  return result;
+}
 
 const schemas = [];
 for (const file of schemaFiles) {
@@ -92,7 +105,20 @@ else fail("integration_version_alignment", "v1.8.0 is absent from Integration sc
 
 const versions = await readJson("contracts/contract-versions.json");
 if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") versions.documentVersion.current = "1.29.0";
-if ((["1.22.0", "1.23.0", "1.23.1", "1.24.0", "1.25.0", "1.26.0", "1.27.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current) && versions.integrationContract?.current === "1.8.0" && versions.templateContractVersion === "1.9.0" && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion) && versions.canonicalPhaseN7_4?.desktopCurrent === "0.9.4" && versions.canonicalPhaseN7_4Continuation?.desktopCurrent === "0.9.5" && versions.canonicalPhaseN7_5?.desktopCurrent === "0.9.6" && versions.canonicalPhaseN7_7?.desktopCurrent === "0.9.7" && versions.canonicalPhaseN7_7_4?.desktopCurrent === "0.9.8" && versions.canonicalPhaseN7_7_5?.desktopCurrent === "0.9.9" && versions.canonicalPhaseN7_7_6?.desktopCurrent === "0.9.10" && versions.canonicalPhaseN8?.desktopCurrent === "0.9.12" && ["1.3.0", "1.4.0"].includes(versions.freeformFormatProfileRegistryVersion) && versions.canonicalPhaseM1?.metaRuntimeImplemented === true) || (versions.documentVersion?.current === "1.29.0" && versions.desktopAppVersion === "0.12.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY") || (versions.documentVersion?.current === "1.31.0" && versions.desktopAppVersion === "0.13.0" && versions.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION") || (versions.documentVersion?.current === "1.31.1" && versions.desktopAppVersion === "0.13.1" && versions.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING") || (versions.documentVersion?.current === "1.32.0" && versions.desktopAppVersion === "0.13.1" && versions.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions.canonicalPhaseG4Google?.status === "FROZEN" && versions.freeformFormatProfileRegistryVersion === "1.4.0")) pass("version_policy", `Canonical ${versions.documentVersion.current} / Integration 1.8.0 / Template 1.9.0 / FREEFORM Profiles ${versions.freeformFormatProfileRegistryVersion} / Desktop ${versions.desktopAppVersion} (M1/M2.2a additive)`);
+const canonicalDocument = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8");
+const activeCanonicalValidation = validateActiveCanonicalState({
+  versions,
+  canonical: canonicalDocument,
+  currentCanonicalSha: sha256(Buffer.from(canonicalDocument)),
+  activeCanonical: versions.activeCanonical ?? versions.currentCanonical,
+  historicalMinimumVersion: versions.canonicalPhaseG0_1Google?.documentCurrent,
+  historicalFallback: versions.canonicalPhaseG4Google?.documentCurrent && versions.canonicalPhaseG4Google?.canonicalDocumentSha256
+    ? { version: versions.canonicalPhaseG4Google.documentCurrent, sha256: versions.canonicalPhaseG4Google.canonicalDocumentSha256 }
+    : null,
+});
+const activeCanonicalVersionPolicy = activeCanonicalValidation.valid && versions.freeformFormatProfileRegistryVersion === "1.4.0" && versions.desktopAppVersion === "0.13.1";
+if (activeCanonicalVersionPolicy) pass("version_policy", `Canonical ${versions.documentVersion.current} / Integration 1.8.0 / Template 1.9.0 / FREEFORM Profiles ${versions.freeformFormatProfileRegistryVersion} / Desktop ${versions.desktopAppVersion} (active Canonical registry)`);
+else if ((["1.22.0", "1.23.0", "1.23.1", "1.24.0", "1.25.0", "1.26.0", "1.27.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current) && versions.integrationContract?.current === "1.8.0" && versions.templateContractVersion === "1.9.0" && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion) && versions.canonicalPhaseN7_4?.desktopCurrent === "0.9.4" && versions.canonicalPhaseN7_4Continuation?.desktopCurrent === "0.9.5" && versions.canonicalPhaseN7_5?.desktopCurrent === "0.9.6" && versions.canonicalPhaseN7_7?.desktopCurrent === "0.9.7" && versions.canonicalPhaseN7_7_4?.desktopCurrent === "0.9.8" && versions.canonicalPhaseN7_7_5?.desktopCurrent === "0.9.9" && versions.canonicalPhaseN7_7_6?.desktopCurrent === "0.9.10" && versions.canonicalPhaseN8?.desktopCurrent === "0.9.12" && ["1.3.0", "1.4.0"].includes(versions.freeformFormatProfileRegistryVersion) && versions.canonicalPhaseM1?.metaRuntimeImplemented === true) || (versions.documentVersion?.current === "1.29.0" && versions.desktopAppVersion === "0.12.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY") || (versions.documentVersion?.current === "1.31.0" && versions.desktopAppVersion === "0.13.0" && versions.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION") || (versions.documentVersion?.current === "1.31.1" && versions.desktopAppVersion === "0.13.1" && versions.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING") || (versions.documentVersion?.current === "1.32.0" && versions.desktopAppVersion === "0.13.1" && versions.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions.canonicalPhaseG4Google?.status === "FROZEN" && versions.freeformFormatProfileRegistryVersion === "1.4.0")) pass("version_policy", `Canonical ${versions.documentVersion.current} / Integration 1.8.0 / Template 1.9.0 / FREEFORM Profiles ${versions.freeformFormatProfileRegistryVersion} / Desktop ${versions.desktopAppVersion} (M1/M2.2a additive)`);
 else fail("version_policy", JSON.stringify({ document: versions.documentVersion, integration: versions.integrationContract, template: versions.templateContractVersion, profiles: versions.freeformFormatProfileRegistryVersion, desktop: versions.desktopAppVersion }));
 if (versions.creativeLayoutPlan?.schemaVersion === "1.0.0" && versions.creativeLayoutPlan?.implementationStatus === "NOT_IMPLEMENTED") pass("implementation_boundary", "FREEFORM schema remains frozen; raster implementation is additive");
 else fail("implementation_boundary", "FREEFORM implementation status is not NOT_IMPLEMENTED");
@@ -174,9 +200,11 @@ for (const [file, expected] of Object.entries(goldenExpectations)) {
 }
 
 const packageJson = await readJson("package.json");
-const packageText = JSON.stringify(packageJson);
-if (!/plume|openai/iu.test(packageText)) pass("dependency_boundary", "package dependencies contain no Plume or OpenAI runtime dependency");
-else fail("dependency_boundary", "out-of-scope dependency found");
+const runtimeDependencyText = JSON.stringify({ dependencies: packageJson.dependencies, optionalDependencies: packageJson.optionalDependencies });
+const runtimeSourcePaths = (await Promise.all(["src", "apps/desktop", "packages/renderer-contract/src"].map((relativePath) => collectRuntimeSourceFiles(relativePath)))).flat();
+const runtimeSourceText = (await Promise.all(runtimeSourcePaths.map(async (relativePath) => readFile(path.join(root, relativePath), "utf8")))).join("\n");
+if (!/plume|openai/iu.test(runtimeDependencyText) && !/(?:from|require\s*\(|import\s*\()\s*["'][^"']*(?:plume|openai)/iu.test(runtimeSourceText)) pass("dependency_boundary", `runtime dependencies and imports contain no Plume or OpenAI references (${runtimeSourcePaths.length} files scanned)`);
+else fail("dependency_boundary", "out-of-scope runtime dependency or import found");
 
 if (failures.length) {
   for (const failure of failures) console.error(failure);

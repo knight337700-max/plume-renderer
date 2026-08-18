@@ -3,13 +3,13 @@ import { execFileSync } from "node:child_process";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
+
 const root = process.cwd();
 const strict = process.argv.includes("--strict");
 const failures = [];
 const checks = [];
-let g304Compatibility = false;
 const check = (name, condition, detail) => {
-  if (g304Compatibility && name === "version_policy") condition = true;
   checks.push({ name, status: condition ? "PASS" : "FAIL", detail });
   if (!condition) failures.push(`${name}: ${detail}`);
 };
@@ -17,9 +17,26 @@ const readJson = async (relative) => JSON.parse(await readFile(path.join(root, r
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 const versions = await readJson("contracts/contract-versions.json");
-if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") versions.documentVersion.current = "1.29.0";
 const packageJson = await readJson("package.json");
-g304Compatibility = (versions.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && versions.documentVersion?.current === "1.31.0" && packageJson.version === "0.13.0") || (versions.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" && versions.documentVersion?.current === "1.31.1" && packageJson.version === "0.13.1") || (versions.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions.canonicalPhaseG4Google?.status === "FROZEN" && versions.documentVersion?.current === "1.32.0" && packageJson.version === "0.13.1");
+const canonical = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8");
+const canonicalSha256 = sha256(Buffer.from(canonical, "utf8"));
+const n8FreezeCommit = "8eccd0756e949fc59e1f5162b414a478510bb9f8";
+const currentHead = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+let n8FreezeAncestorOfCurrent = false;
+try {
+  execFileSync("git", ["merge-base", "--is-ancestor", n8FreezeCommit, currentHead], { cwd: root, stdio: "ignore" });
+  n8FreezeAncestorOfCurrent = true;
+} catch { n8FreezeAncestorOfCurrent = false; }
+const activeCanonicalValidation = validateActiveCanonicalState({
+  versions,
+  canonical,
+  currentCanonicalSha: canonicalSha256,
+  activeCanonical: versions.activeCanonical,
+  historicalMinimumVersion: versions.canonicalPhaseG0_1Google?.documentCurrent,
+  historicalFallback: versions.canonicalPhaseG4Google?.documentCurrent && versions.canonicalPhaseG4Google?.canonicalDocumentSha256
+    ? { version: versions.canonicalPhaseG4Google.documentCurrent, sha256: versions.canonicalPhaseG4Google.canonicalDocumentSha256 }
+    : null,
+});
 const inventory = await readJson("artifacts/n8/naver-capability-inventory.json");
 const matrix = await readJson("artifacts/n8/naver-desktop-format-matrix.json");
 const parity = await readJson("artifacts/n8/naver-format-contract-parity.json");
@@ -31,7 +48,35 @@ const packageSmoke = await readJson("artifacts/n8/package-smoke.json");
 const handoff = await readJson("artifacts/n8/handoff-verification.json");
 const capabilities = await readJson("contracts/desktop-capability-registry.json");
 
-check("version_policy", ((["1.22.0", "1.23.0", "1.23.1", "1.24.0", "1.25.0", "1.26.0", "1.27.0", "1.28.0", "1.28.1"].includes(versions.documentVersion.current)) && versions.canonicalPhaseN8.rendererCoreVersion === "0.8.6" && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion) && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version) && versions.canonicalPhaseN8.platformComposedRuntimeCurrent === "1.1.1" && versions.canonicalPhaseM1?.metaRuntimeImplemented === true) || (versions.documentVersion.current === "1.21.4" && versions.canonicalPhaseN8.rendererCoreVersion === "0.8.6" && versions.desktopAppVersion === "0.9.12" && packageJson.version === "0.9.12" && versions.canonicalPhaseN8.platformComposedRuntimeCurrent === "1.1.1") || (versions.documentVersion.current === "1.29.0" && versions.desktopAppVersion === "0.12.0" && packageJson.version === "0.12.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY"), JSON.stringify({ document: versions.documentVersion.current, core: versions.canonicalPhaseN8.rendererCoreVersion, desktop: versions.desktopAppVersion, package: packageJson.version, sourceRuntime: versions.canonicalPhaseN8.platformComposedRuntimeCurrent, m1: versions.canonicalPhaseM1 }));
+const historicalN8MigrationWindow = ["1.22.0", "1.23.0", "1.23.1", "1.24.0", "1.25.0", "1.26.0", "1.27.0", "1.28.0", "1.28.1"].includes(versions.documentVersion.current)
+  && versions.canonicalPhaseN8.rendererCoreVersion === "0.8.6"
+  && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion)
+  && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version)
+  && versions.canonicalPhaseN8.platformComposedRuntimeCurrent === "1.1.1"
+  && versions.canonicalPhaseM1?.metaRuntimeImplemented === true;
+const historicalN8Baseline = versions.documentVersion.current === "1.21.4"
+  && versions.canonicalPhaseN8.rendererCoreVersion === "0.8.6"
+  && versions.desktopAppVersion === "0.9.12"
+  && packageJson.version === "0.9.12"
+  && versions.canonicalPhaseN8.platformComposedRuntimeCurrent === "1.1.1";
+const historicalG3Compatibility = versions.documentVersion.current === "1.29.0"
+  && versions.desktopAppVersion === "0.12.0"
+  && packageJson.version === "0.12.0"
+  && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
+const historicalN8VersionPolicy = historicalN8MigrationWindow || historicalN8Baseline || historicalG3Compatibility;
+const activeN8VersionPolicy = activeCanonicalValidation.valid
+  && n8FreezeAncestorOfCurrent
+  && versions.canonicalPhaseN8.rendererCoreVersion === "0.8.6"
+  && versions.canonicalPhaseN8.platformComposedRuntimeCurrent === "1.1.1"
+  && versions.canonicalPhaseN8.canonicalDocumentChanged === false
+  && versions.canonicalPhaseN8.rendererCoreChanged === false
+  && versions.canonicalPhaseN8.smartChannelChanged === false
+  && versions.canonicalPhaseN8.smartChannelGoldensChanged === false
+  && versions.canonicalPhaseN8.runtimeNetworkAccess === "PROHIBITED";
+check("historical_version_policy_exact", historicalN8VersionPolicy || versions.canonicalPhaseN8.rendererCoreVersion === "0.8.6" && versions.canonicalPhaseN8.platformComposedRuntimeCurrent === "1.1.1", JSON.stringify({ document: versions.documentVersion.current, n8: versions.canonicalPhaseN8 }));
+check("active_canonical_state", activeCanonicalValidation.valid, JSON.stringify({ errors: activeCanonicalValidation.errors, activeCanonical: activeCanonicalValidation.activeCanonical }));
+check("n8_freeze_ancestry", n8FreezeAncestorOfCurrent, JSON.stringify({ n8FreezeCommit, currentHead }));
+check("version_policy", historicalN8VersionPolicy || activeN8VersionPolicy, JSON.stringify({ document: versions.documentVersion.current, core: versions.canonicalPhaseN8.rendererCoreVersion, desktop: versions.desktopAppVersion, package: packageJson.version, sourceRuntime: versions.canonicalPhaseN8.platformComposedRuntimeCurrent, activeCanonicalValidation, activeN8VersionPolicy, historicalN8VersionPolicy }));
 check("inventory", inventory.status === "INVENTORY_COMPLETE" && inventory.formats.length === 8 && inventory.summary.priorityNonSmartChannelFormats === 7, `${inventory.formats.length}`);
 const placements = capabilities.channels.find((entry) => entry.id === "NAVER")?.placements ?? [];
 check("desktop_registry", placements.length === 8 && new Set(placements.map((entry) => entry.id)).size === 8, `${placements.length}`);

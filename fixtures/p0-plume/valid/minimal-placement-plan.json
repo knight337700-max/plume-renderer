@@ -1,0 +1,32 @@
+{
+  "fixtureId": "P0_VALID_MINIMAL_PLACEMENT_PLAN",
+  "valid": true,
+  "schemaVersion": "1.8.0",
+  "platform": "KAKAO",
+  "channel": "KAKAO_MOMENT",
+  "profileId": "KAKAO_BIZBOARD_OBJECT_RIGHT",
+  "placementPolicy": "ALPHA_TRIM_CONTAIN",
+  "source": {
+    "assetId": "asset-primary",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "geometry": {
+    "x": 0.1,
+    "y": 0.1,
+    "width": 0.8,
+    "height": 0.8,
+    "focal": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "anchor": {
+      "x": 0.5,
+      "y": 0.5
+    }
+  },
+  "digestScope": "PIXEL_AFFECTING_FIELDS_ONLY",
+  "expected": {
+    "evidence": "EXECUTED",
+    "publishAllowed": true
+  }
+}

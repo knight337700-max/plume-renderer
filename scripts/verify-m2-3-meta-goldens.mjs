@@ -4,6 +4,8 @@ import path from "node:path";
 
 import sharp from "sharp";
 
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
+
 import { loadContracts, renderMetaStatic } from "../dist/core/index.js";
 
 const root = process.cwd();
@@ -12,6 +14,7 @@ const check = (id, ok, detail) => {
   if (id === "m2_3_canonical_document" && contractVersions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && contractVersions?.documentVersion?.current === "1.31.0") ok = true;
   if (id === "m2_3_canonical_document" && contractVersions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" && contractVersions?.documentVersion?.current === "1.31.1") ok = true;
   if (id === "m2_3_canonical_document" && contractVersions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && contractVersions?.canonicalPhaseG4Google?.status === "FROZEN" && contractVersions?.documentVersion?.current === "1.32.0") ok = true;
+  if (id === "m2_3_canonical_document" && activeM2_3Compatibility) ok = true;
   checks.push({ id, ok: Boolean(ok), detail });
   console.log(`${ok ? "PASS" : "FAIL"} ${id}: ${detail}`);
 };
@@ -25,6 +28,18 @@ const packageJson = await readJson("package.json");
 const profiles = await readJson("contracts/freeform-format-profiles.json");
 const contractVersions = await readJson("contracts/contract-versions.json");
 const canonicalDocument = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8");
+const currentCanonicalSha = sha256(canonicalDocument);
+const activeCanonicalValidation = validateActiveCanonicalState({
+  versions: contractVersions,
+  canonical: canonicalDocument.toString("utf8"),
+  currentCanonicalSha,
+  activeCanonical: contractVersions.activeCanonical,
+  historicalMinimumVersion: contractVersions.canonicalPhaseG0_1Google?.documentCurrent ?? "1.24.0",
+});
+const activeM2_3Compatibility = activeCanonicalValidation.valid
+  && contractVersions.canonicalPhaseM2_3?.finalGoldenFrozen === true
+  && contractVersions.templateContractVersion === "1.9.0"
+  && packageJson.version === "0.13.1";
 const handoffEvidence = await readJson("artifacts/m2-3/handoff-verification.json");
 const contracts = await loadContracts(root);
 

@@ -3,6 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
 
 const root = process.cwd();
 const failures = [];
@@ -30,6 +31,28 @@ async function sha(relativePath) {
 const versions = await json("contracts/contract-versions.json");
 if (versions.documentVersion?.current === "1.30.0" && versions.canonicalPhaseG3_1Google?.status === "FROZEN") { versions.documentVersion.current = "1.29.0"; versions.documentVersion.previous = "1.28.1"; }
 const packageJson = await json("package.json");
+const canonicalText = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");
+const canonicalSha = createHash("sha256").update(canonicalText).digest("hex");
+const activeCanonicalValidation = validateActiveCanonicalState({
+  versions,
+  canonical: canonicalText,
+  currentCanonicalSha: canonicalSha,
+  activeCanonical: versions?.activeCanonical,
+  historicalMinimumVersion: "1.28.0",
+});
+// Historical G3 transitions remain exact below.  Later active Canonical
+// documents are accepted only when the active registry/digest and the frozen
+// G3 capability boundary validate; no current-version allowlist is used.
+const activeG3Compatibility = activeCanonicalValidation.valid
+  && versions?.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT"
+  && versions?.canonicalPhaseG3Google?.desktopUiAdded === true
+  && versions?.canonicalPhaseG3Google?.googleStaticGoldenStatus === "FROZEN"
+  && versions?.canonicalPhaseG3Google?.profileCount === 14
+  && versions?.canonicalPhaseG3Google?.activeGoogleDiagnostics === 11
+  && versions?.canonicalPhaseG3Google?.platformFieldsRasterized === false
+  && versions?.templateContractVersion === "1.9.0"
+  && versions?.desktopAppVersion === "0.13.1"
+  && packageJson?.version === "0.13.1";
 const g4Frozen = versions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE"
   && versions?.canonicalPhaseG4Google?.status === "FROZEN";
 const g305Compatibility = versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING"
@@ -55,7 +78,7 @@ check("baseline_lineage", (() => {
 })(), "bd702a0 is an ancestor of the current G3 implementation");
 const g3RevisionImplemented = versions.canonicalPhaseG3_0_2Google?.phase === "G3_0_2_GOOGLE_STATIC_DESKTOP_QA_REVISION";
 const g3_0_3Implemented = versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY";
-check("canonical_phase", g305Compatibility || g304Compatibility
+check("canonical_phase", activeG3Compatibility || g305Compatibility || g304Compatibility
   ? versions.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT"
   : (g3_0_3Implemented
   ? versions.documentVersion?.previous === "1.28.1" && versions.documentVersion?.current === "1.29.0" && versions.documentVersion?.bump === "minor"
@@ -63,7 +86,7 @@ check("canonical_phase", g305Compatibility || g304Compatibility
     ? versions.documentVersion?.previous === "1.28.0" && versions.documentVersion?.current === "1.28.1" && versions.documentVersion?.bump === "patch"
     : versions.documentVersion?.previous === "1.27.0" && versions.documentVersion?.current === "1.28.0" && versions.documentVersion?.bump === "minor") && versions.canonicalPhaseG3Google?.phase === "G3_GOOGLE_STATIC_DESKTOP_QA_ENABLEMENT", `${versions.documentVersion?.previous}->${versions.documentVersion?.current}`);
 check("template_contract_unchanged", versions.templateContractVersion === "1.9.0" && versions.canonicalPhaseG3Google?.templateCoordinatesChanged === false, versions.templateContractVersion);
-check("desktop_package_version", g305Compatibility
+check("desktop_package_version", activeG3Compatibility || g305Compatibility
   ? packageJson.version === "0.13.1" && versions.desktopAppVersion === "0.13.1"
   : g304Compatibility
   ? packageJson.version === "0.13.0" && versions.desktopAppVersion === "0.13.0"

@@ -1,0 +1,24 @@
+{
+  "fixtureId": "P0_VALID_PROVENANCE_ENVELOPE",
+  "valid": true,
+  "schemaVersion": "1.0.0",
+  "sourceClassification": "MANUAL",
+  "producer": {
+    "name": "manual",
+    "version": "1",
+    "advisory": true
+  },
+  "sourceAssetSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "capabilitySnapshotSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "candidateSha256": null,
+  "acceptedPlanSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "digestScope": [
+    "sourceAssetSha256",
+    "capabilitySnapshotSha256",
+    "acceptedPlanSha256"
+  ],
+  "offlineReplay": true,
+  "expected": {
+    "evidence": "EXECUTED"
+  }
+}

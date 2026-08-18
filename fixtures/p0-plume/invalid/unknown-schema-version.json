@@ -1,0 +1,15 @@
+{
+  "fixtureId": "P0_INVALID_UNKNOWN_SCHEMA_VERSION",
+  "valid": false,
+  "input": {
+    "profileId": "KAKAO_BIZBOARD_OBJECT_RIGHT",
+    "placementPolicy": "ALPHA_TRIM_CONTAIN"
+  },
+  "expected": {
+    "rule": "UNKNOWN_SCHEMA_VERSION",
+    "errorCode": "KBR-PLUME-001",
+    "severity": "ERROR",
+    "publishAllowed": false,
+    "evidence": "EXPECTED_FAIL_CONFIRMED"
+  }
+}

@@ -1,5 +1,8 @@
+import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
+
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
 
 const root = process.cwd();
 const checks = [];
@@ -23,6 +26,21 @@ const errors = await readJson("contracts/error-registry.json");
 const manifestSchema = await readJson("contracts/render-manifest.schema.json");
 const packageJson = await readJson("package.json");
 g304Compatibility = (versions.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION" && versions.documentVersion?.current === "1.31.0" && packageJson.version === "0.13.0") || (versions.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING" && versions.documentVersion?.current === "1.31.1" && packageJson.version === "0.13.1") || (versions.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions.canonicalPhaseG4Google?.status === "FROZEN" && versions.documentVersion?.current === "1.32.0" && packageJson.version === "0.13.1");
+const canonicalDocument = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8");
+const currentCanonicalSha = createHash("sha256").update(canonicalDocument).digest("hex");
+const activeCanonicalValidation = validateActiveCanonicalState({
+  versions,
+  canonical: canonicalDocument,
+  currentCanonicalSha,
+  activeCanonical: versions.activeCanonical,
+  historicalMinimumVersion: versions.canonicalPhaseG0_1Google?.documentCurrent ?? "1.24.0",
+});
+const activeM1Compatibility = activeCanonicalValidation.valid
+  && versions.canonicalPhaseM1?.metaRuntimeImplemented === true
+  && versions.templateContractVersion === "1.9.0"
+  && versions.freeformFormatProfileRegistryVersion === "1.4.0"
+  && versions.desktopAppVersion === "0.13.1"
+  && packageJson.version === "0.13.1";
 
 const expectedIds = ["META_STATIC_FEED_SQUARE", "META_STATIC_FEED_PORTRAIT", "META_STATIC_VERTICAL_FULL"];
 const profiles = new Map((profilesRegistry.profiles ?? []).filter((profile) => profile.channelNamespace === "META").map((profile) => [profile.formatProfileId, profile]));
@@ -39,7 +57,7 @@ check("platform_copy_metadata_only", metaProfiles.platformCopy?.metadataOnly ===
 check("unsupported_scope", ["CAROUSEL", "CATALOG", "DYNAMIC", "VIDEO"].every((value) => metaProfiles.unsupported?.includes(value)), JSON.stringify(metaProfiles.unsupported));
 check("error_codes", ["KBR-META-STORIES-SAFE-ZONE-WARNING", "KBR-META-REELS-SAFE-ZONE-SOURCE-REQUIRED", "KBR-META-PLACEMENT-SET-INCOMPLETE", "KBR-META-PLACEMENT-SET-CHILD-BLOCKED"].every((code) => errors.codes?.some((entry) => entry.code === code)), "M1 META codes registered");
 check("manifest_no_self_digest", !Object.keys(manifestSchema.properties ?? {}).some((key) => /manifest.*digest/i.test(key) && key !== "canonicalInputDigest"), "manifest schema contains no self digest field");
-check("version_m1", (["1.22.0", "1.23.0", "1.23.1", "1.24.0", "1.25.0", "1.26.0", "1.27.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current) && versions.canonicalPhaseM1?.metaRuntimeImplemented === true && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion) && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version)) || (versions.documentVersion?.current === "1.29.0" && versions.desktopAppVersion === "0.12.0" && packageJson.version === "0.12.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY"), JSON.stringify({ document: versions.documentVersion?.current, desktop: versions.desktopAppVersion, package: packageJson.version }));
+check("version_m1", ((["1.22.0", "1.23.0", "1.23.1", "1.24.0", "1.25.0", "1.26.0", "1.27.0", "1.28.0", "1.28.1"].includes(versions.documentVersion?.current) && versions.canonicalPhaseM1?.metaRuntimeImplemented === true && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(versions.desktopAppVersion) && ["0.10.0", "0.10.1", "0.11.0", "0.11.1"].includes(packageJson.version)) || (versions.documentVersion?.current === "1.29.0" && versions.desktopAppVersion === "0.12.0" && packageJson.version === "0.12.0" && versions.canonicalPhaseG3_0_3Google?.phase === "G3_0_3_GOOGLE_STATIC_TRANSFORM_RASTER_EXPORT_PARITY") || activeM1Compatibility), JSON.stringify({ document: versions.documentVersion?.current, desktop: versions.desktopAppVersion, package: packageJson.version, activeCanonicalValidation, activeM1Compatibility }));
 for (const fixture of [
   "fixtures/meta/feed-square/meta-feed-square-basic.json",
   "fixtures/meta/feed-portrait/meta-feed-portrait-basic.json",

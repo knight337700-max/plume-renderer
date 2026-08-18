@@ -1,0 +1,15 @@
+{
+  "fixtureId": "P0_INVALID_NON_FINITE_GEOMETRY",
+  "valid": false,
+  "input": {
+    "profileId": "KAKAO_BIZBOARD_OBJECT_RIGHT",
+    "placementPolicy": "ALPHA_TRIM_CONTAIN"
+  },
+  "expected": {
+    "rule": "NON_FINITE_GEOMETRY",
+    "errorCode": "KBR-PLUME-006",
+    "severity": "ERROR",
+    "publishAllowed": false,
+    "evidence": "EXPECTED_FAIL_CONFIRMED"
+  }
+}

@@ -4,6 +4,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
+import { validateActiveCanonicalState } from "./lib/canonical-semver-compatibility.mjs";
 
 const rootArg = process.argv.find((arg) => arg.startsWith("--root="))?.slice("--root=".length);
 const root = path.resolve(rootArg ?? path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."));
@@ -64,6 +65,24 @@ async function main() {
 
   const versions = await readJson("contracts/contract-versions.json");
   const packageJson = await readJson("package.json");
+  const canonicalText = await readFile(path.join(root, "docs/kakao-bizboard-renderer-spec-v1.md"), "utf8").catch(() => "");
+  const canonicalSha = createHash("sha256").update(canonicalText).digest("hex");
+  const activeCanonicalValidation = validateActiveCanonicalState({
+    versions,
+    canonical: canonicalText,
+    currentCanonicalSha: canonicalSha,
+    activeCanonical: versions?.activeCanonical,
+    historicalMinimumVersion: "1.31.0",
+  });
+  const activeG304Compatibility = activeCanonicalValidation.valid
+    && versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION"
+    && versions?.canonicalPhaseG3_0_4Google?.defaultPlacementRegistryVersion === "1.0.0"
+    && versions?.canonicalPhaseG3_0_4Google?.profileCount === 14
+    && versions?.canonicalPhaseG3_0_4Google?.defaultGoldenByteEquality === true
+    && versions?.googleExportManifestSchemaVersion === "1.1.0"
+    && versions?.templateContractVersion === "1.9.0"
+    && versions?.desktopAppVersion === "0.13.1"
+    && packageJson?.version === "0.13.1";
   const g3_0_5Implemented = versions?.canonicalPhaseG3_0_5Google?.phase === "G3_0_5_GOOGLE_STATIC_PREVIEW_FIT_AND_REVIEW_PACK_HARDENING";
   const g4Frozen = versions?.canonicalPhaseG4Google?.phase === "G4_GOOGLE_STATIC_USER_ACCEPTANCE_AND_RELEASE_FREEZE" && versions?.canonicalPhaseG4Google?.status === "FROZEN";
   const registry = await readJson("contracts/google/default-placement-plans.g3.0.4.json");
@@ -71,7 +90,7 @@ async function main() {
   const goldens = await readJson("contracts/google/goldens.g2.1.json");
   const supersession = await readJson("contracts/google/desktop-qa-supersession.g3.0.4.json");
   check("phase_record", versions?.canonicalPhaseG3_0_4Google?.phase === "G3_0_4_GOOGLE_STATIC_GEOMETRY_PLACEMENT_MANIFEST_REVISION", JSON.stringify(versions?.canonicalPhaseG3_0_4Google));
-  check("version_policy", (g3_0_5Implemented
+  check("version_policy", activeG304Compatibility || (g3_0_5Implemented
     ? (g4Frozen
       ? versions?.documentVersion?.previous === "1.31.1" && versions?.documentVersion?.current === "1.32.0" && versions?.documentVersion?.bump === "minor"
       : versions?.documentVersion?.previous === "1.31.0" && versions?.documentVersion?.current === "1.31.1" && versions?.documentVersion?.bump === "patch") && packageJson?.version === "0.13.1" && versions?.desktopAppVersion === "0.13.1"

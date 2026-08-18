@@ -1,9 +1,9 @@
 # Kakao Bizboard Local Renderer Specification v1
 
 - **Canonical path:** `docs/kakao-bizboard-renderer-spec-v1.md`
-- **Document version:** 1.32.0
-- **Status:** Frozen Implementation Contract — Phase G4 Google Static User Acceptance and Release Freeze
-- **Checked date:** 2026-08-15 (KST)
+- **Document version:** 1.33.0
+- **Status:** Frozen Implementation Contract — Phase P0 PLUME Integration Contract and Architecture Freeze
+- **Checked date:** 2026-08-17 (KST)
 - **Owner:** Local Renderer Project
 - **Target:** `KAKAO_MOMENT / BIZBOARD fixed Templates, Kakao FREEFORM Lab, additive `NAVER_GFA`, additive `META` static renderer capability namespace, and frozen Google Ads static architecture
 
@@ -28,7 +28,7 @@
 
 > **중요:** `[TOOL_OUTPUT]`은 카카오 비즈니스 제작툴의 실제 생성 결과를 측정한 값이지만 공개 가이드의 문언과 동일한 지위로 취급하지 않는다. `[INFERRED]` 값은 카카오의 공식 좌표를 주장하지 않는다. 공식 PSD 또는 추가 제작툴 샘플을 확보하거나 가이드가 변경되면 Template Contract의 버전을 올려 교체한다.
 
-Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **64. Phase G4 Google Static User Acceptance and Release Freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
+Phase F0 이후 계약 우선순위는 이 문서의 최신 Phase freeze(현재 **65. Phase P0 PLUME Integration Contract and Architecture Freeze**), `contracts/`의 machine-readable contract, 본문의 나머지 조항 순이다. 본문에 `LEGACY / NON-NORMATIVE`로 표시된 이전 Schema snapshot은 구현 근거로 사용하지 않는다. G0의 Google records는 역사적 검토 기록이며, 현재 동결 상태는 G0.1 freeze registry, G1/G2 계약 레코드, G2.1 Golden registry를 따른다. **[PROJECT]**
 
 ---
 
@@ -5619,6 +5619,92 @@ freeze에서 시작하지 않는다. 구현 기록은
 `scripts/verify-g4-google-static-release-freeze.mjs`이다. **[PROJECT]**
 
 `nextPhase`: `AWAIT_NEXT_PHASE_INSTRUCTION`. **[PROJECT]**
+
+## 65. Phase P0 — PLUME Integration Contract and Architecture Freeze [PROJECT]
+
+P0는 PLUME이 향후 Renderer를 안전하게 소비하기 위한 중립 placement boundary와
+capability/provenance 계약을 동결한다. Renderer는 standalone·Agent-independent·deterministic
+모듈로 유지하며, `PLUME consumes Renderer; Renderer must not depend on PLUME` 원칙을
+적용한다. 이 단계에서는 PLUME adapter/runtime, SDK, queue, database, 원격 호출, Desktop
+동작, raster/export 동작을 구현하지 않는다. **[PROJECT]**
+
+### 65.1 정규 실행 경계 [PROJECT]
+
+외부 authoring(수동 또는 Agent/PLUME)은 candidate 또는 동등한 제안을 만들 수 있지만,
+Renderer 실행 전에 선택된 값은 완전히 물질화된 immutable `ImagePlacementPlan`으로
+변환·검증·canonicalize·digest되어야 한다.
+
+```text
+asset bytes + target profile + capability hints
+  -> external authoring candidate
+  -> user/system selection
+  -> schema validation + profile capability validation
+  -> ImagePlacementPlan 1.8.0 + optional provenance envelope
+  -> standalone deterministic Renderer
+  -> Validator
+  -> ERROR = 0 일 때만 publish/download
+```
+
+Renderer는 PLUME live object나 producer 이름을 받지 않으며 렌더 중 PLUME을 호출하지
+않는다. Manual과 Agent/PLUME은 같은 canonical placement contract를 사용하고, 동일한
+fully materialized input·asset/font bytes는 같은 pixels/bytes를 생성해야 한다. Runtime
+network access는 계속 `PROHIBITED`이다. **[PROJECT]**
+
+### 65.2 기존 계약 재사용과 neutral 계약 [PROJECT]
+
+기존 `packages/renderer-contract/schema/image-placement-plan-v1.schema.json`의
+`ImagePlacementPlan 1.8.0`과 `crop-candidate-v1.schema.json`의 `CropCandidate 1.8.0`을
+그대로 재사용한다. 두 schema를 새 `1.0.0`으로 복제하거나 historical version을
+in-place 재정의하지 않는다. Candidate와 accepted/final plan은 별개다. **[PROJECT]**
+
+`PlacementCapabilityHints 1.0.0`은 기존 template/channel/profile capability의
+read-only authoring snapshot이며 source of truth가 아니다. `PlacementProvenanceEnvelope
+1.0.0`은 core placement input 바깥의 optional neutral metadata다. producer name/version은
+advisory이고 PLUME vendor enum을 core에 추가하지 않는다. hint가 frozen profile contract와
+충돌하면 frozen contract가 우선하고 validation은 ERROR로 실패한다. Schema와 registry는
+각각 `packages/renderer-contract/schema/placement-capability-hints-v1.schema.json`,
+`packages/renderer-contract/schema/placement-provenance-envelope-v1.schema.json`,
+`contracts/placement-capability-hints.json`, `contracts/placement-provenance-envelope.json`에
+있다. **[PROJECT]**
+
+### 65.3 좌표·canonicalization·provenance [PROJECT] [INFERRED]
+
+crop/focal/anchor는 normalized `[0,1]`이고 rectangle은 finite `x`, `y`, `width`, `height`다.
+`x >= 0`, `y >= 0`, `width > 0`, `height > 0`, `x + width <= 1`, `y + height <= 1`을
+검사한다. NaN, Infinity, numeric string, implicit unit conversion, silent clamp는 금지한다.
+기존 pixel conversion/rounding/tie-break을 유지하며 canonical JSON은 UTF-8·BOM 없음·불필요한
+whitespace 없음·object key canonical order·array order 보존으로 직렬화한다. Asset,
+capability snapshot, candidate, accepted plan digest의 scope는 명시적으로 기록하고
+timestamp와 advisory producer metadata는 pixel-affecting plan digest와 분리한다. **[PROJECT]**
+
+### 65.4 Capability inventory와 platform ownership [PROJECT] [DERIVED]
+
+`contracts/p0-plume-capability-matrix.json`은 active/frozen profile key를 정확히 한 번
+포함한다. 재검증된 수는 KAKAO `21`, NAVER `132`, META STATIC `3`, GOOGLE STATIC `14`, 총
+`170`이다. 각 row에는 layout/composition/cardinality, renderer/platform ownership,
+default/allowed policy, semantic/manual/drag/zoom/lock, geometry reference, source contract
+version/digest, evidence class가 있다. `PLATFORM_COMPOSED` row는 Renderer rasterization
+대상으로 바꾸지 않으며 missing/duplicate/behavior-affecting unresolved row는 `0`이다.
+**[PROJECT]**
+
+### 65.5 Fail-closed 규칙과 산출물 [PROJECT]
+
+unknown/unsupported schema version 또는 policy, target/profile mismatch, required geometry
+누락, non-finite·out-of-range·degenerate geometry, asset/capability/plan digest mismatch,
+locked transform, platform ownership/cardinality mismatch, fit/crop contradiction, required
+contract reference 누락은 결정적 `ERROR`로 차단한다. 모든 오류는 publish/download를 금지하며
+`ERROR = 0`에서만 최종 artifact를 허용한다. `fixtures/p0-plume/invalid/`의 16개 fixture는
+각 expected error code와 `EXPECTED_FAIL_CONFIRMED` evidence를 가진다. Architecture freeze와
+matrix는 `contracts/p0-plume-architecture-freeze.json` 및
+`contracts/p0-plume-capability-matrix.json`, 구현 기록은
+`docs/implementation/plume-integration-contract-architecture-freeze-p0.md`, ADR은
+`docs/adr/ADR-0074-plume-integration-contract-architecture-freeze.md`, 전용 verifier는
+`scripts/verify-p0-plume.mjs`다. **[PROJECT]**
+
+Canonical 문서 버전은 `1.32.0`에서 `1.33.0`으로 minor 증가한다. Template `1.9.0`,
+Desktop `0.13.1`, Renderer Core `0.11.0`, Validator `1.11.0`, Google export manifest
+`1.1.0`, Google Golden과 KAKAO/NAVER/META frozen output은 변경하지 않는다. P0는 P1을
+시작하지 않으며 다음 단계는 `AWAIT_P1_INSTRUCTION`이다. **[PROJECT]**
 
 ## 63. Phase G3.0.5 — Google Static Preview Fit and review-pack path hardening [PROJECT] [INFERRED]
 
